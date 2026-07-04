@@ -42,7 +42,7 @@
 
   nav{position:fixed;bottom:0;left:0;right:0;z-index:30;background:rgba(18,22,28,.92);backdrop-filter:blur(14px);
     border-top:1px solid var(--line);padding:8px 0 calc(8px + env(safe-area-inset-bottom))}
-  .tabs{max-width:760px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:0 12px}
+  .tabs{max-width:760px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:4px;padding:0 12px}
   .tab{display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 4px;border-radius:10px;color:var(--faint);
     font-size:11px;letter-spacing:.03em;transition:color .15s,background .15s}
   .tab svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.7}
@@ -156,6 +156,33 @@
   .databtn .dd{font-size:12px;color:var(--muted);margin-top:2px}
   .databtn.danger .ic{stroke:var(--red)}
 
+  .editnote{display:none;align-items:center;gap:10px;background:rgba(245,185,74,.1);border:1px solid rgba(245,185,74,.5);
+    border-radius:10px;padding:10px 12px;margin-bottom:16px;font-size:13px;color:var(--amber)}
+  .editnote.show{display:flex}
+  .editnote button{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--muted);flex:none}
+  .editnote button:active{color:var(--ink)}
+
+  .rev-prog{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:12px;
+    color:var(--muted);margin-bottom:10px}
+  .rev-prog button{font-family:var(--mono);font-size:12px;color:var(--faint)}
+  .rev-prog button:active{color:var(--ink)}
+  .revcard{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px 16px;
+    border-left:3px solid var(--et,var(--faint))}
+  .revcard .q{font-size:17px;font-weight:650;margin:10px 0 0;line-height:1.4}
+  .revcard .ans{margin-top:14px;padding-top:14px;border-top:1px dashed var(--line)}
+  .revcard .ans .lesson{font-size:14.5px;color:#c9d1dc;line-height:1.55}
+  .rev-btns{display:flex;gap:10px;margin-top:16px}
+  .btn.know{background:rgba(91,224,138,.15);border:1px solid var(--green);color:var(--green)}
+  .btn.shaky{background:rgba(245,185,74,.12);border:1px solid var(--amber);color:var(--amber)}
+  .rev-done{text-align:center;padding:36px 16px}
+  .rev-done .big{font-size:20px;font-weight:650;margin-bottom:8px}
+  .rev-done p{color:var(--muted);font-size:13.5px;line-height:1.6;margin:0 0 20px}
+
+  .searchbox{position:relative;margin-bottom:12px}
+  .searchbox input{padding-left:36px}
+  .searchbox svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:16px;height:16px;
+    stroke:var(--faint);fill:none;stroke-width:2;pointer-events:none}
+
   .toast{position:fixed;bottom:96px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--panel2);
     border:1px solid var(--teal);color:var(--ink);padding:11px 18px;border-radius:24px;font-size:13.5px;z-index:60;
     opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;box-shadow:0 8px 30px rgba(0,0,0,.5)}
@@ -193,6 +220,11 @@
   <!-- LOG -->
   <section class="view on" id="v-log">
     <div class="sec-title"><h2>Log a mistake</h2><span class="hint">two taps and a line</span></div>
+
+    <div class="editnote" id="editNote">
+      <span>Editing an entry — Save overwrites the original.</span>
+      <button id="editCancel" type="button">cancel</button>
+    </div>
 
     <div class="field">
       <label>Subject <span class="req">*</span></label>
@@ -240,9 +272,19 @@
   <!-- BOOK -->
   <section class="view" id="v-book">
     <div class="sec-title"><h2>Mistake book</h2><span class="hint">read this before every test</span></div>
+    <div class="searchbox">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input type="text" id="bookSearch" placeholder="Search concepts, fixes, traps…" autocomplete="off">
+    </div>
     <div class="filters" id="subFilters"></div>
     <div class="filters" id="typeFilters"></div>
     <div id="bookList"></div>
+  </section>
+
+  <!-- REVIEW -->
+  <section class="view" id="v-review">
+    <div class="sec-title"><h2>Review</h2><span class="hint">recall it before you reveal it</span></div>
+    <div id="reviewBody"></div>
   </section>
 
   <!-- INSIGHTS -->
@@ -281,6 +323,8 @@
       <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span>Log</span></button>
     <button class="tab" data-v="book">
       <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z"/></svg><span>Book</span></button>
+    <button class="tab" data-v="review">
+      <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg><span>Review</span></button>
     <button class="tab" data-v="insights">
       <svg viewBox="0 0 24 24"><path d="M3 3v18h18M18 9l-5 5-3-3-4 4"/></svg><span>Insights</span></button>
     <button class="tab" data-v="data">
@@ -319,11 +363,14 @@ const CONFS=[
 
 let entries=[]; let settings={activeSet:'GT-18'};
 let form={subject:SUBJECTS[8], error:null, conf:'med', image:false};
-let bookFilter={sub:'ALL', type:'ALL'};
+let bookFilter={sub:'ALL', type:'ALL', q:''};
+let editingId=null;
+let review={active:false, queue:[], i:0, revealed:false, known:0, shaky:0};
 
 async function boot(){
   const e=await sget(K_ENTRIES); if(e){try{entries=JSON.parse(e)||[]}catch(_){entries=[]}}
   const s=await sget(K_SET); if(s){try{settings=Object.assign(settings,JSON.parse(s)||{})}catch(_){}}
+  if(settings.lastSubject && SUBJECTS.includes(settings.lastSubject)) form.subject=settings.lastSubject;
   buildForm(); bindTabs(); bindActions(); render(); switchView('log');
 }
 async function persist(){ await sset(K_ENTRIES,JSON.stringify(entries)); }
@@ -332,7 +379,7 @@ async function persistSettings(){ await sset(K_SET,JSON.stringify(settings)); }
 function buildForm(){
   const sub=document.getElementById('f-subject');
   sub.innerHTML=SUBJECTS.map(s=>`<option ${s===form.subject?'selected':''}>${s}</option>`).join('');
-  sub.onchange=e=>form.subject=e.target.value;
+  sub.onchange=e=>{form.subject=e.target.value; settings.lastSubject=form.subject; persistSettings();};
 
   const er=document.getElementById('f-error');
   er.innerHTML=ERRORS.map(e=>`<button class="opt" data-e="${e.id}" style="--sel:${e.c};--selbg:color-mix(in srgb,${e.c} 12%,transparent)">
@@ -354,15 +401,16 @@ function readForm(){return {
   lesson:document.getElementById('f-lesson').value.trim(),
   trap:document.getElementById('f-trap').value.trim(),
 };}
-function clearForm(keepSubject){
+/* subject deliberately survives a save — you usually log several from the same paper in a row */
+function clearForm(){
   document.getElementById('f-concept').value='';
   document.getElementById('f-lesson').value='';
   document.getElementById('f-trap').value='';
   form.error=null; form.conf='med'; form.image=false;
+  document.getElementById('f-subject').value=form.subject;
   paint(document.getElementById('f-error'),'e',null);
   paint(document.getElementById('f-conf'),'c','med');
   document.getElementById('f-image').classList.remove('on');
-  if(!keepSubject) form.subject=SUBJECTS[8];
 }
 function validate(f){
   if(!f.concept){toast('Add what it was testing');return false}
@@ -372,6 +420,14 @@ function validate(f){
 }
 async function doSave(again){
   const f=readForm(); if(!validate(f))return;
+  if(editingId){
+    const e=entries.find(x=>x.id===editingId);
+    if(e) Object.assign(e,{subject:form.subject, concept:f.concept, lesson:f.lesson, trap:f.trap,
+      error:form.error, conf:form.conf, image:form.image});
+    editingId=null; updateEditUI();
+    await persist(); toast('Updated'); clearForm(); render(); switchView('book');
+    return;
+  }
   entries.unshift({
     id:'m'+Date.now()+Math.floor(Math.random()*99),
     ts:Date.now(), set:settings.activeSet, subject:form.subject,
@@ -382,10 +438,31 @@ async function doSave(again){
   const n=entries.length;
   toast(again?'Saved — next one':'Saved to '+settings.activeSet);
   if(n>0 && n%25===0) setTimeout(()=>toast('That\'s '+n+' saved — back it up in Data'),2000);
-  clearForm(again);
+  clearForm();
   render();
   if(again){document.getElementById('f-concept').focus();window.scrollTo({top:0,behavior:'smooth'})}
   else switchView('book');
+}
+
+function startEdit(id){
+  const e=entries.find(x=>x.id===id); if(!e)return;
+  editingId=id;
+  form.subject=SUBJECTS.includes(e.subject)?e.subject:form.subject;
+  form.error=e.error; form.conf=e.conf||'med'; form.image=!!e.image;
+  document.getElementById('f-subject').value=form.subject;
+  document.getElementById('f-concept').value=e.concept||'';
+  document.getElementById('f-lesson').value=e.lesson||'';
+  document.getElementById('f-trap').value=e.trap||'';
+  paint(document.getElementById('f-error'),'e',form.error);
+  paint(document.getElementById('f-conf'),'c',form.conf);
+  document.getElementById('f-image').classList.toggle('on',form.image);
+  updateEditUI(); switchView('log');
+}
+function cancelEdit(){editingId=null; clearForm(); updateEditUI(); toast('Edit cancelled')}
+function updateEditUI(){
+  document.getElementById('editNote').classList.toggle('show',!!editingId);
+  document.getElementById('saveBtn').textContent=editingId?'Update':'Save';
+  document.getElementById('saveAddBtn').style.display=editingId?'none':'';
 }
 
 function normalize(s){return (s||'').toLowerCase().replace(/[^a-z0-9 ]/g,'').replace(/\s+/g,' ').trim()}
@@ -399,7 +476,7 @@ function render(){
   document.getElementById('renameSub').textContent='Right now: '+settings.activeSet;
   document.getElementById('srcCnt').textContent=entries.filter(e=>e.set===settings.activeSet).length+' in this test';
   document.getElementById('openCnt').textContent=entries.filter(e=>e.status==='open').length+' to fix';
-  renderBook(); renderInsights();
+  renderBook(); renderReview(); renderInsights();
 }
 
 function renderBook(){
@@ -418,6 +495,10 @@ function renderBook(){
   tf.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{bookFilter.type=c.dataset.t;renderBook()});
 
   let list=entries.slice();
+  if(bookFilter.q){
+    const q=bookFilter.q.toLowerCase();
+    list=list.filter(e=>((e.concept||'')+' '+(e.lesson||'')+' '+(e.trap||'')+' '+(e.subject||'')+' '+(e.set||'')).toLowerCase().includes(q));
+  }
   if(bookFilter.sub!=='ALL') list=list.filter(e=>e.subject===bookFilter.sub);
   const t=bookFilter.type;
   if(t==='open') list=list.filter(e=>e.status==='open');
@@ -427,14 +508,13 @@ function renderBook(){
   else if(ERR_MAP[t]) list=list.filter(e=>e.error===t);
 
   list.sort((a,b)=>{
-    const sc=e=>{let s=0; if(e.status==='open')s+=8; if(isRecurring(e,map))s+=4; if(e.conf==='high')s+=2; return s};
-    const d=sc(b)-sc(a); return d!==0?d:b.ts-a.ts;
+    const d=priorityScore(b,map)-priorityScore(a,map); return d!==0?d:b.ts-a.ts;
   });
 
   const box=document.getElementById('bookList');
   if(list.length===0){
-    box.innerHTML=`<div class="empty"><div class="big">${entries.length===0?'Nothing here yet':'Nothing matches this filter'}</div>
-      ${entries.length===0?'After a test or a module, log each one you got wrong. Two taps and a line — read them all back here before your next test.':'Tap a different filter.'}</div>`;
+    box.innerHTML=`<div class="empty"><div class="big">${entries.length===0?'Nothing here yet':'Nothing matches'}</div>
+      ${entries.length===0?'After a test or a module, log each one you got wrong. Two taps and a line — read them all back here before your next test.':'Try a different filter or search.'}</div>`;
     return;
   }
   box.innerHTML=list.map(e=>{
@@ -453,16 +533,116 @@ function renderBook(){
       ${e.trap?`<div class="trap"><b>Trap:</b> ${esc(e.trap)}</div>`:''}
       <div class="foot">
         <button class="fix ${e.status==='fixed'?'done':''}" data-fix="${e.id}">${e.status==='fixed'?'✓ got it':'got it now'}</button>
+        <button data-edit="${e.id}">edit</button>
         <button data-del="${e.id}">delete</button>
         <span class="src">${e.set}</span>
       </div>
     </div>`;
   }).join('');
   box.querySelectorAll('[data-fix]').forEach(b=>b.onclick=()=>toggleFix(b.dataset.fix));
+  box.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>startEdit(b.dataset.edit));
   box.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>delEntry(b.dataset.del));
 }
 async function toggleFix(id){const e=entries.find(x=>x.id===id);if(!e)return;e.status=e.status==='fixed'?'open':'fixed';e.fixedTs=e.status==='fixed'?Date.now():null;await persist();render()}
-async function delEntry(id){entries=entries.filter(x=>x.id!==id);await persist();render();toast('Deleted')}
+async function delEntry(id){
+  entries=entries.filter(x=>x.id!==id);
+  if(editingId===id){editingId=null;clearForm();updateEditUI()}
+  await persist();render();toast('Deleted');
+}
+
+/* ---- review: active recall over the ledger ---- */
+function priorityScore(e,map){let s=0; if(e.status==='open')s+=8; if(isRecurring(e,map))s+=4; if(e.conf==='high')s+=2; return s}
+
+function startReview(scope){
+  const map=recurrenceMap();
+  let list=entries.slice();
+  if(scope==='open') list=list.filter(e=>e.status==='open');
+  else if(scope==='set') list=list.filter(e=>e.set===settings.activeSet);
+  if(!list.length){toast('Nothing to review there');return}
+  // hardest first, and within that, the ones you haven't been quizzed on for longest
+  list.sort((a,b)=>{const d=priorityScore(b,map)-priorityScore(a,map); return d!==0?d:(a.lastReview||0)-(b.lastReview||0)});
+  review={active:true, scope:scope, queue:list, i:0, revealed:false, known:0, shaky:0};
+  renderReview();
+  window.scrollTo({top:0});
+}
+
+async function markReview(knew){
+  const e=review.queue[review.i]; if(!e)return;
+  e.lastReview=Date.now();
+  if(knew){
+    e.streak=(e.streak||0)+1;
+    if(e.streak>=2 && e.status==='open'){e.status='fixed';e.fixedTs=Date.now()}
+    review.known++;
+  }else{
+    e.streak=0;
+    if(e.status==='fixed'){e.status='open';e.fixedTs=null}
+    review.shaky++;
+  }
+  review.i++; review.revealed=false;
+  await persist(); render();
+}
+
+function endReview(){review.active=false; renderReview()}
+
+function renderReview(){
+  const box=document.getElementById('reviewBody'); if(!box)return;
+  if(!review.active){
+    if(entries.length===0){
+      box.innerHTML=`<div class="empty"><div class="big">Nothing to review yet</div>Log a few mistakes first. Then come back here — trying to recall the fix before you see it is what makes it stick.</div>`;
+      return;
+    }
+    const open=entries.filter(e=>e.status==='open').length;
+    const inSet=entries.filter(e=>e.set===settings.activeSet).length;
+    box.innerHTML=`
+      <button class="databtn" data-rev="open" ${open?'':'disabled style="opacity:.45"'}>
+        <svg class="ic" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        <div><div class="tt">Still to fix — ${open}</div><div class="dd">Your open mistakes, hardest first. Recall each twice and it marks itself fixed.</div></div>
+      </button>
+      <button class="databtn" data-rev="set" ${inSet?'':'disabled style="opacity:.45"'}>
+        <svg class="ic" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        <div><div class="tt">${esc(settings.activeSet)} — ${inSet}</div><div class="dd">Everything from the current test, fixed ones included.</div></div>
+      </button>
+      <button class="databtn" data-rev="all">
+        <svg class="ic" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z"/></svg>
+        <div><div class="tt">Everything — ${entries.length}</div><div class="dd">The whole book. Good the night before a test.</div></div>
+      </button>
+      <p class="faint" style="font-size:12px;margin-top:14px;text-align:center;line-height:1.6">Read the concept, say the fix out loud, then reveal. "Still shaky" reopens a mistake and resets its streak.</p>`;
+    box.querySelectorAll('[data-rev]').forEach(b=>b.onclick=()=>startReview(b.dataset.rev));
+    return;
+  }
+  if(review.i>=review.queue.length){
+    box.innerHTML=`<div class="rev-done">
+      <div class="big">Done — ${review.queue.length} reviewed</div>
+      <p><b style="color:var(--green)">${review.known} recalled</b> · <b style="color:var(--amber)">${review.shaky} still shaky</b>${review.shaky?'<br>The shaky ones are back at the top of your Book.':''}</p>
+      <div class="actions"><button class="btn primary" id="revAgain">Go again</button><button class="btn ghost" id="revDone">Finish</button></div>
+    </div>`;
+    document.getElementById('revAgain').onclick=()=>startReview(review.scope);
+    document.getElementById('revDone').onclick=endReview;
+    return;
+  }
+  const e=review.queue[review.i];
+  const em=ERR_MAP[e.error]||{t:'—',c:'var(--faint)'};
+  box.innerHTML=`
+    <div class="rev-prog"><span>${review.i+1} / ${review.queue.length}</span><button id="revQuit">quit</button></div>
+    <div class="revcard" style="--et:${em.c}">
+      <div class="top"><span class="tag">${esc(e.subject)}</span><span class="tag et">${em.t}</span>${e.image?'<span class="tag img">picture</span>':''}</div>
+      <div class="q">${esc(e.concept)}</div>
+      ${review.revealed?`<div class="ans">
+        <div class="lesson">${esc(e.lesson)}</div>
+        ${e.trap?`<div class="trap"><b>Trap:</b> ${esc(e.trap)}</div>`:''}
+      </div>`:''}
+    </div>
+    ${review.revealed
+      ?`<div class="rev-btns"><button class="btn know" id="revKnow">Knew it</button><button class="btn shaky" id="revShaky">Still shaky</button></div>`
+      :`<div class="rev-btns"><button class="btn primary" id="revShow">Show the fix</button></div>`}`;
+  document.getElementById('revQuit').onclick=endReview;
+  if(review.revealed){
+    document.getElementById('revKnow').onclick=()=>markReview(true);
+    document.getElementById('revShaky').onclick=()=>markReview(false);
+  }else{
+    document.getElementById('revShow').onclick=()=>{review.revealed=true;renderReview()};
+  }
+}
 
 const FIXTEXT={
   knowledge:"straight gaps — pull the ones that keep repeating into revision (not brand-new cards this close in).",
@@ -557,6 +737,9 @@ function bindActions(){
   document.getElementById('importBtn').onclick=()=>document.getElementById('fileIn').click();
   document.getElementById('fileIn').onchange=importData;
   document.getElementById('wipeBtn').onclick=wipe;
+  document.getElementById('editCancel').onclick=cancelEdit;
+  document.getElementById('openCnt').onclick=()=>{bookFilter.type='open';bookFilter.sub='ALL';renderBook();switchView('book')};
+  document.getElementById('bookSearch').oninput=e=>{bookFilter.q=e.target.value.trim();renderBook()};
   document.getElementById('f-concept').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();document.getElementById('f-lesson').focus()}});
 }
 
