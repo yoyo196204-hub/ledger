@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0D1013">
+<title>Mistake Ledger</title>
+<style>
+  :root{
+    --bg:#0D1013; --panel:#161B22; --panel2:#1B222B; --line:#232B35;
+    --ink:#E7EBF1; --muted:#8A94A2; --faint:#5B6572;
+    --teal:#34D8C3; --amber:#F5B94A; --red:#F16A66; --green:#5BE08A; --violet:#9E8CF5;
+    --mono:ui-monospace,"SF Mono","JetBrains Mono","Cascadia Code",Menlo,Consolas,monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --r:12px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.45;
+    -webkit-font-smoothing:antialiased;padding-bottom:84px}
+  .wrap{max-width:760px;margin:0 auto;padding:0 16px}
+  h1,h2,h3{margin:0;font-weight:650;letter-spacing:-.01em}
+  button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+  input,textarea,select{font-family:inherit;font-size:15px}
+  .mono{font-family:var(--mono)}
+  .muted{color:var(--muted)} .faint{color:var(--faint)}
+
+  header{position:sticky;top:0;z-index:20;background:linear-gradient(180deg,var(--bg) 70%,rgba(13,16,19,.85));
+    border-bottom:1px solid var(--line);padding:14px 0 12px;backdrop-filter:blur(8px)}
+  .brand{display:flex;align-items:center;gap:10px}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--teal);box-shadow:0 0 12px var(--teal)}
+  .brand h1{font-size:16px;text-transform:uppercase;letter-spacing:.14em}
+  .brand .sub{font-family:var(--mono);font-size:11px;color:var(--faint);margin-left:auto;text-transform:uppercase;letter-spacing:.08em}
+  .ctxbar{display:flex;align-items:center;gap:8px;margin-top:12px}
+  .ctxbar .src{flex:1;display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);
+    border-radius:10px;padding:9px 12px}
+  .ctxbar .src .lbl{font-family:var(--mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+  .ctxbar .src .val{font-family:var(--mono);font-weight:600;color:var(--teal);font-size:14px}
+  .ctxbar .src .cnt{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .mini{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:9px 11px;font-family:var(--mono);
+    font-size:12px;color:var(--muted)}
+
+  nav{position:fixed;bottom:0;left:0;right:0;z-index:30;background:rgba(18,22,28,.92);backdrop-filter:blur(14px);
+    border-top:1px solid var(--line);padding:8px 0 calc(8px + env(safe-area-inset-bottom))}
+  .tabs{max-width:760px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:4px;padding:0 12px}
+  .tab{display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 4px;border-radius:10px;color:var(--faint);
+    font-size:11px;letter-spacing:.03em;transition:color .15s,background .15s}
+  .tab svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.7}
+  .tab.on{color:var(--teal);background:rgba(52,216,195,.08)}
+
+  main{padding-top:18px}
+  .view{display:none}
+  .view.on{display:block;animation:fade .18s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .sec-title{display:flex;align-items:baseline;gap:10px;margin:2px 0 14px}
+  .sec-title h2{font-size:19px}
+  .sec-title .hint{font-size:12px;color:var(--muted)}
+
+  .field{margin-bottom:16px}
+  .field > label{display:block;font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.08em;
+    color:var(--muted);margin-bottom:7px}
+  .field > label .req{color:var(--teal)}
+  input[type=text], textarea, select{width:100%;background:var(--panel);border:1px solid var(--line);color:var(--ink);
+    border-radius:10px;padding:11px 12px;outline:none;transition:border-color .15s,background .15s}
+  textarea{resize:vertical;min-height:52px;line-height:1.4}
+  input[type=text]:focus, textarea:focus, select:focus{border-color:var(--teal);background:var(--panel2)}
+  input::placeholder,textarea::placeholder{color:var(--faint)}
+  select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238A94A2' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 12px center;padding-right:34px}
+
+  .seg{display:grid;gap:6px}
+  .seg.c3{grid-template-columns:repeat(3,1fr)}
+  .seg.c4{grid-template-columns:repeat(2,1fr)}
+  @media(min-width:520px){.seg.c4{grid-template-columns:repeat(4,1fr)}}
+  .opt{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px;text-align:left;transition:all .13s}
+  .opt .t{font-weight:600;font-size:13.5px}
+  .opt .d{font-size:11.5px;color:var(--muted);margin-top:2px;line-height:1.3}
+  .opt.on{border-color:var(--sel,var(--teal));background:var(--selbg,rgba(52,216,195,.1))}
+  .opt.on .t{color:var(--sel,var(--teal))}
+  .opt.center{text-align:center}
+
+  .toggle{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .toggle .sw{width:40px;height:23px;border-radius:20px;background:var(--line);position:relative;transition:background .15s;flex:none}
+  .toggle .sw::after{content:"";position:absolute;top:2px;left:2px;width:19px;height:19px;border-radius:50%;background:var(--faint);transition:transform .15s,background .15s}
+  .toggle.on .sw{background:rgba(158,140,245,.35)} .toggle.on .sw::after{transform:translateX(17px);background:var(--violet)}
+  .toggle .txt{font-size:13.5px}
+
+  .actions{display:flex;gap:10px;margin-top:6px}
+  .btn{flex:1;padding:13px;border-radius:11px;font-weight:650;font-size:15px;transition:transform .1s,opacity .15s}
+  .btn:active{transform:scale(.98)}
+  .btn.primary{background:var(--teal);color:#06231f}
+  .btn.ghost{background:var(--panel2);border:1px solid var(--line);color:var(--ink);flex:0 0 auto;padding:13px 16px}
+
+  .filters{display:flex;gap:7px;overflow-x:auto;margin:0 -16px;padding:2px 16px 12px;scrollbar-width:none}
+  .filters::-webkit-scrollbar{display:none}
+  .chip{flex:none;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:7px 13px;font-size:12.5px;
+    color:var(--muted);white-space:nowrap;transition:all .12s}
+  .chip.on{background:var(--panel2);border-color:var(--teal);color:var(--teal)}
+  .chip .n{font-family:var(--mono);opacity:.7;margin-left:5px}
+
+  .entry{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:13px 14px;margin-bottom:10px;
+    border-left:3px solid var(--et,var(--faint))}
+  .entry.fixed{opacity:.5}
+  .entry .top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:7px}
+  .tag{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;padding:2px 7px;border-radius:6px;
+    background:var(--panel2);color:var(--muted);border:1px solid var(--line)}
+  .tag.et{color:var(--et);border-color:transparent;background:color-mix(in srgb,var(--et) 15%,transparent)}
+  .tag.flag{color:var(--red);background:rgba(241,106,102,.14);border-color:transparent}
+  .tag.rec{color:var(--amber);background:rgba(245,185,74,.14);border-color:transparent}
+  .tag.img{color:var(--violet);background:rgba(158,140,245,.12);border-color:transparent}
+  .entry .concept{font-weight:600;font-size:15px;margin-bottom:3px}
+  .entry .lesson{font-size:13.5px;color:#c9d1dc;line-height:1.5}
+  .entry .trap{font-size:12.5px;color:var(--muted);margin-top:5px}
+  .entry .trap b{color:var(--amber);font-weight:600}
+  .entry .foot{display:flex;align-items:center;gap:14px;margin-top:10px;padding-top:9px;border-top:1px solid var(--line)}
+  .entry .foot button{font-size:12px;font-family:var(--mono);color:var(--muted);letter-spacing:.02em}
+  .entry .foot button:active{color:var(--ink)}
+  .entry .foot .fix.done{color:var(--green)}
+  .entry .foot .src{font-family:var(--mono);font-size:11px;color:var(--faint);margin-left:auto}
+
+  .empty{text-align:center;padding:48px 20px;color:var(--muted)}
+  .empty .big{font-size:15px;color:var(--ink);font-weight:600;margin-bottom:6px}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:15px;margin-bottom:12px}
+  .card h3{font-size:12px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:12px;font-weight:600}
+  .verdict{border-left:3px solid var(--teal)}
+  .verdict .line{font-size:14px;line-height:1.55;margin-bottom:9px}
+  .verdict .line:last-child{margin-bottom:0}
+  .verdict .line b{color:var(--ink)}
+  .verdict .k{color:var(--teal)} .verdict .w{color:var(--red)} .verdict .a{color:var(--amber)}
+  .bars{display:flex;flex-direction:column;gap:9px}
+  .bar{display:grid;grid-template-columns:120px 1fr 30px;align-items:center;gap:10px}
+  .bar .k{font-size:12.5px;color:var(--muted)}
+  .bar .track{height:8px;background:var(--panel2);border-radius:5px;overflow:hidden}
+  .bar .fill{height:100%;border-radius:5px;transition:width .4s ease}
+  .bar .v{font-family:var(--mono);font-size:12px;text-align:right;color:var(--ink)}
+  .kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(min-width:520px){.kpis{grid-template-columns:repeat(4,1fr)}}
+  .kpi{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px}
+  .kpi .num{font-family:var(--mono);font-size:24px;font-weight:600;line-height:1}
+  .kpi .lab{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.3}
+  .kpi.warn .num{color:var(--amber)} .kpi.bad .num{color:var(--red)} .kpi.ok .num{color:var(--green)}
+  .heat{display:flex;flex-direction:column;gap:5px}
+  .heatrow{display:grid;grid-template-columns:130px 1fr 26px;align-items:center;gap:8px;font-size:13px}
+  .heatrow .hb{height:20px;border-radius:5px;background:var(--teal);opacity:var(--o,.3)}
+  .heatrow .hv{font-family:var(--mono);font-size:12px;color:var(--muted);text-align:right}
+  .gtlist .gtrow{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px}
+  .gtlist .gtrow:last-child{border:none}
+  .gtlist .gtn{font-family:var(--mono);color:var(--teal);font-weight:600;min-width:74px}
+  .gtlist .gtd{color:var(--muted);flex:1;font-size:12.5px}
+  .gtlist .gtc{font-family:var(--mono);color:var(--ink)}
+
+  .databtn{width:100%;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:14px 15px;margin-bottom:10px;display:flex;align-items:center;gap:12px}
+  .databtn .ic{width:20px;height:20px;stroke:var(--teal);fill:none;stroke-width:1.7;flex:none}
+  .databtn .tt{font-weight:600;font-size:14.5px}
+  .databtn .dd{font-size:12px;color:var(--muted);margin-top:2px}
+  .databtn.danger .ic{stroke:var(--red)}
+
+  .editnote{display:none;align-items:center;gap:10px;background:rgba(245,185,74,.1);border:1px solid rgba(245,185,74,.5);
+    border-radius:10px;padding:10px 12px;margin-bottom:16px;font-size:13px;color:var(--amber)}
+  .editnote.show{display:flex}
+  .editnote button{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--muted);flex:none}
+  .editnote button:active{color:var(--ink)}
+
+  .rev-prog{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:12px;
+    color:var(--muted);margin-bottom:10px}
+  .rev-prog button{font-family:var(--mono);font-size:12px;color:var(--faint)}
+  .rev-prog button:active{color:var(--ink)}
+  .revcard{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px 16px;
+    border-left:3px solid var(--et,var(--faint))}
+  .revcard .q{font-size:17px;font-weight:650;margin:10px 0 0;line-height:1.4}
+  .revcard .ans{margin-top:14px;padding-top:14px;border-top:1px dashed var(--line)}
+  .revcard .ans .lesson{font-size:14.5px;color:#c9d1dc;line-height:1.55}
+  .rev-btns{display:flex;gap:10px;margin-top:16px}
+  .btn.know{background:rgba(91,224,138,.15);border:1px solid var(--green);color:var(--green)}
+  .btn.shaky{background:rgba(245,185,74,.12);border:1px solid var(--amber);color:var(--amber)}
+  .rev-done{text-align:center;padding:36px 16px}
+  .rev-done .big{font-size:20px;font-weight:650;margin-bottom:8px}
+  .rev-done p{color:var(--muted);font-size:13.5px;line-height:1.6;margin:0 0 20px}
+
+  .searchbox{position:relative;margin-bottom:12px}
+  .searchbox input{padding-left:36px}
+  .searchbox svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:16px;height:16px;
+    stroke:var(--faint);fill:none;stroke-width:2;pointer-events:none}
+
+  .toast{position:fixed;bottom:96px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--panel2);
+    border:1px solid var(--teal);color:var(--ink);padding:11px 18px;border-radius:24px;font-size:13.5px;z-index:60;
+    opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;box-shadow:0 8px 30px rgba(0,0,0,.5)}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .backdrop{position:fixed;inset:0;background:rgba(5,7,9,.7);z-index:50;display:none;align-items:flex-end;justify-content:center}
+  .backdrop.show{display:flex}
+  .sheet{background:var(--panel);border:1px solid var(--line);border-top-left-radius:20px;border-top-right-radius:20px;
+    width:100%;max-width:760px;padding:20px 16px calc(24px + env(safe-area-inset-bottom));animation:up .22s ease}
+  @keyframes up{from{transform:translateY(30px);opacity:.6}to{transform:none;opacity:1}}
+  .sheet h3{font-size:16px;margin-bottom:6px}
+  .sheet p{color:var(--muted);font-size:13.5px;margin:0 0 16px}
+  .divider{height:1px;background:var(--line);margin:18px 0}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="brand">
+      <span class="dot"></span>
+      <h1>Mistake Ledger</h1>
+      <span class="sub" id="totalTag">0 logged</span>
+    </div>
+    <div class="ctxbar">
+      <button class="src" id="srcBtn">
+        <span class="lbl">Logging to</span>
+        <span class="val" id="srcVal">GT-18</span>
+        <span class="cnt" id="srcCnt">0 in this test</span>
+      </button>
+      <button class="mini" id="openCnt">— to fix</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- LOG -->
+  <section class="view on" id="v-log">
+    <div class="sec-title"><h2>Log a mistake</h2><span class="hint">two taps and a line</span></div>
+
+    <div class="editnote" id="editNote">
+      <span>Editing an entry — Save overwrites the original.</span>
+      <button id="editCancel" type="button">cancel</button>
+    </div>
+
+    <div class="field">
+      <label>Subject <span class="req">*</span></label>
+      <select id="f-subject"></select>
+    </div>
+
+    <div class="field">
+      <label>What was it testing? <span class="req">*</span></label>
+      <input type="text" id="f-concept" placeholder="e.g. STEMI time-to-treatment window" autocomplete="off">
+    </div>
+
+    <div class="field">
+      <label>Why did you miss it? <span class="req">*</span></label>
+      <div class="seg c4" id="f-error"></div>
+    </div>
+
+    <div class="field">
+      <label>How sure were you?</label>
+      <div class="seg c3" id="f-conf"></div>
+    </div>
+
+    <div class="field">
+      <label>The fix — one line you can read cold <span class="req">*</span></label>
+      <textarea id="f-lesson" placeholder="Rule + the number that settles it. e.g. STEMI: open artery within 90 min of first contact; if transfer needed, 120 min; if neither, give clot-buster within 30 min of arrival."></textarea>
+    </div>
+
+    <div class="field">
+      <label>The trap that caught you <span class="faint">— optional</span></label>
+      <input type="text" id="f-trap" placeholder="e.g. picked the sterility answer instead of the infection-rate one" autocomplete="off">
+    </div>
+
+    <div class="field">
+      <button class="toggle" id="f-image" type="button">
+        <span class="sw"></span>
+        <span class="txt">This was a picture / clinical-image question</span>
+      </button>
+    </div>
+
+    <div class="actions">
+      <button class="btn primary" id="saveBtn">Save</button>
+      <button class="btn ghost" id="saveAddBtn">Save &amp; next</button>
+    </div>
+  </section>
+
+  <!-- BOOK -->
+  <section class="view" id="v-book">
+    <div class="sec-title"><h2>Mistake book</h2><span class="hint">read this before every test</span></div>
+    <div class="searchbox">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input type="text" id="bookSearch" placeholder="Search concepts, fixes, traps…" autocomplete="off">
+    </div>
+    <div class="filters" id="subFilters"></div>
+    <div class="filters" id="typeFilters"></div>
+    <div id="bookList"></div>
+  </section>
+
+  <!-- REVIEW -->
+  <section class="view" id="v-review">
+    <div class="sec-title"><h2>Review</h2><span class="hint">recall it before you reveal it</span></div>
+    <div id="reviewBody"></div>
+  </section>
+
+  <!-- INSIGHTS -->
+  <section class="view" id="v-insights">
+    <div class="sec-title"><h2>Insights</h2><span class="hint">worked out from your log</span></div>
+    <div id="insightsBody"></div>
+  </section>
+
+  <!-- DATA -->
+  <section class="view" id="v-data">
+    <div class="sec-title"><h2>Your data</h2><span class="hint">it lives on this device</span></div>
+    <button class="databtn" id="exportBtn">
+      <svg class="ic" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+      <div><div class="tt">Save a backup file</div><div class="dd">Keep a copy, and use it to move your mistakes to your phone.</div></div>
+    </button>
+    <button class="databtn" id="importBtn">
+      <svg class="ic" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 9l5-5 5 5M12 4v12"/></svg>
+      <div><div class="tt">Load a backup file</div><div class="dd">Adds any mistakes not already here. Safe to load twice.</div></div>
+    </button>
+    <button class="databtn" id="renameBtn">
+      <svg class="ic" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      <div><div class="tt">Change the test you're logging</div><div class="dd" id="renameSub">Right now: GT-18</div></div>
+    </button>
+    <div class="divider"></div>
+    <button class="databtn danger" id="wipeBtn">
+      <svg class="ic" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+      <div><div class="tt">Delete everything</div><div class="dd">Can't be undone. Save a backup first.</div></div>
+    </button>
+    <p class="faint" style="font-size:12px;margin-top:18px;text-align:center;line-height:1.6">Everything stays on this device's browser — no login, no cloud. Save a backup every week or so. Want the same list to appear on both your Pad and phone automatically? That's the one thing on-device can't do — tell me and I'll add a simple sign-in for it.</p>
+  </section>
+</main>
+
+<nav>
+  <div class="tabs">
+    <button class="tab on" data-v="log">
+      <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span>Log</span></button>
+    <button class="tab" data-v="book">
+      <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z"/></svg><span>Book</span></button>
+    <button class="tab" data-v="review">
+      <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg><span>Review</span></button>
+    <button class="tab" data-v="insights">
+      <svg viewBox="0 0 24 24"><path d="M3 3v18h18M18 9l-5 5-3-3-4 4"/></svg><span>Insights</span></button>
+    <button class="tab" data-v="data">
+      <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg><span>Data</span></button>
+  </div>
+</nav>
+
+<div class="toast" id="toast"></div>
+<div class="backdrop" id="backdrop"><div class="sheet" id="sheet"></div></div>
+<input type="file" id="fileIn" accept="application/json" style="display:none">
+
+<script>
+/* storage: uses Claude's storage when open here, or normal browser storage when you host it yourself */
+const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.storage.get==='function';
+async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } return localStorage.getItem(k); }
+async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v)}catch(e){} return; } localStorage.setItem(k,v); }
+const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
+
+const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
+
+/* why you missed it — each maps to a different fix */
+const ERRORS=[
+  {id:'knowledge', t:"Didn't know it", d:"Never learnt it", c:'var(--red)'},
+  {id:'retrieval', t:"Knew it, blanked", d:"Couldn't recall in time", c:'var(--amber)'},
+  {id:'reasoning', t:"Reasoned it wrong", d:"Had the facts, mis-applied", c:'var(--violet)'},
+  {id:'execution', t:"Careless slip", d:"Misread / marked wrong", c:'var(--teal)'},
+];
+const ERR_MAP=Object.fromEntries(ERRORS.map(e=>[e.id,e]));
+
+/* how sure — turns each mistake into a priority */
+const CONFS=[
+  {id:'high', t:'I was sure', d:'a blind spot', c:'var(--red)'},
+  {id:'med',  t:'Down to 2',  d:'one fact away', c:'var(--amber)'},
+  {id:'low',  t:'No idea',    d:'a raw gap', c:'var(--muted)'},
+];
+
+let entries=[]; let settings={activeSet:'GT-18'};
+let form={subject:SUBJECTS[8], error:null, conf:'med', image:false};
+let bookFilter={sub:'ALL', type:'ALL', q:''};
+let editingId=null;
+let review={active:false, queue:[], i:0, revealed:false, known:0, shaky:0};
+
+async function boot(){
+  const e=await sget(K_ENTRIES); if(e){try{entries=JSON.parse(e)||[]}catch(_){entries=[]}}
+  const s=await sget(K_SET); if(s){try{settings=Object.assign(settings,JSON.parse(s)||{})}catch(_){}}
+  if(settings.lastSubject && SUBJECTS.includes(settings.lastSubject)) form.subject=settings.lastSubject;
+  buildForm(); bindTabs(); bindActions(); render(); switchView('log');
+}
+async function persist(){ await sset(K_ENTRIES,JSON.stringify(entries)); }
+async function persistSettings(){ await sset(K_SET,JSON.stringify(settings)); }
+
+function buildForm(){
+  const sub=document.getElementById('f-subject');
+  sub.innerHTML=SUBJECTS.map(s=>`<option ${s===form.subject?'selected':''}>${s}</option>`).join('');
+  sub.onchange=e=>{form.subject=e.target.value; settings.lastSubject=form.subject; persistSettings();};
+
+  const er=document.getElementById('f-error');
+  er.innerHTML=ERRORS.map(e=>`<button class="opt" data-e="${e.id}" style="--sel:${e.c};--selbg:color-mix(in srgb,${e.c} 12%,transparent)">
+    <div class="t">${e.t}</div><div class="d">${e.d}</div></button>`).join('');
+  er.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{form.error=b.dataset.e;paint(er,'e',form.error)});
+
+  const cf=document.getElementById('f-conf');
+  cf.innerHTML=CONFS.map(c=>`<button class="opt center" data-c="${c.id}" style="--sel:${c.c};--selbg:color-mix(in srgb,${c.c} 12%,transparent)">
+    <div class="t">${c.t}</div><div class="d">${c.d}</div></button>`).join('');
+  cf.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{form.conf=b.dataset.c;paint(cf,'c',form.conf)});
+  paint(cf,'c',form.conf);
+
+  document.getElementById('f-image').onclick=function(){form.image=!form.image;this.classList.toggle('on',form.image)};
+}
+function paint(container,attr,val){container.querySelectorAll('.opt').forEach(b=>b.classList.toggle('on',b.dataset[attr]===val));}
+
+function readForm(){return {
+  concept:document.getElementById('f-concept').value.trim(),
+  lesson:document.getElementById('f-lesson').value.trim(),
+  trap:document.getElementById('f-trap').value.trim(),
+};}
+/* subject deliberately survives a save — you usually log several from the same paper in a row */
+function clearForm(){
+  document.getElementById('f-concept').value='';
+  document.getElementById('f-lesson').value='';
+  document.getElementById('f-trap').value='';
+  form.error=null; form.conf='med'; form.image=false;
+  document.getElementById('f-subject').value=form.subject;
+  paint(document.getElementById('f-error'),'e',null);
+  paint(document.getElementById('f-conf'),'c','med');
+  document.getElementById('f-image').classList.remove('on');
+}
+function validate(f){
+  if(!f.concept){toast('Add what it was testing');return false}
+  if(!form.error){toast('Tap why you missed it');return false}
+  if(!f.lesson){toast('Add the one-line fix');return false}
+  return true;
+}
+async function doSave(again){
+  const f=readForm(); if(!validate(f))return;
+  if(editingId){
+    const e=entries.find(x=>x.id===editingId);
+    if(e) Object.assign(e,{subject:form.subject, concept:f.concept, lesson:f.lesson, trap:f.trap,
+      error:form.error, conf:form.conf, image:form.image});
+    editingId=null; updateEditUI();
+    await persist(); toast('Updated'); clearForm(); render(); switchView('book');
+    return;
+  }
+  entries.unshift({
+    id:'m'+Date.now()+Math.floor(Math.random()*99),
+    ts:Date.now(), set:settings.activeSet, subject:form.subject,
+    concept:f.concept, lesson:f.lesson, trap:f.trap,
+    error:form.error, conf:form.conf, image:form.image, status:'open'
+  });
+  await persist();
+  const n=entries.length;
+  toast(again?'Saved — next one':'Saved to '+settings.activeSet);
+  if(n>0 && n%25===0) setTimeout(()=>toast('That\'s '+n+' saved — back it up in Data'),2000);
+  clearForm();
+  render();
+  if(again){document.getElementById('f-concept').focus();window.scrollTo({top:0,behavior:'smooth'})}
+  else switchView('book');
+}
+
+function startEdit(id){
+  const e=entries.find(x=>x.id===id); if(!e)return;
+  editingId=id;
+  form.subject=SUBJECTS.includes(e.subject)?e.subject:form.subject;
+  form.error=e.error; form.conf=e.conf||'med'; form.image=!!e.image;
+  document.getElementById('f-subject').value=form.subject;
+  document.getElementById('f-concept').value=e.concept||'';
+  document.getElementById('f-lesson').value=e.lesson||'';
+  document.getElementById('f-trap').value=e.trap||'';
+  paint(document.getElementById('f-error'),'e',form.error);
+  paint(document.getElementById('f-conf'),'c',form.conf);
+  document.getElementById('f-image').classList.toggle('on',form.image);
+  updateEditUI(); switchView('log');
+}
+function cancelEdit(){editingId=null; clearForm(); updateEditUI(); toast('Edit cancelled')}
+function updateEditUI(){
+  document.getElementById('editNote').classList.toggle('show',!!editingId);
+  document.getElementById('saveBtn').textContent=editingId?'Update':'Save';
+  document.getElementById('saveAddBtn').style.display=editingId?'none':'';
+}
+
+function normalize(s){return (s||'').toLowerCase().replace(/[^a-z0-9 ]/g,'').replace(/\s+/g,' ').trim()}
+function keyOf(e){return e.subject+'|'+normalize(e.concept).split(' ').slice(0,4).join(' ')}
+function recurrenceMap(){const m={};entries.forEach(e=>{const k=keyOf(e);m[k]=(m[k]||0)+1});return m}
+function isRecurring(e,map){return (map[keyOf(e)]||0)>=2}
+
+function render(){
+  document.getElementById('totalTag').textContent=entries.length+' logged';
+  document.getElementById('srcVal').textContent=settings.activeSet;
+  document.getElementById('renameSub').textContent='Right now: '+settings.activeSet;
+  document.getElementById('srcCnt').textContent=entries.filter(e=>e.set===settings.activeSet).length+' in this test';
+  document.getElementById('openCnt').textContent=entries.filter(e=>e.status==='open').length+' to fix';
+  renderBook(); renderReview(); renderInsights();
+}
+
+function renderBook(){
+  const map=recurrenceMap();
+  const present=[...new Set(entries.map(e=>e.subject))];
+  const sf=document.getElementById('subFilters');
+  const subChips=[['ALL','All']].concat(present.map(s=>[s,s]));
+  sf.innerHTML=subChips.map(([v,l])=>{const n=v==='ALL'?entries.length:entries.filter(e=>e.subject===v).length;
+    return `<button class="chip ${bookFilter.sub===v?'on':''}" data-sub="${v}">${l}<span class="n">${n}</span></button>`}).join('');
+  sf.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{bookFilter.sub=c.dataset.sub;renderBook()});
+
+  const tf=document.getElementById('typeFilters');
+  const typeChips=[['ALL','Everything'],['open','Still to fix'],['recurring','Keeps happening'],['blind','You were sure'],['image','Picture Qs']]
+    .concat(ERRORS.map(e=>[e.id,e.t]));
+  tf.innerHTML=typeChips.map(([v,l])=>`<button class="chip ${bookFilter.type===v?'on':''}" data-t="${v}">${l}</button>`).join('');
+  tf.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{bookFilter.type=c.dataset.t;renderBook()});
+
+  let list=entries.slice();
+  if(bookFilter.q){
+    const q=bookFilter.q.toLowerCase();
+    list=list.filter(e=>((e.concept||'')+' '+(e.lesson||'')+' '+(e.trap||'')+' '+(e.subject||'')+' '+(e.set||'')).toLowerCase().includes(q));
+  }
+  if(bookFilter.sub!=='ALL') list=list.filter(e=>e.subject===bookFilter.sub);
+  const t=bookFilter.type;
+  if(t==='open') list=list.filter(e=>e.status==='open');
+  else if(t==='recurring') list=list.filter(e=>isRecurring(e,map));
+  else if(t==='blind') list=list.filter(e=>e.conf==='high');
+  else if(t==='image') list=list.filter(e=>e.image);
+  else if(ERR_MAP[t]) list=list.filter(e=>e.error===t);
+
+  list.sort((a,b)=>{
+    const d=priorityScore(b,map)-priorityScore(a,map); return d!==0?d:b.ts-a.ts;
+  });
+
+  const box=document.getElementById('bookList');
+  if(list.length===0){
+    box.innerHTML=`<div class="empty"><div class="big">${entries.length===0?'Nothing here yet':'Nothing matches'}</div>
+      ${entries.length===0?'After a test or a module, log each one you got wrong. Two taps and a line — read them all back here before your next test.':'Try a different filter or search.'}</div>`;
+    return;
+  }
+  box.innerHTML=list.map(e=>{
+    const em=ERR_MAP[e.error]||{t:'—',c:'var(--faint)'};
+    const rec=isRecurring(e,map), blind=(e.conf==='high');
+    return `<div class="entry ${e.status==='fixed'?'fixed':''}" style="--et:${em.c}" data-id="${e.id}">
+      <div class="top">
+        <span class="tag et">${em.t}</span>
+        ${rec?'<span class="tag rec">keeps happening</span>':''}
+        ${blind?'<span class="tag flag">you were sure</span>':''}
+        ${e.image?'<span class="tag img">picture</span>':''}
+        <span class="tag">${e.subject}</span>
+      </div>
+      <div class="concept">${esc(e.concept)}</div>
+      <div class="lesson">${esc(e.lesson)}</div>
+      ${e.trap?`<div class="trap"><b>Trap:</b> ${esc(e.trap)}</div>`:''}
+      <div class="foot">
+        <button class="fix ${e.status==='fixed'?'done':''}" data-fix="${e.id}">${e.status==='fixed'?'✓ got it':'got it now'}</button>
+        <button data-edit="${e.id}">edit</button>
+        <button data-del="${e.id}">delete</button>
+        <span class="src">${e.set}</span>
+      </div>
+    </div>`;
+  }).join('');
+  box.querySelectorAll('[data-fix]').forEach(b=>b.onclick=()=>toggleFix(b.dataset.fix));
+  box.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>startEdit(b.dataset.edit));
+  box.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>delEntry(b.dataset.del));
+}
+async function toggleFix(id){const e=entries.find(x=>x.id===id);if(!e)return;e.status=e.status==='fixed'?'open':'fixed';e.fixedTs=e.status==='fixed'?Date.now():null;await persist();render()}
+async function delEntry(id){
+  entries=entries.filter(x=>x.id!==id);
+  if(editingId===id){editingId=null;clearForm();updateEditUI()}
+  await persist();render();toast('Deleted');
+}
+
+/* ---- review: active recall over the ledger ---- */
+function priorityScore(e,map){let s=0; if(e.status==='open')s+=8; if(isRecurring(e,map))s+=4; if(e.conf==='high')s+=2; return s}
+
+function startReview(scope){
+  const map=recurrenceMap();
+  let list=entries.slice();
+  if(scope==='open') list=list.filter(e=>e.status==='open');
+  else if(scope==='set') list=list.filter(e=>e.set===settings.activeSet);
+  if(!list.length){toast('Nothing to review there');return}
+  // hardest first, and within that, the ones you haven't been quizzed on for longest
+  list.sort((a,b)=>{const d=priorityScore(b,map)-priorityScore(a,map); return d!==0?d:(a.lastReview||0)-(b.lastReview||0)});
+  review={active:true, scope:scope, queue:list, i:0, revealed:false, known:0, shaky:0};
+  renderReview();
+  window.scrollTo({top:0});
+}
+
+async function markReview(knew){
+  const e=review.queue[review.i]; if(!e)return;
+  e.lastReview=Date.now();
+  if(knew){
+    e.streak=(e.streak||0)+1;
+    if(e.streak>=2 && e.status==='open'){e.status='fixed';e.fixedTs=Date.now()}
+    review.known++;
+  }else{
+    e.streak=0;
+    if(e.status==='fixed'){e.status='open';e.fixedTs=null}
+    review.shaky++;
+  }
+  review.i++; review.revealed=false;
+  await persist(); render();
+}
+
+function endReview(){review.active=false; renderReview()}
+
+function renderReview(){
+  const box=document.getElementById('reviewBody'); if(!box)return;
+  if(!review.active){
+    if(entries.length===0){
+      box.innerHTML=`<div class="empty"><div class="big">Nothing to review yet</div>Log a few mistakes first. Then come back here — trying to recall the fix before you see it is what makes it stick.</div>`;
+      return;
+    }
+    const open=entries.filter(e=>e.status==='open').length;
+    const inSet=entries.filter(e=>e.set===settings.activeSet).length;
+    box.innerHTML=`
+      <button class="databtn" data-rev="open" ${open?'':'disabled style="opacity:.45"'}>
+        <svg class="ic" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        <div><div class="tt">Still to fix — ${open}</div><div class="dd">Your open mistakes, hardest first. Recall each twice and it marks itself fixed.</div></div>
+      </button>
+      <button class="databtn" data-rev="set" ${inSet?'':'disabled style="opacity:.45"'}>
+        <svg class="ic" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        <div><div class="tt">${esc(settings.activeSet)} — ${inSet}</div><div class="dd">Everything from the current test, fixed ones included.</div></div>
+      </button>
+      <button class="databtn" data-rev="all">
+        <svg class="ic" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z"/></svg>
+        <div><div class="tt">Everything — ${entries.length}</div><div class="dd">The whole book. Good the night before a test.</div></div>
+      </button>
+      <p class="faint" style="font-size:12px;margin-top:14px;text-align:center;line-height:1.6">Read the concept, say the fix out loud, then reveal. "Still shaky" reopens a mistake and resets its streak.</p>`;
+    box.querySelectorAll('[data-rev]').forEach(b=>b.onclick=()=>startReview(b.dataset.rev));
+    return;
+  }
+  if(review.i>=review.queue.length){
+    box.innerHTML=`<div class="rev-done">
+      <div class="big">Done — ${review.queue.length} reviewed</div>
+      <p><b style="color:var(--green)">${review.known} recalled</b> · <b style="color:var(--amber)">${review.shaky} still shaky</b>${review.shaky?'<br>The shaky ones are back at the top of your Book.':''}</p>
+      <div class="actions"><button class="btn primary" id="revAgain">Go again</button><button class="btn ghost" id="revDone">Finish</button></div>
+    </div>`;
+    document.getElementById('revAgain').onclick=()=>startReview(review.scope);
+    document.getElementById('revDone').onclick=endReview;
+    return;
+  }
+  const e=review.queue[review.i];
+  const em=ERR_MAP[e.error]||{t:'—',c:'var(--faint)'};
+  box.innerHTML=`
+    <div class="rev-prog"><span>${review.i+1} / ${review.queue.length}</span><button id="revQuit">quit</button></div>
+    <div class="revcard" style="--et:${em.c}">
+      <div class="top"><span class="tag">${esc(e.subject)}</span><span class="tag et">${em.t}</span>${e.image?'<span class="tag img">picture</span>':''}</div>
+      <div class="q">${esc(e.concept)}</div>
+      ${review.revealed?`<div class="ans">
+        <div class="lesson">${esc(e.lesson)}</div>
+        ${e.trap?`<div class="trap"><b>Trap:</b> ${esc(e.trap)}</div>`:''}
+      </div>`:''}
+    </div>
+    ${review.revealed
+      ?`<div class="rev-btns"><button class="btn know" id="revKnow">Knew it</button><button class="btn shaky" id="revShaky">Still shaky</button></div>`
+      :`<div class="rev-btns"><button class="btn primary" id="revShow">Show the fix</button></div>`}`;
+  document.getElementById('revQuit').onclick=endReview;
+  if(review.revealed){
+    document.getElementById('revKnow').onclick=()=>markReview(true);
+    document.getElementById('revShaky').onclick=()=>markReview(false);
+  }else{
+    document.getElementById('revShow').onclick=()=>{review.revealed=true;renderReview()};
+  }
+}
+
+const FIXTEXT={
+  knowledge:"straight gaps — pull the ones that keep repeating into revision (not brand-new cards this close in).",
+  retrieval:"you knew these — the fix is the recall cue, not more reading. Re-word the card to sound like the question.",
+  reasoning:"the facts were right but the logic slipped — slow down on the last line and work it through instead of guessing the pattern.",
+  execution:"the cheapest to fix — it's rushing, not knowledge. Read the final line first, commit, and don't change answers."
+};
+
+function renderInsights(){
+  const box=document.getElementById('insightsBody');
+  if(entries.length===0){box.innerHTML=`<div class="empty"><div class="big">Nothing to show yet</div>Log a few mistakes and this fills up — it tells you where your marks are actually leaking and what to do about it.</div>`;return}
+  const map=recurrenceMap();
+  const byErr=Object.fromEntries(ERRORS.map(e=>[e.id,entries.filter(x=>x.error===e.id).length]));
+  const domErr=ERRORS.slice().sort((a,b)=>byErr[b.id]-byErr[a.id])[0];
+  const blind=entries.filter(e=>e.conf==='high').length;
+  const close=entries.filter(e=>e.conf==='med').length;
+  const gap=entries.filter(e=>e.conf==='low').length;
+  const recCount=entries.filter(e=>isRecurring(e,map)).length;
+  const openCount=entries.filter(e=>e.status==='open').length;
+  const imgTotal=entries.filter(e=>e.image).length;
+
+  const setEntries=entries.filter(e=>e.set===settings.activeSet);
+  let verdict='';
+  if(setEntries.length){
+    const sErr=Object.fromEntries(ERRORS.map(e=>[e.id,setEntries.filter(x=>x.error===e.id).length]));
+    const sDom=ERRORS.slice().sort((a,b)=>sErr[b.id]-sErr[a.id])[0];
+    const sBlind=setEntries.filter(e=>e.conf==='high').length;
+    const sClose=setEntries.filter(e=>e.conf==='med').length;
+    verdict=`<div class="card verdict"><h3>${settings.activeSet} — what it's telling you</h3>
+      <div class="line"><b>${setEntries.length} logged.</b> Your commonest miss: <b class="k">${sDom.t.toLowerCase()}</b> (${sErr[sDom.id]}). ${FIXTEXT[sDom.id]}</div>
+      ${sBlind?`<div class="line"><b class="w">${sBlind} blind spot${sBlind>1?'s':''}.</b> You felt sure and were still wrong. Fix these first — the understanding is off in a way you can't feel during the test.</div>`:''}
+      ${sClose?`<div class="line"><b class="a">${sClose} were one fact away.</b> You'd cut it to two and picked wrong. Best value to nail — you almost had them.</div>`:''}
+    </div>`;
+  }
+
+  const kpis=`<div class="card"><h3>The whole picture</h3><div class="kpis">
+    <div class="kpi bad"><div class="num">${recCount}</div><div class="lab">keep happening — same thing again</div></div>
+    <div class="kpi bad"><div class="num">${blind}</div><div class="lab">blind spots — sure but wrong</div></div>
+    <div class="kpi warn"><div class="num">${close}</div><div class="lab">one fact away</div></div>
+    <div class="kpi ${openCount>0?'':'ok'}"><div class="num">${openCount}</div><div class="lab">still to fix</div></div>
+  </div></div>`;
+
+  const maxErr=Math.max(1,...Object.values(byErr));
+  const bars=`<div class="card"><h3>Why you're missing them</h3><div class="bars">${
+    ERRORS.map(e=>`<div class="bar"><span class="k">${e.t}</span>
+      <div class="track"><div class="fill" style="width:${byErr[e.id]/maxErr*100}%;background:${e.c}"></div></div>
+      <span class="v">${byErr[e.id]}</span></div>`).join('')
+  }</div><p class="muted" style="font-size:12.5px;margin:12px 0 0;line-height:1.5">Most of your marks go to <b style="color:${domErr.c}">${domErr.t.toLowerCase()}</b>. ${FIXTEXT[domErr.id]}</p></div>`;
+
+  const subCount={}; entries.forEach(e=>subCount[e.subject]=(subCount[e.subject]||0)+1);
+  const subSorted=Object.entries(subCount).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const maxSub=Math.max(1,...subSorted.map(s=>s[1]));
+  const heat=`<div class="card"><h3>Weakest subjects</h3><div class="heat">${
+    subSorted.map(([s,n])=>`<div class="heatrow"><span>${s}</span><div class="hb" style="--o:${(.25+.75*n/maxSub).toFixed(2)};width:${n/maxSub*100}%"></div><span class="hv">${n}</span></div>`).join('')
+  }</div></div>`;
+
+  const img=imgTotal?`<div class="card"><h3>Picture questions</h3>
+    <p style="font-size:13.5px;line-height:1.55;margin:0">You've logged <b>${imgTotal}</b> from images. This is your known soft spot — open the Book, tap <b>Picture Qs</b>, and give them a dedicated run so image reading stops costing you marks.</p></div>`:'';
+
+  const sets={}; entries.forEach(e=>{sets[e.set]=sets[e.set]||[];sets[e.set].push(e)});
+  const setRows=Object.entries(sets).sort((a,b)=>Math.max(...b[1].map(x=>x.ts))-Math.max(...a[1].map(x=>x.ts)))
+    .map(([name,arr])=>{
+      const dom=ERRORS.slice().sort((a,b)=>arr.filter(x=>x.error===b.id).length-arr.filter(x=>x.error===a.id).length)[0];
+      return `<div class="gtrow"><span class="gtn">${name}</span><span class="gtd">mostly: ${dom.t.toLowerCase()}</span><span class="gtc">${arr.length}</span></div>`;
+    }).join('');
+  const setCard=`<div class="card gtlist"><h3>Test by test</h3>${setRows}</div>`;
+
+  box.innerHTML=verdict+kpis+bars+heat+img+setCard;
+}
+
+function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+let toastT;
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2100)}
+
+function bindTabs(){document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>switchView(t.dataset.v))}
+function switchView(v){
+  document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.v===v));
+  window.scrollTo({top:0});
+}
+
+function openSheet(html){document.getElementById('sheet').innerHTML=html;document.getElementById('backdrop').classList.add('show')}
+function closeSheet(){document.getElementById('backdrop').classList.remove('show')}
+document.getElementById('backdrop').onclick=e=>{if(e.target.id==='backdrop')closeSheet()};
+
+function bindActions(){
+  document.getElementById('saveBtn').onclick=()=>doSave(false);
+  document.getElementById('saveAddBtn').onclick=()=>doSave(true);
+  document.getElementById('srcBtn').onclick=renameSet;
+  document.getElementById('renameBtn').onclick=renameSet;
+  document.getElementById('exportBtn').onclick=exportData;
+  document.getElementById('importBtn').onclick=()=>document.getElementById('fileIn').click();
+  document.getElementById('fileIn').onchange=importData;
+  document.getElementById('wipeBtn').onclick=wipe;
+  document.getElementById('editCancel').onclick=cancelEdit;
+  document.getElementById('openCnt').onclick=()=>{bookFilter.type='open';bookFilter.sub='ALL';renderBook();switchView('book')};
+  document.getElementById('bookSearch').oninput=e=>{bookFilter.q=e.target.value.trim();renderBook()};
+  document.getElementById('f-concept').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();document.getElementById('f-lesson').focus()}});
+}
+
+function renameSet(){
+  openSheet(`<h3>Which test are you logging?</h3><p>New mistakes get tagged with this. Change it before you start a new test or module.</p>
+    <input type="text" id="setInput" value="${esc(settings.activeSet)}" placeholder="e.g. GT-19, PSM module, AMBOSS block">
+    <div class="actions" style="margin-top:16px">
+      <button class="btn primary" id="setSave">Use this</button>
+      <button class="btn ghost" onclick="document.getElementById('backdrop').classList.remove('show')">Cancel</button>
+    </div>`);
+  const inp=document.getElementById('setInput');inp.focus();inp.select();
+  document.getElementById('setSave').onclick=async()=>{const v=inp.value.trim();if(v){settings.activeSet=v;await persistSettings();render()}closeSheet();toast('Now logging to '+settings.activeSet)};
+}
+
+function exportData(){
+  const payload={app:'mistake-ledger',version:2,exportedAt:new Date().toISOString(),settings,entries};
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');
+  a.href=url;a.download='mistake-ledger-'+new Date().toISOString().slice(0,10)+'.json';a.click();
+  URL.revokeObjectURL(url);toast('Backup saved');
+}
+function importData(ev){
+  const file=ev.target.files[0];if(!file)return;const r=new FileReader();
+  r.onload=async()=>{
+    try{const data=JSON.parse(r.result);const incoming=Array.isArray(data)?data:(data.entries||[]);
+      if(!incoming.length){toast('No mistakes found in that file');return}
+      const ids=new Set(entries.map(e=>e.id));let added=0;
+      incoming.forEach(e=>{if(e&&e.id&&!ids.has(e.id)){entries.push(e);added++}});
+      entries.sort((a,b)=>b.ts-a.ts);await persist();render();toast(added+' added');
+    }catch(_){toast('Couldn\'t read that file')}
+    ev.target.value='';
+  };r.readAsText(file);
+}
+function wipe(){
+  openSheet(`<h3>Delete everything?</h3><p>All ${entries.length} mistakes will be gone for good. If you haven't saved a backup, do that first.</p>
+    <div class="actions"><button class="btn ghost" onclick="document.getElementById('backdrop').classList.remove('show')">Keep them</button>
+    <button class="btn primary" style="background:var(--red);color:#2a0a09" id="wipeYes">Delete all</button></div>`);
+  document.getElementById('wipeYes').onclick=async()=>{entries=[];await persist();render();closeSheet();toast('Cleared')};
+}
+
+boot();
+</script>
+</body>
+</html>
