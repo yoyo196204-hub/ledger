@@ -331,6 +331,11 @@
     </div>
 
     <div class="field">
+      <label>How sure were you? <span class="op">— optional</span></label>
+      <div class="seg c3" id="f-conf"></div>
+    </div>
+
+    <div class="field">
       <label>3 · The one-liner fix <span class="req">*</span> <span class="sub">— the whole thing in a breath</span></label>
       <textarea id="f-lesson" maxlength="220" placeholder="Just the rule + the number. e.g. STEMI: PCI within 90 min; 120 if transferring; else lyse in 30."></textarea>
       <div class="counthint" id="lessonCount"></div>
@@ -342,7 +347,7 @@
     </div>
 
     <details class="more" id="moreBox">
-      <summary>Optional — full note · the trap · how sure</summary>
+      <summary>Optional — full note · the trap · picture Q</summary>
       <div class="inner">
         <div class="field">
           <label>Full note <span class="op">— for the long version</span></label>
@@ -351,10 +356,6 @@
         <div class="field">
           <label>The trap that caught you <span class="op">— optional</span></label>
           <input type="text" id="f-trap" placeholder="e.g. picked the familiar option without reading the last line" autocomplete="off">
-        </div>
-        <div class="field">
-          <label>How sure were you?</label>
-          <div class="seg c3" id="f-conf"></div>
         </div>
         <div class="field">
           <button class="toggle" id="f-image" type="button">
@@ -413,6 +414,10 @@
     <button class="databtn" id="copyBtn">
       <svg class="ic" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
       <div><div class="tt">Copy backup as text</div><div class="dd">Always works. Paste into Notes to keep it. (Text only — no photos.)</div></div>
+    </button>
+    <button class="databtn" id="ankiBtn">
+      <svg class="ic" viewBox="0 0 24 24"><path d="M12 2l9 5-9 5-9-5 9-5zM3 12l9 5 9-5M3 17l9 5 9-5"/></svg>
+      <div><div class="tt">Export for Anki</div><div class="dd">Import into Anki as tab-separated: Front / Back / Tags. Knowledge + blanked gaps only, unless you include the rest.</div></div>
     </button>
     <div class="datahead">Restore</div>
     <button class="databtn" id="importBtn">
@@ -475,7 +480,7 @@ const CONFS=[
 
 let entries=[];
 let settings={activeType:'gt', gtSet:'GT-18', moduleSet:'Module 1', examDate:'2026-08-31'};
-let form={subject:SUBJECTS[8], error:null, conf:'med', image:false, photo:null};
+let form={subject:SUBJECTS[8], error:null, conf:null, image:false, photo:null};
 let bookFilter={sub:'ALL', type:'ALL', bt:'ALL', q:''};
 let expandedNotes={};
 let editingId=null;
@@ -495,7 +500,7 @@ async function boot(){
   if(settings.lastSubject && SUBJECTS.includes(settings.lastSubject)) form.subject=settings.lastSubject;
   buildForm(); bindTabs(); bindActions(); render(); switchView('log');
   requestPersistence();
-  if('serviceWorker' in navigator){ try{navigator.serviceWorker.register('./sw.js')}catch(_){}}
+  if('serviceWorker' in navigator && location.protocol!=='file:'){ try{navigator.serviceWorker.register('./sw.js').catch(()=>{})}catch(_){}}
   loadPhotos().then(()=>render());
 }
 
@@ -540,7 +545,7 @@ function buildForm(){
   cf.innerHTML=CONFS.map(c=>`<button class="opt center" data-c="${c.id}" style="--sel:${c.c};--selbg:color-mix(in srgb,${c.c} 12%,transparent)">
     <div class="t">${c.t}</div><div class="d">${c.d}</div></button>`).join('');
   cf.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{form.conf=b.dataset.c;paint(cf,'c',form.conf)});
-  paint(cf,'c',form.conf);
+  paint(cf,'c',form.conf); /* null by default — nothing pre-highlighted */
 
   document.getElementById('f-image').onclick=function(){form.image=!form.image;this.classList.toggle('on',form.image)};
   document.querySelectorAll('#typeSwitch button').forEach(b=>b.onclick=()=>setType(b.dataset.type));
@@ -584,10 +589,10 @@ function readForm(){return {
 };}
 function clearForm(){
   ['f-concept','f-lesson','f-note','f-trap'].forEach(id=>document.getElementById(id).value='');
-  form.error=null; form.conf='med'; form.image=false; form.photo=null;
+  form.error=null; form.conf=null; form.image=false; form.photo=null;
   document.getElementById('f-subject').value=form.subject;
   paint(document.getElementById('f-error'),'e',null);
-  paint(document.getElementById('f-conf'),'c','med');
+  paint(document.getElementById('f-conf'),'c',null);
   document.getElementById('f-image').classList.remove('on');
   document.getElementById('dupeHint').classList.remove('show');
   updateCount(); renderPhotoPrev();
@@ -640,7 +645,7 @@ function startEdit(id){
   editingId=id;
   if(e.testType) setType(e.testType);
   form.subject=SUBJECTS.includes(e.subject)?e.subject:form.subject;
-  form.error=e.error; form.conf=e.conf||'med'; form.image=!!e.image; form.photo=e.hasPhoto?(photos[e.id]||null):null;
+  form.error=e.error; form.conf=e.conf||null; form.image=!!e.image; form.photo=e.hasPhoto?(photos[e.id]||null):null;
   document.getElementById('f-subject').value=form.subject;
   document.getElementById('f-concept').value=e.concept||'';
   document.getElementById('f-lesson').value=e.lesson||'';
@@ -908,6 +913,7 @@ function renderInsights(){
   const byErr=Object.fromEntries(ERRORS.map(e=>[e.id,entries.filter(x=>x.error===e.id).length]));
   const domErr=ERRORS.slice().sort((a,b)=>byErr[b.id]-byErr[a.id])[0];
   const blind=entries.filter(e=>e.conf==='high').length, close=entries.filter(e=>e.conf==='med').length;
+  const withConf=entries.filter(e=>e.conf).length; /* only entries where confidence was noted */
   const recCount=entries.filter(e=>isRecurring(e,map)).length, openCount=entries.filter(e=>e.status==='open').length;
   const imgTotal=entries.filter(e=>e.image).length;
 
@@ -924,8 +930,8 @@ function renderInsights(){
   }
   const kpis=`<div class="card"><h3><span class="accent"></span>The whole picture</h3><div class="kpis">
     <div class="kpi bad"><div class="num">${recCount}</div><div class="lab">keep happening</div></div>
-    <div class="kpi bad"><div class="num">${blind}</div><div class="lab">blind spots — sure but wrong</div></div>
-    <div class="kpi warn"><div class="num">${close}</div><div class="lab">one fact away</div></div>
+    <div class="kpi bad"><div class="num">${blind}</div><div class="lab">blind spots — sure but wrong <span class="faint">(of ${withConf} with confidence noted)</span></div></div>
+    <div class="kpi warn"><div class="num">${close}</div><div class="lab">one fact away <span class="faint">(of ${withConf} with confidence noted)</span></div></div>
     <div class="kpi ${openCount>0?'':'ok'}"><div class="num">${openCount}</div><div class="lab">still to fix</div></div></div></div>`;
   const maxErr=Math.max(1,...Object.values(byErr));
   const bars=`<div class="card"><h3><span class="accent"></span>Why you're missing them</h3><div class="bars">${
@@ -967,6 +973,7 @@ function bindActions(){
   document.getElementById('ctxLine').onclick=renameSet;
   document.getElementById('exportBtn').onclick=exportData;
   document.getElementById('copyBtn').onclick=copyBackup;
+  document.getElementById('ankiBtn').onclick=ankiSheet;
   document.getElementById('importBtn').onclick=()=>document.getElementById('fileIn').click();
   document.getElementById('fileIn').onchange=importData;
   document.getElementById('pasteBtn').onclick=pasteBackup;
@@ -1027,6 +1034,52 @@ async function exportData(){
   copyText(backupPayload(false),'Backup copied — paste it somewhere safe');
 }
 async function copyBackup(){ settings.lastBackup=Date.now(); persistSettings(); renderStoreNote(); copyText(backupPayload(false),'Backup copied — paste it into Notes'); }
+
+/* share-sheet-then-download, same pattern as exportData(); returns how it was delivered */
+async function shareOrDownload(text,fname,mime){
+  try{ const file=new File([text],fname,{type:mime});
+    if(navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file],title:fname}); return 'shared'; }
+  }catch(e){ if(e && e.name==='AbortError') return 'abort'; }
+  try{ const blob=new Blob([text],{type:mime}); const url=URL.createObjectURL(blob); const a=document.createElement('a');
+    a.href=url;a.download=fname;document.body.appendChild(a);a.click();a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1500); return 'download';
+  }catch(e){}
+  return 'fail';
+}
+
+/* ---------- Anki (TSV) export ---------- */
+function ankiSheet(){
+  openSheet(`<h3>Export for Anki</h3><p>Makes a tab-separated file — Front (concept) · Back (fix, plus note &amp; trap) · Tags. In Anki, import with “Fields separated by: Tab”.</p>
+    <button class="toggle" id="ankiAll" type="button"><span class="sw"></span><span class="txt">Include reasoning &amp; silly-slip mistakes too</span></button>
+    <div class="actions" style="margin-top:16px"><button class="btn primary" id="ankiGo">Export .tsv</button>
+      <button class="btn ghost" onclick="document.getElementById('backdrop').classList.remove('show')">Cancel</button></div>`);
+  let inclAll=false;
+  const t=document.getElementById('ankiAll'); t.onclick=()=>{inclAll=!inclAll;t.classList.toggle('on',inclAll)};
+  document.getElementById('ankiGo').onclick=()=>ankiExport(inclAll);
+}
+async function ankiExport(includeAll){
+  const field=s=>(s||'').replace(/\t/g,' ').replace(/\r?\n/g,'<br>'); /* one physical line per row */
+  const tag=s=>(s||'').replace(/\t/g,' ').replace(/\r?\n/g,' ').trim().replace(/\s+/g,'_'); /* no spaces inside a tag */
+  const pick=includeAll?entries:entries.filter(e=>e.error==='knowledge'||e.error==='retrieval');
+  if(!pick.length){toast(includeAll?'Nothing to export yet':'No knowledge/blanked gaps to export');return}
+  const rows=pick.map(e=>{
+    const front=field(e.concept);
+    const parts=[e.lesson||''];
+    if(e.note) parts.push('Note: '+e.note);
+    if(e.trap) parts.push('Trap: '+e.trap);
+    const back=field(parts.join('\n'));
+    const tags=[tag(e.subject),tag(e.error),tag(e.set)];
+    if(e.conf==='high') tags.push('blind');
+    if(e.image) tags.push('picture');
+    return [front,back,tags.filter(Boolean).join(' ')].join('\t');
+  });
+  const tsv=rows.join('\n')+'\n';
+  const fname='mistake-ledger-anki-'+new Date().toISOString().slice(0,10)+'.tsv';
+  closeSheet();
+  const r=await shareOrDownload(tsv,fname,'text/tab-separated-values');
+  if(r==='shared') toast('Anki file shared — '+pick.length+' cards');
+  else if(r==='download') toast('Anki file saved — '+pick.length+' cards');
+  else if(r==='fail') copyText(tsv,'Anki cards copied as text — '+pick.length);
+}
 async function copyText(txt,msg){
   try{ await navigator.clipboard.writeText(txt); toast(msg); return; }catch(_){}
   const ta=document.createElement('textarea');ta.value=txt;ta.style.position='fixed';ta.style.top='-1000px';document.body.appendChild(ta);ta.focus();ta.select();
