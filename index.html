@@ -3,265 +3,278 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#0C0F14">
+<meta name="theme-color" content="#F7F8FA">
 <title>Mistake Ledger</title>
 <link rel="manifest" href="./manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Ledger">
 <link rel="apple-touch-icon" href="./apple-touch-icon.png">
 <link rel="icon" type="image/png" href="./favicon.png">
 <style>
   :root{
-    --bg:#0C0F14; --panel:#141922; --panel2:#1B222D; --panel3:#202836; --line:#242D3A;
-    --ink:#EAEEF4; --soft:#C4CCD8; --muted:#8A94A2; --faint:#5B6572;
-    --teal:#3AE0CA; --amber:#F5B94A; --red:#F16A66; --green:#5BE08A; --violet:#A594F7; --blue:#5BB8E8;
-    --grad:linear-gradient(135deg,#3AE0CA,#2C9FD8);
+    --bg:#F6F7F9; --surface:#FFFFFF; --surface2:#F1F2F6; --surface3:#EAECF2;
+    --border:#E7E9F0; --border2:#DFE2EB;
+    --ink:#1A1C22; --ink2:#494F5A; --muted:#727986; --faint:#A0A6B2;
+    --accent:#5B5BD6; --accent2:#8163F0; --accent-ink:#4B49C7; --accent-soft:#EEEEFC;
+    --rose:#E5484D; --amber:#D98016; --emerald:#12915E; --violet:#8B5CF6; --teal:#0D9E93; --pink:#D6409F; --indigo:#5B5BD6;
+    --grad:linear-gradient(135deg,#6366F1,#8B5CF6);
     --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
-    --r:16px;
+    --shadow:0 1px 2px rgba(20,28,45,.04),0 2px 6px rgba(20,28,45,.05);
+    --shadow2:0 4px 16px rgba(20,28,45,.10);
+    --r:18px;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{margin:0;padding:0}
   body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.45;
-    -webkit-font-smoothing:antialiased;padding-bottom:calc(78px + env(safe-area-inset-bottom))}
-  .wrap{max-width:720px;margin:0 auto;padding:0 16px}
-  h1,h2,h3{margin:0;font-weight:680;letter-spacing:-.01em}
+    -webkit-font-smoothing:antialiased;padding-bottom:calc(80px + env(safe-area-inset-bottom))}
+  .wrap{max-width:680px;margin:0 auto;padding:0 16px}
+  h1,h2,h3{margin:0;font-weight:700;letter-spacing:-.015em}
   button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
   input,textarea,select{font-family:inherit;font-size:15px}
   .muted{color:var(--muted)} .faint{color:var(--faint)}
 
-  /* header */
-  header{position:sticky;top:0;z-index:20;background:rgba(12,15,20,.82);backdrop-filter:blur(14px) saturate(1.2);
-    border-bottom:1px solid var(--line);padding:calc(12px + env(safe-area-inset-top)) 0 12px}
+  header{position:sticky;top:0;z-index:20;background:rgba(246,247,249,.85);backdrop-filter:blur(16px) saturate(1.4);
+    border-bottom:1px solid var(--border);padding:calc(11px + env(safe-area-inset-top)) 0 11px}
   .head{display:flex;align-items:center;gap:11px}
-  .logo{width:30px;height:30px;border-radius:9px;background:var(--grad);flex:none;display:grid;place-items:center;
-    box-shadow:0 3px 12px rgba(58,224,202,.28)}
-  .logo svg{width:18px;height:18px;stroke:#06231F;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+  .logo{width:32px;height:32px;border-radius:9px;background:var(--grad);flex:none;display:grid;place-items:center;
+    box-shadow:0 3px 10px rgba(99,102,241,.35)}
+  .logo svg{width:19px;height:19px;stroke:#fff;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
   .head h1{font-size:17px;letter-spacing:-.02em}
   .head .totsub{font-size:11.5px;color:var(--muted);margin-top:1px}
-  .count{margin-left:auto;display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);
-    border-radius:11px;padding:7px 12px;text-align:right}
-  .count .big{font-size:17px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
-  .count .lil{font-size:10px;color:var(--muted);letter-spacing:.02em;margin-top:2px}
-  .count svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.9;opacity:.85}
+  .count{margin-left:auto;display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);
+    border-radius:12px;padding:7px 12px;text-align:right;box-shadow:var(--shadow)}
+  .count .big{font-size:17px;font-weight:750;line-height:1;font-variant-numeric:tabular-nums}
+  .count .lil{font-size:10px;color:var(--muted);margin-top:2px}
+  .count svg{width:15px;height:15px;stroke:var(--accent);fill:none;stroke-width:2}
 
-  nav{position:fixed;bottom:0;left:0;right:0;z-index:30;background:rgba(15,19,26,.94);backdrop-filter:blur(16px);
-    border-top:1px solid var(--line);padding:7px 0 calc(7px + env(safe-area-inset-bottom))}
-  .tabs{max-width:720px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:2px;padding:0 8px}
+  nav{position:fixed;bottom:0;left:0;right:0;z-index:30;background:rgba(255,255,255,.9);backdrop-filter:blur(18px);
+    border-top:1px solid var(--border);padding:7px 0 calc(7px + env(safe-area-inset-bottom))}
+  .tabs{max-width:680px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:2px;padding:0 8px}
   .tab{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 4px;border-radius:12px;color:var(--faint);
-    font-size:10.5px;font-weight:550;letter-spacing:.01em;transition:color .15s}
-  .tab svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.8}
-  .tab.on{color:var(--teal)}
-  .tab.on svg{filter:drop-shadow(0 0 8px rgba(58,224,202,.35))}
+    font-size:10.5px;font-weight:560;transition:color .15s}
+  .tab svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8}
+  .tab.on{color:var(--accent)}
 
   main{padding-top:18px}
   .view{display:none}
   .view.on{display:block;animation:fade .2s ease}
   @keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
   .sec-title{margin:2px 0 16px}
-  .sec-title h2{font-size:22px;letter-spacing:-.02em}
+  .sec-title h2{font-size:23px;letter-spacing:-.025em}
   .sec-title .hint{font-size:13px;color:var(--muted);margin-top:3px}
 
-  /* segmented test-type switch */
-  .segbar{display:flex;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:4px;gap:4px;margin-bottom:16px}
+  .segbar{display:flex;background:var(--surface2);border-radius:13px;padding:4px;gap:3px;margin-bottom:16px}
   .segbar button{flex:1;padding:9px 6px;border-radius:10px;font-weight:600;font-size:13.5px;color:var(--muted);
-    display:flex;flex-direction:column;align-items:center;gap:1px;transition:background .15s,color .15s}
+    display:flex;flex-direction:column;align-items:center;gap:1px;transition:all .15s}
   .segbar button .sub{font-size:10.5px;font-weight:500;color:var(--faint)}
-  .segbar button.on{background:var(--panel3);color:var(--ink)}
-  .segbar button.on .sub{color:var(--muted)}
-  .segbar button.on.gt{box-shadow:inset 0 0 0 1px rgba(58,224,202,.3)}
-  .segbar button.on.gt .lab{color:var(--teal)}
-  .segbar button.on.mod{box-shadow:inset 0 0 0 1px rgba(165,148,247,.3)}
-  .segbar button.on.mod .lab{color:var(--violet)}
+  .segbar button.on{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+  .segbar button.on.gt .lab{color:var(--indigo)}
+  .segbar button.on.gt .sub{color:color-mix(in srgb,var(--indigo) 60%,var(--muted))}
+  .segbar button.on.mod .lab{color:var(--pink)}
+  .segbar button.on.mod .sub{color:color-mix(in srgb,var(--pink) 55%,var(--muted))}
 
-  .ctxline{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);
-    border-radius:12px;padding:11px 13px;margin-bottom:18px}
-  .ctxline .dotc{width:8px;height:8px;border-radius:50%;flex:none}
-  .ctxline .nm{font-weight:650;font-size:14.5px}
+  .ctxline{width:100%;display:flex;align-items:center;gap:11px;background:var(--surface);border:1px solid var(--border);
+    border-radius:14px;padding:12px 14px;margin-bottom:18px;box-shadow:var(--shadow)}
+  .ctxline .dotc{width:9px;height:9px;border-radius:50%;flex:none}
+  .ctxline .nm{font-weight:680;font-size:14.5px}
   .ctxline .mt{font-size:12px;color:var(--muted);margin-top:1px}
-  .ctxline .chg{margin-left:auto;font-size:12.5px;color:var(--teal);font-weight:600;flex:none}
+  .ctxline .chg{margin-left:auto;font-size:12.5px;color:var(--accent);font-weight:650;flex:none}
 
   .field{margin-bottom:17px}
-  .field > label{display:block;font-size:13px;font-weight:600;color:var(--ink);margin-bottom:8px}
-  .field > label .req{color:var(--teal)}
+  .field > label{display:block;font-size:13px;font-weight:640;color:var(--ink);margin-bottom:8px}
+  .field .sub{font-weight:500;color:var(--muted);font-size:12px}
+  .field > label .req{color:var(--accent)}
   .field > label .op{color:var(--faint);font-weight:500}
-  input[type=text], input[type=date], textarea, select{width:100%;background:var(--panel);border:1px solid var(--line);
-    color:var(--ink);border-radius:12px;padding:12px 13px;outline:none;transition:border-color .15s,background .15s;color-scheme:dark}
-  textarea{resize:vertical;min-height:56px;line-height:1.45}
-  input:focus, textarea:focus, select:focus{border-color:var(--teal);background:var(--panel2)}
+  input[type=text], input[type=date], textarea, select{width:100%;background:var(--surface);border:1px solid var(--border2);
+    color:var(--ink);border-radius:12px;padding:12px 13px;outline:none;transition:border-color .15s,box-shadow .15s;box-shadow:var(--shadow)}
+  textarea{resize:vertical;min-height:54px;line-height:1.45}
+  input:focus, textarea:focus, select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(91,91,214,.13)}
   input::placeholder,textarea::placeholder{color:var(--faint)}
-  select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238A94A2' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23727986' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
     background-repeat:no-repeat;background-position:right 13px center;padding-right:36px}
+  .counthint{font-size:11.5px;color:var(--faint);margin-top:6px;text-align:right;transition:color .15s}
+  .counthint.warn{color:var(--amber)}
 
-  .seg{display:grid;gap:7px}
+  .seg{display:grid;gap:8px}
   .seg.c2{grid-template-columns:repeat(2,1fr)}
   .seg.c3{grid-template-columns:repeat(3,1fr)}
-  .opt{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:11px 12px;text-align:left;transition:all .13s}
-  .opt .t{font-weight:600;font-size:13.5px}
+  .opt{background:var(--surface);border:1px solid var(--border2);border-radius:13px;padding:11px 12px;text-align:left;transition:all .13s;box-shadow:var(--shadow)}
+  .opt .t{font-weight:640;font-size:13.5px}
   .opt .d{font-size:11.5px;color:var(--muted);margin-top:2px;line-height:1.3}
-  .opt.on{border-color:var(--sel,var(--teal));background:var(--selbg,rgba(58,224,202,.1))}
-  .opt.on .t{color:var(--sel,var(--teal))}
+  .opt.on{border-color:var(--sel,var(--accent));background:var(--selbg,var(--accent-soft))}
+  .opt.on .t{color:var(--sel,var(--accent-ink))}
   .opt.center{text-align:center}
 
-  .toggle{display:flex;align-items:center;gap:11px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:11px 13px}
-  .toggle .sw{width:42px;height:24px;border-radius:20px;background:var(--line);position:relative;transition:background .15s;flex:none}
-  .toggle .sw::after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:var(--faint);transition:transform .15s,background .15s}
-  .toggle.on .sw{background:rgba(165,148,247,.4)} .toggle.on .sw::after{transform:translateX(18px);background:var(--violet)}
+  .photorow{display:flex;align-items:center;gap:12px;margin:-4px 0 17px}
+  .addphoto{display:inline-flex;align-items:center;gap:7px;background:var(--surface);border:1px dashed var(--border2);
+    border-radius:11px;padding:10px 14px;font-size:13px;font-weight:600;color:var(--accent)}
+  .addphoto svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
+  .photoprev{position:relative}
+  .photoprev img{width:52px;height:52px;object-fit:cover;border-radius:10px;border:1px solid var(--border);display:block}
+  .photoprev .rm{position:absolute;top:-7px;right:-7px;width:20px;height:20px;border-radius:50%;background:var(--ink);
+    color:#fff;font-size:12px;line-height:20px;text-align:center;box-shadow:var(--shadow)}
+
+  .toggle{display:flex;align-items:center;gap:11px;background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:11px 13px;box-shadow:var(--shadow)}
+  .toggle .sw{width:42px;height:24px;border-radius:20px;background:var(--surface3);position:relative;transition:background .15s;flex:none}
+  .toggle .sw::after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2);transition:transform .15s}
+  .toggle.on .sw{background:var(--accent)} .toggle.on .sw::after{transform:translateX(18px)}
   .toggle .txt{font-size:13.5px}
 
   .actions{display:flex;gap:10px;margin-top:8px}
-  .btn{flex:1;padding:14px;border-radius:13px;font-weight:680;font-size:15px;transition:transform .1s,opacity .15s}
+  .btn{flex:1;padding:14px;border-radius:14px;font-weight:700;font-size:15px;transition:transform .1s,opacity .15s}
   .btn:active{transform:scale(.985)}
-  .btn.primary{background:var(--grad);color:#06231f;box-shadow:0 4px 16px rgba(47,159,216,.25)}
-  .btn.ghost{background:var(--panel2);border:1px solid var(--line);color:var(--ink);flex:0 0 auto;padding:14px 18px}
+  .btn.primary{background:var(--grad);color:#fff;box-shadow:0 4px 14px rgba(99,102,241,.32)}
+  .btn.ghost{background:var(--surface);border:1px solid var(--border2);color:var(--ink);flex:0 0 auto;padding:14px 18px;box-shadow:var(--shadow)}
 
   .filters{display:flex;gap:7px;overflow-x:auto;margin:0 -16px;padding:2px 16px 12px;scrollbar-width:none}
   .filters::-webkit-scrollbar{display:none}
-  .chip{flex:none;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:7px 13px;font-size:12.5px;
-    color:var(--muted);white-space:nowrap;transition:all .12s}
-  .chip.on{background:var(--panel3);border-color:var(--teal);color:var(--teal)}
-  .chip .n{opacity:.65;margin-left:5px;font-variant-numeric:tabular-nums}
+  .chip{flex:none;background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:7px 13px;font-size:12.5px;
+    color:var(--muted);white-space:nowrap;transition:all .12s;box-shadow:var(--shadow)}
+  .chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+  .chip .n{opacity:.6;margin-left:5px;font-variant-numeric:tabular-nums}
 
-  .entry{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-bottom:11px;
-    border-left:3px solid var(--et,var(--faint))}
-  .entry.fixed{opacity:.5}
-  .entry .top{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:8px}
-  .tag{font-size:10.5px;font-weight:600;letter-spacing:.02em;padding:3px 8px;border-radius:7px;
-    background:var(--panel2);color:var(--muted)}
-  .tag.et{color:var(--et);background:color-mix(in srgb,var(--et) 16%,transparent)}
-  .tag.flag{color:var(--red);background:rgba(241,106,102,.15)}
-  .tag.rec{color:var(--amber);background:rgba(245,185,74,.15)}
-  .tag.img{color:var(--violet);background:rgba(165,148,247,.14)}
-  .tag.gt{color:var(--teal);background:rgba(58,224,202,.13)}
-  .tag.mod{color:var(--violet);background:rgba(165,148,247,.13)}
-  .entry .concept{font-weight:650;font-size:15px;margin-bottom:4px}
-  .entry .lesson{font-size:13.5px;color:var(--soft);line-height:1.5}
+  .entry{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 15px;margin-bottom:11px;
+    border-left:3px solid var(--et,var(--faint));box-shadow:var(--shadow)}
+  .entry.fixed{opacity:.6}
+  .entry .top{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+  .tag{font-size:10.5px;font-weight:640;letter-spacing:.01em;padding:3px 8px;border-radius:7px;background:var(--surface2);color:var(--muted)}
+  .tag.et{color:var(--et);background:color-mix(in srgb,var(--et) 13%,transparent)}
+  .tag.flag{color:var(--rose);background:color-mix(in srgb,var(--rose) 12%,transparent)}
+  .tag.rec{color:var(--amber);background:color-mix(in srgb,var(--amber) 14%,transparent)}
+  .tag.img{color:var(--violet);background:color-mix(in srgb,var(--violet) 12%,transparent)}
+  .tag.gt{color:var(--indigo);background:color-mix(in srgb,var(--indigo) 12%,transparent)}
+  .tag.mod{color:var(--pink);background:color-mix(in srgb,var(--pink) 11%,transparent)}
+  .entry .body{display:flex;gap:12px}
+  .entry .txt{flex:1;min-width:0}
+  .entry .concept{font-weight:680;font-size:15px;margin-bottom:4px}
+  .entry .lesson{font-size:13.5px;color:var(--ink2);line-height:1.5}
+  .entry .thumb{width:58px;height:58px;object-fit:cover;border-radius:10px;border:1px solid var(--border);flex:none}
+  .entry .note{font-size:12.5px;color:var(--muted);margin-top:7px;line-height:1.5;white-space:pre-wrap}
+  .entry .notebtn{font-size:12px;color:var(--accent);font-weight:600;margin-top:7px;display:inline-block}
   .entry .trap{font-size:12.5px;color:var(--muted);margin-top:6px}
   .entry .trap b{color:var(--amber);font-weight:600}
-  .entry .foot{display:flex;align-items:center;gap:16px;margin-top:11px;padding-top:10px;border-top:1px solid var(--line)}
-  .entry .foot button{font-size:12.5px;color:var(--muted)}
+  .entry .foot{display:flex;align-items:center;gap:16px;margin-top:11px;padding-top:10px;border-top:1px solid var(--border)}
+  .entry .foot button{font-size:12.5px;color:var(--muted);font-weight:500}
   .entry .foot button:active{color:var(--ink)}
-  .entry .foot .fix.done{color:var(--green)}
+  .entry .foot .fix.done{color:var(--emerald)}
   .entry .foot .src{font-size:11px;color:var(--faint);margin-left:auto}
 
-  .empty{text-align:center;padding:52px 22px;color:var(--muted);line-height:1.55}
-  .empty .ic{width:44px;height:44px;stroke:var(--faint);fill:none;stroke-width:1.6;margin:0 auto 14px;display:block}
-  .empty .big{font-size:16px;color:var(--ink);font-weight:650;margin-bottom:6px}
+  .empty{text-align:center;padding:54px 24px;color:var(--muted);line-height:1.55}
+  .empty .ic{width:46px;height:46px;stroke:var(--faint);fill:none;stroke-width:1.5;margin:0 auto 15px;display:block}
+  .empty .big{font-size:16px;color:var(--ink);font-weight:680;margin-bottom:6px}
 
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:12px}
-  .card h3{font-size:13.5px;font-weight:650;color:var(--ink);margin-bottom:13px;display:flex;align-items:center;gap:8px}
-  .card h3 .accent{width:3px;height:14px;border-radius:2px;background:var(--teal);flex:none}
-  .verdict{border-left:3px solid var(--teal)}
-  .verdict .line{font-size:14px;line-height:1.55;margin-bottom:10px;color:var(--soft)}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:17px;margin-bottom:12px;box-shadow:var(--shadow)}
+  .card h3{font-size:13.5px;font-weight:700;color:var(--ink);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+  .card h3 .accent{width:3px;height:14px;border-radius:2px;background:var(--accent);flex:none}
+  .verdict{border-left:3px solid var(--accent)}
+  .verdict .line{font-size:14px;line-height:1.55;margin-bottom:10px;color:var(--ink2)}
   .verdict .line:last-child{margin-bottom:0}
   .verdict .line b{color:var(--ink)}
-  .verdict .k{color:var(--teal)} .verdict .w{color:var(--red)} .verdict .a{color:var(--amber)}
-  .next{border-left:3px solid var(--teal)}
-  .next h3 .accent{background:var(--teal)}
-  .next .row{display:flex;gap:11px;padding:10px 0;font-size:13.5px;line-height:1.5;border-bottom:1px solid var(--line);align-items:baseline;color:var(--soft)}
+  .verdict .k{color:var(--accent-ink)} .verdict .w{color:var(--rose)} .verdict .a{color:var(--amber)}
+  .next .row{display:flex;gap:11px;padding:10px 0;font-size:13.5px;line-height:1.5;border-bottom:1px solid var(--border);align-items:baseline;color:var(--ink2)}
   .next .row:last-child{border:none;padding-bottom:0}
-  .next .n{color:var(--teal);font-weight:700;flex:none;font-variant-numeric:tabular-nums}
+  .next .n{color:var(--accent);font-weight:750;flex:none;font-variant-numeric:tabular-nums}
   .next .row b{color:var(--ink)}
 
   .split{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .splitcol{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:13px}
-  .splitcol .h{font-size:12px;font-weight:600;margin-bottom:7px;display:flex;align-items:center;gap:6px}
+  .splitcol{background:var(--surface2);border-radius:13px;padding:14px}
+  .splitcol .h{font-size:12px;font-weight:640;margin-bottom:8px;display:flex;align-items:center;gap:6px;color:var(--ink2)}
   .splitcol .h .d{width:7px;height:7px;border-radius:50%}
-  .splitcol .big{font-size:26px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+  .splitcol .big{font-size:27px;font-weight:760;line-height:1;font-variant-numeric:tabular-nums}
   .splitcol .sm{font-size:11.5px;color:var(--muted);margin-top:5px;line-height:1.35}
 
-  .bars{display:flex;flex-direction:column;gap:10px}
-  .bar{display:grid;grid-template-columns:110px 1fr 26px;align-items:center;gap:10px}
-  .bar .k{font-size:12.5px;color:var(--soft)}
-  .bar .track{height:8px;background:var(--panel2);border-radius:5px;overflow:hidden}
+  .bars{display:flex;flex-direction:column;gap:11px}
+  .bar{display:grid;grid-template-columns:108px 1fr 26px;align-items:center;gap:10px}
+  .bar .k{font-size:12.5px;color:var(--ink2)}
+  .bar .track{height:9px;background:var(--surface2);border-radius:5px;overflow:hidden}
   .bar .fill{height:100%;border-radius:5px;transition:width .4s ease}
   .bar .v{font-size:12px;text-align:right;color:var(--ink);font-variant-numeric:tabular-nums}
   .kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .kpi{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:13px}
-  .kpi .num{font-size:25px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+  .kpi{background:var(--surface2);border-radius:13px;padding:14px}
+  .kpi .num{font-size:26px;font-weight:760;line-height:1;font-variant-numeric:tabular-nums}
   .kpi .lab{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.3}
-  .kpi.warn .num{color:var(--amber)} .kpi.bad .num{color:var(--red)} .kpi.ok .num{color:var(--green)}
-  .heat{display:flex;flex-direction:column;gap:6px}
-  .heatrow{display:grid;grid-template-columns:120px 1fr 24px;align-items:center;gap:8px;font-size:13px}
-  .heatrow span:first-child{color:var(--soft)}
-  .heatrow .hb{height:22px;border-radius:6px;background:var(--teal);opacity:var(--o,.3)}
+  .kpi.warn .num{color:var(--amber)} .kpi.bad .num{color:var(--rose)} .kpi.ok .num{color:var(--emerald)}
+  .heat{display:flex;flex-direction:column;gap:7px}
+  .heatrow{display:grid;grid-template-columns:118px 1fr 24px;align-items:center;gap:8px;font-size:13px}
+  .heatrow span:first-child{color:var(--ink2)}
+  .heatrow .hb{height:22px;border-radius:6px;background:var(--accent);opacity:var(--o,.3)}
   .heatrow .hv{font-size:12px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
-  .gtlist .gtrow{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}
+  .gtlist .gtrow{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--border);font-size:13px}
   .gtlist .gtrow:last-child{border:none;padding-bottom:0}
-  .gtlist .gtn{color:var(--teal);font-weight:600;min-width:70px}
-  .gtlist .gtn.mod{color:var(--violet)}
+  .gtlist .gtn{color:var(--indigo);font-weight:640;min-width:66px}
+  .gtlist .gtn.mod{color:var(--pink)}
   .gtlist .gtd{color:var(--muted);flex:1;font-size:12.5px}
   .gtlist .gtc{color:var(--ink);font-variant-numeric:tabular-nums}
 
-  .databtn{width:100%;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:15px;margin-bottom:10px;display:flex;align-items:center;gap:13px}
-  .databtn:active{background:var(--panel2)}
-  .databtn .ic{width:21px;height:21px;stroke:var(--teal);fill:none;stroke-width:1.8;flex:none}
-  .databtn .tt{font-weight:600;font-size:14.5px}
+  .databtn{width:100%;text-align:left;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:15px;margin-bottom:10px;display:flex;align-items:center;gap:13px;box-shadow:var(--shadow)}
+  .databtn:active{background:var(--surface2)}
+  .databtn .ic{width:21px;height:21px;stroke:var(--accent);fill:none;stroke-width:1.9;flex:none}
+  .databtn .tt{font-weight:640;font-size:14.5px}
   .databtn .dd{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.35}
-  .databtn.danger .ic{stroke:var(--red)}
+  .databtn.danger .ic{stroke:var(--rose)}
   .databtn .arrow{margin-left:auto;color:var(--faint);flex:none}
-  .datahead{font-size:11.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);margin:20px 4px 10px}
+  .datahead{font-size:11.5px;font-weight:680;letter-spacing:.05em;text-transform:uppercase;color:var(--faint);margin:22px 4px 10px}
   .datahead:first-child{margin-top:0}
 
-  .editnote{display:none;align-items:center;gap:10px;background:rgba(245,185,74,.1);border:1px solid rgba(245,185,74,.5);
+  .editnote{display:none;align-items:center;gap:10px;background:color-mix(in srgb,var(--amber) 10%,transparent);border:1px solid color-mix(in srgb,var(--amber) 40%,transparent);
     border-radius:12px;padding:11px 13px;margin-bottom:16px;font-size:13px;color:var(--amber)}
   .editnote.show{display:flex}
   .editnote button{margin-left:auto;font-size:12.5px;color:var(--muted);flex:none}
 
-  .rev-prog{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:var(--muted);margin-bottom:12px}
-  .rev-prog .track{flex:1;height:5px;background:var(--panel2);border-radius:3px;margin:0 12px;overflow:hidden}
+  .rev-prog{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:var(--muted);margin-bottom:14px}
+  .rev-prog .track{flex:1;height:6px;background:var(--surface2);border-radius:3px;margin:0 12px;overflow:hidden}
   .rev-prog .track i{display:block;height:100%;background:var(--grad);border-radius:3px;transition:width .3s}
   .rev-prog button{font-size:12.5px;color:var(--faint);flex:none}
-  .revcard{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:20px 17px;
+  .revcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:22px 18px;box-shadow:var(--shadow2);
     border-left:3px solid var(--et,var(--faint))}
-  .revcard .q{font-size:18px;font-weight:680;margin:12px 0 0;line-height:1.4}
-  .revcard .ans{margin-top:16px;padding-top:16px;border-top:1px dashed var(--line);animation:fade .2s ease}
-  .revcard .ans .lesson{font-size:15px;color:var(--soft);line-height:1.55}
+  .revcard .q{font-size:19px;font-weight:700;margin:12px 0 0;line-height:1.38}
+  .revcard .ans{margin-top:16px;padding-top:16px;border-top:1px dashed var(--border2);animation:fade .2s ease}
+  .revcard .ans .lesson{font-size:15.5px;color:var(--ink);line-height:1.55;font-weight:520}
+  .revcard .ans .note{font-size:13.5px;color:var(--ink2);line-height:1.55;margin-top:10px;white-space:pre-wrap}
+  .revcard .ans .notebtn{font-size:12.5px;color:var(--accent);font-weight:600;margin-top:10px;display:inline-block}
+  .revcard img.full{width:100%;border-radius:12px;margin-top:14px;border:1px solid var(--border);display:block}
   .rev-btns{display:flex;gap:10px;margin-top:16px}
-  .btn.know{background:rgba(91,224,138,.15);border:1px solid var(--green);color:var(--green)}
-  .btn.shaky{background:rgba(245,185,74,.12);border:1px solid var(--amber);color:var(--amber)}
-  .rev-done{text-align:center;padding:40px 16px}
-  .rev-done .big{font-size:22px;font-weight:700;margin-bottom:8px}
+  .btn.know{background:color-mix(in srgb,var(--emerald) 12%,var(--surface));border:1px solid var(--emerald);color:var(--emerald);box-shadow:none}
+  .btn.shaky{background:color-mix(in srgb,var(--amber) 12%,var(--surface));border:1px solid var(--amber);color:var(--amber);box-shadow:none}
+  .rev-done{text-align:center;padding:42px 16px}
+  .rev-done .big{font-size:23px;font-weight:760;margin-bottom:8px}
   .rev-done p{color:var(--muted);font-size:14px;line-height:1.6;margin:0 0 22px}
 
-  details.more{margin-bottom:17px;border:1px solid var(--line);border-radius:12px;background:var(--panel);overflow:hidden}
-  details.more summary{list-style:none;cursor:pointer;padding:13px;font-size:13px;font-weight:600;
-    color:var(--muted);display:flex;align-items:center}
+  details.more{margin-bottom:17px;border:1px solid var(--border);border-radius:13px;background:var(--surface);overflow:hidden;box-shadow:var(--shadow)}
+  details.more summary{list-style:none;cursor:pointer;padding:13px 14px;font-size:13px;font-weight:620;color:var(--muted);display:flex;align-items:center}
   details.more summary::-webkit-details-marker{display:none}
-  details.more summary::after{content:"";width:8px;height:8px;margin-left:auto;border-right:2px solid var(--faint);
-    border-bottom:2px solid var(--faint);transform:rotate(45deg);transition:transform .18s}
+  details.more summary::after{content:"";width:8px;height:8px;margin-left:auto;border-right:2px solid var(--faint);border-bottom:2px solid var(--faint);transform:rotate(45deg);transition:transform .18s}
   details.more[open] summary::after{transform:rotate(-135deg)}
-  details.more .inner{padding:0 13px 5px}
+  details.more .inner{padding:2px 14px 6px}
 
-  .dupe{display:none;background:rgba(245,185,74,.09);border:1px solid rgba(245,185,74,.4);border-radius:12px;
-    padding:11px 13px;margin:-8px 0 17px;font-size:12.5px;color:var(--muted);line-height:1.5}
+  .dupe{display:none;background:color-mix(in srgb,var(--amber) 9%,var(--surface));border:1px solid color-mix(in srgb,var(--amber) 38%,transparent);border-radius:12px;
+    padding:11px 13px;margin:-8px 0 17px;font-size:12.5px;color:var(--ink2);line-height:1.5}
   .dupe.show{display:block;animation:fade .2s ease}
-  .dupe b{color:var(--amber)} .dupe .old{color:var(--soft)}
+  .dupe b{color:var(--amber)} .dupe .old{color:var(--ink)}
 
   .searchbox{position:relative;margin-bottom:12px}
   .searchbox input{padding-left:38px}
   .searchbox svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:var(--faint);fill:none;stroke-width:2;pointer-events:none}
 
   .toast{position:fixed;bottom:calc(88px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(20px);
-    background:var(--panel3);border:1px solid var(--teal);color:var(--ink);padding:12px 20px;border-radius:24px;font-size:13.5px;
-    z-index:60;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;box-shadow:0 10px 34px rgba(0,0,0,.55);max-width:88%;text-align:center}
+    background:#23262F;color:#fff;padding:12px 20px;border-radius:24px;font-size:13.5px;z-index:60;opacity:0;
+    transition:opacity .2s,transform .2s;pointer-events:none;box-shadow:0 12px 34px rgba(20,28,45,.28);max-width:88%;text-align:center}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-  .backdrop{position:fixed;inset:0;background:rgba(4,6,9,.72);z-index:50;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(2px)}
+  .backdrop{position:fixed;inset:0;background:rgba(26,28,34,.4);z-index:50;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(3px)}
   .backdrop.show{display:flex}
-  .sheet{background:var(--panel);border:1px solid var(--line);border-top-left-radius:22px;border-top-right-radius:22px;
-    width:100%;max-width:720px;padding:22px 18px calc(26px + env(safe-area-inset-bottom));animation:up .24s ease;max-height:86vh;overflow-y:auto}
+  .sheet{background:var(--surface);border-top-left-radius:24px;border-top-right-radius:24px;width:100%;max-width:680px;
+    padding:22px 18px calc(26px + env(safe-area-inset-bottom));animation:up .24s ease;max-height:88vh;overflow-y:auto;box-shadow:0 -8px 40px rgba(20,28,45,.18)}
   @keyframes up{from{transform:translateY(30px);opacity:.6}to{transform:none;opacity:1}}
-  .sheet .grip{width:38px;height:4px;border-radius:2px;background:var(--line);margin:-8px auto 16px}
-  .sheet h3{font-size:17px;margin-bottom:7px}
+  .sheet .grip{width:38px;height:4px;border-radius:2px;background:var(--border2);margin:-8px auto 16px}
+  .sheet h3{font-size:18px;margin-bottom:7px}
   .sheet p{color:var(--muted);font-size:13.5px;margin:0 0 16px;line-height:1.5}
-  .sheet textarea{min-height:120px;font-size:12.5px;font-family:var(--mono)}
-  .divider{height:1px;background:var(--line);margin:18px 0}
+  .sheet textarea{min-height:120px;font-size:12.5px}
+  .sheet img.zoom{width:100%;border-radius:14px;border:1px solid var(--border)}
   .steps{counter-reset:s;margin:0 0 18px;padding:0;list-style:none}
-  .steps li{counter-increment:s;position:relative;padding:0 0 0 34px;margin-bottom:13px;font-size:13.5px;color:var(--soft);line-height:1.5}
-  .steps li::before{content:counter(s);position:absolute;left:0;top:-1px;width:24px;height:24px;border-radius:50%;
-    background:var(--panel3);color:var(--teal);font-size:12px;font-weight:700;display:grid;place-items:center}
+  .steps li{counter-increment:s;position:relative;padding:0 0 0 34px;margin-bottom:13px;font-size:13.5px;color:var(--ink2);line-height:1.5}
+  .steps li::before{content:counter(s);position:absolute;left:0;top:-1px;width:24px;height:24px;border-radius:50%;background:var(--accent-soft);color:var(--accent-ink);font-size:12px;font-weight:700;display:grid;place-items:center}
   .steps li b{color:var(--ink)}
 </style>
 </head>
@@ -283,7 +296,7 @@
 <main class="wrap">
   <!-- LOG -->
   <section class="view on" id="v-log">
-    <div class="sec-title"><h2>Log a mistake</h2><div class="hint">3 quick taps — build the book you read before every GT</div></div>
+    <div class="sec-title"><h2>Log a mistake</h2><div class="hint">a few taps and one line you'll actually re-read</div></div>
 
     <div class="segbar" id="typeSwitch">
       <button data-type="gt" class="gt"><span class="lab">Weekly GT</span><span class="sub">grand test</span></button>
@@ -318,20 +331,30 @@
     </div>
 
     <div class="field">
-      <label>3 · The fix — one line, readable cold <span class="req">*</span></label>
-      <textarea id="f-lesson" placeholder="Rule + the number that settles it. e.g. STEMI: PCI within 90 min of first contact; 120 if transferring; else lyse within 30 min."></textarea>
+      <label>3 · The one-liner fix <span class="req">*</span> <span class="sub">— the whole thing in a breath</span></label>
+      <textarea id="f-lesson" maxlength="220" placeholder="Just the rule + the number. e.g. STEMI: PCI within 90 min; 120 if transferring; else lyse in 30."></textarea>
+      <div class="counthint" id="lessonCount"></div>
+    </div>
+
+    <div class="photorow" id="photoRow">
+      <button class="addphoto" id="photoBtn" type="button"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> Add photo</button>
+      <div class="photoprev" id="photoPrev"></div>
     </div>
 
     <details class="more" id="moreBox">
-      <summary>Add detail — how sure · the trap · picture Q</summary>
+      <summary>Optional — full note · the trap · how sure</summary>
       <div class="inner">
         <div class="field">
-          <label>How sure were you?</label>
-          <div class="seg c3" id="f-conf"></div>
+          <label>Full note <span class="op">— for the long version</span></label>
+          <textarea id="f-note" placeholder="Dump the whole explanation here if you want it. You'll only see the one-liner when revising — tap to expand this when you need the depth."></textarea>
         </div>
         <div class="field">
           <label>The trap that caught you <span class="op">— optional</span></label>
           <input type="text" id="f-trap" placeholder="e.g. picked the familiar option without reading the last line" autocomplete="off">
+        </div>
+        <div class="field">
+          <label>How sure were you?</label>
+          <div class="seg c3" id="f-conf"></div>
         </div>
         <div class="field">
           <button class="toggle" id="f-image" type="button">
@@ -346,7 +369,7 @@
       <button class="btn primary" id="saveBtn">Save</button>
       <button class="btn ghost" id="saveAddBtn">Save &amp; next</button>
     </div>
-    <p class="faint" style="font-size:12px;margin-top:14px;text-align:center">Tip: press Enter in the fix line to save and jump to the next</p>
+    <p class="faint" style="font-size:12px;margin-top:14px;text-align:center">Tip: press Enter in the one-liner to save and jump to the next</p>
   </section>
 
   <!-- BOOK -->
@@ -385,20 +408,20 @@
     <div class="datahead">Back up</div>
     <button class="databtn" id="exportBtn">
       <svg class="ic" viewBox="0 0 24 24"><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2M16 6l-4-4-4 4M12 2v13"/></svg>
-      <div><div class="tt">Save / share a backup</div><div class="dd" id="backupSub">Opens the share sheet — save to Files, or send to your other device.</div></div>
+      <div><div class="tt">Save / share a backup</div><div class="dd">Opens the share sheet — save to Files, or send to your other device. Includes photos.</div></div>
     </button>
     <button class="databtn" id="copyBtn">
       <svg class="ic" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-      <div><div class="tt">Copy backup as text</div><div class="dd">Always works. Paste it into Notes or a message to keep it safe.</div></div>
+      <div><div class="tt">Copy backup as text</div><div class="dd">Always works. Paste into Notes to keep it. (Text only — no photos.)</div></div>
     </button>
     <div class="datahead">Restore</div>
     <button class="databtn" id="importBtn">
       <svg class="ic" viewBox="0 0 24 24"><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2M8 10l4 4 4-4M12 14V2"/></svg>
-      <div><div class="tt">Load a backup file</div><div class="dd">Merges in anything new. Safe to load twice.</div></div>
+      <div><div class="tt">Load a backup file</div><div class="dd">Merges in anything new, photos included. Safe to load twice.</div></div>
     </button>
     <button class="databtn" id="pasteBtn">
       <svg class="ic" viewBox="0 0 24 24"><path d="M9 4h6a1 1 0 0 1 1 1v1H8V5a1 1 0 0 1 1-1zM8 6H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-2"/></svg>
-      <div><div class="tt">Paste a backup</div><div class="dd">Restore from copied text — for moving between devices.</div></div>
+      <div><div class="tt">Paste a backup</div><div class="dd">Restore from copied text.</div></div>
     </button>
     <div class="datahead">Danger</div>
     <button class="databtn danger" id="wipeBtn">
@@ -427,9 +450,9 @@
 <div class="toast" id="toast"></div>
 <div class="backdrop" id="backdrop"><div class="sheet" id="sheet"></div></div>
 <input type="file" id="fileIn" accept="application/json,.json" style="display:none">
+<input type="file" id="photoIn" accept="image/*" style="display:none">
 
 <script>
-/* storage: Claude's storage when embedded, otherwise the browser's localStorage */
 const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.storage.get==='function';
 async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } try{return localStorage.getItem(k)}catch(_){return null} }
 async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v)}catch(e){} return; } try{localStorage.setItem(k,v)}catch(_){} }
@@ -437,32 +460,32 @@ const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
 
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 
-/* why the mark went — each maps to a different fix */
 const ERRORS=[
-  {id:'knowledge', t:"Didn't know", d:"never learnt it", c:'var(--red)'},
+  {id:'knowledge', t:"Didn't know", d:"never learnt it", c:'var(--rose)'},
   {id:'retrieval', t:"Knew it, blanked", d:"couldn't pull it out", c:'var(--amber)'},
   {id:'reasoning', t:"Wrong logic", d:"facts right, applied wrong", c:'var(--violet)'},
   {id:'execution', t:"Silly slip", d:"misread / mis-marked", c:'var(--teal)'},
 ];
 const ERR_MAP=Object.fromEntries(ERRORS.map(e=>[e.id,e]));
-
 const CONFS=[
-  {id:'high', t:'I was sure', d:'a blind spot', c:'var(--red)'},
+  {id:'high', t:'I was sure', d:'a blind spot', c:'var(--rose)'},
   {id:'med',  t:'Down to 2',  d:'one fact away', c:'var(--amber)'},
   {id:'low',  t:'No idea',    d:'a raw gap', c:'var(--muted)'},
 ];
 
 let entries=[];
 let settings={activeType:'gt', gtSet:'GT-18', moduleSet:'Module 1', examDate:'2026-08-31'};
-let form={subject:SUBJECTS[8], error:null, conf:'med', image:false};
+let form={subject:SUBJECTS[8], error:null, conf:'med', image:false, photo:null};
 let bookFilter={sub:'ALL', type:'ALL', bt:'ALL', q:''};
+let expandedNotes={};
 let editingId=null;
-let review={active:false, queue:[], i:0, revealed:false, known:0, shaky:0};
+let review={active:false, queue:[], i:0, revealed:false, known:0, shaky:0, noteOpen:false};
 let deferredPrompt=null;
+let photos={}; /* id -> dataURL, kept in IndexedDB */
 
 function curType(){return settings.activeType==='module'?'module':'gt'}
 function curSet(){return curType()==='gt'?settings.gtSet:settings.moduleSet}
-function typeColor(t){return t==='module'?'var(--violet)':'var(--teal)'}
+function typeColor(t){return t==='module'?'var(--pink)':'var(--indigo)'}
 function typeLabel(t){return t==='module'?'Daily module':'Weekly GT'}
 
 async function boot(){
@@ -473,21 +496,17 @@ async function boot(){
   buildForm(); bindTabs(); bindActions(); render(); switchView('log');
   requestPersistence();
   if('serviceWorker' in navigator){ try{navigator.serviceWorker.register('./sw.js')}catch(_){}}
+  loadPhotos().then(()=>render());
 }
 
-/* one-time upgrade of older data to the GT/module model */
 function migrate(){
   let changed=false;
-  entries.forEach(e=>{
-    if(!e.testType){ e.testType = /gt|grand/i.test(e.set||'') ? 'gt' : 'module'; changed=true; }
-  });
+  entries.forEach(e=>{ if(!e.testType){ e.testType = /gt|grand/i.test(e.set||'') ? 'gt' : 'module'; changed=true; } });
   if(!settings._migrated){
-    // carry over the legacy single "active set"
     if(settings.activeSet){
       if(/gt|grand/i.test(settings.activeSet)){ settings.gtSet=settings.activeSet; settings.activeType='gt'; }
       else { settings.moduleSet=settings.activeSet; settings.activeType='module'; }
     }
-    // adopt each type's most recent real set name from existing entries (so old names survive)
     const recent=(type,def)=>{const m=entries.filter(e=>e.testType===type).sort((a,b)=>b.ts-a.ts)[0];return m?m.set:def;};
     if(settings.gtSet==='GT-18') settings.gtSet=recent('gt','GT-18');
     if(settings.moduleSet==='Module 1') settings.moduleSet=recent('module','Module 1');
@@ -495,13 +514,17 @@ function migrate(){
   }
   if(changed){ persist(); persistSettings(); }
 }
-
 async function persist(){ await sset(K_ENTRIES,JSON.stringify(entries)); }
 async function persistSettings(){ await sset(K_SET,JSON.stringify(settings)); }
+async function requestPersistence(){ try{ if(navigator.storage && navigator.storage.persist){ const p=await navigator.storage.persisted(); if(!p) await navigator.storage.persist(); } }catch(_){} }
 
-async function requestPersistence(){
-  try{ if(navigator.storage && navigator.storage.persist){ const p=await navigator.storage.persisted(); if(!p) await navigator.storage.persist(); } }catch(_){}
-}
+/* ---------- photos in IndexedDB ---------- */
+function idbOpen(){return new Promise((res,rej)=>{try{const r=indexedDB.open('ml_media',1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains('photos'))r.result.createObjectStore('photos')};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}})}
+function req(r){return new Promise((res,rej)=>{r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
+async function idbSet(k,v){try{const d=await idbOpen();const t=d.transaction('photos','readwrite');t.objectStore('photos').put(v,k);return new Promise(r=>{t.oncomplete=r;t.onerror=r})}catch(_){}}
+async function idbDel(k){try{const d=await idbOpen();const t=d.transaction('photos','readwrite');t.objectStore('photos').delete(k);return new Promise(r=>{t.oncomplete=r;t.onerror=r})}catch(_){}}
+async function loadPhotos(){try{const d=await idbOpen();const t=d.transaction('photos','readonly');const s=t.objectStore('photos');const keys=await req(s.getAllKeys());const vals=await req(s.getAll());keys.forEach((k,i)=>photos[k]=vals[i])}catch(_){}}
+function compressImage(file,max=1100,q=0.62){return new Promise((res,rej)=>{const rd=new FileReader();rd.onload=()=>{const img=new Image();img.onload=()=>{let w=img.width,h=img.height;if(w>h&&w>max){h=Math.round(h*max/w);w=max}else if(h>=w&&h>max){w=Math.round(w*max/h);h=max}const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);try{res(c.toDataURL('image/jpeg',q))}catch(e){rej(e)}};img.onerror=rej;img.src=rd.result};rd.onerror=rej;rd.readAsDataURL(file)})}
 
 function buildForm(){
   const sub=document.getElementById('f-subject');
@@ -520,17 +543,12 @@ function buildForm(){
   paint(cf,'c',form.conf);
 
   document.getElementById('f-image').onclick=function(){form.image=!form.image;this.classList.toggle('on',form.image)};
-
   document.querySelectorAll('#typeSwitch button').forEach(b=>b.onclick=()=>setType(b.dataset.type));
   paintTypeSwitch();
 }
 function paint(container,attr,val){container.querySelectorAll('.opt').forEach(b=>b.classList.toggle('on',b.dataset[attr]===val));}
-function paintTypeSwitch(){
-  document.querySelectorAll('#typeSwitch button').forEach(b=>b.classList.toggle('on',b.dataset.type===curType()));
-}
-async function setType(t){
-  settings.activeType=t; await persistSettings(); paintTypeSwitch(); renderCtx();
-}
+function paintTypeSwitch(){document.querySelectorAll('#typeSwitch button').forEach(b=>b.classList.toggle('on',b.dataset.type===curType()));}
+async function setType(t){settings.activeType=t; await persistSettings(); paintTypeSwitch(); renderCtx();}
 
 function renderCtx(){
   const t=curType();
@@ -539,23 +557,40 @@ function renderCtx(){
   const n=entries.filter(e=>e.testType===t && e.set===curSet()).length;
   document.getElementById('ctxMeta').textContent=`${typeLabel(t)} · ${n} logged here`;
 }
+function updateCount(){
+  const el=document.getElementById('lessonCount');
+  const n=document.getElementById('f-lesson').value.length;
+  if(!n){el.textContent='';el.classList.remove('warn');return}
+  el.textContent=n+' / 220';
+  el.classList.toggle('warn',n>170);
+}
+function renderPhotoPrev(){
+  const box=document.getElementById('photoPrev');
+  if(form.photo){
+    box.innerHTML=`<img src="${form.photo}" alt=""><span class="rm" id="photoRm">×</span>`;
+    document.getElementById('photoRm').onclick=(ev)=>{ev.stopPropagation();form.photo=null;renderPhotoPrev()};
+    document.getElementById('photoBtn').innerHTML='<svg viewBox="0 0 24 24"><path d="M4 12h16"/></svg> Replace';
+  }else{
+    box.innerHTML='';
+    document.getElementById('photoBtn').innerHTML='<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> Add photo';
+  }
+}
 
 function readForm(){return {
   concept:document.getElementById('f-concept').value.trim(),
   lesson:document.getElementById('f-lesson').value.trim(),
+  note:document.getElementById('f-note').value.trim(),
   trap:document.getElementById('f-trap').value.trim(),
 };}
-/* subject + test context survive a save — you log several from the same paper in a row */
 function clearForm(){
-  document.getElementById('f-concept').value='';
-  document.getElementById('f-lesson').value='';
-  document.getElementById('f-trap').value='';
-  form.error=null; form.conf='med'; form.image=false;
+  ['f-concept','f-lesson','f-note','f-trap'].forEach(id=>document.getElementById(id).value='');
+  form.error=null; form.conf='med'; form.image=false; form.photo=null;
   document.getElementById('f-subject').value=form.subject;
   paint(document.getElementById('f-error'),'e',null);
   paint(document.getElementById('f-conf'),'c','med');
   document.getElementById('f-image').classList.remove('on');
   document.getElementById('dupeHint').classList.remove('show');
+  updateCount(); renderPhotoPrev();
 }
 
 function checkDupe(){
@@ -563,45 +598,39 @@ function checkDupe(){
   const words=normalize(document.getElementById('f-concept').value).split(' ').filter(w=>w.length>2);
   if(words.length<2){box.classList.remove('show');return}
   let best=null,bestN=0;
-  entries.forEach(e=>{
-    if(editingId && e.id===editingId)return;
-    const ew=new Set(normalize(e.concept).split(' '));
-    const n=words.filter(w=>ew.has(w)).length;
-    if(n>bestN){bestN=n;best=e}
-  });
-  if(best && bestN>=2){
-    box.innerHTML=`<b>You've logged this before</b> — ${esc(best.set)}: <span class="old">“${esc(best.lesson)}”</span>`;
-    box.classList.add('show');
-  }else box.classList.remove('show');
+  entries.forEach(e=>{ if(editingId && e.id===editingId)return; const ew=new Set(normalize(e.concept).split(' ')); const n=words.filter(w=>ew.has(w)).length; if(n>bestN){bestN=n;best=e} });
+  if(best && bestN>=2){ box.innerHTML=`<b>You've logged this before</b> — ${esc(best.set)}: <span class="old">“${esc(best.lesson)}”</span>`; box.classList.add('show'); }
+  else box.classList.remove('show');
 }
 function validate(f){
   if(!f.concept){toast('What did it test?');return false}
   if(!form.error){toast('Tap why the mark went');return false}
-  if(!f.lesson){toast('Write the one-line fix');return false}
+  if(!f.lesson){toast('Write the one-liner fix');return false}
   return true;
 }
 async function doSave(again){
   const f=readForm(); if(!validate(f))return;
+  const hasPhoto=!!form.photo;
   if(editingId){
     const e=entries.find(x=>x.id===editingId);
-    if(e) Object.assign(e,{subject:form.subject, concept:f.concept, lesson:f.lesson, trap:f.trap,
-      error:form.error, conf:form.conf, image:form.image});
+    if(e){
+      Object.assign(e,{subject:form.subject, concept:f.concept, lesson:f.lesson, note:f.note, trap:f.trap,
+        error:form.error, conf:form.conf, image:form.image||hasPhoto, hasPhoto});
+      if(hasPhoto){photos[e.id]=form.photo; idbSet(e.id,form.photo)} else {delete photos[e.id]; idbDel(e.id)}
+    }
     editingId=null; updateEditUI();
-    await persist(); toast('Updated'); clearForm(); render(); switchView('book');
-    return;
+    await persist(); toast('Updated'); clearForm(); render(); switchView('book'); return;
   }
-  entries.unshift({
-    id:'m'+Date.now()+Math.floor(Math.random()*99),
-    ts:Date.now(), testType:curType(), set:curSet(), subject:form.subject,
-    concept:f.concept, lesson:f.lesson, trap:f.trap,
-    error:form.error, conf:form.conf, image:form.image, status:'open'
-  });
+  const id='m'+Date.now()+Math.floor(Math.random()*99);
+  if(hasPhoto){photos[id]=form.photo; idbSet(id,form.photo)}
+  entries.unshift({ id, ts:Date.now(), testType:curType(), set:curSet(), subject:form.subject,
+    concept:f.concept, lesson:f.lesson, note:f.note, trap:f.trap,
+    error:form.error, conf:form.conf, image:form.image||hasPhoto, hasPhoto, status:'open' });
   await persist();
   const n=entries.length;
   toast(again?'Saved — next one':'Saved to '+curSet());
   if(n>0 && n%20===0) setTimeout(()=>toast("That's "+n+" saved — back it up in Data"),1800);
-  clearForm();
-  render();
+  clearForm(); render();
   if(again){document.getElementById('f-concept').focus();window.scrollTo({top:0,behavior:'smooth'})}
   else switchView('book');
 }
@@ -611,16 +640,17 @@ function startEdit(id){
   editingId=id;
   if(e.testType) setType(e.testType);
   form.subject=SUBJECTS.includes(e.subject)?e.subject:form.subject;
-  form.error=e.error; form.conf=e.conf||'med'; form.image=!!e.image;
+  form.error=e.error; form.conf=e.conf||'med'; form.image=!!e.image; form.photo=e.hasPhoto?(photos[e.id]||null):null;
   document.getElementById('f-subject').value=form.subject;
   document.getElementById('f-concept').value=e.concept||'';
   document.getElementById('f-lesson').value=e.lesson||'';
+  document.getElementById('f-note').value=e.note||'';
   document.getElementById('f-trap').value=e.trap||'';
   paint(document.getElementById('f-error'),'e',form.error);
   paint(document.getElementById('f-conf'),'c',form.conf);
   document.getElementById('f-image').classList.toggle('on',form.image);
-  document.getElementById('moreBox').open=true;
-  updateEditUI(); switchView('log');
+  document.getElementById('moreBox').open=!!(e.note||e.trap);
+  updateCount(); renderPhotoPrev(); updateEditUI(); switchView('log');
 }
 function cancelEdit(){editingId=null; clearForm(); updateEditUI(); toast('Edit cancelled')}
 function updateEditUI(){
@@ -630,7 +660,6 @@ function updateEditUI(){
 }
 
 function normalize(s){return (s||'').toLowerCase().replace(/[^a-z0-9 ]/g,'').replace(/\s+/g,' ').trim()}
-/* fuzzy repeat detection: same subject + enough shared concept words = the same mistake */
 function sigWords(e){return new Set(normalize(e.concept).split(' ').filter(w=>w.length>2))}
 function buildGroups(){
   const n=entries.length, parent=[...Array(n).keys()];
@@ -638,14 +667,11 @@ function buildGroups(){
   const sets=entries.map(sigWords);
   for(let i=0;i<n;i++)for(let j=i+1;j<n;j++){
     if(entries[i].subject!==entries[j].subject)continue;
-    const need=Math.min(2,sets[i].size,sets[j].size);
-    if(!need)continue;
+    const need=Math.min(2,sets[i].size,sets[j].size); if(!need)continue;
     let shared=0; for(const w of sets[i]){if(sets[j].has(w)&&++shared>=need)break}
     if(shared>=need)parent[find(i)]=find(j);
   }
-  const groups={};
-  entries.forEach((e,i)=>{const r=find(i);(groups[r]=groups[r]||[]).push(e)});
-  return Object.values(groups);
+  const groups={}; entries.forEach((e,i)=>{const r=find(i);(groups[r]=groups[r]||[]).push(e)}); return Object.values(groups);
 }
 function recurrenceMap(){const m={};buildGroups().forEach(arr=>arr.forEach(e=>m[e.id]=arr.length));return m}
 function isRecurring(e,map){return (map[e.id]||0)>=2}
@@ -655,15 +681,14 @@ function render(){
   const d=daysToExam();
   const num=document.getElementById('examNum'), lbl=document.getElementById('examLbl'), chip=document.getElementById('examChip');
   if(d===null){num.textContent='set'; lbl.textContent='exam date'; chip.style.color='var(--muted)'}
-  else if(d>0){num.textContent=d; lbl.textContent=d===1?'day to exam':'days to exam'; chip.style.color=d<=14?'var(--red)':'var(--ink)'}
-  else {num.textContent=d===0?'today':'done'; lbl.textContent=d===0?'exam day':'exam done'; chip.style.color='var(--green)'}
+  else if(d>0){num.textContent=d; lbl.textContent=d===1?'day to exam':'days to exam'; chip.style.color=d<=14?'var(--rose)':'var(--ink)'}
+  else {num.textContent=d===0?'today':'done'; lbl.textContent=d===0?'exam day':'exam done'; chip.style.color='var(--emerald)'}
   renderCtx(); paintTypeSwitch();
   renderBook(); renderReview(); renderInsights(); renderInstall();
 }
 function daysToExam(){
   if(!settings.examDate)return null;
-  const t=new Date(settings.examDate+'T00:00:00');
-  if(isNaN(t))return null;
+  const t=new Date(settings.examDate+'T00:00:00'); if(isNaN(t))return null;
   const today=new Date(); today.setHours(0,0,0,0);
   return Math.round((t-today)/864e5);
 }
@@ -671,7 +696,6 @@ function daysToExam(){
 function renderBook(){
   const map=recurrenceMap();
   document.querySelectorAll('#bookType button').forEach(b=>b.classList.toggle('on',b.dataset.bt===bookFilter.bt));
-
   let scoped=entries.slice();
   if(bookFilter.bt!=='ALL') scoped=scoped.filter(e=>e.testType===bookFilter.bt);
 
@@ -683,16 +707,13 @@ function renderBook(){
   sf.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{bookFilter.sub=c.dataset.sub;renderBook()});
 
   const tf=document.getElementById('typeFilters');
-  const typeChips=[['ALL','Everything'],['open','Still to fix'],['recurring','Keeps happening'],['blind','You were sure'],['image','Picture Qs']]
-    .concat(ERRORS.map(e=>[e.id,e.t]));
+  const typeChips=[['ALL','Everything'],['open','Still to fix'],['recurring','Keeps happening'],['blind','You were sure'],['image','Picture Qs']].concat(ERRORS.map(e=>[e.id,e.t]));
   tf.innerHTML=typeChips.map(([v,l])=>`<button class="chip ${bookFilter.type===v?'on':''}" data-t="${v}">${esc(l)}</button>`).join('');
   tf.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{bookFilter.type=c.dataset.t;renderBook()});
 
   let list=scoped;
-  if(bookFilter.q){
-    const q=bookFilter.q.toLowerCase();
-    list=list.filter(e=>((e.concept||'')+' '+(e.lesson||'')+' '+(e.trap||'')+' '+(e.subject||'')+' '+(e.set||'')).toLowerCase().includes(q));
-  }
+  if(bookFilter.q){const q=bookFilter.q.toLowerCase();
+    list=list.filter(e=>((e.concept||'')+' '+(e.lesson||'')+' '+(e.note||'')+' '+(e.trap||'')+' '+(e.subject||'')+' '+(e.set||'')).toLowerCase().includes(q));}
   if(bookFilter.sub!=='ALL') list=list.filter(e=>e.subject===bookFilter.sub);
   const t=bookFilter.type;
   if(t==='open') list=list.filter(e=>e.status==='open');
@@ -700,7 +721,6 @@ function renderBook(){
   else if(t==='blind') list=list.filter(e=>e.conf==='high');
   else if(t==='image') list=list.filter(e=>e.image);
   else if(ERR_MAP[t]) list=list.filter(e=>e.error===t);
-
   list.sort((a,b)=>{const d=priorityScore(b,map)-priorityScore(a,map); return d!==0?d:b.ts-a.ts});
 
   const box=document.getElementById('bookList');
@@ -713,6 +733,8 @@ function renderBook(){
   box.innerHTML=list.map(e=>{
     const em=ERR_MAP[e.error]||{t:'—',c:'var(--faint)'};
     const rec=isRecurring(e,map), blind=(e.conf==='high');
+    const thumb=e.hasPhoto&&photos[e.id]?`<img class="thumb" data-zoom="${e.id}" src="${photos[e.id]}" alt="">`:'';
+    const noteOpen=expandedNotes[e.id];
     return `<div class="entry ${e.status==='fixed'?'fixed':''}" style="--et:${em.c}" data-id="${e.id}">
       <div class="top">
         <span class="tag ${e.testType==='module'?'mod':'gt'}">${e.testType==='module'?'module':'GT'}</span>
@@ -722,9 +744,15 @@ function renderBook(){
         ${e.image?'<span class="tag img">picture</span>':''}
         <span class="tag">${esc(e.subject)}</span>
       </div>
-      <div class="concept">${esc(e.concept)}</div>
-      <div class="lesson">${esc(e.lesson)}</div>
-      ${e.trap?`<div class="trap"><b>Trap:</b> ${esc(e.trap)}</div>`:''}
+      <div class="body">
+        <div class="txt">
+          <div class="concept">${esc(e.concept)}</div>
+          <div class="lesson">${esc(e.lesson)}</div>
+          ${e.note?(noteOpen?`<div class="note">${esc(e.note)}</div><span class="notebtn" data-note="${e.id}">hide note</span>`:`<span class="notebtn" data-note="${e.id}">+ full note</span>`):''}
+          ${e.trap?`<div class="trap"><b>Trap:</b> ${esc(e.trap)}</div>`:''}
+        </div>
+        ${thumb}
+      </div>
       <div class="foot">
         <button class="fix ${e.status==='fixed'?'done':''}" data-fix="${e.id}">${e.status==='fixed'?'✓ fixed':'mark fixed'}</button>
         <button data-edit="${e.id}">edit</button>
@@ -736,17 +764,19 @@ function renderBook(){
   box.querySelectorAll('[data-fix]').forEach(b=>b.onclick=()=>toggleFix(b.dataset.fix));
   box.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>startEdit(b.dataset.edit));
   box.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>delEntry(b.dataset.del));
+  box.querySelectorAll('[data-note]').forEach(b=>b.onclick=()=>{expandedNotes[b.dataset.note]=!expandedNotes[b.dataset.note];renderBook()});
+  box.querySelectorAll('[data-zoom]').forEach(b=>b.onclick=()=>zoomPhoto(b.dataset.zoom));
 }
+function zoomPhoto(id){ if(photos[id]) openSheet(`<img class="zoom" src="${photos[id]}" alt=""><div class="actions" style="margin-top:16px"><button class="btn primary" onclick="document.getElementById('backdrop').classList.remove('show')">Close</button></div>`); }
 async function toggleFix(id){const e=entries.find(x=>x.id===id);if(!e)return;e.status=e.status==='fixed'?'open':'fixed';e.fixedTs=e.status==='fixed'?Date.now():null;await persist();render()}
 async function delEntry(id){
   entries=entries.filter(x=>x.id!==id);
+  if(photos[id]){delete photos[id]; idbDel(id)}
   if(editingId===id){editingId=null;clearForm();updateEditUI()}
   await persist();render();toast('Deleted');
 }
 
-/* ---- review: active recall ---- */
 function priorityScore(e,map){let s=0; if(e.status==='open')s+=8; if(isRecurring(e,map))s+=4; if(e.conf==='high')s+=2; return s}
-
 function startReview(scope){
   const map=recurrenceMap();
   let list=entries.slice();
@@ -756,7 +786,7 @@ function startReview(scope){
   else if(scope==='module') list=list.filter(e=>e.testType==='module');
   if(!list.length){toast('Nothing to review there');return}
   list.sort((a,b)=>{const d=priorityScore(b,map)-priorityScore(a,map); return d!==0?d:(a.lastReview||0)-(b.lastReview||0)});
-  review={active:true, scope, queue:list, i:0, revealed:false, known:0, shaky:0};
+  review={active:true, scope, queue:list, i:0, revealed:false, known:0, shaky:0, noteOpen:false};
   renderReview(); window.scrollTo({top:0});
 }
 async function markReview(knew){
@@ -764,7 +794,7 @@ async function markReview(knew){
   e.lastReview=Date.now();
   if(knew){ e.streak=(e.streak||0)+1; if(e.streak>=2 && e.status==='open'){e.status='fixed';e.fixedTs=Date.now()} review.known++; }
   else { e.streak=0; if(e.status==='fixed'){e.status='open';e.fixedTs=null} review.shaky++; }
-  review.i++; review.revealed=false;
+  review.i++; review.revealed=false; review.noteOpen=false;
   await persist(); render();
 }
 function endReview(){review.active=false; renderReview()}
@@ -779,8 +809,7 @@ function renderReview(){
     }
     const open=entries.filter(e=>e.status==='open').length;
     const inSet=entries.filter(e=>e.set===curSet() && e.testType===curType()).length;
-    const gtN=entries.filter(e=>e.testType==='gt').length;
-    const modN=entries.filter(e=>e.testType==='module').length;
+    const gtN=entries.filter(e=>e.testType==='gt').length, modN=entries.filter(e=>e.testType==='module').length;
     const mins=Math.max(1,Math.round(open*20/60));
     let cards=`
       <button class="databtn" data-rev="open" ${open?'':'disabled style="opacity:.45"'}>
@@ -791,45 +820,38 @@ function renderReview(){
         <svg class="ic" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
         <div><div class="tt">${esc(curSet())} — ${inSet}</div><div class="dd">Just the test you're logging to now.</div></div>
       </button>`;
-    if(gtN && modN){
-      cards+=`
-      <button class="databtn" data-rev="gt">
-        <svg class="ic" viewBox="0 0 24 24"><path d="M12 2l2.4 7.4H22l-6 4.5 2.3 7.1L12 16.7 5.7 21l2.3-7.1-6-4.5h7.6z"/></svg>
-        <div><div class="tt">All weekly GTs — ${gtN}</div><div class="dd">Everything from your grand tests.</div></div>
-      </button>
-      <button class="databtn" data-rev="module">
-        <svg class="ic" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
-        <div><div class="tt">All daily modules — ${modN}</div><div class="dd">Everything from your topic modules.</div></div>
-      </button>`;
-    }
+    if(gtN && modN){ cards+=`
+      <button class="databtn" data-rev="gt"><svg class="ic" viewBox="0 0 24 24"><path d="M12 2l2.4 7.4H22l-6 4.5 2.3 7.1L12 16.7 5.7 21l2.3-7.1-6-4.5h7.6z"/></svg>
+        <div><div class="tt">All weekly GTs — ${gtN}</div><div class="dd">Everything from your grand tests.</div></div></button>
+      <button class="databtn" data-rev="module"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        <div><div class="tt">All daily modules — ${modN}</div><div class="dd">Everything from your topic modules.</div></div></button>`; }
     cards+=`
-      <button class="databtn" data-rev="all">
-        <svg class="ic" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z"/></svg>
-        <div><div class="tt">Everything — ${entries.length}</div><div class="dd">The whole book. Save this for the final weeks.</div></div>
-      </button>
+      <button class="databtn" data-rev="all"><svg class="ic" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z"/></svg>
+        <div><div class="tt">Everything — ${entries.length}</div><div class="dd">The whole book. Save this for the final weeks.</div></div></button>
       <p class="faint" style="font-size:12px;margin-top:14px;text-align:center;line-height:1.6">Say the fix out loud before you reveal it. “Still shaky” reopens one and resets its streak.</p>`;
     box.innerHTML=cards;
     box.querySelectorAll('[data-rev]').forEach(b=>b.onclick=()=>startReview(b.dataset.rev));
     return;
   }
   if(review.i>=review.queue.length){
-    box.innerHTML=`<div class="rev-done">
-      <div class="big">Done — ${review.queue.length} reviewed</div>
-      <p><b style="color:var(--green)">${review.known} recalled</b> · <b style="color:var(--amber)">${review.shaky} still shaky</b>${review.shaky?'<br>The shaky ones are back at the top of your book.':''}</p>
-      <div class="actions"><button class="btn primary" id="revAgain">Go again</button><button class="btn ghost" id="revDone">Finish</button></div>
-    </div>`;
+    box.innerHTML=`<div class="rev-done"><div class="big">Done — ${review.queue.length} reviewed</div>
+      <p><b style="color:var(--emerald)">${review.known} recalled</b> · <b style="color:var(--amber)">${review.shaky} still shaky</b>${review.shaky?'<br>The shaky ones are back at the top of your book.':''}</p>
+      <div class="actions"><button class="btn primary" id="revAgain">Go again</button><button class="btn ghost" id="revDone">Finish</button></div></div>`;
     document.getElementById('revAgain').onclick=()=>startReview(review.scope);
     document.getElementById('revDone').onclick=endReview;
     return;
   }
   const e=review.queue[review.i], em=ERR_MAP[e.error]||{t:'—',c:'var(--faint)'};
   const pct=Math.round(review.i/review.queue.length*100);
+  const photo=e.hasPhoto&&photos[e.id]?`<img class="full" src="${photos[e.id]}" alt="">`:'';
+  const noteBlock=e.note?(review.noteOpen?`<div class="note">${esc(e.note)}</div><span class="notebtn" id="revNoteBtn">hide note</span>`:`<span class="notebtn" id="revNoteBtn">+ full note</span>`):'';
   box.innerHTML=`
     <div class="rev-prog"><span>${review.i+1} / ${review.queue.length}</span><span class="track"><i style="width:${pct}%"></i></span><button id="revQuit">quit</button></div>
     <div class="revcard" style="--et:${em.c}">
-      <div class="top"><span class="tag ${e.testType==='module'?'mod':'gt'}">${e.testType==='module'?'module':'GT'}</span><span class="tag">${esc(e.subject)}</span><span class="tag et">${em.t}</span>${e.image?'<span class="tag img">picture</span>':''}</div>
+      <div class="top"><span class="tag ${e.testType==='module'?'mod':'gt'}">${e.testType==='module'?'module':'GT'}</span><span class="tag">${esc(e.subject)}</span><span class="tag et">${em.t}</span></div>
       <div class="q">${esc(e.concept)}</div>
-      ${review.revealed?`<div class="ans"><div class="lesson">${esc(e.lesson)}</div>${e.trap?`<div class="trap"><b>Trap:</b> ${esc(e.trap)}</div>`:''}</div>`:''}
+      ${photo}
+      ${review.revealed?`<div class="ans"><div class="lesson">${esc(e.lesson)}</div>${noteBlock}${e.trap?`<div class="trap" style="margin-top:10px"><b>Trap:</b> ${esc(e.trap)}</div>`:''}</div>`:''}
     </div>
     ${review.revealed
       ?`<div class="rev-btns"><button class="btn know" id="revKnow">Knew it</button><button class="btn shaky" id="revShaky">Still shaky</button></div>`
@@ -838,6 +860,7 @@ function renderReview(){
   if(review.revealed){
     document.getElementById('revKnow').onclick=()=>markReview(true);
     document.getElementById('revShaky').onclick=()=>markReview(false);
+    const nb=document.getElementById('revNoteBtn'); if(nb) nb.onclick=()=>{review.noteOpen=!review.noteOpen;renderReview()};
   }else{
     document.getElementById('revShow').onclick=()=>{review.revealed=true;renderReview()};
   }
@@ -853,55 +876,39 @@ const FIXTEXT={
 function nextCard(map){
   const rows=[]; let i=1;
   const open=entries.filter(e=>e.status==='open');
-  if(open.length){
-    const mins=Math.max(1,Math.round(open.length*20/60));
-    rows.push(`<div class="row"><span class="n">${i++}</span><span>Clear <b>${open.length} open</b> in Review — about ${mins} min. Night before your GT at the latest.</span></div>`);
-  }
+  if(open.length){ const mins=Math.max(1,Math.round(open.length*20/60));
+    rows.push(`<div class="row"><span class="n">${i++}</span><span>Clear <b>${open.length} open</b> in Review — about ${mins} min. Night before your GT at the latest.</span></div>`); }
   const reps=buildGroups().filter(a=>a.length>=2).sort((a,b)=>b.length-a.length).slice(0,3);
-  if(reps.length){
-    rows.push(`<div class="row"><span class="n">${i++}</span><span>You keep re-missing ${reps.map(a=>`<b>${esc(a[0].concept)}</b> ×${a.length}`).join(', ')}. Cheapest marks on the table — nail these this week.</span></div>`);
-  }
+  if(reps.length) rows.push(`<div class="row"><span class="n">${i++}</span><span>You keep re-missing ${reps.map(a=>`<b>${esc(a[0].concept)}</b> ×${a.length}`).join(', ')}. Cheapest marks on the table — nail these this week.</span></div>`);
   const openBySub={}; open.forEach(e=>openBySub[e.subject]=(openBySub[e.subject]||0)+1);
   const worst=Object.entries(openBySub).sort((a,b)=>b[1]-a[1])[0];
-  if(worst && worst[1]>=3){
-    rows.push(`<div class="row"><span class="n">${i++}</span><span><b>${esc(worst[0])}</b> is leaking most right now — ${worst[1]} open. Give it first slot in this week's modules.</span></div>`);
-  }
+  if(worst && worst[1]>=3) rows.push(`<div class="row"><span class="n">${i++}</span><span><b>${esc(worst[0])}</b> is leaking most right now — ${worst[1]} open. Give it first slot in this week's modules.</span></div>`);
   const blindOpen=open.filter(e=>e.conf==='high').length;
-  if(blindOpen){
-    rows.push(`<div class="row"><span class="n">${i++}</span><span><b>${blindOpen} blind spot${blindOpen>1?'s':''}</b> — sure but wrong. These won't feel wrong in the exam either; re-learn them properly, don't just re-read.</span></div>`);
-  }
+  if(blindOpen) rows.push(`<div class="row"><span class="n">${i++}</span><span><b>${blindOpen} blind spot${blindOpen>1?'s':''}</b> — sure but wrong. These won't feel wrong in the exam either; re-learn them properly.</span></div>`);
   if(!rows.length) rows.push(`<div class="row"><span class="n">✓</span><span>Nothing open — you're clear. Log your next GT or module and keep it that way.</span></div>`);
   const d=daysToExam();
   const head=d!==null&&d>0?`Do this next · ${d} day${d>1?'s':''} to exam`:'Do this next';
   return `<div class="card next"><h3><span class="accent"></span>${head}</h3>${rows.join('')}</div>`;
 }
-
-/* GT vs module comparison — only when both exist */
 function typeSplitCard(){
   const gt=entries.filter(e=>e.testType==='gt'), mod=entries.filter(e=>e.testType==='module');
   if(!gt.length || !mod.length) return '';
   const dom=arr=>{const c={};arr.forEach(e=>c[e.error]=(c[e.error]||0)+1);return ERRORS.slice().sort((a,b)=>(c[b.id]||0)-(c[a.id]||0))[0]};
-  const col=(arr,color,name)=>{
-    const d=dom(arr), openN=arr.filter(e=>e.status==='open').length;
+  const col=(arr,color,name)=>{const d=dom(arr), openN=arr.filter(e=>e.status==='open').length;
     return `<div class="splitcol"><div class="h"><span class="d" style="background:${color}"></span>${name}</div>
-      <div class="big" style="color:${color}">${arr.length}</div>
-      <div class="sm">${openN} still open · mostly <b style="color:var(--soft)">${d.t.toLowerCase()}</b></div></div>`;
-  };
-  return `<div class="card"><h3><span class="accent"></span>GTs vs daily modules</h3>
-    <div class="split">${col(gt,'var(--teal)','Weekly GTs')}${col(mod,'var(--violet)','Daily modules')}</div></div>`;
+      <div class="big" style="color:${color}">${arr.length}</div><div class="sm">${openN} still open · mostly <b style="color:var(--ink2)">${d.t.toLowerCase()}</b></div></div>`;};
+  return `<div class="card"><h3><span class="accent"></span>GTs vs daily modules</h3><div class="split">${col(gt,'var(--indigo)','Weekly GTs')}${col(mod,'var(--pink)','Daily modules')}</div></div>`;
 }
 
 function renderInsights(){
   const box=document.getElementById('insightsBody');
   if(entries.length===0){box.innerHTML=`<div class="empty"><svg class="ic" viewBox="0 0 24 24"><path d="M3 3v18h18M7 14l3-3 3 3 5-6"/></svg>
-    <div class="big">Nothing to show yet</div>Log a few mistakes and this fills in — it shows where your marks are actually leaking and what to do about it.</div>`;return}
+    <div class="big">Nothing to show yet</div>Log a few mistakes and this fills in — it shows where your marks are leaking and what to do about it.</div>`;return}
   const map=recurrenceMap();
   const byErr=Object.fromEntries(ERRORS.map(e=>[e.id,entries.filter(x=>x.error===e.id).length]));
   const domErr=ERRORS.slice().sort((a,b)=>byErr[b.id]-byErr[a.id])[0];
-  const blind=entries.filter(e=>e.conf==='high').length;
-  const close=entries.filter(e=>e.conf==='med').length;
-  const recCount=entries.filter(e=>isRecurring(e,map)).length;
-  const openCount=entries.filter(e=>e.status==='open').length;
+  const blind=entries.filter(e=>e.conf==='high').length, close=entries.filter(e=>e.conf==='med').length;
+  const recCount=entries.filter(e=>isRecurring(e,map)).length, openCount=entries.filter(e=>e.status==='open').length;
   const imgTotal=entries.filter(e=>e.image).length;
 
   const setEntries=entries.filter(e=>e.set===curSet() && e.testType===curType());
@@ -909,48 +916,34 @@ function renderInsights(){
   if(setEntries.length){
     const sErr=Object.fromEntries(ERRORS.map(e=>[e.id,setEntries.filter(x=>x.error===e.id).length]));
     const sDom=ERRORS.slice().sort((a,b)=>sErr[b.id]-sErr[a.id])[0];
-    const sBlind=setEntries.filter(e=>e.conf==='high').length;
-    const sClose=setEntries.filter(e=>e.conf==='med').length;
+    const sBlind=setEntries.filter(e=>e.conf==='high').length, sClose=setEntries.filter(e=>e.conf==='med').length;
     verdict=`<div class="card verdict"><h3><span class="accent"></span>${esc(curSet())} — what it's telling you</h3>
       <div class="line"><b>${setEntries.length} logged.</b> Commonest miss: <b class="k">${sDom.t.toLowerCase()}</b> (${sErr[sDom.id]}). ${FIXTEXT[sDom.id]}</div>
       ${sBlind?`<div class="line"><b class="w">${sBlind} blind spot${sBlind>1?'s':''}.</b> You felt sure and were wrong. Fix these first — the understanding is off in a way you can't feel mid-test.</div>`:''}
-      ${sClose?`<div class="line"><b class="a">${sClose} were one fact away.</b> Down to two and picked wrong — best value to nail.</div>`:''}
-    </div>`;
+      ${sClose?`<div class="line"><b class="a">${sClose} were one fact away.</b> Down to two and picked wrong — best value to nail.</div>`:''}</div>`;
   }
-
   const kpis=`<div class="card"><h3><span class="accent"></span>The whole picture</h3><div class="kpis">
     <div class="kpi bad"><div class="num">${recCount}</div><div class="lab">keep happening</div></div>
     <div class="kpi bad"><div class="num">${blind}</div><div class="lab">blind spots — sure but wrong</div></div>
     <div class="kpi warn"><div class="num">${close}</div><div class="lab">one fact away</div></div>
-    <div class="kpi ${openCount>0?'':'ok'}"><div class="num">${openCount}</div><div class="lab">still to fix</div></div>
-  </div></div>`;
-
+    <div class="kpi ${openCount>0?'':'ok'}"><div class="num">${openCount}</div><div class="lab">still to fix</div></div></div></div>`;
   const maxErr=Math.max(1,...Object.values(byErr));
   const bars=`<div class="card"><h3><span class="accent"></span>Why you're missing them</h3><div class="bars">${
-    ERRORS.map(e=>`<div class="bar"><span class="k">${e.t}</span>
-      <div class="track"><div class="fill" style="width:${byErr[e.id]/maxErr*100}%;background:${e.c}"></div></div>
-      <span class="v">${byErr[e.id]}</span></div>`).join('')
+    ERRORS.map(e=>`<div class="bar"><span class="k">${e.t}</span><div class="track"><div class="fill" style="width:${byErr[e.id]/maxErr*100}%;background:${e.c}"></div></div><span class="v">${byErr[e.id]}</span></div>`).join('')
   }</div><p class="muted" style="font-size:12.5px;margin:13px 0 0;line-height:1.5">Most marks go to <b style="color:${domErr.c}">${domErr.t.toLowerCase()}</b>. ${FIXTEXT[domErr.id]}</p></div>`;
-
   const subCount={}; entries.forEach(e=>subCount[e.subject]=(subCount[e.subject]||0)+1);
   const subSorted=Object.entries(subCount).sort((a,b)=>b[1]-a[1]).slice(0,8);
   const maxSub=Math.max(1,...subSorted.map(s=>s[1]));
   const heat=`<div class="card"><h3><span class="accent"></span>Weakest subjects</h3><div class="heat">${
     subSorted.map(([s,n])=>`<div class="heatrow"><span>${esc(s)}</span><div class="hb" style="--o:${(.25+.75*n/maxSub).toFixed(2)};width:${n/maxSub*100}%"></div><span class="hv">${n}</span></div>`).join('')
   }</div></div>`;
-
   const img=imgTotal?`<div class="card"><h3><span class="accent"></span>Picture questions</h3>
-    <p style="font-size:13.5px;line-height:1.55;margin:0;color:var(--soft)">You've logged <b style="color:var(--ink)">${imgTotal}</b> from images — a known soft spot. In the book, tap <b style="color:var(--ink)">Picture Qs</b> and give them a dedicated run.</p></div>`:'';
-
+    <p style="font-size:13.5px;line-height:1.55;margin:0;color:var(--ink2)">You've logged <b style="color:var(--ink)">${imgTotal}</b> image Qs — a known soft spot. In the book, tap <b style="color:var(--ink)">Picture Qs</b> and give them a dedicated run.</p></div>`:'';
   const sets={}; entries.forEach(e=>{const k=e.testType+'|'+e.set;(sets[k]=sets[k]||[]).push(e)});
   const setRows=Object.entries(sets).sort((a,b)=>Math.max(...b[1].map(x=>x.ts))-Math.max(...a[1].map(x=>x.ts)))
-    .map(([k,arr])=>{
-      const dom=ERRORS.slice().sort((a,b)=>arr.filter(x=>x.error===b.id).length-arr.filter(x=>x.error===a.id).length)[0];
-      const mod=arr[0].testType==='module';
-      return `<div class="gtrow"><span class="gtn ${mod?'mod':''}">${esc(arr[0].set)}</span><span class="gtd">mostly ${dom.t.toLowerCase()}</span><span class="gtc">${arr.length}</span></div>`;
-    }).join('');
+    .map(([k,arr])=>{const dom=ERRORS.slice().sort((a,b)=>arr.filter(x=>x.error===b.id).length-arr.filter(x=>x.error===a.id).length)[0]; const mod=arr[0].testType==='module';
+      return `<div class="gtrow"><span class="gtn ${mod?'mod':''}">${esc(arr[0].set)}</span><span class="gtd">mostly ${dom.t.toLowerCase()}</span><span class="gtc">${arr.length}</span></div>`;}).join('');
   const setCard=`<div class="card gtlist"><h3><span class="accent"></span>Test by test</h3>${setRows}</div>`;
-
   box.innerHTML=nextCard(map)+typeSplitCard()+verdict+kpis+bars+heat+img+setCard;
 }
 
@@ -964,7 +957,6 @@ function switchView(v){
   document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.v===v));
   window.scrollTo({top:0});
 }
-
 function openSheet(html){document.getElementById('sheet').innerHTML='<div class="grip"></div>'+html;document.getElementById('backdrop').classList.add('show')}
 function closeSheet(){document.getElementById('backdrop').classList.remove('show')}
 document.getElementById('backdrop').onclick=e=>{if(e.target.id==='backdrop')closeSheet()};
@@ -981,108 +973,93 @@ function bindActions(){
   document.getElementById('wipeBtn').onclick=wipe;
   document.getElementById('editCancel').onclick=cancelEdit;
   document.getElementById('examChip').onclick=examSheet;
+  document.getElementById('photoBtn').onclick=()=>document.getElementById('photoIn').click();
+  document.getElementById('photoIn').onchange=onPhotoPick;
   document.querySelectorAll('#bookType button').forEach(b=>b.onclick=()=>{bookFilter.bt=b.dataset.bt;bookFilter.sub='ALL';renderBook()});
   document.getElementById('bookSearch').oninput=e=>{bookFilter.q=e.target.value.trim();renderBook()};
   document.getElementById('f-concept').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();document.getElementById('f-lesson').focus()}});
   let dupeT; document.getElementById('f-concept').addEventListener('input',()=>{clearTimeout(dupeT);dupeT=setTimeout(checkDupe,250)});
+  document.getElementById('f-lesson').addEventListener('input',updateCount);
   document.getElementById('f-lesson').addEventListener('keydown',e=>{if(e.key==='Enter' && !e.shiftKey){e.preventDefault();doSave(true)}});
   window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;renderInstall()});
+}
+async function onPhotoPick(ev){
+  const file=ev.target.files[0]; ev.target.value='';
+  if(!file)return;
+  toast('Adding photo…');
+  try{ form.photo=await compressImage(file); renderPhotoPrev(); toast('Photo added'); }
+  catch(_){ toast("Couldn't read that image"); }
 }
 
 function examSheet(){
   openSheet(`<h3>Exam date</h3><p>The countdown up top runs to this day. Everything here aims at walking in with no repeat mistakes.</p>
     <input type="date" id="examInput" value="${esc(settings.examDate||'')}">
-    <div class="actions" style="margin-top:16px">
-      <button class="btn primary" id="examSave">Set date</button>
-      <button class="btn ghost" onclick="document.getElementById('backdrop').classList.remove('show')">Cancel</button>
-    </div>`);
-  document.getElementById('examSave').onclick=async()=>{
-    const v=document.getElementById('examInput').value;
-    if(v){settings.examDate=v;await persistSettings();render()}
-    closeSheet();
-  };
+    <div class="actions" style="margin-top:16px"><button class="btn primary" id="examSave">Set date</button>
+      <button class="btn ghost" onclick="document.getElementById('backdrop').classList.remove('show')">Cancel</button></div>`);
+  document.getElementById('examSave').onclick=async()=>{const v=document.getElementById('examInput').value;if(v){settings.examDate=v;await persistSettings();render()}closeSheet();};
 }
-
 function renameSet(){
   const t=curType();
-  openSheet(`<h3>${typeLabel(t)} you're logging to</h3>
-    <p>New mistakes get tagged with this name. Change it when you start a new ${t==='gt'?'grand test':'module'}.</p>
+  openSheet(`<h3>${typeLabel(t)} you're logging to</h3><p>New mistakes get tagged with this name. Change it when you start a new ${t==='gt'?'grand test':'module'}.</p>
     <input type="text" id="setInput" value="${esc(curSet())}" placeholder="${t==='gt'?'e.g. GT-19':'e.g. PSM — Epidemiology'}">
-    <div class="actions" style="margin-top:16px">
-      <button class="btn primary" id="setSave">Use this</button>
-      <button class="btn ghost" onclick="document.getElementById('backdrop').classList.remove('show')">Cancel</button>
-    </div>`);
+    <div class="actions" style="margin-top:16px"><button class="btn primary" id="setSave">Use this</button>
+      <button class="btn ghost" onclick="document.getElementById('backdrop').classList.remove('show')">Cancel</button></div>`);
   const inp=document.getElementById('setInput');inp.focus();inp.select();
-  document.getElementById('setSave').onclick=async()=>{
-    const v=inp.value.trim();
-    if(v){ if(t==='gt')settings.gtSet=v; else settings.moduleSet=v; await persistSettings(); render() }
-    closeSheet(); toast('Now logging to '+curSet());
-  };
+  document.getElementById('setSave').onclick=async()=>{const v=inp.value.trim();if(v){if(t==='gt')settings.gtSet=v;else settings.moduleSet=v;await persistSettings();render()}closeSheet();toast('Now logging to '+curSet());};
 }
 
 /* ---------- backup / restore ---------- */
-function backupPayload(){return JSON.stringify({app:'mistake-ledger',version:3,exportedAt:new Date().toISOString(),settings,entries},null,2)}
+function backupPayload(withPhotos){
+  const p={app:'mistake-ledger',version:4,exportedAt:new Date().toISOString(),settings,entries};
+  if(withPhotos){p.photos={};entries.forEach(e=>{if(e.hasPhoto&&photos[e.id])p.photos[e.id]=photos[e.id]})}
+  return JSON.stringify(p,null,2);
+}
 function backupName(){return 'mistake-ledger-'+new Date().toISOString().slice(0,10)+'.json'}
-
 async function exportData(){
-  const json=backupPayload(), fname=backupName();
+  const json=backupPayload(true), fname=backupName();
   settings.lastBackup=Date.now(); persistSettings(); renderStoreNote();
-  try{
-    const file=new File([json],fname,{type:'application/json'});
-    if(navigator.canShare && navigator.canShare({files:[file]})){
-      await navigator.share({files:[file],title:'Mistake Ledger backup',text:'My mistake ledger backup'});
-      toast('Backup shared'); return;
-    }
+  try{ const file=new File([json],fname,{type:'application/json'});
+    if(navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file],title:'Mistake Ledger backup'}); toast('Backup shared'); return; }
   }catch(e){ if(e && e.name==='AbortError') return; }
-  try{
-    const blob=new Blob([json],{type:'application/json'});
-    const url=URL.createObjectURL(blob);const a=document.createElement('a');
-    a.href=url;a.download=fname;document.body.appendChild(a);a.click();a.remove();
-    setTimeout(()=>URL.revokeObjectURL(url),1500);
-    toast('Backup saved'); return;
+  try{ const blob=new Blob([json],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a');
+    a.href=url;a.download=fname;document.body.appendChild(a);a.click();a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1500); toast('Backup saved'); return;
   }catch(e){}
-  copyText(json,'Backup copied — paste it somewhere safe');
+  copyText(backupPayload(false),'Backup copied — paste it somewhere safe');
 }
-async function copyBackup(){
-  settings.lastBackup=Date.now(); persistSettings(); renderStoreNote();
-  copyText(backupPayload(),'Backup copied — paste it into Notes or a message');
-}
+async function copyBackup(){ settings.lastBackup=Date.now(); persistSettings(); renderStoreNote(); copyText(backupPayload(false),'Backup copied — paste it into Notes'); }
 async function copyText(txt,msg){
   try{ await navigator.clipboard.writeText(txt); toast(msg); return; }catch(_){}
-  const ta=document.createElement('textarea');ta.value=txt;ta.style.position='fixed';ta.style.top='-1000px';
-  document.body.appendChild(ta);ta.focus();ta.select();
-  try{document.execCommand('copy');toast(msg)}catch(_){toast('Copy failed — try the file backup')}
-  ta.remove();
+  const ta=document.createElement('textarea');ta.value=txt;ta.style.position='fixed';ta.style.top='-1000px';document.body.appendChild(ta);ta.focus();ta.select();
+  try{document.execCommand('copy');toast(msg)}catch(_){toast('Copy failed — try the file backup')} ta.remove();
 }
-function mergeIncoming(incoming){
+function mergeIncoming(data){
+  const incoming=Array.isArray(data)?data:(data.entries||[]);
   if(!Array.isArray(incoming)||!incoming.length){toast('No mistakes found in that backup');return}
+  const inPhotos=(data&&data.photos)||{};
   const ids=new Set(entries.map(e=>e.id));let added=0;
-  incoming.forEach(e=>{if(e&&e.id&&!ids.has(e.id)){if(!e.testType)e.testType=/gt|grand/i.test(e.set||'')?'gt':'module';entries.push(e);added++}});
+  incoming.forEach(e=>{if(e&&e.id&&!ids.has(e.id)){if(!e.testType)e.testType=/gt|grand/i.test(e.set||'')?'gt':'module';entries.push(e);added++;
+    if(e.hasPhoto&&inPhotos[e.id]){photos[e.id]=inPhotos[e.id];idbSet(e.id,inPhotos[e.id])}}});
   entries.sort((a,b)=>b.ts-a.ts);persist();render();toast(added+' added');
 }
 function importData(ev){
   const file=ev.target.files[0];if(!file)return;const r=new FileReader();
-  r.onload=()=>{ try{const d=JSON.parse(r.result);mergeIncoming(Array.isArray(d)?d:(d.entries||[]))}catch(_){toast("Couldn't read that file")} ev.target.value=''; };
+  r.onload=()=>{ try{mergeIncoming(JSON.parse(r.result))}catch(_){toast("Couldn't read that file")} ev.target.value=''; };
   r.readAsText(file);
 }
 function pasteBackup(){
-  openSheet(`<h3>Paste a backup</h3><p>Paste the backup text you copied (from this or another device), then load it in. Existing mistakes are kept.</p>
+  openSheet(`<h3>Paste a backup</h3><p>Paste the backup text you copied, then load it in. Existing mistakes are kept.</p>
     <textarea id="pasteArea" placeholder='{"app":"mistake-ledger", ...}'></textarea>
-    <div class="actions" style="margin-top:14px">
-      <button class="btn primary" id="pasteGo">Load it</button>
-      <button class="btn ghost" onclick="document.getElementById('backdrop').classList.remove('show')">Cancel</button>
-    </div>`);
+    <div class="actions" style="margin-top:14px"><button class="btn primary" id="pasteGo">Load it</button>
+      <button class="btn ghost" onclick="document.getElementById('backdrop').classList.remove('show')">Cancel</button></div>`);
   document.getElementById('pasteArea').focus();
-  document.getElementById('pasteGo').onclick=()=>{
-    const v=document.getElementById('pasteArea').value.trim();if(!v){toast('Nothing pasted');return}
-    try{const d=JSON.parse(v);mergeIncoming(Array.isArray(d)?d:(d.entries||[]));closeSheet()}catch(_){toast("That doesn't look like a backup")}
-  };
+  document.getElementById('pasteGo').onclick=()=>{const v=document.getElementById('pasteArea').value.trim();if(!v){toast('Nothing pasted');return}
+    try{mergeIncoming(JSON.parse(v));closeSheet()}catch(_){toast("That doesn't look like a backup")}};
 }
 function wipe(){
   openSheet(`<h3>Delete everything?</h3><p>All ${entries.length} mistakes will be gone for good. If you haven't backed up, do that first.</p>
     <div class="actions"><button class="btn ghost" onclick="document.getElementById('backdrop').classList.remove('show')">Keep them</button>
-    <button class="btn primary" style="background:var(--red);color:#2a0a09" id="wipeYes">Delete all</button></div>`);
-  document.getElementById('wipeYes').onclick=async()=>{entries=[];await persist();render();closeSheet();toast('Cleared')};
+    <button class="btn primary" style="background:var(--rose)" id="wipeYes">Delete all</button></div>`);
+  document.getElementById('wipeYes').onclick=async()=>{for(const id of Object.keys(photos))idbDel(id);photos={};entries=[];await persist();render();closeSheet();toast('Cleared')};
 }
 
 /* ---------- install / storage note ---------- */
@@ -1093,31 +1070,26 @@ function renderInstall(){
   renderStoreNote();
   if(isStandalone()){wrap.innerHTML='';return}
   if(deferredPrompt || isIOS()){
-    wrap.innerHTML=`<button class="databtn" id="installBtn" style="border-color:rgba(58,224,202,.4)">
+    wrap.innerHTML=`<button class="databtn" id="installBtn" style="border-color:color-mix(in srgb,var(--accent) 45%,transparent)">
       <svg class="ic" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="3"/><path d="M12 18h.01"/></svg>
-      <div><div class="tt">Add to home screen</div><div class="dd">Run it like a real app — full screen and works offline.</div></div>
-      <span class="arrow">›</span></button>`;
+      <div><div class="tt">Add to home screen</div><div class="dd">Run it like a real app — full screen and works offline.</div></div><span class="arrow">›</span></button>`;
     document.getElementById('installBtn').onclick=doInstall;
   }else wrap.innerHTML='';
 }
 async function doInstall(){
   if(deferredPrompt){ deferredPrompt.prompt(); try{await deferredPrompt.userChoice}catch(_){} deferredPrompt=null; renderInstall(); return; }
   openSheet(`<h3>Add to your home screen</h3><p>iPhone / iPad, in Safari:</p>
-    <ol class="steps">
-      <li>Tap the <b>Share</b> button (the square with an ↑) in the Safari toolbar.</li>
+    <ol class="steps"><li>Tap the <b>Share</b> button (square with an ↑) in the Safari toolbar.</li>
       <li>Scroll down and tap <b>Add to Home Screen</b>.</li>
-      <li>Tap <b>Add</b>. The Ledger icon appears with your other apps.</li>
-    </ol>
+      <li>Tap <b>Add</b>. The Ledger icon joins your other apps.</li></ol>
     <p style="margin:0">Opening it from there runs it full screen, offline, and makes your saved mistakes far more durable.</p>
     <div class="actions" style="margin-top:16px"><button class="btn primary" onclick="document.getElementById('backdrop').classList.remove('show')">Got it</button></div>`);
 }
 function renderStoreNote(){
   const el=document.getElementById('storeNote'); if(!el)return;
   let s='Everything stays in this browser — no login, no cloud. ';
-  if(settings.lastBackup){
-    const days=Math.floor((Date.now()-settings.lastBackup)/864e5);
-    s+= days<=0?'Backed up today. ':`Last backup ${days} day${days>1?'s':''} ago. `;
-  }else s+='No backup saved yet — do one now. ';
+  if(settings.lastBackup){const days=Math.floor((Date.now()-settings.lastBackup)/864e5); s+= days<=0?'Backed up today. ':`Last backup ${days} day${days>1?'s':''} ago. `;}
+  else s+='No backup saved yet — do one now. ';
   s+='Back up weekly, and after a big logging session.';
   el.textContent=s;
 }
