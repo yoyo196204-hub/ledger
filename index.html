@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#F7F8FA">
+<meta name="theme-color" content="#F5EEE3">
 <title>Mistake Ledger</title>
 <link rel="manifest" href="./manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -14,22 +14,23 @@
 <link rel="icon" type="image/png" href="./favicon.png">
 <style>
   :root{
-    --bg:#F4F5FA; --bg2:#EEF0F8; --surface:#FFFFFF; --surface2:#F3F4FA; --surface3:#E8EAF4;
-    --border:#E9EAF2; --border2:#DFE1EE;
-    --ink:#171922; --ink2:#4A5060; --muted:#767C8C; --faint:#A2A8B8;
-    --accent:#5B5BD6; --accent2:#8163F0; --accent-ink:#4B49C7; --accent-soft:#EDEDFD;
-    --rose:#E5484D; --amber:#D98016; --emerald:#12915E; --violet:#8B5CF6; --teal:#0D9E93; --pink:#D6409F; --indigo:#5B5BD6;
-    --grad:linear-gradient(135deg,#6366F1,#8B5CF6);
-    --grad-soft:linear-gradient(135deg,#EEF0FE,#F5EEFD);
-    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    --shadow:0 1px 2px rgba(23,25,40,.05),0 5px 14px -6px rgba(23,25,40,.10);
-    --shadow2:0 12px 34px -12px rgba(79,70,229,.28),0 3px 10px -4px rgba(23,25,40,.10);
-    --ring:0 0 0 3px rgba(91,91,214,.14);
-    --r:20px;
+    --bg:#F4EDE1; --bg2:#EFE6D6; --surface:#FDFAF4; --surface2:#F1E9DB; --surface3:#E9DFCC;
+    --border:#E7DCC9; --border2:#DCCFB8;
+    --ink:#2C2620; --ink2:#6B5E50; --muted:#978978; --faint:#BAAD99;
+    --accent:#C1502D; --accent2:#DB8A54; --accent-ink:#A9431F; --accent-soft:#F6E6D7;
+    --sage:#6E8663; --sage-ink:#546B4A; --sage-soft:#E6ECDD;
+    --rose:#C24634; --amber:#C8811A; --emerald:#5E7A54; --violet:#9E5CA8; --teal:#1F9E82; --pink:#B0688A; --indigo:#C1502D;
+    --grad:linear-gradient(135deg,#DB8A54,#C1502D);
+    --grad-soft:linear-gradient(135deg,#F7E9D9,#F3E0D0);
+    --sans:ui-rounded,"SF Pro Rounded","Hiragino Maru Gothic ProN",system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --shadow:0 1px 2px rgba(90,60,35,.05),0 6px 16px -8px rgba(120,80,45,.18);
+    --shadow2:0 16px 38px -14px rgba(150,85,45,.30),0 3px 10px -4px rgba(90,60,35,.12);
+    --ring:0 0 0 3px rgba(193,80,45,.15);
+    --r:22px;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{margin:0;padding:0}
-  body{background:var(--bg);background-image:radial-gradient(1200px 600px at 100% -10%,var(--bg2),transparent 60%),radial-gradient(1000px 500px at -10% 0%,#F1EEFB,transparent 55%);
+  body{background:var(--bg);background-image:radial-gradient(1100px 560px at 100% -12%,#F7EAD6,transparent 60%),radial-gradient(900px 480px at -12% 2%,#F3E7DA,transparent 55%);
     background-attachment:fixed;color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.45;
     -webkit-font-smoothing:antialiased;padding-bottom:calc(80px + env(safe-area-inset-bottom))}
   .wrap{max-width:680px;margin:0 auto;padding:0 16px}
@@ -42,7 +43,7 @@
     border-bottom:1px solid var(--border);padding:calc(11px + env(safe-area-inset-top)) 0 11px}
   .head{display:flex;align-items:center;gap:11px}
   .logo{width:34px;height:34px;border-radius:11px;background:var(--grad);flex:none;display:grid;place-items:center;
-    box-shadow:0 4px 14px -2px rgba(99,102,241,.55),inset 0 1px 0 rgba(255,255,255,.35)}
+    box-shadow:0 4px 14px -2px rgba(193,80,45,.5),inset 0 1px 0 rgba(255,255,255,.35)}
   .logo svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
   .head h1{font-size:18px;font-weight:800;letter-spacing:-.03em}
   .head .totsub{font-size:11.5px;color:var(--muted);margin-top:1px;font-weight:500}
@@ -97,7 +98,7 @@
   input[type=text], input[type=date], textarea, select{width:100%;background:var(--surface);border:1px solid var(--border2);
     color:var(--ink);border-radius:12px;padding:12px 13px;outline:none;transition:border-color .15s,box-shadow .15s;box-shadow:var(--shadow)}
   textarea{resize:vertical;min-height:54px;line-height:1.45}
-  input:focus, textarea:focus, select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(91,91,214,.13)}
+  input:focus, textarea:focus, select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(193,80,45,.14)}
   input::placeholder,textarea::placeholder{color:var(--faint)}
   select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23727986' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
     background-repeat:no-repeat;background-position:right 13px center;padding-right:36px}
@@ -132,7 +133,7 @@
   .actions{display:flex;gap:10px;margin-top:8px}
   .btn{flex:1;padding:14px;border-radius:14px;font-weight:700;font-size:15px;transition:transform .1s,opacity .15s}
   .btn:active{transform:scale(.985)}
-  .btn.primary{background:var(--grad);color:#fff;box-shadow:0 8px 20px -6px rgba(99,102,241,.55),inset 0 1px 0 rgba(255,255,255,.28)}
+  .btn.primary{background:var(--grad);color:#fff;box-shadow:0 8px 20px -6px rgba(193,80,45,.5),inset 0 1px 0 rgba(255,255,255,.28)}
   .btn.ghost{background:var(--surface);border:1px solid var(--border2);color:var(--ink);flex:0 0 auto;padding:14px 18px;box-shadow:var(--shadow)}
 
   .filters{display:flex;gap:7px;overflow-x:auto;margin:0 -16px;padding:2px 16px 12px;scrollbar-width:none}
@@ -174,7 +175,7 @@
 
   .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px 18px 19px;margin-bottom:13px;box-shadow:var(--shadow)}
   .card h3{font-size:12px;font-weight:750;color:var(--muted);margin-bottom:15px;display:flex;align-items:center;gap:9px;text-transform:uppercase;letter-spacing:.06em}
-  .card h3 .accent{width:16px;height:16px;border-radius:6px;background:var(--grad);flex:none;box-shadow:0 2px 6px -1px rgba(99,102,241,.5)}
+  .card h3 .accent{width:16px;height:16px;border-radius:6px;background:var(--grad);flex:none;box-shadow:0 2px 6px -1px rgba(193,80,45,.45)}
   .verdict{border-left:3px solid var(--accent)}
   .verdict .line{font-size:14px;line-height:1.55;margin-bottom:10px;color:var(--ink2)}
   .verdict .line:last-child{margin-bottom:0}
@@ -270,11 +271,11 @@
   .searchbox svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:var(--faint);fill:none;stroke-width:2;pointer-events:none}
 
   .toast{position:fixed;bottom:calc(88px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(20px);
-    background:#23262F;color:#fff;padding:12px 20px;border-radius:24px;font-size:13.5px;z-index:60;opacity:0;
+    background:#33291F;color:#FBF3E9;padding:12px 20px;border-radius:24px;font-size:13.5px;z-index:60;opacity:0;
     transition:opacity .2s,transform .2s;pointer-events:none;box-shadow:0 12px 34px rgba(20,28,45,.28);max-width:90%;text-align:center}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   .toast.act{pointer-events:auto}
-  .toast .taction{margin-left:14px;color:#B7BEFF;font-weight:700;font-size:13.5px}
+  .toast .taction{margin-left:14px;color:#F2C39A;font-weight:700;font-size:13.5px}
   .entry .concept,.entry .lesson,.entry .note,.entry .trap,.revcard .q,.revcard .ans .lesson,.revcard .ans .note,.dupe,.ctxline .nm,.gtlist .gtd,.next .row{overflow-wrap:anywhere}
   img{max-width:100%}
   .backdrop{position:fixed;inset:0;background:rgba(26,28,34,.4);z-index:50;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(3px)}
@@ -1096,12 +1097,12 @@ function areaChart(seq){
   const line=smoothPath(pts);
   const last=pts[pts.length-1];
   const area=`${line} L ${last.x.toFixed(1)} ${y1} L ${pts[0].x.toFixed(1)} ${y1} Z`;
-  const mids=pts.slice(0,-1).map(p=>`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="2.4" fill="#8B5CF6" opacity="0.5"/>`).join('');
+  const mids=pts.slice(0,-1).map(p=>`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="2.4" fill="#DB8A54" opacity="0.6"/>`).join('');
   const xl=pts.map(p=>`<text class="xlab" x="${p.x.toFixed(1)}" y="${H-6}" text-anchor="middle">${esc(p.s.replace(/^GT[\s-]*/i,'').slice(0,5))}</text>`).join('');
   return `<svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Mistakes logged per grand test, over time">
     <defs>
-      <linearGradient id="linegrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6366F1"/><stop offset="1" stop-color="#8B5CF6"/></linearGradient>
-      <linearGradient id="areagrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6366F1" stop-opacity="0.22"/><stop offset="1" stop-color="#8B5CF6" stop-opacity="0"/></linearGradient>
+      <linearGradient id="linegrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#DB8A54"/><stop offset="1" stop-color="#C1502D"/></linearGradient>
+      <linearGradient id="areagrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C1502D" stop-opacity="0.20"/><stop offset="1" stop-color="#DB8A54" stop-opacity="0"/></linearGradient>
     </defs>
     <line class="grid" x1="${x0}" y1="${y1}" x2="${x1}" y2="${y1}"/>
     <path d="${area}" fill="url(#areagrad)"/>
@@ -1122,7 +1123,7 @@ function masteryCard(){
   const gtSets={}; entries.filter(e=>e.testType==='gt').forEach(e=>{(gtSets[e.set]=gtSets[e.set]||[]).push(e)});
   const seq=Object.entries(gtSets).map(([s,a])=>({s,n:a.length,first:Math.min(...a.map(x=>x.ts||0))})).sort((a,b)=>a.first-b.first).slice(-8);
   const ring=`<div class="ringwrap"><svg class="ring" viewBox="0 0 36 36">
-    <defs><linearGradient id="ringgrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6366F1"/><stop offset="1" stop-color="#8B5CF6"/></linearGradient></defs>
+    <defs><linearGradient id="ringgrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#DB8A54"/><stop offset="1" stop-color="#C1502D"/></linearGradient></defs>
     <circle class="bg" cx="18" cy="18" r="15.9" pathLength="100"/>
     <circle class="fg" cx="18" cy="18" r="15.9" pathLength="100" stroke-dasharray="${pct} 100"/></svg>
     <div class="pctnum"><b>${pct}%</b><span>cleared</span></div></div>`;
