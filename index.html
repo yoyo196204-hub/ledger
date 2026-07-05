@@ -260,8 +260,12 @@
 
   .toast{position:fixed;bottom:calc(88px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(20px);
     background:#23262F;color:#fff;padding:12px 20px;border-radius:24px;font-size:13.5px;z-index:60;opacity:0;
-    transition:opacity .2s,transform .2s;pointer-events:none;box-shadow:0 12px 34px rgba(20,28,45,.28);max-width:88%;text-align:center}
+    transition:opacity .2s,transform .2s;pointer-events:none;box-shadow:0 12px 34px rgba(20,28,45,.28);max-width:90%;text-align:center}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .toast.act{pointer-events:auto}
+  .toast .taction{margin-left:14px;color:#B7BEFF;font-weight:700;font-size:13.5px}
+  .entry .concept,.entry .lesson,.entry .note,.entry .trap,.revcard .q,.revcard .ans .lesson,.revcard .ans .note,.dupe,.ctxline .nm,.gtlist .gtd,.next .row{overflow-wrap:anywhere}
+  img{max-width:100%}
   .backdrop{position:fixed;inset:0;background:rgba(26,28,34,.4);z-index:50;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(3px)}
   .backdrop.show{display:flex}
   .sheet{background:var(--surface);border-top-left-radius:24px;border-top-right-radius:24px;width:100%;max-width:680px;
@@ -460,7 +464,7 @@
 <script>
 const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.storage.get==='function';
 async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } try{return localStorage.getItem(k)}catch(_){return null} }
-async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v)}catch(e){} return; } try{localStorage.setItem(k,v)}catch(_){} }
+async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v);return true}catch(e){return false} } try{localStorage.setItem(k,v);return true}catch(_){return false} }
 const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
 
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
@@ -487,6 +491,23 @@ let editingId=null;
 let review={active:false, queue:[], i:0, revealed:false, known:0, shaky:0, noteOpen:false};
 let deferredPrompt=null;
 let photos={}; /* id -> dataURL, kept in IndexedDB */
+let _grpCache=null; /* memoised recurrence groups, invalidated on every persist() */
+let _idc=0; /* id counter, guarantees uniqueness within a session */
+let lastDeleted=null; /* for undo */
+
+/* keep only well-formed entries so one corrupt record can't crash a render */
+function sanitizeEntries(arr){
+  if(!Array.isArray(arr)) return [];
+  return arr.filter(e=>e && typeof e==='object' && typeof e.id==='string').map(e=>({
+    ...e,
+    ts: typeof e.ts==='number'?e.ts:Date.now(),
+    subject: typeof e.subject==='string'?e.subject:'Medicine',
+    concept: typeof e.concept==='string'?e.concept:'',
+    lesson: typeof e.lesson==='string'?e.lesson:'',
+    status: e.status==='fixed'?'fixed':'open'
+  })).filter(e=>e.concept);
+}
+function newId(){ return 'm'+Date.now().toString(36)+(_idc++).toString(36)+Math.floor(Math.random()*1e6).toString(36); }
 
 function curType(){return settings.activeType==='module'?'module':'gt'}
 function curSet(){return curType()==='gt'?settings.gtSet:settings.moduleSet}
@@ -494,8 +515,8 @@ function typeColor(t){return t==='module'?'var(--pink)':'var(--indigo)'}
 function typeLabel(t){return t==='module'?'Daily module':'Weekly GT'}
 
 async function boot(){
-  const e=await sget(K_ENTRIES); if(e){try{entries=JSON.parse(e)||[]}catch(_){entries=[]}}
-  const s=await sget(K_SET); if(s){try{settings=Object.assign(settings,JSON.parse(s)||{})}catch(_){}}
+  const e=await sget(K_ENTRIES); if(e){try{entries=sanitizeEntries(JSON.parse(e))}catch(_){entries=[]}}
+  const s=await sget(K_SET); if(s){try{const p=JSON.parse(s); if(p && typeof p==='object' && !Array.isArray(p)) settings=Object.assign(settings,p)}catch(_){}}
   migrate();
   if(settings.lastSubject && SUBJECTS.includes(settings.lastSubject)) form.subject=settings.lastSubject;
   buildForm(); bindTabs(); bindActions(); render(); switchView('log');
@@ -519,7 +540,14 @@ function migrate(){
   }
   if(changed){ persist(); persistSettings(); }
 }
-async function persist(){ await sset(K_ENTRIES,JSON.stringify(entries)); }
+let _saveWarned=false;
+async function persist(){
+  _grpCache=null; /* entries changed — drop the memoised recurrence groups */
+  const ok=await sset(K_ENTRIES,JSON.stringify(entries));
+  if(!ok && !_saveWarned){ _saveWarned=true; toast('⚠ Couldn\'t save — storage may be full. Export a backup now.'); }
+  else if(ok) _saveWarned=false;
+  return ok;
+}
 async function persistSettings(){ await sset(K_SET,JSON.stringify(settings)); }
 async function requestPersistence(){ try{ if(navigator.storage && navigator.storage.persist){ const p=await navigator.storage.persisted(); if(!p) await navigator.storage.persist(); } }catch(_){} }
 
@@ -626,7 +654,7 @@ async function doSave(again){
     editingId=null; updateEditUI();
     await persist(); toast('Updated'); clearForm(); render(); switchView('book'); return;
   }
-  const id='m'+Date.now()+Math.floor(Math.random()*99);
+  const id=newId();
   if(hasPhoto){photos[id]=form.photo; idbSet(id,form.photo)}
   entries.unshift({ id, ts:Date.now(), testType:curType(), set:curSet(), subject:form.subject,
     concept:f.concept, lesson:f.lesson, note:f.note, trap:f.trap,
@@ -667,6 +695,7 @@ function updateEditUI(){
 function normalize(s){return (s||'').toLowerCase().replace(/[^a-z0-9 ]/g,'').replace(/\s+/g,' ').trim()}
 function sigWords(e){return new Set(normalize(e.concept).split(' ').filter(w=>w.length>2))}
 function buildGroups(){
+  if(_grpCache) return _grpCache;
   const n=entries.length, parent=[...Array(n).keys()];
   const find=i=>parent[i]===i?i:(parent[i]=find(parent[i]));
   const sets=entries.map(sigWords);
@@ -676,9 +705,9 @@ function buildGroups(){
     let shared=0; for(const w of sets[i]){if(sets[j].has(w)&&++shared>=need)break}
     if(shared>=need)parent[find(i)]=find(j);
   }
-  const groups={}; entries.forEach((e,i)=>{const r=find(i);(groups[r]=groups[r]||[]).push(e)}); return Object.values(groups);
+  const groups={}; entries.forEach((e,i)=>{const r=find(i);(groups[r]=groups[r]||[]).push(e)}); _grpCache=Object.values(groups); return _grpCache;
 }
-function recurrenceMap(){const m={};buildGroups().forEach(arr=>arr.forEach(e=>m[e.id]=arr.length));return m}
+function recurrenceMap(){ const m={}; buildGroups().forEach(arr=>arr.forEach(e=>m[e.id]=arr.length)); return m; }
 function isRecurring(e,map){return (map[e.id]||0)>=2}
 
 function render(){
@@ -775,10 +804,21 @@ function renderBook(){
 function zoomPhoto(id){ if(photos[id]) openSheet(`<img class="zoom" src="${photos[id]}" alt=""><div class="actions" style="margin-top:16px"><button class="btn primary" onclick="document.getElementById('backdrop').classList.remove('show')">Close</button></div>`); }
 async function toggleFix(id){const e=entries.find(x=>x.id===id);if(!e)return;e.status=e.status==='fixed'?'open':'fixed';e.fixedTs=e.status==='fixed'?Date.now():null;await persist();render()}
 async function delEntry(id){
-  entries=entries.filter(x=>x.id!==id);
+  const idx=entries.findIndex(x=>x.id===id); if(idx<0)return;
+  const entry=entries[idx], photo=photos[id]||null;
+  lastDeleted={entry, photo, idx};
+  entries.splice(idx,1);
   if(photos[id]){delete photos[id]; idbDel(id)}
   if(editingId===id){editingId=null;clearForm();updateEditUI()}
-  await persist();render();toast('Deleted');
+  await persist();render();
+  toast('Deleted',{label:'Undo',fn:undoDelete});
+}
+async function undoDelete(){
+  if(!lastDeleted)return;
+  const {entry,photo,idx}=lastDeleted; lastDeleted=null;
+  entries.splice(Math.min(idx,entries.length),0,entry);
+  if(photo){photos[entry.id]=photo; idbSet(entry.id,photo)}
+  await persist();render();toast('Restored');
 }
 
 function priorityScore(e,map){let s=0; if(e.status==='open')s+=8; if(isRecurring(e,map))s+=4; if(e.conf==='high')s+=2; return s}
@@ -955,7 +995,19 @@ function renderInsights(){
 
 function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 let toastT;
-function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2200)}
+function toast(msg,action){
+  const t=document.getElementById('toast');
+  t.innerHTML='';
+  t.appendChild(document.createTextNode(msg));
+  if(action){
+    const b=document.createElement('button'); b.className='taction'; b.textContent=action.label;
+    b.onclick=()=>{t.classList.remove('show','act');clearTimeout(toastT);action.fn()};
+    t.appendChild(b);
+  }
+  t.classList.toggle('act',!!action);
+  t.classList.add('show');clearTimeout(toastT);
+  toastT=setTimeout(()=>t.classList.remove('show','act'),action?5000:2200);
+}
 
 function bindTabs(){document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>switchView(t.dataset.v))}
 function switchView(v){
@@ -983,7 +1035,7 @@ function bindActions(){
   document.getElementById('photoBtn').onclick=()=>document.getElementById('photoIn').click();
   document.getElementById('photoIn').onchange=onPhotoPick;
   document.querySelectorAll('#bookType button').forEach(b=>b.onclick=()=>{bookFilter.bt=b.dataset.bt;bookFilter.sub='ALL';renderBook()});
-  document.getElementById('bookSearch').oninput=e=>{bookFilter.q=e.target.value.trim();renderBook()};
+  let searchT; document.getElementById('bookSearch').oninput=e=>{const v=e.target.value.trim();clearTimeout(searchT);searchT=setTimeout(()=>{bookFilter.q=v;renderBook()},120)};
   document.getElementById('f-concept').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();document.getElementById('f-lesson').focus()}});
   let dupeT; document.getElementById('f-concept').addEventListener('input',()=>{clearTimeout(dupeT);dupeT=setTimeout(checkDupe,250)});
   document.getElementById('f-lesson').addEventListener('input',updateCount);
@@ -1086,13 +1138,21 @@ async function copyText(txt,msg){
   try{document.execCommand('copy');toast(msg)}catch(_){toast('Copy failed — try the file backup')} ta.remove();
 }
 function mergeIncoming(data){
-  const incoming=Array.isArray(data)?data:(data.entries||[]);
-  if(!Array.isArray(incoming)||!incoming.length){toast('No mistakes found in that backup');return}
-  const inPhotos=(data&&data.photos)||{};
+  const raw=Array.isArray(data)?data:(data&&data.entries);
+  const incoming=sanitizeEntries(raw); /* drop anything malformed */
+  if(!incoming.length){toast('No valid mistakes in that backup');return}
+  const inPhotos=(data&&data.photos&&typeof data.photos==='object')?data.photos:{};
   const ids=new Set(entries.map(e=>e.id));let added=0;
-  incoming.forEach(e=>{if(e&&e.id&&!ids.has(e.id)){if(!e.testType)e.testType=/gt|grand/i.test(e.set||'')?'gt':'module';entries.push(e);added++;
-    if(e.hasPhoto&&inPhotos[e.id]){photos[e.id]=inPhotos[e.id];idbSet(e.id,inPhotos[e.id])}}});
-  entries.sort((a,b)=>b.ts-a.ts);persist();render();toast(added+' added');
+  incoming.forEach(e=>{
+    if(ids.has(e.id))return;
+    if(!e.testType)e.testType=/gt|grand/i.test(e.set||'')?'gt':'module';
+    entries.push(e); ids.add(e.id); added++;
+    const pd=inPhotos[e.id];
+    if(e.hasPhoto && typeof pd==='string' && pd.startsWith('data:image/')){ photos[e.id]=pd; idbSet(e.id,pd); }
+    else if(e.hasPhoto){ e.hasPhoto=false; } /* referenced photo missing/invalid — don't dangle */
+  });
+  entries.sort((a,b)=>(b.ts||0)-(a.ts||0));persist();render();
+  toast(added?added+' added':'Nothing new to add');
 }
 function importData(ev){
   const file=ev.target.files[0];if(!file)return;const r=new FileReader();
