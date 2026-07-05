@@ -56,6 +56,9 @@
     font-size:10.5px;font-weight:560;transition:color .15s}
   .tab svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8}
   .tab.on{color:var(--accent)}
+  .tabic{position:relative;display:inline-flex}
+  .tabbadge{position:absolute;top:-5px;right:-9px;min-width:15px;height:15px;padding:0 4px;border-radius:8px;background:var(--accent);
+    color:#fff;font-size:9.5px;font-weight:700;line-height:15px;text-align:center;box-shadow:0 0 0 2px var(--surface)}
 
   main{padding-top:18px}
   .view{display:none}
@@ -280,6 +283,52 @@
   .steps li{counter-increment:s;position:relative;padding:0 0 0 34px;margin-bottom:13px;font-size:13.5px;color:var(--ink2);line-height:1.5}
   .steps li::before{content:counter(s);position:absolute;left:0;top:-1px;width:24px;height:24px;border-radius:50%;background:var(--accent-soft);color:var(--accent-ink);font-size:12px;font-weight:700;display:grid;place-items:center}
   .steps li b{color:var(--ink)}
+
+  /* spaced-repetition "due" card accent */
+  .databtn.due{border-color:color-mix(in srgb,var(--accent) 45%,transparent);background:linear-gradient(180deg,var(--accent-soft),var(--surface))}
+  .databtn.due .ic{stroke:var(--accent-ink)}
+  .revdue{font-size:11.5px;color:var(--muted);margin-top:10px;text-align:center}
+  .revdue b{color:var(--emerald)}
+  .combo{display:inline-flex;align-items:center;gap:4px;background:color-mix(in srgb,var(--amber) 15%,transparent);color:var(--amber);
+    font-weight:700;font-size:11px;padding:2px 8px;border-radius:20px}
+
+  /* mastery ring + trend */
+  .mastery{display:flex;align-items:center;gap:16px}
+  .ringwrap{position:relative;width:70px;height:70px;flex:none}
+  .ring{width:70px;height:70px;transform:rotate(-90deg)}
+  .ring circle{fill:none;stroke-width:3.4}
+  .ring .bg{stroke:var(--surface3)}
+  .ring .fg{stroke:var(--accent);stroke-linecap:round;transition:stroke-dasharray .6s ease}
+  .ringwrap .pctnum{position:absolute;inset:0;display:grid;place-items:center;font-size:18px;font-weight:760;font-variant-numeric:tabular-nums}
+  .mastery .mtext{flex:1;min-width:0}
+  .mastery .mtext .big{font-size:15px;font-weight:680}
+  .mastery .mtext .sm{font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.4}
+  .trend{display:flex;align-items:flex-end;gap:7px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border)}
+  .tcol{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end}
+  .tcol .tfill{width:100%;max-width:26px;border-radius:6px 6px 0 0;background:var(--grad)}
+  .tcol .tlab{font-size:9.5px;color:var(--muted);margin-top:6px;max-width:40px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .tcaption{font-size:12.5px;margin-top:12px;line-height:1.45;color:var(--ink2)}
+  .tcaption b.d{color:var(--emerald)} .tcaption b.u{color:var(--amber)}
+
+  /* keyboard focus + reduced motion */
+  *:focus{outline:none}
+  *:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+  .kbdhint{font-size:11px;color:var(--faint);text-align:center;margin-top:12px}
+  .kbdhint kbd{font-family:var(--mono);background:var(--surface2);border:1px solid var(--border2);border-radius:5px;padding:1px 5px;font-size:10.5px;color:var(--ink2)}
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
+    .view.on{animation:none}
+  }
+
+  /* wider screens: use the space (iPad / desktop) */
+  @media (min-width:800px){
+    .wrap{max-width:840px}
+    .kpis{grid-template-columns:repeat(4,1fr)}
+    #bookList{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;align-items:start}
+    #bookList .entry{margin-bottom:0}
+    #bookList .empty{grid-column:1 / -1}
+  }
+  @media (min-width:1000px){ .wrap{max-width:900px} }
 </style>
 </head>
 <body>
@@ -290,7 +339,7 @@
       <h1>Mistake Ledger</h1>
       <div class="totsub" id="totalTag">0 logged</div>
     </div>
-    <button class="count" id="examChip">
+    <button class="count" id="examChip" aria-label="Days to exam — tap to set the exam date">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6"/></svg>
       <span><span class="big" id="examNum">—</span><span class="lil" id="examLbl">to exam</span></span>
     </button>
@@ -448,7 +497,7 @@
     <button class="tab" data-v="book">
       <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z"/></svg><span>Book</span></button>
     <button class="tab" data-v="review">
-      <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5"/></svg><span>Review</span></button>
+      <span class="tabic"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5"/></svg><span class="tabbadge" id="revBadge" hidden></span></span><span>Review</span></button>
     <button class="tab" data-v="insights">
       <svg viewBox="0 0 24 24"><path d="M3 3v18h18M7 14l3-3 3 3 5-6"/></svg><span>Insights</span></button>
     <button class="tab" data-v="data">
@@ -456,7 +505,7 @@
   </div>
 </nav>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 <div class="backdrop" id="backdrop"><div class="sheet" id="sheet"></div></div>
 <input type="file" id="fileIn" accept="application/json,.json" style="display:none">
 <input type="file" id="photoIn" accept="image/*" style="display:none">
@@ -600,7 +649,7 @@ function updateCount(){
 function renderPhotoPrev(){
   const box=document.getElementById('photoPrev');
   if(form.photo){
-    box.innerHTML=`<img src="${form.photo}" alt=""><span class="rm" id="photoRm">×</span>`;
+    box.innerHTML=`<img src="${form.photo}" alt="attached photo"><button class="rm" id="photoRm" type="button" aria-label="Remove photo">×</button>`;
     document.getElementById('photoRm').onclick=(ev)=>{ev.stopPropagation();form.photo=null;renderPhotoPrev()};
     document.getElementById('photoBtn').innerHTML='<svg viewBox="0 0 24 24"><path d="M4 12h16"/></svg> Replace';
   }else{
@@ -717,6 +766,8 @@ function render(){
   if(d===null){num.textContent='set'; lbl.textContent='exam date'; chip.style.color='var(--muted)'}
   else if(d>0){num.textContent=d; lbl.textContent=d===1?'day to exam':'days to exam'; chip.style.color=d<=14?'var(--rose)':'var(--ink)'}
   else {num.textContent=d===0?'today':'done'; lbl.textContent=d===0?'exam day':'exam done'; chip.style.color='var(--emerald)'}
+  const badge=document.getElementById('revBadge'), dc=dueCount();
+  if(badge){ if(dc>0 && !review.active){ badge.textContent=dc>99?'99+':dc; badge.hidden=false; } else badge.hidden=true; }
   renderCtx(); paintTypeSwitch();
   renderBook(); renderReview(); renderInsights(); renderInstall();
 }
@@ -822,23 +873,41 @@ async function undoDelete(){
 }
 
 function priorityScore(e,map){let s=0; if(e.status==='open')s+=8; if(isRecurring(e,map))s+=4; if(e.conf==='high')s+=2; return s}
+
+/* ---- spaced repetition (SM-2 lite), exam-aware ---- */
+function endOfToday(){const d=new Date();d.setHours(23,59,59,999);return d.getTime()}
+/* an unscheduled entry is due now if still open, and not due once fixed */
+function dueTime(e){ return typeof e.due==='number' ? e.due : (e.status==='open'?0:Infinity); }
+function isDue(e){ return dueTime(e) <= endOfToday(); }
+function dueCount(){ return entries.filter(isDue).length; }
+function scheduleSRS(e,knew){
+  let intv=e.intv||0, ease=e.ease||2.3;
+  if(knew){ intv = intv<=0 ? 1 : (intv===1 ? 3 : Math.round(intv*ease)); ease=Math.min(2.8,ease+0.05); }
+  else { intv=1; ease=Math.max(1.6,ease-0.2); }
+  const d=daysToExam(); if(d!==null && d>0) intv=Math.min(intv,Math.max(1,d)); /* keep everything reviewable before the exam */
+  e.intv=intv; e.ease=Math.round(ease*100)/100; e.due=Date.now()+intv*864e5;
+  e.reps=(e.reps||0)+(knew?1:0); e.lapses=(e.lapses||0)+(knew?0:1);
+}
+
 function startReview(scope){
   const map=recurrenceMap();
   let list=entries.slice();
-  if(scope==='open') list=list.filter(e=>e.status==='open');
+  if(scope==='due') list=list.filter(isDue);
+  else if(scope==='open') list=list.filter(e=>e.status==='open');
   else if(scope==='set') list=list.filter(e=>e.set===curSet() && e.testType===curType());
   else if(scope==='gt') list=list.filter(e=>e.testType==='gt');
   else if(scope==='module') list=list.filter(e=>e.testType==='module');
-  if(!list.length){toast('Nothing to review there');return}
-  list.sort((a,b)=>{const d=priorityScore(b,map)-priorityScore(a,map); return d!==0?d:(a.lastReview||0)-(b.lastReview||0)});
-  review={active:true, scope, queue:list, i:0, revealed:false, known:0, shaky:0, noteOpen:false};
+  if(!list.length){toast(scope==='due'?'All caught up — nothing due':'Nothing to review there');return}
+  list.sort((a,b)=>{const d=priorityScore(b,map)-priorityScore(a,map); if(d!==0)return d; const dd=dueTime(a)-dueTime(b); return dd!==0?dd:(a.lastReview||0)-(b.lastReview||0)});
+  review={active:true, scope, queue:list, i:0, revealed:false, known:0, shaky:0, combo:0, noteOpen:false};
   renderReview(); window.scrollTo({top:0});
 }
 async function markReview(knew){
   const e=review.queue[review.i]; if(!e)return;
   e.lastReview=Date.now();
-  if(knew){ e.streak=(e.streak||0)+1; if(e.streak>=2 && e.status==='open'){e.status='fixed';e.fixedTs=Date.now()} review.known++; }
-  else { e.streak=0; if(e.status==='fixed'){e.status='open';e.fixedTs=null} review.shaky++; }
+  scheduleSRS(e,knew);
+  if(knew){ e.streak=(e.streak||0)+1; if(e.streak>=2 && e.status==='open'){e.status='fixed';e.fixedTs=Date.now()} review.known++; review.combo=(review.combo||0)+1; }
+  else { e.streak=0; if(e.status==='fixed'){e.status='open';e.fixedTs=null} review.shaky++; review.combo=0; }
   review.i++; review.revealed=false; review.noteOpen=false;
   await persist(); render();
 }
@@ -853,13 +922,18 @@ function renderReview(){
       return;
     }
     const open=entries.filter(e=>e.status==='open').length;
+    const due=dueCount();
     const inSet=entries.filter(e=>e.set===curSet() && e.testType===curType()).length;
     const gtN=entries.filter(e=>e.testType==='gt').length, modN=entries.filter(e=>e.testType==='module').length;
-    const mins=Math.max(1,Math.round(open*20/60));
+    const mins=Math.max(1,Math.round(open*20/60)), dmins=Math.max(1,Math.round(due*20/60));
     let cards=`
+      <button class="databtn due" data-rev="due" ${due?'':'disabled style="opacity:.5"'}>
+        <svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6"/></svg>
+        <div><div class="tt">Due today — ${due}${due?' · ~'+dmins+' min':''}</div><div class="dd">${due?'Your spaced-repetition queue. Do this daily — cards you recall get pushed further out; ones you miss come back tomorrow.':'All caught up. Nothing is due for recall today.'}</div></div>
+      </button>
       <button class="databtn" data-rev="open" ${open?'':'disabled style="opacity:.45"'}>
         <svg class="ic" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-        <div><div class="tt">Pre-GT run — ${open} open${open?' · ~'+mins+' min':''}</div><div class="dd">Do this the night before a GT. Worst first; recall one twice and it closes itself.</div></div>
+        <div><div class="tt">Full open sweep — ${open}${open?' · ~'+mins+' min':''}</div><div class="dd">Every open mistake, hardest first. Do this the night before a GT.</div></div>
       </button>
       <button class="databtn" data-rev="set" ${inSet?'':'disabled style="opacity:.45"'}>
         <svg class="ic" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
@@ -873,7 +947,7 @@ function renderReview(){
     cards+=`
       <button class="databtn" data-rev="all"><svg class="ic" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z"/></svg>
         <div><div class="tt">Everything — ${entries.length}</div><div class="dd">The whole book. Save this for the final weeks.</div></div></button>
-      <p class="faint" style="font-size:12px;margin-top:14px;text-align:center;line-height:1.6">Say the fix out loud before you reveal it. “Still shaky” reopens one and resets its streak.</p>`;
+      <p class="faint" style="font-size:12px;margin-top:14px;text-align:center;line-height:1.6">Say the fix out loud before you reveal it. Cards you know get scheduled further out; ones you miss come back tomorrow.</p>`;
     box.innerHTML=cards;
     box.querySelectorAll('[data-rev]').forEach(b=>b.onclick=()=>startReview(b.dataset.rev));
     return;
@@ -891,7 +965,7 @@ function renderReview(){
   const photo=e.hasPhoto&&photos[e.id]?`<img class="full" src="${photos[e.id]}" alt="">`:'';
   const noteBlock=e.note?(review.noteOpen?`<div class="note">${esc(e.note)}</div><span class="notebtn" id="revNoteBtn">hide note</span>`:`<span class="notebtn" id="revNoteBtn">+ full note</span>`):'';
   box.innerHTML=`
-    <div class="rev-prog"><span>${review.i+1} / ${review.queue.length}</span><span class="track"><i style="width:${pct}%"></i></span><button id="revQuit">quit</button></div>
+    <div class="rev-prog"><span>${review.i+1} / ${review.queue.length}${review.combo>=3?` <span class="combo">🔥 ${review.combo}</span>`:''}</span><span class="track"><i style="width:${pct}%"></i></span><button id="revQuit" aria-label="Quit review">quit</button></div>
     <div class="revcard" style="--et:${em.c}">
       <div class="top"><span class="tag ${e.testType==='module'?'mod':'gt'}">${e.testType==='module'?'module':'GT'}</span><span class="tag">${esc(e.subject)}</span><span class="tag et">${em.t}</span></div>
       <div class="q">${esc(e.concept)}</div>
@@ -899,8 +973,10 @@ function renderReview(){
       ${review.revealed?`<div class="ans"><div class="lesson">${esc(e.lesson)}</div>${noteBlock}${e.trap?`<div class="trap" style="margin-top:10px"><b>Trap:</b> ${esc(e.trap)}</div>`:''}</div>`:''}
     </div>
     ${review.revealed
-      ?`<div class="rev-btns"><button class="btn know" id="revKnow">Knew it</button><button class="btn shaky" id="revShaky">Still shaky</button></div>`
-      :`<div class="rev-btns"><button class="btn primary" id="revShow">Show the fix</button></div>`}`;
+      ?`<div class="rev-btns"><button class="btn know" id="revKnow">Knew it</button><button class="btn shaky" id="revShaky">Still shaky</button></div>
+        <div class="kbdhint">Keys: <kbd>1</kbd> knew it · <kbd>2</kbd> shaky · <kbd>Esc</kbd> quit</div>`
+      :`<div class="rev-btns"><button class="btn primary" id="revShow">Show the fix</button></div>
+        <div class="kbdhint">Press <kbd>Space</kbd> to reveal</div>`}`;
   document.getElementById('revQuit').onclick=endReview;
   if(review.revealed){
     document.getElementById('revKnow').onclick=()=>markReview(true);
@@ -943,6 +1019,31 @@ function typeSplitCard(){
     return `<div class="splitcol"><div class="h"><span class="d" style="background:${color}"></span>${name}</div>
       <div class="big" style="color:${color}">${arr.length}</div><div class="sm">${openN} still open · mostly <b style="color:var(--ink2)">${d.t.toLowerCase()}</b></div></div>`;};
   return `<div class="card"><h3><span class="accent"></span>GTs vs daily modules</h3><div class="split">${col(gt,'var(--indigo)','Weekly GTs')}${col(mod,'var(--pink)','Daily modules')}</div></div>`;
+}
+
+/* progress: how much is cleared + are mistakes-per-GT trending down */
+function masteryCard(){
+  const total=entries.length; if(!total) return '';
+  const fixed=entries.filter(e=>e.status==='fixed').length;
+  const pct=Math.round(fixed/total*100);
+  const due=dueCount();
+  const gtSets={}; entries.filter(e=>e.testType==='gt').forEach(e=>{(gtSets[e.set]=gtSets[e.set]||[]).push(e)});
+  const seq=Object.entries(gtSets).map(([s,a])=>({s,n:a.length,first:Math.min(...a.map(x=>x.ts||0))})).sort((a,b)=>a.first-b.first).slice(-8);
+  const maxN=Math.max(1,...seq.map(x=>x.n));
+  const bars=seq.map(x=>`<div class="tcol"><div class="tfill" style="height:${8+Math.round(x.n/maxN*46)}px"></div><div class="tlab">${esc(x.s.replace(/^GT[\s-]*/i,'').slice(0,6))}</div></div>`).join('');
+  let trendLine='';
+  if(seq.length>=3){
+    const first=seq[0].n, last=seq[seq.length-1].n;
+    const mk=n=>n+' mistake'+(n===1?'':'s');
+    if(last<first) trendLine=`<div class="tcaption"><b class="d">Trending down</b> — ${mk(last)} in your latest GT vs ${first} earlier. Keep this up.</div>`;
+    else if(last>first) trendLine=`<div class="tcaption"><b class="u">Ticking up</b> — ${mk(last)} in your latest GT vs ${first} earlier. Tighten the revision loop.</div>`;
+    else trendLine=`<div class="tcaption">Holding steady at ~${mk(last)} per GT — push the recurring ones to zero.</div>`;
+  }
+  const ring=`<div class="ringwrap"><svg class="ring" viewBox="0 0 36 36"><circle class="bg" cx="18" cy="18" r="15.9" pathLength="100"/><circle class="fg" cx="18" cy="18" r="15.9" pathLength="100" stroke-dasharray="${pct} 100"/></svg><div class="pctnum">${pct}%</div></div>`;
+  return `<div class="card"><h3><span class="accent"></span>Your progress</h3>
+    <div class="mastery">${ring}<div class="mtext"><div class="big">${fixed} of ${total} cleared</div>
+      <div class="sm">${due?due+' due for recall today · ':''}${total-fixed} still open. A mistake counts as cleared once you recall its fix twice.</div></div></div>
+    ${seq.length>=2?`<div class="trend">${bars}</div>`:''}${trendLine}</div>`;
 }
 
 function renderInsights(){
@@ -990,7 +1091,7 @@ function renderInsights(){
     .map(([k,arr])=>{const dom=ERRORS.slice().sort((a,b)=>arr.filter(x=>x.error===b.id).length-arr.filter(x=>x.error===a.id).length)[0]; const mod=arr[0].testType==='module';
       return `<div class="gtrow"><span class="gtn ${mod?'mod':''}">${esc(arr[0].set)}</span><span class="gtd">mostly ${dom.t.toLowerCase()}</span><span class="gtc">${arr.length}</span></div>`;}).join('');
   const setCard=`<div class="card gtlist"><h3><span class="accent"></span>Test by test</h3>${setRows}</div>`;
-  box.innerHTML=nextCard(map)+typeSplitCard()+verdict+kpis+bars+heat+img+setCard;
+  box.innerHTML=nextCard(map)+masteryCard()+typeSplitCard()+verdict+kpis+bars+heat+img+setCard;
 }
 
 function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
@@ -1041,6 +1142,15 @@ function bindActions(){
   document.getElementById('f-lesson').addEventListener('input',updateCount);
   document.getElementById('f-lesson').addEventListener('keydown',e=>{if(e.key==='Enter' && !e.shiftKey){e.preventDefault();doSave(true)}});
   window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;renderInstall()});
+  /* keyboard shortcuts during an active review (desktop / external keyboard) */
+  document.addEventListener('keydown',e=>{
+    if(!review.active || !document.getElementById('v-review').classList.contains('on')) return;
+    const tag=(e.target.tagName||'').toLowerCase(); if(tag==='input'||tag==='textarea') return;
+    if(e.key==='Escape'){ endReview(); return; }
+    if(review.i>=review.queue.length) return;
+    if(!review.revealed){ if(e.key===' '||e.key==='Enter'){ e.preventDefault(); review.revealed=true; renderReview(); } }
+    else { if(e.key==='1'){ e.preventDefault(); markReview(true); } else if(e.key==='2'){ e.preventDefault(); markReview(false); } }
+  });
 }
 async function onPhotoPick(ev){
   const file=ev.target.files[0]; ev.target.value='';
