@@ -7,12 +7,12 @@
 <title>Mistake Ledger</title>
 <style>
   :root{
-    --bg:#0D1013; --panel:#161B22; --panel2:#1B222B; --line:#232B35;
-    --ink:#E7EBF1; --muted:#8A94A2; --faint:#5B6572;
-    --teal:#34D8C3; --amber:#F5B94A; --red:#F16A66; --green:#5BE08A; --violet:#9E8CF5;
+    --bg:#0B0E12; --panel:#151A21; --panel2:#1A212B; --line:#1F2732;
+    --ink:#E9EDF3; --muted:#8A94A2; --faint:#5B6572;
+    --teal:#37DCC6; --amber:#F5B94A; --red:#F16A66; --green:#5BE08A; --violet:#9E8CF5;
     --mono:ui-monospace,"SF Mono","JetBrains Mono","Cascadia Code",Menlo,Consolas,monospace;
     --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    --r:12px;
+    --r:14px;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{margin:0;padding:0}
@@ -60,10 +60,10 @@
   .field > label{display:block;font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.08em;
     color:var(--muted);margin-bottom:7px}
   .field > label .req{color:var(--teal)}
-  input[type=text], textarea, select{width:100%;background:var(--panel);border:1px solid var(--line);color:var(--ink);
-    border-radius:10px;padding:11px 12px;outline:none;transition:border-color .15s,background .15s}
+  input[type=text], input[type=date], textarea, select{width:100%;background:var(--panel);border:1px solid var(--line);color:var(--ink);
+    border-radius:12px;padding:11px 12px;outline:none;transition:border-color .15s,background .15s;color-scheme:dark}
   textarea{resize:vertical;min-height:52px;line-height:1.4}
-  input[type=text]:focus, textarea:focus, select:focus{border-color:var(--teal);background:var(--panel2)}
+  input:focus, textarea:focus, select:focus{border-color:var(--teal);background:var(--panel2)}
   input::placeholder,textarea::placeholder{color:var(--faint)}
   select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238A94A2' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
     background-repeat:no-repeat;background-position:right 12px center;padding-right:34px}
@@ -88,7 +88,7 @@
   .actions{display:flex;gap:10px;margin-top:6px}
   .btn{flex:1;padding:13px;border-radius:11px;font-weight:650;font-size:15px;transition:transform .1s,opacity .15s}
   .btn:active{transform:scale(.98)}
-  .btn.primary{background:var(--teal);color:#06231f}
+  .btn.primary{background:linear-gradient(135deg,#37DCC6,#2FB9DC);color:#06231f}
   .btn.ghost{background:var(--panel2);border:1px solid var(--line);color:var(--ink);flex:0 0 auto;padding:13px 16px}
 
   .filters{display:flex;gap:7px;overflow-x:auto;margin:0 -16px;padding:2px 16px 12px;scrollbar-width:none}
@@ -178,6 +178,26 @@
   .rev-done .big{font-size:20px;font-weight:650;margin-bottom:8px}
   .rev-done p{color:var(--muted);font-size:13.5px;line-height:1.6;margin:0 0 20px}
 
+  details.more{margin-bottom:16px;border:1px dashed var(--line);border-radius:12px;padding:0 12px}
+  details.more summary{list-style:none;cursor:pointer;padding:12px 0;font-family:var(--mono);font-size:11px;
+    text-transform:uppercase;letter-spacing:.08em;color:var(--muted);display:flex;align-items:center}
+  details.more summary::-webkit-details-marker{display:none}
+  details.more summary::after{content:"+";margin-left:auto;color:var(--faint);font-size:15px;font-family:var(--sans)}
+  details.more[open] summary::after{content:"–"}
+
+  .dupe{display:none;background:rgba(245,185,74,.08);border:1px solid rgba(245,185,74,.35);border-radius:12px;
+    padding:10px 12px;margin:-6px 0 16px;font-size:12.5px;color:var(--muted);line-height:1.5}
+  .dupe.show{display:block}
+  .dupe b{color:var(--amber)}
+  .dupe .old{color:#c9d1dc}
+
+  .next{border-left:3px solid var(--teal)}
+  .next .row{display:flex;gap:11px;padding:9px 0;font-size:13.5px;line-height:1.5;border-bottom:1px solid var(--line);align-items:baseline}
+  .next .row:last-child{border:none;padding-bottom:2px}
+  .next .row:first-of-type{padding-top:0}
+  .next .n{font-family:var(--mono);color:var(--teal);font-weight:600;flex:none}
+  .next .row b{color:var(--ink)}
+
   .searchbox{position:relative;margin-bottom:12px}
   .searchbox input{padding-left:36px}
   .searchbox svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:16px;height:16px;
@@ -212,6 +232,7 @@
         <span class="cnt" id="srcCnt">0 in this test</span>
       </button>
       <button class="mini" id="openCnt">— to fix</button>
+      <button class="mini" id="examChip" style="color:var(--amber)">—</button>
     </div>
   </div>
 </header>
@@ -219,7 +240,7 @@
 <main class="wrap">
   <!-- LOG -->
   <section class="view on" id="v-log">
-    <div class="sec-title"><h2>Log a mistake</h2><span class="hint">two taps and a line</span></div>
+    <div class="sec-title"><h2>Log a mistake</h2><span class="hint">3 things, ~15 seconds</span></div>
 
     <div class="editnote" id="editNote">
       <span>Editing an entry — Save overwrites the original.</span>
@@ -227,51 +248,54 @@
     </div>
 
     <div class="field">
-      <label>Subject <span class="req">*</span></label>
+      <label>Subject</label>
       <select id="f-subject"></select>
     </div>
 
     <div class="field">
-      <label>What was it testing? <span class="req">*</span></label>
+      <label>1 · What did it test? <span class="req">*</span></label>
       <input type="text" id="f-concept" placeholder="e.g. STEMI time-to-treatment window" autocomplete="off">
     </div>
+    <div class="dupe" id="dupeHint"></div>
 
     <div class="field">
-      <label>Why did you miss it? <span class="req">*</span></label>
+      <label>2 · Why did the mark go? <span class="req">*</span></label>
       <div class="seg c4" id="f-error"></div>
     </div>
 
     <div class="field">
-      <label>How sure were you?</label>
-      <div class="seg c3" id="f-conf"></div>
+      <label>3 · The fix — one line, readable cold <span class="req">*</span></label>
+      <textarea id="f-lesson" placeholder="Rule + the number that settles it. e.g. STEMI: PCI within 90 min of first contact; 120 if transferring; else lyse within 30 min."></textarea>
     </div>
 
-    <div class="field">
-      <label>The fix — one line you can read cold <span class="req">*</span></label>
-      <textarea id="f-lesson" placeholder="Rule + the number that settles it. e.g. STEMI: open artery within 90 min of first contact; if transfer needed, 120 min; if neither, give clot-buster within 30 min of arrival."></textarea>
-    </div>
-
-    <div class="field">
-      <label>The trap that caught you <span class="faint">— optional</span></label>
-      <input type="text" id="f-trap" placeholder="e.g. picked the sterility answer instead of the infection-rate one" autocomplete="off">
-    </div>
-
-    <div class="field">
-      <button class="toggle" id="f-image" type="button">
-        <span class="sw"></span>
-        <span class="txt">This was a picture / clinical-image question</span>
-      </button>
-    </div>
+    <details class="more" id="moreBox">
+      <summary>More — how sure · the trap · image Q</summary>
+      <div class="field">
+        <label>How sure were you?</label>
+        <div class="seg c3" id="f-conf"></div>
+      </div>
+      <div class="field">
+        <label>The trap that caught you</label>
+        <input type="text" id="f-trap" placeholder="e.g. picked the seen-it-before option without reading the last line" autocomplete="off">
+      </div>
+      <div class="field">
+        <button class="toggle" id="f-image" type="button">
+          <span class="sw"></span>
+          <span class="txt">Picture / clinical-image question</span>
+        </button>
+      </div>
+    </details>
 
     <div class="actions">
       <button class="btn primary" id="saveBtn">Save</button>
       <button class="btn ghost" id="saveAddBtn">Save &amp; next</button>
     </div>
+    <p class="faint" style="font-size:12px;margin-top:14px;text-align:center">Enter in the fix line = save &amp; next</p>
   </section>
 
   <!-- BOOK -->
   <section class="view" id="v-book">
-    <div class="sec-title"><h2>Mistake book</h2><span class="hint">read this before every test</span></div>
+    <div class="sec-title"><h2>Mistake book</h2><span class="hint">skim it the day before a GT</span></div>
     <div class="searchbox">
       <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
       <input type="text" id="bookSearch" placeholder="Search concepts, fixes, traps…" autocomplete="off">
@@ -283,7 +307,7 @@
 
   <!-- REVIEW -->
   <section class="view" id="v-review">
-    <div class="sec-title"><h2>Review</h2><span class="hint">recall it before you reveal it</span></div>
+    <div class="sec-title"><h2>Review</h2><span class="hint">recall beats re-reading</span></div>
     <div id="reviewBody"></div>
   </section>
 
@@ -347,10 +371,10 @@ const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology"
 
 /* why you missed it — each maps to a different fix */
 const ERRORS=[
-  {id:'knowledge', t:"Didn't know it", d:"Never learnt it", c:'var(--red)'},
-  {id:'retrieval', t:"Knew it, blanked", d:"Couldn't recall in time", c:'var(--amber)'},
-  {id:'reasoning', t:"Reasoned it wrong", d:"Had the facts, mis-applied", c:'var(--violet)'},
-  {id:'execution', t:"Careless slip", d:"Misread / marked wrong", c:'var(--teal)'},
+  {id:'knowledge', t:"Didn't know", d:"never learnt it", c:'var(--red)'},
+  {id:'retrieval', t:"Knew it, blanked", d:"couldn't pull it out", c:'var(--amber)'},
+  {id:'reasoning', t:"Wrong logic", d:"facts right, applied wrong", c:'var(--violet)'},
+  {id:'execution', t:"Silly slip", d:"misread / mis-marked", c:'var(--teal)'},
 ];
 const ERR_MAP=Object.fromEntries(ERRORS.map(e=>[e.id,e]));
 
@@ -361,7 +385,7 @@ const CONFS=[
   {id:'low',  t:'No idea',    d:'a raw gap', c:'var(--muted)'},
 ];
 
-let entries=[]; let settings={activeSet:'GT-18'};
+let entries=[]; let settings={activeSet:'GT-18', examDate:'2026-08-31'};
 let form={subject:SUBJECTS[8], error:null, conf:'med', image:false};
 let bookFilter={sub:'ALL', type:'ALL', q:''};
 let editingId=null;
@@ -411,11 +435,30 @@ function clearForm(){
   paint(document.getElementById('f-error'),'e',null);
   paint(document.getElementById('f-conf'),'c','med');
   document.getElementById('f-image').classList.remove('on');
+  document.getElementById('dupeHint').classList.remove('show');
+}
+
+/* while typing the concept, look for the same mistake already in the book */
+function checkDupe(){
+  const box=document.getElementById('dupeHint');
+  const words=normalize(document.getElementById('f-concept').value).split(' ').filter(w=>w.length>2);
+  if(words.length<2){box.classList.remove('show');return}
+  let best=null,bestN=0;
+  entries.forEach(e=>{
+    if(editingId && e.id===editingId)return;
+    const ew=new Set(normalize(e.concept).split(' '));
+    const n=words.filter(w=>ew.has(w)).length;
+    if(n>bestN){bestN=n;best=e}
+  });
+  if(best && bestN>=2){
+    box.innerHTML=`<b>This one's bitten you before</b> — ${esc(best.set)}: <span class="old">“${esc(best.lesson)}”</span>`;
+    box.classList.add('show');
+  }else box.classList.remove('show');
 }
 function validate(f){
-  if(!f.concept){toast('Add what it was testing');return false}
-  if(!form.error){toast('Tap why you missed it');return false}
-  if(!f.lesson){toast('Add the one-line fix');return false}
+  if(!f.concept){toast('What did it test?');return false}
+  if(!form.error){toast('Tap why the mark went');return false}
+  if(!f.lesson){toast('Write the one-line fix');return false}
   return true;
 }
 async function doSave(again){
@@ -456,6 +499,7 @@ function startEdit(id){
   paint(document.getElementById('f-error'),'e',form.error);
   paint(document.getElementById('f-conf'),'c',form.conf);
   document.getElementById('f-image').classList.toggle('on',form.image);
+  document.getElementById('moreBox').open=true;
   updateEditUI(); switchView('log');
 }
 function cancelEdit(){editingId=null; clearForm(); updateEditUI(); toast('Edit cancelled')}
@@ -466,9 +510,30 @@ function updateEditUI(){
 }
 
 function normalize(s){return (s||'').toLowerCase().replace(/[^a-z0-9 ]/g,'').replace(/\s+/g,' ').trim()}
-function keyOf(e){return e.subject+'|'+normalize(e.concept).split(' ').slice(0,4).join(' ')}
-function recurrenceMap(){const m={};entries.forEach(e=>{const k=keyOf(e);m[k]=(m[k]||0)+1});return m}
-function isRecurring(e,map){return (map[keyOf(e)]||0)>=2}
+/* fuzzy repeat detection: same subject + enough shared concept words = the same mistake,
+   even when it's worded differently each time */
+function sigWords(e){return new Set(normalize(e.concept).split(' ').filter(w=>w.length>2))}
+function buildGroups(){
+  const n=entries.length, parent=[...Array(n).keys()];
+  const find=i=>parent[i]===i?i:(parent[i]=find(parent[i]));
+  const sets=entries.map(sigWords);
+  for(let i=0;i<n;i++)for(let j=i+1;j<n;j++){
+    if(entries[i].subject!==entries[j].subject)continue;
+    const need=Math.min(2,sets[i].size,sets[j].size);
+    if(!need)continue;
+    let shared=0; for(const w of sets[i]){if(sets[j].has(w)&&++shared>=need)break}
+    if(shared>=need)parent[find(i)]=find(j);
+  }
+  const groups={};
+  entries.forEach((e,i)=>{const r=find(i);(groups[r]=groups[r]||[]).push(e)});
+  return Object.values(groups);
+}
+function recurrenceMap(){
+  const m={};
+  buildGroups().forEach(arr=>arr.forEach(e=>m[e.id]=arr.length));
+  return m;
+}
+function isRecurring(e,map){return (map[e.id]||0)>=2}
 
 function render(){
   document.getElementById('totalTag').textContent=entries.length+' logged';
@@ -476,7 +541,30 @@ function render(){
   document.getElementById('renameSub').textContent='Right now: '+settings.activeSet;
   document.getElementById('srcCnt').textContent=entries.filter(e=>e.set===settings.activeSet).length+' in this test';
   document.getElementById('openCnt').textContent=entries.filter(e=>e.status==='open').length+' to fix';
+  const chip=document.getElementById('examChip'), d=daysToExam();
+  if(d===null){chip.textContent='set exam date'}
+  else if(d>0){chip.textContent=d+'d left'; chip.style.color=d<=14?'var(--red)':'var(--amber)'}
+  else chip.textContent=d===0?'exam day':'done ✓';
   renderBook(); renderReview(); renderInsights();
+}
+function daysToExam(){
+  if(!settings.examDate)return null;
+  const t=new Date(settings.examDate+'T00:00:00');
+  if(isNaN(t))return null;
+  return Math.ceil((t-Date.now())/864e5);
+}
+function examSheet(){
+  openSheet(`<h3>Exam date</h3><p>The countdown in the header runs to this day. Everything here is about walking in with zero repeat mistakes.</p>
+    <input type="date" id="examInput" value="${esc(settings.examDate||'')}">
+    <div class="actions" style="margin-top:16px">
+      <button class="btn primary" id="examSave">Set it</button>
+      <button class="btn ghost" onclick="document.getElementById('backdrop').classList.remove('show')">Cancel</button>
+    </div>`);
+  document.getElementById('examSave').onclick=async()=>{
+    const v=document.getElementById('examInput').value;
+    if(v){settings.examDate=v;await persistSettings();render()}
+    closeSheet();
+  };
 }
 
 function renderBook(){
@@ -514,7 +602,7 @@ function renderBook(){
   const box=document.getElementById('bookList');
   if(list.length===0){
     box.innerHTML=`<div class="empty"><div class="big">${entries.length===0?'Nothing here yet':'Nothing matches'}</div>
-      ${entries.length===0?'After a test or a module, log each one you got wrong. Two taps and a line — read them all back here before your next test.':'Try a different filter or search.'}</div>`;
+      ${entries.length===0?'After each GT or daily module, log what you got wrong — three things each. Then skim this the day before your next GT.':'Try a different filter or search.'}</div>`;
     return;
   }
   box.innerHTML=list.map(e=>{
@@ -593,20 +681,21 @@ function renderReview(){
     }
     const open=entries.filter(e=>e.status==='open').length;
     const inSet=entries.filter(e=>e.set===settings.activeSet).length;
+    const mins=Math.max(1,Math.round(open*20/60));
     box.innerHTML=`
       <button class="databtn" data-rev="open" ${open?'':'disabled style="opacity:.45"'}>
         <svg class="ic" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-        <div><div class="tt">Still to fix — ${open}</div><div class="dd">Your open mistakes, hardest first. Recall each twice and it marks itself fixed.</div></div>
+        <div><div class="tt">Pre-GT run — ${open} open${open?' · ~'+mins+' min':''}</div><div class="dd">Do this the day before a GT. Worst first; recall one twice and it closes itself.</div></div>
       </button>
       <button class="databtn" data-rev="set" ${inSet?'':'disabled style="opacity:.45"'}>
         <svg class="ic" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-        <div><div class="tt">${esc(settings.activeSet)} — ${inSet}</div><div class="dd">Everything from the current test, fixed ones included.</div></div>
+        <div><div class="tt">${esc(settings.activeSet)} — ${inSet}</div><div class="dd">Just this test or module, closed ones included.</div></div>
       </button>
       <button class="databtn" data-rev="all">
         <svg class="ic" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z"/></svg>
-        <div><div class="tt">Everything — ${entries.length}</div><div class="dd">The whole book. Good the night before a test.</div></div>
+        <div><div class="tt">Everything — ${entries.length}</div><div class="dd">The whole book. Save this for the final weeks.</div></div>
       </button>
-      <p class="faint" style="font-size:12px;margin-top:14px;text-align:center;line-height:1.6">Read the concept, say the fix out loud, then reveal. "Still shaky" reopens a mistake and resets its streak.</p>`;
+      <p class="faint" style="font-size:12px;margin-top:14px;text-align:center;line-height:1.6">Say the fix out loud before you reveal it. "Still shaky" reopens one and resets its streak.</p>`;
     box.querySelectorAll('[data-rev]').forEach(b=>b.onclick=()=>startReview(b.dataset.rev));
     return;
   }
@@ -650,6 +739,33 @@ const FIXTEXT={
   reasoning:"the facts were right but the logic slipped — slow down on the last line and work it through instead of guessing the pattern.",
   execution:"the cheapest to fix — it's rushing, not knowledge. Read the final line first, commit, and don't change answers."
 };
+
+/* the marching orders — 2-4 concrete actions computed from the log */
+function nextCard(map){
+  const rows=[]; let i=1;
+  const open=entries.filter(e=>e.status==='open');
+  if(open.length){
+    const mins=Math.max(1,Math.round(open.length*20/60));
+    rows.push(`<div class="row"><span class="n">${i++}</span><span>Clear <b>${open.length} open</b> in Review — about ${mins} min. Day before your GT at the latest.</span></div>`);
+  }
+  const reps=buildGroups().filter(a=>a.length>=2).sort((a,b)=>b.length-a.length).slice(0,3);
+  if(reps.length){
+    rows.push(`<div class="row"><span class="n">${i++}</span><span>You keep re-missing ${reps.map(a=>`<b>${esc(a[0].concept)}</b> ×${a.length}`).join(', ')}. Cheapest marks on the table — nail these this week.</span></div>`);
+  }
+  const openBySub={}; open.forEach(e=>openBySub[e.subject]=(openBySub[e.subject]||0)+1);
+  const worst=Object.entries(openBySub).sort((a,b)=>b[1]-a[1])[0];
+  if(worst && worst[1]>=3){
+    rows.push(`<div class="row"><span class="n">${i++}</span><span><b>${esc(worst[0])}</b> is where it's leaking right now — ${worst[1]} open. Give it first slot in this week's modules.</span></div>`);
+  }
+  const blindOpen=open.filter(e=>e.conf==='high').length;
+  if(blindOpen){
+    rows.push(`<div class="row"><span class="n">${i++}</span><span><b>${blindOpen} blind spot${blindOpen>1?'s':''}</b> — you were sure and still wrong. These won't feel wrong in the exam either; re-learn them properly, don't just re-read.</span></div>`);
+  }
+  if(!rows.length) rows.push(`<div class="row"><span class="n">✓</span><span>Nothing open. Log your next GT or module and keep the streak.</span></div>`);
+  const d=daysToExam();
+  const head=d!==null&&d>0?`Do this next — ${d} days, ~${Math.max(1,Math.round(d/7))} GT${Math.round(d/7)>1?'s':''} left`:'Do this next';
+  return `<div class="card next"><h3>${head}</h3>${rows.join('')}</div>`;
+}
 
 function renderInsights(){
   const box=document.getElementById('insightsBody');
@@ -710,7 +826,7 @@ function renderInsights(){
     }).join('');
   const setCard=`<div class="card gtlist"><h3>Test by test</h3>${setRows}</div>`;
 
-  box.innerHTML=verdict+kpis+bars+heat+img+setCard;
+  box.innerHTML=nextCard(map)+verdict+kpis+bars+heat+img+setCard;
 }
 
 function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
@@ -739,8 +855,13 @@ function bindActions(){
   document.getElementById('wipeBtn').onclick=wipe;
   document.getElementById('editCancel').onclick=cancelEdit;
   document.getElementById('openCnt').onclick=()=>{bookFilter.type='open';bookFilter.sub='ALL';renderBook();switchView('book')};
+  document.getElementById('examChip').onclick=examSheet;
   document.getElementById('bookSearch').oninput=e=>{bookFilter.q=e.target.value.trim();renderBook()};
   document.getElementById('f-concept').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();document.getElementById('f-lesson').focus()}});
+  let dupeT; document.getElementById('f-concept').addEventListener('input',()=>{clearTimeout(dupeT);dupeT=setTimeout(checkDupe,250)});
+  document.getElementById('f-lesson').addEventListener('keydown',e=>{
+    if(e.key==='Enter' && !e.shiftKey){e.preventDefault();doSave(true)}
+  });
 }
 
 function renameSet(){
