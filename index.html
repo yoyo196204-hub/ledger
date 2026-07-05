@@ -56,6 +56,7 @@
     font-size:10.5px;font-weight:560;transition:color .15s}
   .tab svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8}
   .tab.on{color:var(--accent)}
+  .railbrand{display:none}
   .tabic{position:relative;display:inline-flex}
   .tabbadge{position:absolute;top:-5px;right:-9px;min-width:15px;height:15px;padding:0 4px;border-radius:8px;background:var(--accent);
     color:#fff;font-size:9.5px;font-weight:700;line-height:15px;text-align:center;box-shadow:0 0 0 2px var(--surface)}
@@ -284,9 +285,9 @@
   .steps li::before{content:counter(s);position:absolute;left:0;top:-1px;width:24px;height:24px;border-radius:50%;background:var(--accent-soft);color:var(--accent-ink);font-size:12px;font-weight:700;display:grid;place-items:center}
   .steps li b{color:var(--ink)}
 
-  /* spaced-repetition "due" card accent */
-  .databtn.due{border-color:color-mix(in srgb,var(--accent) 45%,transparent);background:linear-gradient(180deg,var(--accent-soft),var(--surface))}
-  .databtn.due .ic{stroke:var(--accent-ink)}
+  /* spaced-repetition "due" + sync card accent */
+  .databtn.due,.databtn.sync{border-color:color-mix(in srgb,var(--accent) 45%,transparent);background:linear-gradient(180deg,var(--accent-soft),var(--surface))}
+  .databtn.due .ic,.databtn.sync .ic{stroke:var(--accent-ink)}
   .revdue{font-size:11.5px;color:var(--muted);margin-top:10px;text-align:center}
   .revdue b{color:var(--emerald)}
   .combo{display:inline-flex;align-items:center;gap:4px;background:color-mix(in srgb,var(--amber) 15%,transparent);color:var(--amber);
@@ -320,15 +321,36 @@
     .view.on{animation:none}
   }
 
+  /* desktop pointer: gentle lift on interactive surfaces */
+  @media (hover:hover) and (pointer:fine){
+    .databtn,.entry,.card,.opt,.chip,.btn,.count,.ctxline{transition:transform .13s ease,box-shadow .13s ease,border-color .13s ease}
+    .databtn:hover,.ctxline:hover{transform:translateY(-1px);box-shadow:var(--shadow2)}
+    .entry:hover{box-shadow:var(--shadow2)}
+    .btn:hover{filter:brightness(1.03)}
+    .chip:hover{border-color:var(--accent)}
+    .tab:hover{color:var(--accent)}
+  }
+
   /* wider screens: use the space (iPad / desktop) */
-  @media (min-width:800px){
-    .wrap{max-width:840px}
+  @media (min-width:820px){
+    .wrap{max-width:860px}
     .kpis{grid-template-columns:repeat(4,1fr)}
     #bookList{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;align-items:start}
     #bookList .entry{margin-bottom:0}
     #bookList .empty{grid-column:1 / -1}
+    /* bottom tab bar becomes a left sidebar rail */
+    body{padding-left:216px;padding-bottom:24px}
+    nav{top:0;bottom:0;right:auto;width:216px;height:100vh;border-top:none;border-right:1px solid var(--border);
+      padding:calc(18px + env(safe-area-inset-top)) 12px 18px;display:flex;flex-direction:column;background:var(--surface)}
+    .railbrand{display:flex;align-items:center;gap:10px;padding:0 8px 18px;margin-bottom:8px;border-bottom:1px solid var(--border)}
+    .railbrand .logo{width:30px;height:30px}
+    .railbrand b{font-size:15px;letter-spacing:-.02em}
+    .tabs{grid-template-columns:1fr;gap:4px;padding:0;margin-top:8px}
+    .tab{flex-direction:row;justify-content:flex-start;gap:12px;padding:12px 14px;border-radius:12px;font-size:14px;font-weight:600;color:var(--ink2)}
+    .tab svg{width:20px;height:20px}
+    .tab.on{background:var(--accent-soft);color:var(--accent-ink)}
   }
-  @media (min-width:1000px){ .wrap{max-width:900px} }
+  @media (min-width:1100px){ .wrap{max-width:940px} }
 </style>
 </head>
 <body>
@@ -459,6 +481,12 @@
   <section class="view" id="v-data">
     <div class="sec-title"><h2>Data &amp; app</h2><div class="hint">it lives on this device — keep a backup</div></div>
     <div id="installWrap"></div>
+    <div class="datahead">Sync across devices</div>
+    <button class="databtn sync" id="syncBtn">
+      <svg class="ic" viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 13.7-5.6L20 8M20 4v4h-4M20 12a8 8 0 0 1-13.7 5.6L4 16M4 20v-4h4"/></svg>
+      <div><div class="tt">Move to another device</div><div class="dd" id="syncSub">iPad ↔ phone in ~10 seconds, photos included. Tap for the two steps.</div></div>
+      <span class="arrow">›</span>
+    </button>
     <div class="datahead">Back up</div>
     <button class="databtn" id="exportBtn">
       <svg class="ic" viewBox="0 0 24 24"><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2M16 6l-4-4-4 4M12 2v13"/></svg>
@@ -491,6 +519,10 @@
 </main>
 
 <nav>
+  <div class="railbrand">
+    <span class="logo"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round"><path d="M4 6h13M4 12h13M4 18h8"/><path d="M20 5l-2.2 2.4L16.7 6.3"/></svg></span>
+    <b>Ledger</b>
+  </div>
   <div class="tabs">
     <button class="tab on" data-v="log">
       <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span>Log</span></button>
@@ -572,6 +604,7 @@ async function boot(){
   requestPersistence();
   if('serviceWorker' in navigator && location.protocol!=='file:'){ try{navigator.serviceWorker.register('./sw.js').catch(()=>{})}catch(_){}}
   loadPhotos().then(()=>render());
+  maybeBackupReminder();
 }
 
 function migrate(){
@@ -1125,6 +1158,7 @@ function bindActions(){
   document.getElementById('saveAddBtn').onclick=()=>doSave(true);
   document.getElementById('ctxLine').onclick=renameSet;
   document.getElementById('exportBtn').onclick=exportData;
+  document.getElementById('syncBtn').onclick=syncSheet;
   document.getElementById('copyBtn').onclick=copyBackup;
   document.getElementById('ankiBtn').onclick=ankiSheet;
   document.getElementById('importBtn').onclick=()=>document.getElementById('fileIn').click();
@@ -1308,13 +1342,41 @@ async function doInstall(){
     <p style="margin:0">Opening it from there runs it full screen, offline, and makes your saved mistakes far more durable.</p>
     <div class="actions" style="margin-top:16px"><button class="btn primary" onclick="document.getElementById('backdrop').classList.remove('show')">Got it</button></div>`);
 }
+function backupAgeDays(){ return settings.lastBackup ? Math.floor((Date.now()-settings.lastBackup)/864e5) : null; }
 function renderStoreNote(){
   const el=document.getElementById('storeNote'); if(!el)return;
+  const days=backupAgeDays();
   let s='Everything stays in this browser — no login, no cloud. ';
-  if(settings.lastBackup){const days=Math.floor((Date.now()-settings.lastBackup)/864e5); s+= days<=0?'Backed up today. ':`Last backup ${days} day${days>1?'s':''} ago. `;}
-  else s+='No backup saved yet — do one now. ';
+  if(days===null) s+='No backup saved yet — do one now. ';
+  else s+= days<=0?'Backed up today. ':`Last backup ${days} day${days>1?'s':''} ago. `;
   s+='Back up weekly, and after a big logging session.';
   el.textContent=s;
+  const sub=document.getElementById('syncSub');
+  if(sub){ sub.textContent = (days===null?'Never backed up yet. ':days<=0?'Backed up today. ':`Last backup ${days} day${days>1?'s':''} ago. `)+'iPad ↔ phone in ~10s, photos included — tap for steps.'; }
+}
+
+function syncSheet(){
+  const days=backupAgeDays();
+  openSheet(`<h3>Move to another device</h3>
+    <p>No account needed — your ledger travels as one file (photos included) through iCloud Drive or Files.</p>
+    <ol class="steps">
+      <li><b>On this device:</b> tap <b>Back up now</b> below, then in the share sheet choose <b>Save to Files → iCloud Drive</b>.</li>
+      <li><b>On your other device:</b> open this app, go to <b>Data → Load a backup file</b>, and pick that file from iCloud.</li>
+    </ol>
+    <p style="margin:0 0 4px">Loading only <b>adds</b> what's missing, so it's always safe — even if both devices have some entries. ${days===null?'':days<=0?'Last backed up today.':'Last backed up '+days+' day'+(days>1?'s':'')+' ago.'}</p>
+    <div class="actions" style="margin-top:16px">
+      <button class="btn primary" id="syncBackup">Back up now</button>
+      <button class="btn ghost" onclick="document.getElementById('backdrop').classList.remove('show')">Close</button>
+    </div>`);
+  document.getElementById('syncBackup').onclick=()=>{ closeSheet(); exportData(); };
+}
+
+/* gentle nudge if it's been a while and there's something to lose */
+function maybeBackupReminder(){
+  const days=backupAgeDays();
+  if(entries.length>=5 && (days===null || days>=7)){
+    setTimeout(()=>toast(days===null?'Tip: back up your ledger in Data':`It's been ${days} days — back up in Data`,{label:'Back up',fn:()=>{switchView('data');exportData();}}),2500);
+  }
 }
 
 boot();
