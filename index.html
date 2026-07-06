@@ -332,6 +332,38 @@
   .hbar .fill{height:100%;border-radius:7px;transition:width .5s cubic-bezier(.4,0,.2,1);min-width:7px}
   .hbar .v{font-size:13px;font-weight:750;color:var(--ink);font-variant-numeric:tabular-nums;min-width:16px;text-align:right}
 
+  /* bento — the insights layout */
+  .bento{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:13px}
+  .tile{border-radius:var(--r);padding:18px;border:1px solid var(--border);background:var(--surface);box-shadow:var(--shadow);min-width:0;position:relative;overflow:hidden}
+  .tile.wide{grid-column:1 / -1}
+  .tile h4{font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;font-weight:800;color:var(--muted);margin:0 0 11px;display:flex;align-items:center;gap:8px}
+  .tile h4 .dot{width:7px;height:7px;border-radius:50%;background:var(--accent)}
+  .tile .huge{font-size:46px;font-weight:850;line-height:.9;letter-spacing:-.045em;font-feature-settings:"tnum" 0}
+  .tile .huge small{font-size:.5em;font-weight:750;opacity:.5;letter-spacing:-.02em}
+  .tile .tlab{font-size:12px;font-weight:600;margin-top:9px;line-height:1.35;color:var(--muted)}
+  .tile.hero{grid-column:1 / -1;background:linear-gradient(145deg,#C85A34 0%,#A9431F 100%);border:none;color:#FBEFE2;
+    display:flex;align-items:center;gap:20px;box-shadow:0 20px 44px -18px rgba(150,70,40,.7)}
+  .tile.hero::after{content:"";position:absolute;right:-30px;top:-30px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.07)}
+  .tile.hero .huge,.tile.hero .tlab{color:#FBEFE2}
+  .tile.hero .tlab{opacity:.82;font-size:12.5px;margin-top:7px}
+  .tile.sage{background:linear-gradient(145deg,#7E9670,#5E7550);border:none;color:#F2F5EC}
+  .tile.sage h4{color:#F2F5EC;opacity:.85} .tile.sage h4 .dot{background:#F2F5EC}
+  .tile.sage .huge,.tile.sage .tlab{color:#F2F5EC} .tile.sage .tlab{opacity:.85}
+  .tile.tint{background:var(--accent-soft);border-color:transparent}
+  .tile.tint h4{color:var(--accent-ink)} .tile.tint h4 .dot{background:var(--accent)}
+  .tile.tint .huge{color:var(--accent-ink)}
+  .ringwrap.big{width:88px;height:88px;flex:none}
+  .ringwrap.big .ring{width:88px;height:88px}
+  .ring.cream .bg{stroke:rgba(255,255,255,.28)}
+  .ring.cream .fg{stroke:#FBEFE2}
+  .ringwrap.big .pctnum b{font-size:24px}
+  .tile.hero .ringwrap.big .pctnum b,.tile.hero .ringwrap.big .pctnum span{color:#FBEFE2}
+  .tile.hero .ringwrap.big .pctnum span{opacity:.8}
+  .tile .vline{font-size:13.5px;line-height:1.5;color:var(--ink2);margin-top:10px}
+  .tile .vline:first-of-type{margin-top:0}
+  .tile .vline b{color:var(--ink)}
+  .tile.gtlist .gtrow:first-of-type{padding-top:0}
+
   /* keyboard focus + reduced motion */
   *:focus{outline:none}
   *:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
@@ -1165,29 +1197,78 @@ function renderInsights(){
       ${sBlind?`<div class="line"><b class="w">${sBlind} blind spot${sBlind>1?'s':''}.</b> You felt sure and were wrong. Fix these first — the understanding is off in a way you can't feel mid-test.</div>`:''}
       ${sClose?`<div class="line"><b class="a">${sClose} were one fact away.</b> Down to two and picked wrong — best value to nail.</div>`:''}</div>`;
   }
-  const kpis=`<div class="card"><h3><span class="accent"></span>The whole picture</h3><div class="kpis">
-    <div class="kpi bad"><div class="num">${recCount}</div><div class="lab">keep happening</div></div>
-    <div class="kpi bad"><div class="num">${blind}</div><div class="lab">blind spots — sure but wrong <span class="faint">(of ${withConf} with confidence noted)</span></div></div>
-    <div class="kpi warn"><div class="num">${close}</div><div class="lab">one fact away <span class="faint">(of ${withConf} with confidence noted)</span></div></div>
-    <div class="kpi ${openCount>0?'':'ok'}"><div class="num">${openCount}</div><div class="lab">still to fix</div></div></div></div>`;
+  /* ---- hero: mastery, color-blocked ---- */
+  const total=entries.length, fixed=entries.filter(e=>e.status==='fixed').length;
+  const pct=Math.round(fixed/total*100), due=dueCount();
+  const heroRing=`<div class="ringwrap big"><svg class="ring cream" viewBox="0 0 36 36">
+    <circle class="bg" cx="18" cy="18" r="15.9" pathLength="100"/>
+    <circle class="fg" cx="18" cy="18" r="15.9" pathLength="100" stroke-dasharray="${pct} 100"/></svg>
+    <div class="pctnum"><b>${pct}%</b><span>cleared</span></div></div>`;
+  const hero=`<div class="tile hero">${heroRing}<div><div class="huge">${fixed}<small>/${total}</small></div>
+    <div class="tlab">mistakes cleared${openCount?` · ${openCount} still open`:''}. Recall a fix twice and it clears.</div></div></div>`;
+
+  /* ---- bold stat tiles ---- */
+  const dueTile=`<div class="tile sage"><h4><span class="dot"></span>Due today</h4><div class="huge">${due}</div><div class="tlab">${due?'cards to recall now':'all caught up'}</div></div>`;
+  const repTile=`<div class="tile tint"><h4><span class="dot"></span>Keep happening</h4><div class="huge">${recCount}</div><div class="tlab">the same miss, again</div></div>`;
+  const blindTile=`<div class="tile"><h4><span class="dot" style="background:var(--rose)"></span>Blind spots</h4><div class="huge" style="color:var(--rose)">${blind}</div><div class="tlab">sure but wrong <span class="faint">(of ${withConf} with confidence noted)</span></div></div>`;
+  const closeTile=`<div class="tile"><h4><span class="dot" style="background:var(--amber)"></span>One fact away</h4><div class="huge" style="color:var(--amber)">${close}</div><div class="tlab">down to two <span class="faint">(of ${withConf} with confidence noted)</span></div></div>`;
+
+  /* ---- trend chart (wide) ---- */
+  const gtSets={}; entries.filter(e=>e.testType==='gt').forEach(e=>{(gtSets[e.set]=gtSets[e.set]||[]).push(e)});
+  const seq=Object.entries(gtSets).map(([s,a])=>({s,n:a.length,first:Math.min(...a.map(x=>x.ts||0))})).sort((a,b)=>a.first-b.first).slice(-8);
+  let trendTile='';
+  if(seq.length>=2){
+    let cap='';
+    if(seq.length>=3){const f=seq[0].n,l=seq[seq.length-1].n,mk=x=>x+' mistake'+(x===1?'':'s');
+      cap = l<f?`<div class="tcaption"><b class="d">Trending down ↓</b> — ${mk(l)} in your latest GT vs ${f} a few tests ago. Keep it up.</div>`
+          : l>f?`<div class="tcaption"><b class="u">Ticking up ↑</b> — ${mk(l)} in your latest GT vs ${f} earlier. Tighten the loop.</div>`
+          : `<div class="tcaption">Holding steady around ${mk(l)} per GT — push the recurring ones to zero.</div>`;}
+    trendTile=`<div class="tile wide"><h4><span class="dot"></span>Mistakes per grand test</h4><div class="chartwrap" style="margin-top:4px">${areaChart(seq)}</div>${cap}</div>`;
+  }
+
+  /* ---- error breakdown (wide) ---- */
   const maxErr=Math.max(1,...Object.values(byErr));
-  const bars=`<div class="card"><h3><span class="accent"></span>Why you're missing them</h3><div class="hbars">${
+  const bars=`<div class="tile wide"><h4><span class="dot"></span>Why you're missing them</h4><div class="hbars">${
     ERRORS.map(e=>`<div class="hbar"><span class="k">${e.t}</span><div class="track"><div class="fill" style="width:${Math.max(3,byErr[e.id]/maxErr*100)}%;background:linear-gradient(90deg,${e.c},color-mix(in srgb,${e.c} 72%,#fff))"></div></div><span class="v">${byErr[e.id]}</span></div>`).join('')
-  }</div><p class="muted" style="font-size:13px;margin:16px 0 0;line-height:1.5">Most marks go to <b style="color:${domErr.c}">${domErr.t.toLowerCase()}</b>. ${FIXTEXT[domErr.id]}</p></div>`;
+  }</div><p class="tlab" style="margin-top:15px">Most marks go to <b style="color:${domErr.c}">${domErr.t.toLowerCase()}</b>. ${FIXTEXT[domErr.id]}</p></div>`;
+
+  /* ---- weakest subjects (wide) ---- */
   const subCount={}; entries.forEach(e=>subCount[e.subject]=(subCount[e.subject]||0)+1);
   const subSorted=Object.entries(subCount).sort((a,b)=>b[1]-a[1]).slice(0,7);
   const maxSub=Math.max(1,...subSorted.map(s=>s[1]));
-  const heat=`<div class="card"><h3><span class="accent"></span>Weakest subjects</h3><div class="hbars">${
+  const heat=`<div class="tile wide"><h4><span class="dot"></span>Weakest subjects</h4><div class="hbars">${
     subSorted.map(([s,n])=>`<div class="hbar"><span class="k">${esc(s)}</span><div class="track"><div class="fill" style="width:${Math.max(3,n/maxSub*100)}%;background:linear-gradient(90deg,var(--accent),var(--accent2))"></div></div><span class="v">${n}</span></div>`).join('')
   }</div></div>`;
-  const img=imgTotal?`<div class="card"><h3><span class="accent"></span>Picture questions</h3>
-    <p style="font-size:13.5px;line-height:1.55;margin:0;color:var(--ink2)">You've logged <b style="color:var(--ink)">${imgTotal}</b> image Qs — a known soft spot. In the book, tap <b style="color:var(--ink)">Picture Qs</b> and give them a dedicated run.</p></div>`:'';
+
+  /* ---- GT vs module tiles ---- */
+  const gtE=entries.filter(e=>e.testType==='gt'), modE=entries.filter(e=>e.testType==='module');
+  let splitTiles='';
+  if(gtE.length && modE.length){
+    const dom=arr=>{const c={};arr.forEach(e=>c[e.error]=(c[e.error]||0)+1);return ERRORS.slice().sort((a,b)=>(c[b.id]||0)-(c[a.id]||0))[0]};
+    splitTiles=`<div class="tile"><h4><span class="dot"></span>Weekly GTs</h4><div class="huge" style="color:var(--accent-ink)">${gtE.length}</div><div class="tlab">${gtE.filter(e=>e.status==='open').length} open · mostly ${dom(gtE).t.toLowerCase()}</div></div>
+      <div class="tile"><h4><span class="dot" style="background:var(--pink)"></span>Daily modules</h4><div class="huge" style="color:var(--pink)">${modE.length}</div><div class="tlab">${modE.filter(e=>e.status==='open').length} open · mostly ${dom(modE).t.toLowerCase()}</div></div>`;
+  }
+
+  /* ---- current-test verdict (wide) ---- */
+  let verdictTile='';
+  if(setEntries.length){
+    const sErr=Object.fromEntries(ERRORS.map(e=>[e.id,setEntries.filter(x=>x.error===e.id).length]));
+    const sDom=ERRORS.slice().sort((a,b)=>sErr[b.id]-sErr[a.id])[0];
+    const sBlind=setEntries.filter(e=>e.conf==='high').length, sClose=setEntries.filter(e=>e.conf==='med').length;
+    verdictTile=`<div class="tile wide" style="border-left:3px solid var(--accent)"><h4><span class="dot"></span>${esc(curSet())} — what it's telling you</h4>
+      <div class="vline"><b>${setEntries.length} logged.</b> Commonest miss: <b style="color:var(--accent-ink)">${sDom.t.toLowerCase()}</b> (${sErr[sDom.id]}). ${FIXTEXT[sDom.id]}</div>
+      ${sBlind?`<div class="vline"><b style="color:var(--rose)">${sBlind} blind spot${sBlind>1?'s':''}.</b> Sure but wrong — fix these first.</div>`:''}
+      ${sClose?`<div class="vline"><b style="color:var(--amber)">${sClose} one fact away.</b> Down to two and missed — best value to nail.</div>`:''}</div>`;
+  }
+
+  /* ---- test-by-test (wide) ---- */
   const sets={}; entries.forEach(e=>{const k=e.testType+'|'+e.set;(sets[k]=sets[k]||[]).push(e)});
   const setRows=Object.entries(sets).sort((a,b)=>Math.max(...b[1].map(x=>x.ts))-Math.max(...a[1].map(x=>x.ts)))
-    .map(([k,arr])=>{const dom=ERRORS.slice().sort((a,b)=>arr.filter(x=>x.error===b.id).length-arr.filter(x=>x.error===a.id).length)[0]; const mod=arr[0].testType==='module';
-      return `<div class="gtrow"><span class="gtn ${mod?'mod':''}">${esc(arr[0].set)}</span><span class="gtd">mostly ${dom.t.toLowerCase()}</span><span class="gtc">${arr.length}</span></div>`;}).join('');
-  const setCard=`<div class="card gtlist"><h3><span class="accent"></span>Test by test</h3>${setRows}</div>`;
-  box.innerHTML=nextCard(map)+masteryCard()+typeSplitCard()+verdict+kpis+bars+heat+img+setCard;
+    .map(([k,arr])=>{const dm=ERRORS.slice().sort((a,b)=>arr.filter(x=>x.error===b.id).length-arr.filter(x=>x.error===a.id).length)[0]; const mod=arr[0].testType==='module';
+      return `<div class="gtrow"><span class="gtn ${mod?'mod':''}">${esc(arr[0].set)}</span><span class="gtd">mostly ${dm.t.toLowerCase()}</span><span class="gtc">${arr.length}</span></div>`;}).join('');
+  const setTile=`<div class="tile wide gtlist"><h4><span class="dot"></span>Test by test</h4>${setRows}</div>`;
+
+  box.innerHTML=nextCard(map)+`<div class="bento">${hero}${dueTile}${repTile}${blindTile}${closeTile}${trendTile}${splitTiles}${bars}${heat}${verdictTile}${setTile}</div>`;
 }
 
 function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
