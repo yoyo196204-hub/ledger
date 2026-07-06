@@ -534,7 +534,9 @@
   <section class="view" id="v-data">
     <div class="sec-title"><h2>Data &amp; app</h2><div class="hint">it lives on this device — keep a backup</div></div>
     <div id="installWrap"></div>
-    <div class="datahead">Sync across devices</div>
+    <div class="datahead">Cloud sync</div>
+    <div id="cloudSync"></div>
+    <div class="datahead">Move by file</div>
     <button class="databtn sync" id="syncBtn">
       <svg class="ic" viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 13.7-5.6L20 8M20 4v4h-4M20 12a8 8 0 0 1-13.7 5.6L4 16M4 20v-4h4"/></svg>
       <div><div class="tt">Move to another device</div><div class="dd" id="syncSub">iPad ↔ phone in ~10 seconds, photos included. Tap for the two steps.</div></div>
@@ -625,7 +627,10 @@ let editingId=null;
 let review={active:false, queue:[], i:0, revealed:false, known:0, shaky:0, noteOpen:false};
 let deferredPrompt=null;
 let photos={}; /* id -> dataURL, kept in IndexedDB */
+let tombstones={}; /* id -> deletedAt, for delete-safe cloud merge */
 let _grpCache=null; /* memoised recurrence groups, invalidated on every persist() */
+const K_TOMB='ml_tombstones_v1', K_FBCFG='ml_fbcfg_v1', K_DEV='ml_device_v1';
+let fbApp=null, fbUser=null, fbUnsub=null, fbPushT=null, fbApplying=false, fbStatus='off', fbLastSync=0, fbError='';
 let _idc=0; /* id counter, guarantees uniqueness within a session */
 let lastDeleted=null; /* for undo */
 
@@ -651,6 +656,7 @@ function typeLabel(t){return t==='module'?'Daily module':'Weekly GT'}
 async function boot(){
   const e=await sget(K_ENTRIES); if(e){try{entries=sanitizeEntries(JSON.parse(e))}catch(_){entries=[]}}
   const s=await sget(K_SET); if(s){try{const p=JSON.parse(s); if(p && typeof p==='object' && !Array.isArray(p)) settings=Object.assign(settings,p)}catch(_){}}
+  loadTombstones();
   migrate();
   if(settings.lastSubject && SUBJECTS.includes(settings.lastSubject)) form.subject=settings.lastSubject;
   buildForm(); bindTabs(); bindActions(); render(); switchView('log');
@@ -658,6 +664,7 @@ async function boot(){
   if('serviceWorker' in navigator && location.protocol!=='file:'){ try{navigator.serviceWorker.register('./sw.js').catch(()=>{})}catch(_){}}
   loadPhotos().then(()=>render());
   maybeBackupReminder();
+  initSync();
 }
 
 function migrate(){
@@ -676,14 +683,15 @@ function migrate(){
   if(changed){ persist(); persistSettings(); }
 }
 let _saveWarned=false;
-async function persist(){
+async function persist(cloud){
   _grpCache=null; /* entries changed — drop the memoised recurrence groups */
   const ok=await sset(K_ENTRIES,JSON.stringify(entries));
   if(!ok && !_saveWarned){ _saveWarned=true; toast('⚠ Couldn\'t save — storage may be full. Export a backup now.'); }
   else if(ok) _saveWarned=false;
+  if(cloud!==false) scheduleCloudPush();
   return ok;
 }
-async function persistSettings(){ await sset(K_SET,JSON.stringify(settings)); }
+async function persistSettings(cloud){ settings._upd=Date.now(); await sset(K_SET,JSON.stringify(settings)); if(cloud!==false) scheduleCloudPush(); }
 async function requestPersistence(){ try{ if(navigator.storage && navigator.storage.persist){ const p=await navigator.storage.persisted(); if(!p) await navigator.storage.persist(); } }catch(_){} }
 
 /* ---------- photos in IndexedDB ---------- */
@@ -783,7 +791,7 @@ async function doSave(again){
     const e=entries.find(x=>x.id===editingId);
     if(e){
       Object.assign(e,{subject:form.subject, concept:f.concept, lesson:f.lesson, note:f.note, trap:f.trap,
-        error:form.error, conf:form.conf, image:form.image||hasPhoto, hasPhoto});
+        error:form.error, conf:form.conf, image:form.image||hasPhoto, hasPhoto, upd:Date.now()});
       if(hasPhoto){photos[e.id]=form.photo; idbSet(e.id,form.photo)} else {delete photos[e.id]; idbDel(e.id)}
     }
     editingId=null; updateEditUI();
@@ -791,7 +799,7 @@ async function doSave(again){
   }
   const id=newId();
   if(hasPhoto){photos[id]=form.photo; idbSet(id,form.photo)}
-  entries.unshift({ id, ts:Date.now(), testType:curType(), set:curSet(), subject:form.subject,
+  entries.unshift({ id, ts:Date.now(), upd:Date.now(), testType:curType(), set:curSet(), subject:form.subject,
     concept:f.concept, lesson:f.lesson, note:f.note, trap:f.trap,
     error:form.error, conf:form.conf, image:form.image||hasPhoto, hasPhoto, status:'open' });
   await persist();
@@ -855,7 +863,7 @@ function render(){
   const badge=document.getElementById('revBadge'), dc=dueCount();
   if(badge){ if(dc>0 && !review.active){ badge.textContent=dc>99?'99+':dc; badge.hidden=false; } else badge.hidden=true; }
   renderCtx(); paintTypeSwitch();
-  renderBook(); renderReview(); renderInsights(); renderInstall();
+  renderBook(); renderReview(); renderInsights(); renderInstall(); renderCloudSync();
 }
 function daysToExam(){
   if(!settings.examDate)return null;
@@ -939,12 +947,13 @@ function renderBook(){
   box.querySelectorAll('[data-zoom]').forEach(b=>b.onclick=()=>zoomPhoto(b.dataset.zoom));
 }
 function zoomPhoto(id){ if(photos[id]) openSheet(`<img class="zoom" src="${photos[id]}" alt=""><div class="actions" style="margin-top:16px"><button class="btn primary" onclick="document.getElementById('backdrop').classList.remove('show')">Close</button></div>`); }
-async function toggleFix(id){const e=entries.find(x=>x.id===id);if(!e)return;e.status=e.status==='fixed'?'open':'fixed';e.fixedTs=e.status==='fixed'?Date.now():null;await persist();render()}
+async function toggleFix(id){const e=entries.find(x=>x.id===id);if(!e)return;e.status=e.status==='fixed'?'open':'fixed';e.fixedTs=e.status==='fixed'?Date.now():null;e.upd=Date.now();await persist();render()}
 async function delEntry(id){
   const idx=entries.findIndex(x=>x.id===id); if(idx<0)return;
   const entry=entries[idx], photo=photos[id]||null;
   lastDeleted={entry, photo, idx};
   entries.splice(idx,1);
+  tombstones[id]=Date.now(); persistTombstones();
   if(photos[id]){delete photos[id]; idbDel(id)}
   if(editingId===id){editingId=null;clearForm();updateEditUI()}
   await persist();render();
@@ -953,6 +962,7 @@ async function delEntry(id){
 async function undoDelete(){
   if(!lastDeleted)return;
   const {entry,photo,idx}=lastDeleted; lastDeleted=null;
+  entry.upd=Date.now(); delete tombstones[entry.id]; persistTombstones();
   entries.splice(Math.min(idx,entries.length),0,entry);
   if(photo){photos[entry.id]=photo; idbSet(entry.id,photo)}
   await persist();render();toast('Restored');
@@ -990,7 +1000,7 @@ function startReview(scope){
 }
 async function markReview(knew){
   const e=review.queue[review.i]; if(!e)return;
-  e.lastReview=Date.now();
+  e.lastReview=Date.now(); e.upd=Date.now();
   scheduleSRS(e,knew);
   if(knew){ e.streak=(e.streak||0)+1; if(e.streak>=2 && e.status==='open'){e.status='fixed';e.fixedTs=Date.now()} review.known++; review.combo=(review.combo||0)+1; }
   else { e.streak=0; if(e.status==='fixed'){e.status='open';e.fixedTs=null} review.shaky++; review.combo=0; }
@@ -1521,6 +1531,162 @@ function maybeBackupReminder(){
   if(entries.length>=5 && (days===null || days>=7)){
     setTimeout(()=>toast(days===null?'Tip: back up your ledger in Data':`It's been ${days} days — back up in Data`,{label:'Back up',fn:()=>{switchView('data');exportData();}}),2500);
   }
+}
+
+/* ===================== cloud sync (Firebase, optional) ===================== */
+function deviceId(){ let d=null; try{d=localStorage.getItem(K_DEV)}catch(_){}; if(!d){ d='d'+Math.random().toString(36).slice(2)+Date.now().toString(36); try{localStorage.setItem(K_DEV,d)}catch(_){}} return d; }
+function persistTombstones(){ try{localStorage.setItem(K_TOMB,JSON.stringify(tombstones))}catch(_){} }
+function loadTombstones(){ try{const t=JSON.parse(localStorage.getItem(K_TOMB)||'{}'); if(t&&typeof t==='object'&&!Array.isArray(t)) tombstones=t;}catch(_){} }
+function getFbCfg(){ try{const c=JSON.parse(localStorage.getItem(K_FBCFG)||'null'); return (c&&c.apiKey&&c.projectId)?c:null;}catch(_){return null} }
+function setFbCfg(c){ try{localStorage.setItem(K_FBCFG,JSON.stringify(c))}catch(_){} }
+
+/* pure, commutative, idempotent merge — never loses a created entry, honours deletes */
+function mergeLedger(a,b){
+  const tomb=Object.assign({},a.tombstones||{});
+  const bt=b.tombstones||{}; for(const id in bt) tomb[id]=Math.max(tomb[id]||0, bt[id]);
+  const byId={};
+  const put=e=>{ if(!e||!e.id)return; const u=e.upd||e.ts||0; const cur=byId[e.id]; if(!cur||u>=(cur.upd||cur.ts||0)) byId[e.id]=e; };
+  (a.entries||[]).forEach(put); (b.entries||[]).forEach(put);
+  const entries=Object.values(byId).filter(e=>!(tomb[e.id] && tomb[e.id]>=(e.upd||e.ts||0)));
+  entries.sort((x,y)=>(y.ts||0)-(x.ts||0));
+  const au=(a.settings&&a.settings._upd)||0, bu=(b.settings&&b.settings._upd)||0;
+  const settings = bu>au ? (b.settings||a.settings||{}) : (a.settings||b.settings||{});
+  return {entries, settings, tombstones:tomb};
+}
+
+function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.async=true;s.onload=()=>res();s.onerror=()=>rej(new Error('load '+src));document.head.appendChild(s);});}
+async function loadFirebase(){
+  if(window.firebase && firebase.firestore && firebase.auth) return true;
+  const b='https://www.gstatic.com/firebasejs/10.12.2/';
+  try{ await loadScript(b+'firebase-app-compat.js'); await loadScript(b+'firebase-auth-compat.js'); await loadScript(b+'firebase-firestore-compat.js'); return !!(window.firebase && firebase.firestore); }
+  catch(_){ return false; }
+}
+
+async function initSync(){
+  const cfg=getFbCfg(); if(!cfg){ fbStatus='off'; renderCloudSync(); return; }
+  if(typeof navigator!=='undefined' && navigator.onLine===false){ fbStatus='offline'; renderCloudSync(); return; }
+  fbStatus='loading'; fbError=''; renderCloudSync();
+  const ok=await loadFirebase();
+  if(!ok){ fbStatus='error'; fbError='Could not load the sync library — check your connection.'; renderCloudSync(); return; }
+  try{ if(!fbApp) fbApp=firebase.initializeApp(cfg); }
+  catch(e){ if(!/already exists/i.test(e&&e.message||'')){ fbStatus='error'; fbError='Config problem: '+(e.message||e); renderCloudSync(); return; } }
+  try{ firebase.auth().onAuthStateChanged(u=>onAuth(u)); firebase.auth().getRedirectResult&&firebase.auth().getRedirectResult().catch(()=>{}); }
+  catch(e){ fbStatus='error'; fbError=(e&&e.message)||(''+e); renderCloudSync(); }
+}
+function onAuth(u){
+  fbUser=u||null;
+  if(fbUser){ fbStatus='on'; startDocSync(); }
+  else { fbStatus='signedout'; if(fbUnsub){try{fbUnsub()}catch(_){}} fbUnsub=null; }
+  renderCloudSync();
+}
+async function signInCloud(){
+  const ok=await loadFirebase(); if(!ok){ toast("Couldn't load sync — check your connection"); return; }
+  try{ if(!fbApp){ const cfg=getFbCfg(); if(cfg) fbApp=firebase.initializeApp(cfg); } }catch(_){}
+  const provider=new firebase.auth.GoogleAuthProvider();
+  try{ await firebase.auth().signInWithPopup(provider); }
+  catch(e){
+    const c=e&&e.code||'';
+    if(c==='auth/popup-blocked'||c==='auth/cancelled-popup-request'||c==='auth/operation-not-supported-in-this-environment'){
+      try{ await firebase.auth().signInWithRedirect(provider); }catch(e2){ toast('Sign-in failed: '+(e2.code||e2.message)); }
+    } else if(c!=='auth/popup-closed-by-user'){ toast('Sign-in failed: '+(c||e.message||e)); }
+  }
+}
+async function signOutCloud(){ try{ if(fbUnsub){fbUnsub();fbUnsub=null} await firebase.auth().signOut(); }catch(_){} fbLastSync=0; toast('Signed out of sync'); }
+function docRef(){ return firebase.firestore().collection('ledgers').doc(fbUser.uid); }
+
+async function startDocSync(){
+  try{
+    const ref=docRef();
+    const snap=await ref.get();
+    if(snap && snap.exists) await applyRemote(snap.data(), true);
+    await pushNow();
+    if(fbUnsub){try{fbUnsub()}catch(_){}}
+    fbUnsub=ref.onSnapshot(s=>{ if(!s||!s.exists)return; if(s.metadata&&s.metadata.hasPendingWrites)return; applyRemote(s.data(), false); },
+      err=>{ fbStatus='error'; fbError=(err&&err.message)||'sync error'; renderCloudSync(); });
+    fbStatus='on'; fbLastSync=Date.now(); renderCloudSync();
+  }catch(e){ fbStatus='error'; fbError=(e&&e.message)||(''+e); renderCloudSync(); }
+}
+async function applyRemote(remote, initial){
+  try{
+    const inc={ entries:remote.entries||[], settings:remote.settings||{}, tombstones:remote.tombstones||{} };
+    const merged=mergeLedger({entries, settings, tombstones}, inc);
+    const changed = JSON.stringify(merged.entries)!==JSON.stringify(entries) ||
+                    JSON.stringify(merged.tombstones)!==JSON.stringify(tombstones) ||
+                    ((merged.settings&&merged.settings._upd)||0)!==((settings&&settings._upd)||0);
+    fbApplying=true;
+    entries=sanitizeEntries(merged.entries);
+    tombstones=merged.tombstones||{}; persistTombstones();
+    if(merged.settings && Object.keys(merged.settings).length) settings=Object.assign(settings, merged.settings);
+    await persist(false); await persistSettings(false);
+    fbApplying=false; fbLastSync=Date.now();
+    if(changed){ render(); if(!initial) toast('Synced from your other device'); } else renderCloudSync();
+  }catch(e){ fbApplying=false; }
+}
+function scheduleCloudPush(){ if(fbApplying||!fbUser||fbStatus!=='on')return; clearTimeout(fbPushT); fbPushT=setTimeout(pushNow, 900); }
+async function pushNow(){
+  if(!fbUser)return;
+  try{ await docRef().set({ entries, settings, tombstones, by:deviceId(), updatedAt:Date.now() }); fbLastSync=Date.now(); renderCloudSync(); }
+  catch(e){ if(e&&e.code&&e.code!=='unavailable'){ fbError=e.message||''+e; renderCloudSync(); } }
+}
+if(typeof window!=='undefined') window.addEventListener('online', ()=>{ if(getFbCfg() && !fbUser) initSync(); });
+
+function renderCloudSync(){
+  const box=document.getElementById('cloudSync'); if(!box)return;
+  const ago=fbLastSync?Math.round((Date.now()-fbLastSync)/1000):null;
+  const agoTxt=ago==null?'never':ago<60?'just now':ago<3600?Math.floor(ago/60)+' min ago':Math.floor(ago/3600)+' h ago';
+  let html='';
+  if(fbStatus==='on' && fbUser){
+    html=`<div class="databtn" style="cursor:default;border-color:color-mix(in srgb,var(--sage) 55%,transparent);background:linear-gradient(180deg,var(--sage-soft),var(--surface))">
+      <svg class="ic" viewBox="0 0 24 24" style="stroke:var(--sage-ink)"><path d="M22 11.1V12a10 10 0 1 1-5.9-9.1"/><path d="M22 4L12 14.01l-3-3"/></svg>
+      <div><div class="tt">Synced with Google</div><div class="dd">${esc(fbUser.email||fbUser.displayName||'signed in')} · last sync ${agoTxt}</div></div></div>
+      <button class="databtn" id="cloudSignOut"><svg class="ic" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+      <div><div class="tt">Sign out</div><div class="dd">Stops sync here. Your mistakes stay on this device.</div></div></button>`;
+  } else if(getFbCfg()){
+    const busy=fbStatus==='loading';
+    html=`<button class="databtn sync" id="cloudSignIn" ${busy?'disabled style="opacity:.6"':''}>
+      <svg class="ic" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg>
+      <div><div class="tt">${busy?'Connecting…':'Sign in with Google'}</div><div class="dd">${fbError?'<span style=\'color:var(--rose)\'>'+esc(fbError)+'</span>':'Turn on live sync across your devices.'}</div></div><span class="arrow">›</span></button>
+      <button class="databtn" id="cloudReconfig"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2V21a2 2 0 1 1-4 0v-.1A1.7 1.7 0 0 0 7 19.4l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0-1.2-2.9H3a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.6 7l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.7 1.7 0 0 0 10 4.6V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 2.9 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0 1.2 2.9H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+      <div><div class="tt">Sync settings</div><div class="dd">Change or remove the project config.</div></div></button>`;
+  } else {
+    html=`<button class="databtn sync" id="cloudSetup">
+      <svg class="ic" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg>
+      <div><div class="tt">Set up Google sync</div><div class="dd">Live cross-device sync via your own free Google project. ~10 min, one time. Text syncs; photos stay per-device.</div></div><span class="arrow">›</span></button>`;
+  }
+  box.innerHTML=html;
+  const g=id=>document.getElementById(id);
+  if(g('cloudSetup')) g('cloudSetup').onclick=cloudSetupSheet;
+  if(g('cloudReconfig')) g('cloudReconfig').onclick=cloudSetupSheet;
+  if(g('cloudSignIn')) g('cloudSignIn').onclick=signInCloud;
+  if(g('cloudSignOut')) g('cloudSignOut').onclick=signOutCloud;
+}
+function cloudSetupSheet(){
+  const cur=getFbCfg();
+  const rules="rules_version = '2';\nservice cloud.firestore {\n  match /databases/{db}/documents {\n    match /ledgers/{uid} {\n      allow read, write: if request.auth != null && request.auth.uid == uid;\n    }\n  }\n}";
+  openSheet(`<h3>Set up Google sync</h3>
+    <p>One time, ~10 min. It uses <b>your own</b> free Firebase project, so your data lives in <b>your</b> Google account — never mine.</p>
+    <ol class="steps">
+      <li><b>console.firebase.google.com</b> → <b>Add project</b> (any name) → you can skip Analytics → Create.</li>
+      <li>On the project home, click the web icon <b>&lt;/&gt;</b>, nickname it, Register, and <b>copy the <code>firebaseConfig</code></b> block.</li>
+      <li><b>Build → Authentication → Get started → Google → Enable</b> (choose your email as support contact) → Save.</li>
+      <li><b>Build → Firestore Database → Create database → Production mode →</b> pick a region → Enable.</li>
+      <li>Firestore <b>Rules</b> tab → paste this → Publish:<code style="display:block;white-space:pre-wrap;background:var(--surface2);border-radius:8px;padding:9px;margin-top:6px;font-size:11px;line-height:1.4">${esc(rules)}</code></li>
+      <li><b>Authentication → Settings → Authorized domains → Add domain →</b> <b>${esc(location.hostname||'your site')}</b></li>
+      <li>Paste the <code>firebaseConfig</code> below → Save.</li>
+    </ol>
+    <textarea id="fbCfgInput" placeholder='{ "apiKey": "…", "authDomain": "…", "projectId": "…" }'>${cur?esc(JSON.stringify(cur)):''}</textarea>
+    <div class="actions" style="margin-top:14px"><button class="btn primary" id="fbCfgSave">Save &amp; connect</button>
+      ${cur?'<button class="btn ghost" id="fbCfgClear">Remove</button>':'<button class="btn ghost" id="fbCfgCancel">Cancel</button>'}</div>`);
+  const cancelBtn=document.getElementById('fbCfgCancel'); if(cancelBtn) cancelBtn.onclick=closeSheet;
+  document.getElementById('fbCfgSave').onclick=()=>{
+    let raw=document.getElementById('fbCfgInput').value.trim(); if(!raw){toast('Paste the config first');return}
+    const m=raw.match(/\{[\s\S]*\}/); if(m) raw=m[0];
+    let cfg=null; try{ cfg=JSON.parse(raw); }catch(_){ try{ cfg=(new Function('return ('+raw+')'))(); }catch(e){ toast("That doesn't look like a valid config"); return; } }
+    if(!cfg||!cfg.apiKey||!cfg.projectId){ toast('Config is missing apiKey / projectId'); return; }
+    setFbCfg(cfg); fbApp=null; closeSheet(); toast('Saved — now tap Sign in with Google'); initSync();
+  };
+  const clr=document.getElementById('fbCfgClear');
+  if(clr) clr.onclick=async()=>{ try{localStorage.removeItem(K_FBCFG)}catch(_){}; try{if(fbUser)await firebase.auth().signOut()}catch(_){}; fbApp=null;fbUser=null;fbStatus='off';fbLastSync=0; closeSheet(); renderCloudSync(); toast('Sync removed'); };
 }
 
 boot();
