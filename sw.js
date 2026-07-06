@@ -1,8 +1,7 @@
 /* Mistake Ledger service worker — offline support for the installed app.
    Strategy: network-first for the page (so updates land as soon as you're online),
    cache-first for icons/manifest. Bump CACHE to force a refresh. */
-/* build: retrigger Pages deploy after a transient publish failure (retry 2) */
-const CACHE = 'ml-v14';
+const CACHE = 'ml-v15';
 const ASSETS = [
   './', './index.html', './manifest.json',
   './icon-192.png', './icon-512.png', './icon-maskable-512.png',
