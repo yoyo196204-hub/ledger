@@ -1586,16 +1586,26 @@ function onAuth(u){
   else { fbStatus='signedout'; if(fbUnsub){try{fbUnsub()}catch(_){}} fbUnsub=null; }
   renderCloudSync();
 }
+function authHint(e){
+  const c=(e&&e.code)||'';
+  if(c==='auth/unauthorized-domain') return "This site isn't allow-listed. In Firebase → Authentication → Settings → Authorized domains, add: "+(location.hostname||'your domain');
+  if(c==='auth/operation-not-allowed'||c==='auth/configuration-not-found') return "Turn on Google sign-in: Firebase → Authentication → Sign-in method → Google → Enable.";
+  if(c==='auth/popup-blocked') return "Your browser blocked the popup. Try again, or open the site in Safari (not the home-screen app) for the first sign-in.";
+  if(c==='auth/network-request-failed') return "Network error — check your connection and try again.";
+  if(c==='auth/invalid-api-key'||c==='auth/api-key-not-valid'||c==='auth/invalid-api-key.') return "The config's apiKey looks wrong — re-copy the whole firebaseConfig and paste again.";
+  return "Sign-in failed: "+(c||(e&&e.message)||e);
+}
 async function signInCloud(){
   const ok=await loadFirebase(); if(!ok){ toast("Couldn't load sync — check your connection"); return; }
   try{ if(!fbApp){ const cfg=getFbCfg(); if(cfg) fbApp=firebase.initializeApp(cfg); } }catch(_){}
+  fbError=''; renderCloudSync();
   const provider=new firebase.auth.GoogleAuthProvider();
   try{ await firebase.auth().signInWithPopup(provider); }
   catch(e){
     const c=e&&e.code||'';
     if(c==='auth/popup-blocked'||c==='auth/cancelled-popup-request'||c==='auth/operation-not-supported-in-this-environment'){
-      try{ await firebase.auth().signInWithRedirect(provider); }catch(e2){ toast('Sign-in failed: '+(e2.code||e2.message)); }
-    } else if(c!=='auth/popup-closed-by-user'){ toast('Sign-in failed: '+(c||e.message||e)); }
+      try{ await firebase.auth().signInWithRedirect(provider); }catch(e2){ fbError=authHint(e2); renderCloudSync(); toast(fbError); }
+    } else if(c!=='auth/popup-closed-by-user'){ fbError=authHint(e); renderCloudSync(); toast('Sign-in failed — see Data screen'); }
   }
 }
 async function signOutCloud(){ try{ if(fbUnsub){fbUnsub();fbUnsub=null} await firebase.auth().signOut(); }catch(_){} fbLastSync=0; toast('Signed out of sync'); }
@@ -1687,10 +1697,18 @@ function cloudSetupSheet(){
   const cancelBtn=document.getElementById('fbCfgCancel'); if(cancelBtn) cancelBtn.onclick=closeSheet;
   document.getElementById('fbCfgSave').onclick=()=>{
     let raw=document.getElementById('fbCfgInput').value.trim(); if(!raw){toast('Paste the config first');return}
-    const m=raw.match(/\{[\s\S]*\}/); if(m) raw=m[0];
-    let cfg=null; try{ cfg=JSON.parse(raw); }catch(_){ try{ cfg=(new Function('return ('+raw+')'))(); }catch(e){ toast("That doesn't look like a valid config"); return; } }
-    if(!cfg||!cfg.apiKey||!cfg.projectId){ toast('Config is missing apiKey / projectId'); return; }
-    setFbCfg(cfg); fbApp=null; closeSheet(); toast('Saved — now tap Sign in with Google'); initSync();
+    /* grab the real firebaseConfig object even if the whole snippet (with imports) was pasted:
+       the config object contains apiKey and has no nested braces */
+    let obj=raw;
+    let m=raw.match(/\{[^{}]*apiKey[^{}]*\}/i);
+    if(!m) m=raw.match(/\{[\s\S]*\}/);
+    if(m) obj=m[0];
+    let cfg=null; try{ cfg=JSON.parse(obj); }catch(_){ try{ cfg=(new Function('return ('+obj+')'))(); }catch(e){ toast("Couldn't read that — paste just the { … } config block"); return; } }
+    if(!cfg||typeof cfg!=='object'){ toast("That doesn't look like a config"); return; }
+    if(!cfg.apiKey||!cfg.projectId){ toast('Config is missing apiKey / projectId'); return; }
+    /* keep only the fields the SDK needs (drops stray comments/props) */
+    const clean={}; ['apiKey','authDomain','projectId','storageBucket','messagingSenderId','appId','measurementId'].forEach(k=>{ if(cfg[k]) clean[k]=cfg[k]; });
+    setFbCfg(clean); fbApp=null; closeSheet(); toast('Config saved — now tap Sign in with Google'); initSync();
   };
   const clr=document.getElementById('fbCfgClear');
   if(clr) clr.onclick=async()=>{ try{localStorage.removeItem(K_FBCFG)}catch(_){}; try{if(fbUser)await firebase.auth().signOut()}catch(_){}; fbApp=null;fbUser=null;fbStatus='off';fbLastSync=0; closeSheet(); renderCloudSync(); toast('Sync removed'); };
