@@ -32,9 +32,11 @@
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{margin:0;padding:0}
-  body{background:var(--bg);background-image:radial-gradient(1100px 560px at 100% -12%,#F7EAD6,transparent 60%),radial-gradient(900px 480px at -12% 2%,#F3E7DA,transparent 55%);
-    background-attachment:fixed;color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.45;
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.45;
     -webkit-font-smoothing:antialiased;padding-bottom:calc(80px + env(safe-area-inset-bottom))}
+  /* gradient lives on a fixed, GPU-composited layer so it never repaints while scrolling (mobile-Safari smoothness) */
+  body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+    background-image:radial-gradient(1100px 560px at 100% -12%,#F7EAD6,transparent 60%),radial-gradient(900px 480px at -12% 2%,#F3E7DA,transparent 55%)}
   .wrap{max-width:680px;margin:0 auto;padding:0 16px}
   h1,h2,h3{margin:0;font-weight:700;letter-spacing:-.015em}
   button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
@@ -638,6 +640,7 @@ let tombstones={}; /* id -> deletedAt, for delete-safe cloud merge */
 let _grpCache=null; /* memoised recurrence groups, invalidated on every persist() */
 const K_TOMB='ml_tombstones_v1', K_FBCFG='ml_fbcfg_v1', K_DEV='ml_device_v1';
 let fbApp=null, fbUser=null, fbUnsub=null, fbPushT=null, fbApplying=false, fbStatus='off', fbLastSync=0, fbError='';
+let fbLastPush=0, fbLastPull=0, fbRemoteCount=null, fbSyncing=false;
 let _idc=0; /* id counter, guarantees uniqueness within a session */
 let lastDeleted=null; /* for undo */
 
@@ -1608,24 +1611,35 @@ async function signInCloud(){
     } else if(c!=='auth/popup-closed-by-user'){ fbError=authHint(e); renderCloudSync(); toast('Sign-in failed — see Data screen'); }
   }
 }
-async function signOutCloud(){ try{ if(fbUnsub){fbUnsub();fbUnsub=null} await firebase.auth().signOut(); }catch(_){} fbLastSync=0; toast('Signed out of sync'); }
+async function signOutCloud(){ try{ if(fbUnsub){fbUnsub();fbUnsub=null} await firebase.auth().signOut(); }catch(_){} fbLastSync=fbLastPush=fbLastPull=0; fbRemoteCount=null; toast('Signed out of sync'); }
 function docRef(){ return firebase.firestore().collection('ledgers').doc(fbUser.uid); }
+/* turn a Firestore error into plain-English guidance the user can act on */
+function fsHint(e){
+  const c=(e&&e.code)||'';
+  if(c==='permission-denied') return "The cloud database is blocking access. In Firebase → Firestore Database → Rules, paste the rules from Sync settings and Publish.";
+  if(c==='unavailable'||c==='failed-precondition') return "Firestore isn't reachable — either offline, or the database hasn't been created yet (Firebase → Firestore Database → Create database).";
+  if(c==='not-found') return "No Firestore database found — create one: Firebase → Firestore Database → Create database.";
+  if(c==='unauthenticated') return "Signed-in session expired — sign out and back in.";
+  return (e&&e.message)||(''+e);
+}
 
 async function startDocSync(){
   try{
     const ref=docRef();
     const snap=await ref.get();
-    if(snap && snap.exists) await applyRemote(snap.data(), true);
+    if(snap && snap.exists){ fbRemoteCount=((snap.data()||{}).entries||[]).length; await applyRemote(snap.data(), true); }
+    else fbRemoteCount=0;
     await pushNow();
     if(fbUnsub){try{fbUnsub()}catch(_){}}
-    fbUnsub=ref.onSnapshot(s=>{ if(!s||!s.exists)return; if(s.metadata&&s.metadata.hasPendingWrites)return; applyRemote(s.data(), false); },
-      err=>{ fbStatus='error'; fbError=(err&&err.message)||'sync error'; renderCloudSync(); });
+    fbUnsub=ref.onSnapshot(s=>{ if(!s||!s.exists)return; if(s.metadata&&s.metadata.hasPendingWrites)return; fbRemoteCount=((s.data()||{}).entries||[]).length; applyRemote(s.data(), false); },
+      err=>{ fbStatus='error'; fbError=fsHint(err); renderCloudSync(); toast('Sync error — see Data screen'); });
     fbStatus='on'; fbLastSync=Date.now(); renderCloudSync();
-  }catch(e){ fbStatus='error'; fbError=(e&&e.message)||(''+e); renderCloudSync(); }
+  }catch(e){ fbStatus='error'; fbError=fsHint(e); renderCloudSync(); toast('Sync error — see Data screen'); }
 }
 async function applyRemote(remote, initial){
   try{
     const inc={ entries:remote.entries||[], settings:remote.settings||{}, tombstones:remote.tombstones||{} };
+    fbRemoteCount=inc.entries.length;
     const merged=mergeLedger({entries, settings, tombstones}, inc);
     const changed = JSON.stringify(merged.entries)!==JSON.stringify(entries) ||
                     JSON.stringify(merged.tombstones)!==JSON.stringify(tombstones) ||
@@ -1635,27 +1649,54 @@ async function applyRemote(remote, initial){
     tombstones=merged.tombstones||{}; persistTombstones();
     if(merged.settings && Object.keys(merged.settings).length) settings=Object.assign(settings, merged.settings);
     await persist(false); await persistSettings(false);
-    fbApplying=false; fbLastSync=Date.now();
+    fbApplying=false; fbLastSync=Date.now(); fbLastPull=Date.now();
+    /* if the remote was behind us (we merged in local-only entries), push the union back so both sides converge */
+    if(changed && !initial && merged.entries.length>inc.entries.length) scheduleCloudPush();
     if(changed){ render(); if(!initial) toast('Synced from your other device'); } else renderCloudSync();
   }catch(e){ fbApplying=false; }
 }
 function scheduleCloudPush(){ if(fbApplying||!fbUser||fbStatus!=='on')return; clearTimeout(fbPushT); fbPushT=setTimeout(pushNow, 900); }
 async function pushNow(){
   if(!fbUser)return;
-  try{ await docRef().set({ entries, settings, tombstones, by:deviceId(), updatedAt:Date.now() }); fbLastSync=Date.now(); renderCloudSync(); }
-  catch(e){ if(e&&e.code&&e.code!=='unavailable'){ fbError=e.message||''+e; renderCloudSync(); } }
+  try{ await docRef().set({ entries, settings, tombstones, by:deviceId(), updatedAt:Date.now() }); fbLastSync=Date.now(); fbLastPush=Date.now(); fbRemoteCount=entries.length; fbError=''; renderCloudSync(); }
+  catch(e){ if(e&&e.code==='unavailable') return; fbError=fsHint(e); renderCloudSync(); toast('Could not save to cloud — see Data screen'); }
 }
-if(typeof window!=='undefined') window.addEventListener('online', ()=>{ if(getFbCfg() && !fbUser) initSync(); });
+/* manual, one-shot full reconcile the user can trigger from the Data screen */
+async function syncNow(){
+  if(!fbUser){ toast('Sign in first'); return; }
+  if(fbSyncing) return;
+  fbSyncing=true; renderCloudSync();
+  try{
+    const ref=docRef();
+    const snap=await ref.get();
+    const before=entries.length;
+    if(snap && snap.exists){ fbRemoteCount=((snap.data()||{}).entries||[]).length; await applyRemote(snap.data(), true); }
+    await pushNow();
+    fbSyncing=false; renderCloudSync();
+    const pulled=entries.length-before;
+    toast(pulled>0 ? ('Synced — pulled '+pulled+' new') : 'Synced — everything up to date');
+  }catch(e){ fbSyncing=false; fbStatus='error'; fbError=fsHint(e); renderCloudSync(); toast('Sync failed — see Data screen'); }
+}
+/* opening the app / coming back online should immediately pull the latest */
+if(typeof window!=='undefined'){
+  window.addEventListener('online', ()=>{ if(getFbCfg()){ if(!fbUser) initSync(); else syncNow(); } });
+  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden && fbUser && fbStatus==='on' && !fbSyncing) syncNow(); });
+  window.addEventListener('focus', ()=>{ if(fbUser && fbStatus==='on' && !fbSyncing){ const now=Date.now(); if(now-fbLastPull>4000) syncNow(); } });
+}
 
 function renderCloudSync(){
   const box=document.getElementById('cloudSync'); if(!box)return;
-  const ago=fbLastSync?Math.round((Date.now()-fbLastSync)/1000):null;
-  const agoTxt=ago==null?'never':ago<60?'just now':ago<3600?Math.floor(ago/60)+' min ago':Math.floor(ago/3600)+' h ago';
+  const rel=t=>{ if(!t)return 'never'; const s=Math.round((Date.now()-t)/1000); return s<60?'just now':s<3600?Math.floor(s/60)+' min ago':s<86400?Math.floor(s/3600)+' h ago':Math.floor(s/86400)+' d ago'; };
   let html='';
   if(fbStatus==='on' && fbUser){
+    const errLine = fbError ? `<div class="dd" style="color:var(--rose);margin-top:2px">${esc(fbError)}</div>` : '';
+    const cloudN = fbRemoteCount==null?'—':fbRemoteCount;
     html=`<div class="databtn" style="cursor:default;border-color:color-mix(in srgb,var(--sage) 55%,transparent);background:linear-gradient(180deg,var(--sage-soft),var(--surface))">
       <svg class="ic" viewBox="0 0 24 24" style="stroke:var(--sage-ink)"><path d="M22 11.1V12a10 10 0 1 1-5.9-9.1"/><path d="M22 4L12 14.01l-3-3"/></svg>
-      <div><div class="tt">Synced with Google</div><div class="dd">${esc(fbUser.email||fbUser.displayName||'signed in')} · last sync ${agoTxt}</div></div></div>
+      <div><div class="tt">Synced with Google</div><div class="dd">${esc(fbUser.email||fbUser.displayName||'signed in')}</div>
+      <div class="dd" style="margin-top:2px">${cloudN} in cloud · ${entries.length} here · sent ${rel(fbLastPush)} · received ${rel(fbLastPull)}</div>${errLine}</div></div>
+      <button class="databtn sync" id="cloudSyncNow" ${fbSyncing?'disabled style="opacity:.6"':''}><svg class="ic" viewBox="0 0 24 24"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.5 9a9 9 0 0 1 14.9-3.4L23 10M1 14l4.6 4.4A9 9 0 0 0 20.5 15"/></svg>
+      <div><div class="tt">${fbSyncing?'Syncing…':'Sync now'}</div><div class="dd">Pull the latest and push your changes right away.</div></div></button>
       <button class="databtn" id="cloudSignOut"><svg class="ic" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
       <div><div class="tt">Sign out</div><div class="dd">Stops sync here. Your mistakes stay on this device.</div></div></button>`;
   } else if(getFbCfg()){
@@ -1675,6 +1716,7 @@ function renderCloudSync(){
   if(g('cloudSetup')) g('cloudSetup').onclick=cloudSetupSheet;
   if(g('cloudReconfig')) g('cloudReconfig').onclick=cloudSetupSheet;
   if(g('cloudSignIn')) g('cloudSignIn').onclick=signInCloud;
+  if(g('cloudSyncNow')) g('cloudSyncNow').onclick=syncNow;
   if(g('cloudSignOut')) g('cloudSignOut').onclick=signOutCloud;
 }
 function cloudSetupSheet(){
