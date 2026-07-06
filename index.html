@@ -288,7 +288,11 @@
   .entry .concept,.entry .lesson,.entry .note,.entry .trap,.revcard .q,.revcard .ans .lesson,.revcard .ans .note,.dupe,.ctxline .nm,.gtlist .gtd,.next .row{overflow-wrap:anywhere}
   img{max-width:100%}
   .backdrop{position:fixed;inset:0;background:rgba(26,28,34,.4);z-index:50;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(3px)}
-  .backdrop.show{display:flex}
+  .backdrop.show{display:flex;animation:bdfade .2s ease}
+  /* gentle cascade so a pasted batch flows in instead of snapping */
+  .impcard:nth-child(1){animation-delay:.02s}.impcard:nth-child(2){animation-delay:.05s}.impcard:nth-child(3){animation-delay:.08s}
+  .impcard:nth-child(4){animation-delay:.11s}.impcard:nth-child(5){animation-delay:.14s}.impcard:nth-child(6){animation-delay:.17s}
+  .impcard:nth-child(7){animation-delay:.2s}.impcard:nth-child(8){animation-delay:.22s}.impcard:nth-child(n+9){animation-delay:.24s}
   .sheet{background:var(--surface);border-top-left-radius:24px;border-top-right-radius:24px;width:100%;max-width:680px;
     padding:22px 18px calc(26px + env(safe-area-inset-bottom));animation:up .24s ease;max-height:88vh;overflow-y:auto;box-shadow:0 -8px 40px rgba(20,28,45,.18)}
   @keyframes up{from{transform:translateY(30px);opacity:.6}to{transform:none;opacity:1}}
@@ -301,6 +305,40 @@
   .steps li{counter-increment:s;position:relative;padding:0 0 0 34px;margin-bottom:13px;font-size:13.5px;color:var(--ink2);line-height:1.5}
   .steps li::before{content:counter(s);position:absolute;left:0;top:-1px;width:24px;height:24px;border-radius:50%;background:var(--accent-soft);color:var(--accent-ink);font-size:12px;font-weight:700;display:grid;place-items:center}
   .steps li b{color:var(--ink)}
+
+  /* ---- bulk import (paste old mistakes) ---- */
+  .databtn.bring{border-color:color-mix(in srgb,var(--sage) 45%,transparent);background:linear-gradient(180deg,var(--sage-soft),var(--surface));box-shadow:0 3px 0 0 var(--edge-sage)}
+  .databtn.bring:active{box-shadow:0 0 0 0 var(--edge-sage)}
+  .databtn.bring .ic{stroke:var(--sage-ink);background:#fff}
+  .imphead{display:flex;gap:8px;align-items:center;margin:0 0 14px;flex-wrap:wrap}
+  .imphead .seg{display:inline-flex;background:var(--surface2);border-radius:12px;padding:3px;gap:3px}
+  .imphead .seg button{padding:7px 13px;border-radius:9px;font-weight:650;font-size:13px;color:var(--muted);transition:all .15s}
+  .imphead .seg button.on{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+  .imphead input{flex:1;min-width:110px;background:var(--surface);border:1.5px solid var(--border2);border-radius:11px;padding:9px 11px;color:var(--ink);outline:none;font-weight:600;font-size:13.5px}
+  #impList{max-height:52vh;overflow-y:auto;margin:0 -4px;padding:2px 4px}
+  .impcard{background:var(--surface);border:1.5px solid var(--border2);border-radius:15px;padding:11px 12px;margin-bottom:11px;box-shadow:var(--shadow);
+    animation:rise .32s cubic-bezier(.22,1,.36,1) both}
+  .impcard.leaving{animation:fall .22s ease forwards}
+  .imptop{display:flex;align-items:center;gap:9px;margin-bottom:8px}
+  .impnum{width:22px;height:22px;flex:none;border-radius:7px;background:var(--accent-soft);color:var(--accent-ink);font-size:11.5px;font-weight:750;display:grid;place-items:center}
+  .impc{flex:1;min-width:0;background:transparent;border:none;border-bottom:1.5px solid var(--border2);padding:3px 2px;color:var(--ink);font-weight:700;font-size:14.5px;outline:none;transition:border-color .15s}
+  .impc:focus{border-color:var(--accent)}
+  .impx{width:26px;height:26px;flex:none;border-radius:8px;color:var(--faint);font-size:19px;line-height:1;background:var(--surface2);transition:all .13s}
+  .impx:active{background:var(--rose);color:#fff}
+  .impl{width:100%;min-height:42px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:8px 10px;color:var(--ink2);font-size:12.5px;line-height:1.45;outline:none;resize:vertical;transition:border-color .15s}
+  .impl:focus{border-color:var(--accent);background:var(--surface)}
+  .improw{display:flex;gap:8px;margin-top:8px}
+  .imps{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:8px 9px;color:var(--ink2);font-size:12.5px;font-weight:600;outline:none}
+  .imperr{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:8px}
+  .imperrb{padding:7px 4px;border-radius:9px;border:1px solid var(--border2);background:var(--surface2);color:var(--muted);font-size:10.5px;font-weight:650;line-height:1.15;transition:all .14s}
+  .imperrb.on{color:#fff;border-color:transparent}
+  .imperrb.on[data-e="knowledge"]{background:var(--rose)} .imperrb.on[data-e="retrieval"]{background:var(--amber)}
+  .imperrb.on[data-e="reasoning"]{background:var(--violet)} .imperrb.on[data-e="execution"]{background:var(--teal)}
+  .impdup{margin-top:8px;font-size:11px;color:var(--amber);font-weight:600;display:flex;align-items:center;gap:5px}
+  .impempty{text-align:center;color:var(--muted);font-size:13px;padding:26px 10px}
+  @keyframes rise{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:none}}
+  @keyframes fall{to{opacity:0;transform:translateX(40px)}}
+  @keyframes bdfade{from{opacity:0}to{opacity:1}}
 
   /* spaced-repetition "due" + sync card accent */
   .databtn.due,.databtn.sync{border-color:color-mix(in srgb,var(--accent) 45%,transparent);background:linear-gradient(180deg,var(--accent-soft),var(--surface))}
@@ -543,6 +581,12 @@
   <section class="view" id="v-data">
     <div class="sec-title"><h2>Data &amp; app</h2><div class="hint">it lives on this device — keep a backup</div></div>
     <div id="installWrap"></div>
+    <div class="datahead">Bring in old mistakes</div>
+    <button class="databtn bring" id="bulkBtn">
+      <svg class="ic" viewBox="0 0 24 24"><path d="M16 3h5v5M21 3l-9 9M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3"/></svg>
+      <div><div class="tt">Paste from Telegram &amp; sort</div><div class="dd">Drop in your old notes — each gets auto-sorted into a subject &amp; mistake-type. Check, fix, add. They join everything else.</div></div>
+      <span class="arrow">›</span>
+    </button>
     <div class="datahead">Cloud sync</div>
     <div id="cloudSync"></div>
     <div class="datahead">Move by file</div>
@@ -1328,6 +1372,7 @@ function bindActions(){
   document.getElementById('importBtn').onclick=()=>document.getElementById('fileIn').click();
   document.getElementById('fileIn').onchange=importData;
   document.getElementById('pasteBtn').onclick=pasteBackup;
+  document.getElementById('bulkBtn').onclick=bulkImportSheet;
   document.getElementById('wipeBtn').onclick=wipe;
   document.getElementById('editCancel').onclick=cancelEdit;
   document.getElementById('examChip').onclick=examSheet;
@@ -1476,6 +1521,191 @@ function pasteBackup(){
   document.getElementById('pasteGo').onclick=()=>{const v=document.getElementById('pasteArea').value.trim();if(!v){toast('Nothing pasted');return}
     try{mergeIncoming(JSON.parse(v));closeSheet()}catch(_){toast("That doesn't look like a backup")}};
 }
+
+/* ===================== bulk import: paste old mistakes, auto-sort, review ===================== */
+let importDraft=[]; let importOpts={type:'gt', set:''};
+const SUBJ_KW={
+  'Anatomy':['nerve','muscle','artery','vein','foramen','ligament','fascia','plexus','dermatome','embryo','cadaver','cranial nerve','triangle','sheath'],
+  'Physiology':['reflex','membrane potential','action potential','cardiac cycle','glomerul','filtration','oxygen dissociation','feedback','nernst','starling','conduction velocity','baroreceptor'],
+  'Biochemistry':['enzyme','glycolysis','krebs','urea cycle','vitamin','metaboli','cofactor','amino acid','lysosom','glycogen storage','porphyria','deficiency','pathway'],
+  'Pathology':['carcinoma','neoplas','biopsy','histolog','granuloma','necrosis','amyloid','immunohisto','grading','metaplasia','dysplasia','marker','psammoma'],
+  'Pharmacology':['drug','dose','receptor','agonist','antagonist','antibiotic','side effect','contraindicat','half life','mechanism of action','inhibitor','toxicity','antidote'],
+  'Microbiology':['bacteria','virus','fungal','culture','gram ','organism','antigen','serolog','parasite','spore','toxin','media','vaccine strain'],
+  'Forensic Medicine':['postmortem','rigor','poison','autopsy','wound','forensic',' ipc',' section','asphyxia','hanging','medicolegal','contusion'],
+  'PSM / Community Med':['incidence','prevalence','epidemi','immuniz','sensitivity','specificity','bias','screening','sampling','national program','sdg','vaccine schedule','cohort','case-control'],
+  'Medicine':['diabetes','hypertension',' mi ','ecg','heart failure','copd','asthma','anemia','anaemia','thyroid','renal failure','stroke','sepsis','arrhythmia','cirrhosis','murmur'],
+  'Surgery':['appendic','hernia','laparotomy','cholecyst','bowel','surgical','incision','abscess','graft','resection','stoma','peritonitis','anastomosis'],
+  'OBGYN':['pregnan','labor','labour','eclampsia','uterus','ovary','ovarian','menstru','fetal','foetal','placenta','cervix','contracept','postpartum','gestation'],
+  'Pediatrics':['neonat','infant','child','milestone','apgar','growth chart','congenital','paediatric','pediatric','breastfeed','kwashiorkor'],
+  'Orthopaedics':['fracture','joint','dislocation','ligament tear','ortho','plaster','tendon','cartilage','osteo','avascular necrosis'],
+  'ENT':[' ear','nose','throat','sinus','tympan','hearing','vertigo','tonsil','larynx','nasal','otitis','audiogram','cholesteatoma'],
+  'Ophthalmology':[' eye','retina','glaucoma','cornea','cataract','vision','optic','pupil','uveitis','macula','fundus'],
+  'Anaesthesia':['anesth','anaesth','airway','intubat','sedation','local anaesthetic','asa grade','ventilat','induction agent'],
+  'Radiology':['x-ray','xray','ct ',' mri','ultrasound','imaging','contrast','radiograph','opacity',' sign'],
+  'Dermatology':['skin','rash','psoriasis','eczema','derma','vesicle','plaque','pruritus','pemphigus','melanoma'],
+  'Psychiatry':['depress','anxiety','schizo','psychiat','mania','delusion','ocd','bipolar','antipsychotic','hallucin','mood disorder']
+};
+function guessSubject(text){
+  const t=' '+text.toLowerCase()+' '; let best=null,score=0;
+  for(const s in SUBJ_KW){ let n=0; for(const kw of SUBJ_KW[s]){ if(t.includes(kw)) n++; } if(n>score){score=n;best=s;} }
+  return score?best:null;
+}
+function guessError(text){
+  const t=text.toLowerCase();
+  if(/\b(silly|careless|mis-?read|mis-?mark|marked (the )?wrong|ticked (the )?wrong|in a hurry|rushed|overlooked|read the question|missed the word|not careful)\b/.test(t)) return 'execution';
+  if(/\b(blank|blanked|forgot|couldn'?t recall|could not recall|slipped my mind|mixed up|confused|swapped|tip of (the|my) tongue|drew a blank)\b/.test(t)) return 'retrieval';
+  if(/\b(assumed|over-?thought|misapplied|wrong approach|wrong logic|misinterpret|reasoned wrong|jumped to|deduc|over-?analy)\b/.test(t)) return 'reasoning';
+  return 'knowledge';
+}
+function stripBullet(s){ return s.replace(/^\s*([-*•·–—]+|\d+[.)]|\(\d+\)|[a-z][.)])\s+/i,'').trim(); }
+function splitCL(block){
+  const b=block.replace(/\s+/g,' ').trim();
+  const seps=[' — ',' – ',' -> ',' → ',' = ',' : ','—','–','→',': '];
+  for(const sep of seps){ const i=b.indexOf(sep); if(i>0){ const l=b.slice(0,i).trim(), r=b.slice(i+sep.length).trim(); if(l&&r&&l.length<=110) return {concept:l, lesson:r}; } }
+  if(b.length<=80) return {concept:b, lesson:b};
+  let cut=b.slice(0,58); const sp=cut.lastIndexOf(' '); if(sp>22) cut=cut.slice(0,sp);
+  return {concept:cut.trim()+'…', lesson:b};
+}
+function splitBlocks(text){
+  let s=(text||'').replace(/\r\n/g,'\n').replace(/‎/g,'');
+  const lines=s.split('\n');
+  /* drop Telegram export cruft (timestamps / "Name, [date]" headers), keep blank lines for block splitting */
+  const kept=lines.filter(l=>{
+    const t=l.trim(); if(!t) return true;
+    if(/^\[?\d{1,2}[:.]\d{2}(\s?[ap]\.?m\.?)?\]?$/i.test(t)) return false;
+    if(/,\s*\[[^\]]*\]\s*$/.test(t)) return false;
+    if(/^[\p{L}\p{N} ._-]{1,40},\s*\[/u.test(t)) return false;
+    if(/^\[\d{1,2}[\/.]\d{1,2}[\/.]\d{2,4}[, ].*\]$/.test(t)) return false;
+    return true;
+  }).join('\n');
+  let blocks;
+  if(/\n[ \t]*\n/.test(kept)){ blocks=kept.split(/\n[ \t]*\n+/); }
+  else{
+    const lns=kept.split('\n').map(x=>x.trim()).filter(Boolean);
+    blocks=lns;
+  }
+  return blocks.map(b=>stripBullet(b.trim())).map(b=>b.replace(/\s+/g,' ').trim()).filter(b=>b.length>=3);
+}
+function parseBulk(text){
+  const blocks=splitBlocks(text).slice(0,300);
+  const lastSub=(settings.lastSubject&&SUBJECTS.includes(settings.lastSubject))?settings.lastSubject:'Medicine';
+  const idx=entries.map(sigWords); /* build each entry's word-set once, not per pasted line */
+  return blocks.map(b=>{
+    const cl=splitCL(b);
+    const sub=guessSubject(b)||lastSub;
+    return { concept:cl.concept.slice(0,200), lesson:cl.lesson.slice(0,600), subject:sub, error:guessError(b), dup:looksLogged(cl.concept, idx) };
+  });
+}
+function looksLogged(concept, idx){
+  const words=normalize(concept).split(' ').filter(w=>w.length>2);
+  if(words.length<2) return false;
+  for(const ew of idx){ let n=0; for(const w of words){ if(ew.has(w)&&++n>=2) return true; } }
+  return false;
+}
+
+function bulkImportSheet(){
+  openSheet(`<h3>Bring in old mistakes</h3>
+    <p>Paste your Telegram notes below — one mistake per line, or separated by blank lines. I'll sort each into a subject and a mistake-type. You review and fix everything before anything is added.</p>
+    <textarea id="bulkIn" placeholder="e.g.
+Wilson disease — low ceruloplasmin, KF rings, high urinary copper
+Forgot Ranson's criteria in pancreatitis
+ARDS: PaO2/FiO2 under 300 on PEEP ≥5"></textarea>
+    <div class="actions" style="margin-top:14px">
+      <button class="btn primary" id="bulkParse">Sort them out</button>
+      <button class="btn ghost" id="bulkCancel">Cancel</button></div>`);
+  const cancel=document.getElementById('bulkCancel'); if(cancel) cancel.onclick=closeSheet;
+  document.getElementById('bulkIn').focus();
+  document.getElementById('bulkParse').onclick=()=>{
+    const raw=document.getElementById('bulkIn').value;
+    if(!raw||!raw.trim()){ toast('Paste your notes first'); return; }
+    const items=parseBulk(raw);
+    if(!items.length){ toast("Couldn't find any mistakes in that"); return; }
+    importDraft=items;
+    importOpts={ type:curType(), set:curSet() };
+    openImportReview();
+  };
+}
+function openImportReview(){
+  openSheet(`<h3>Check &amp; add — <span id="impCount">${importDraft.length}</span> ${importDraft.length===1?'mistake':'mistakes'}</h3>
+    <p>Auto-sorted below. Fix any subject or mistake-type, tweak the wording, remove what you don't want — then add them all. They flow in just like ones you log by hand.</p>
+    <div class="imphead">
+      <div class="seg" id="impType">
+        <button data-t="gt" class="${importOpts.type==='gt'?'on':''}">Weekly GT</button>
+        <button data-t="module" class="${importOpts.type==='module'?'on':''}">Daily module</button>
+      </div>
+      <input id="impSet" value="${esc(importOpts.set)}" placeholder="Which set?" maxlength="40">
+    </div>
+    <div id="impList"></div>
+    <div class="actions" style="margin-top:14px">
+      <button class="btn primary" id="impAdd">Add ${importDraft.length}</button>
+      <button class="btn ghost" id="impBack">Back</button></div>`);
+  const setInp=document.getElementById('impSet');
+  setInp.oninput=e=>{ importOpts.set=e.target.value; };
+  document.querySelectorAll('#impType button').forEach(b=>b.onclick=()=>{
+    importOpts.type=b.dataset.t;
+    document.querySelectorAll('#impType button').forEach(x=>x.classList.toggle('on',x===b));
+    importOpts.set = importOpts.type==='gt'?settings.gtSet:settings.moduleSet;
+    setInp.value=importOpts.set;
+  });
+  document.getElementById('impBack').onclick=bulkImportSheet;
+  document.getElementById('impAdd').onclick=commitImport;
+  renderImportList();
+}
+function renderImportList(){
+  const box=document.getElementById('impList'); if(!box) return;
+  if(!importDraft.length){ box.innerHTML='<div class="impempty">Nothing left — go back to paste more.</div>'; return; }
+  box.innerHTML=importDraft.map((it,i)=>`<div class="impcard" data-i="${i}">
+    <div class="imptop"><span class="impnum">${i+1}</span>
+      <input class="impc" data-i="${i}" value="${esc(it.concept)}" placeholder="Topic / what it tested">
+      <button class="impx" data-i="${i}" aria-label="Remove">×</button></div>
+    <textarea class="impl" data-i="${i}" placeholder="The one-liner to remember">${esc(it.lesson)}</textarea>
+    <div class="improw"><select class="imps" data-i="${i}">${SUBJECTS.map(s=>`<option ${s===it.subject?'selected':''}>${esc(s)}</option>`).join('')}</select></div>
+    <div class="imperr" data-i="${i}">${ERRORS.map(er=>`<button class="imperrb ${er.id===it.error?'on':''}" data-i="${i}" data-e="${er.id}">${esc(er.t)}</button>`).join('')}</div>
+    ${it.dup?'<div class="impdup">⚠ Looks like you\'ve logged this before</div>':''}
+  </div>`).join('');
+  /* edits update the model in place — no re-render, so focus is never lost */
+  box.querySelectorAll('.impc').forEach(el=>el.oninput=e=>{ importDraft[+e.target.dataset.i].concept=e.target.value; });
+  box.querySelectorAll('.impl').forEach(el=>el.oninput=e=>{ importDraft[+e.target.dataset.i].lesson=e.target.value; });
+  box.querySelectorAll('.imps').forEach(el=>el.onchange=e=>{ importDraft[+e.target.dataset.i].subject=e.target.value; });
+  box.querySelectorAll('.imperrb').forEach(el=>el.onclick=e=>{
+    const i=+el.dataset.i; importDraft[i].error=el.dataset.e;
+    el.parentElement.querySelectorAll('.imperrb').forEach(b=>b.classList.toggle('on',b===el));
+  });
+  box.querySelectorAll('.impx').forEach(el=>el.onclick=()=>{
+    const i=+el.dataset.i; const card=el.closest('.impcard');
+    card.classList.add('leaving');
+    setTimeout(()=>{ importDraft.splice(i,1); renderImportList(); updateImpCount(); }, 200);
+  });
+}
+function updateImpCount(){
+  const c=document.getElementById('impCount'); if(c) c.textContent=importDraft.length;
+  const add=document.getElementById('impAdd'); if(add) add.textContent='Add '+importDraft.length;
+}
+function commitImport(){
+  const items=importDraft.filter(it=>(it.concept||'').trim());
+  if(!items.length){ toast('Nothing to add'); return; }
+  const type=importOpts.type==='module'?'module':'gt';
+  let set=(importOpts.set||'').trim() || (type==='gt'?settings.gtSet:settings.moduleSet) || (type==='gt'?'GT':'Module');
+  set=set.slice(0,40);
+  const base=Date.now();
+  items.forEach((it,idx)=>{
+    const concept=(it.concept||'').trim().slice(0,200);
+    let lesson=(it.lesson||'').trim().slice(0,600); if(!lesson) lesson=concept;
+    const subject=SUBJECTS.includes(it.subject)?it.subject:'Medicine';
+    const error=ERR_MAP[it.error]?it.error:'knowledge';
+    entries.push({ id:newId(), ts:base-idx, upd:base, testType:type, set, subject,
+      concept, lesson, note:'', trap:'', error, conf:null, image:false, hasPhoto:false, status:'open' });
+  });
+  entries.sort((a,b)=>(b.ts||0)-(a.ts||0));
+  if(type==='gt') settings.gtSet=set; else settings.moduleSet=set;
+  settings.lastSubject=items[items.length-1].subject;
+  persistSettings(); persist(); render();
+  importDraft=[];
+  closeSheet();
+  toast(items.length+(items.length===1?' mistake added to ':' mistakes added to ')+set);
+  switchView('book');
+}
+
 function wipe(){
   openSheet(`<h3>Delete everything?</h3><p>All ${entries.length} mistakes will be gone for good. If you haven't backed up, do that first.</p>
     <div class="actions"><button class="btn ghost" onclick="document.getElementById('backdrop').classList.remove('show')">Keep them</button>
