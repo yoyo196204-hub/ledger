@@ -12,6 +12,9 @@
 <meta name="apple-mobile-web-app-title" content="Ledger">
 <link rel="apple-touch-icon" href="./apple-touch-icon.png">
 <link rel="icon" type="image/png" href="./favicon.png">
+<!-- warm up the sync CDN so Google sign-in doesn't stall on connection setup -->
+<link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+<link rel="dns-prefetch" href="https://www.gstatic.com">
 <style>
   :root{
     --bg:#F4EDE1; --bg2:#EFE6D6; --surface:#FDFAF4; --surface2:#F1E9DB; --surface3:#E9DFCC;
@@ -75,8 +78,10 @@
 
   main{padding-top:18px}
   .view{display:none}
-  .view.on{display:block;animation:fade .2s ease}
-  @keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+  .view.on{display:block;animation:fade .26s cubic-bezier(.22,1,.36,1)}
+  @keyframes fade{from{opacity:0;transform:translateY(11px) scale(.995)}to{opacity:1;transform:none}}
+  .tab.on svg{animation:tabpop .3s cubic-bezier(.34,1.56,.64,1)}
+  @keyframes tabpop{45%{transform:scale(1.18) translateY(-1px)}}
   .sec-title{margin:2px 0 18px}
   .sec-title h2{font-size:28px;font-weight:790;letter-spacing:-.035em;line-height:1.1}
   .sec-title .hint{font-size:13.5px;color:var(--muted);margin-top:5px}
@@ -374,51 +379,113 @@
   .ordiv{display:flex;align-items:center;gap:12px;margin:2px 0 16px;color:var(--faint);font-size:11.5px;font-weight:600;letter-spacing:.03em}
   .ordiv::before,.ordiv::after{content:"";flex:1;height:1px;background:var(--border)}
 
-  .tri-top{display:flex;align-items:center;justify-content:space-between;margin:2px 0 16px}
-  .tri-x{width:34px;height:34px;border-radius:11px;background:var(--surface2);color:var(--muted);font-size:16px;font-weight:700}
-  .tri-set{font-weight:750;font-size:14px;letter-spacing:.02em;color:var(--ink2)}
-  .tri-done{font-weight:750;font-size:14px;color:var(--accent-ink);padding:8px 14px;border-radius:11px;background:var(--accent-soft)}
+  /* board fills the screen — buckets live at the bottom, in thumb reach */
+  .tri-board{display:flex;flex-direction:column;min-height:calc(100vh - 235px);min-height:calc(100dvh - 235px)}
+  .tri-top{display:flex;align-items:center;gap:9px;margin:2px 0 10px}
+  .tri-x{width:34px;height:34px;flex:none;border-radius:11px;background:var(--surface2);color:var(--muted);font-size:16px;font-weight:700}
+  .tri-set{font-weight:750;font-size:14px;letter-spacing:.02em;color:var(--ink2);flex:1;text-align:center}
+  .tri-help{width:34px;height:34px;flex:none;border-radius:11px;background:var(--surface2);color:var(--accent-ink);font-size:15px;font-weight:800}
+  .tri-done{font-weight:750;font-size:14px;color:var(--accent-ink);padding:8px 14px;border-radius:11px;background:var(--accent-soft);flex:none}
   .tri-done:disabled{opacity:.4}
-  .tri-hero{text-align:center;padding:12px 0 18px}
-  .tri-hero.blindflash{animation:blindflash .6s ease}
-  @keyframes blindflash{0%{background:transparent}30%{background:color-mix(in srgb,var(--rose) 14%,transparent)}100%{background:transparent}}
-  .tri-n{font-size:60px;font-weight:850;line-height:1;letter-spacing:-.03em;color:var(--ink);font-variant-numeric:tabular-nums}
-  .tri-nl{font-size:13.5px;color:var(--muted);margin-top:5px}
-  .tri-nl .bl,.bl{color:var(--rose);font-weight:750}
-  .tri-tally{display:flex;justify-content:center;gap:7px;margin-top:14px;flex-wrap:wrap}
-  .tt-chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--ink2);background:var(--surface2);
-    border-radius:20px;padding:4px 11px}
-  .tt-chip b{color:var(--bc);font-size:11px}
-  .tri-conf{display:flex;align-items:center;gap:8px;justify-content:center;margin-bottom:16px}
-  .tri-conf .tc-lab{font-size:12.5px;color:var(--muted);margin-right:2px}
-  .tri-conf .tc{padding:8px 15px;border-radius:20px;font-weight:700;font-size:13px;border:1.5px solid var(--border2);background:var(--surface);color:var(--muted);transition:all .13s}
-  .tri-conf .tc.sure.on{border-color:var(--rose);background:color-mix(in srgb,var(--rose) 12%,transparent);color:var(--rose)}
-  .tri-conf .tc.unsure.on{border-color:var(--sage);background:var(--sage-soft);color:var(--sage-ink)}
-  .tri-prompt{text-align:center;font-size:13px;color:var(--faint);font-weight:600;margin-bottom:12px}
+  .tri-tally{display:flex;justify-content:center;align-items:center;gap:7px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}
+  .tri-tally .tt-total{font-weight:600}
+  .tri-tally .tt-total b{font-size:15px;color:var(--ink);font-variant-numeric:tabular-nums}
+  .tri-tally.milestone{animation:mspulse .5s cubic-bezier(.3,1.4,.5,1)}
+  @keyframes mspulse{40%{transform:scale(1.12)}}
+  .tt-chip{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:700;color:var(--ink2);background:var(--surface2);border-radius:20px;padding:3px 9px}
+  .tt-chip b{color:var(--bc);font-size:10.5px}
+  .bl{color:var(--rose);font-weight:750}
+  /* the question ticket — pluck it into a bucket */
+  .tri-mid{flex:1;display:flex;flex-direction:column;justify-content:center;padding:14px 0 10px}
+  .tri-chip{position:relative;max-width:330px;width:100%;margin:0 auto;text-align:center;background:var(--surface);
+    border:1.5px dashed var(--border2);border-radius:20px;padding:18px 16px 15px;box-shadow:var(--shadow);transition:border-color .2s,box-shadow .2s}
+  /* ticket notches */
+  .tri-chip::before,.tri-chip::after{content:"";position:absolute;top:50%;width:18px;height:18px;margin-top:-9px;border-radius:50%;background:var(--bg);border:1.5px dashed var(--border2)}
+  .tri-chip::before{left:-10px;border-left-color:transparent}
+  .tri-chip::after{right:-10px;border-right-color:transparent}
+  .tri-chip.sure{border-color:color-mix(in srgb,var(--rose) 55%,transparent);box-shadow:0 0 0 4px color-mix(in srgb,var(--rose) 9%,transparent),var(--shadow)}
+  .tri-chip .stamp{display:none;position:absolute;top:11px;right:13px;transform:rotate(9deg);border:2px solid var(--rose);color:var(--rose);
+    border-radius:6px;padding:1px 7px;font-weight:850;font-size:10.5px;letter-spacing:.08em;opacity:.85}
+  .tri-chip.sure .stamp{display:block}
+  .tri-chip.respawn{animation:respawn .34s cubic-bezier(.3,1.5,.5,1)}
+  @keyframes respawn{0%{transform:scale(.86);opacity:.4}100%{transform:scale(1);opacity:1}}
+  .tri-chip.blindflash{animation:blindflash .55s ease}
+  @keyframes blindflash{30%{box-shadow:0 0 0 7px color-mix(in srgb,var(--rose) 26%,transparent),var(--shadow)}}
+  .chip-eyebrow{font-size:10.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+  .chip-n{display:block;font-size:46px;font-weight:900;line-height:1.05;letter-spacing:-.03em;font-variant-numeric:tabular-nums;color:var(--ink);margin:2px 0 10px}
+  .tri-conf{display:inline-flex;background:var(--surface2);border-radius:13px;padding:3px;gap:3px}
+  .tri-conf .tc{padding:8px 16px;border-radius:10px;font-weight:700;font-size:13px;color:var(--muted);transition:all .13s}
+  .tri-conf .tc.sure.on{background:color-mix(in srgb,var(--rose) 13%,#fff);color:var(--rose);box-shadow:var(--shadow)}
+  .tri-conf .tc.unsure.on{background:#fff;color:var(--sage-ink);box-shadow:var(--shadow)}
+  .chip-help{display:block;margin:12px auto 0;font-size:12.5px;font-weight:700;color:var(--accent-ink);padding:7px 13px;border-radius:10px;background:var(--accent-soft)}
+  /* bucket-finder: the honest tests as yes/no prompts */
+  .dq{font-size:15.5px;font-weight:700;line-height:1.4;margin:10px auto 14px;max-width:30ch;color:var(--ink);min-height:44px;display:flex;align-items:center;justify-content:center}
+  .dbtns{display:flex;gap:9px;justify-content:center}
+  .dbtns button{padding:11px 18px;border-radius:13px;font-weight:750;font-size:14px;border:1.5px solid var(--border2);background:var(--surface);transition:transform .09s}
+  .dbtns button:active{transform:scale(.95)}
+  .dbtns button.yes{background:var(--grad);color:#fff;border-color:transparent;box-shadow:0 4px 12px -4px rgba(193,80,45,.5)}
+  .dstep{font-size:10.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+  .tri-prompt{text-align:center;font-size:12px;color:var(--faint);font-weight:600;margin:14px 0 10px}
+  /* buckets: tinted wells that visibly fill as they collect mistakes */
   .tri-buckets{display:grid;grid-template-columns:1fr 1fr;gap:11px}
-  .bucket{position:relative;text-align:left;background:var(--surface);border:1.5px solid var(--border2);border-radius:18px;
-    padding:14px 14px 15px;box-shadow:var(--shadow);transition:transform .09s ease,box-shadow .12s ease,border-color .12s;overflow:hidden;top:0}
-  .bucket::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--bc)}
-  .bucket:active{transform:scale(.97)}
-  .bucket.pulse{animation:bpulse .34s cubic-bezier(.3,1.4,.5,1)}
-  @keyframes bpulse{0%{transform:scale(1)}40%{transform:scale(1.05);box-shadow:0 0 0 4px color-mix(in srgb,var(--bc) 20%,transparent)}100%{transform:scale(1)}}
-  .bucket .b-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
-  .bucket .b-code{font-size:15px;font-weight:850;color:var(--bc);letter-spacing:.02em}
-  .bucket .b-count{font-size:22px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1}
-  .bucket .b-name{font-weight:720;font-size:13.5px;display:block;letter-spacing:-.01em}
-  .bucket .b-test{font-size:11px;color:var(--muted);line-height:1.35;margin-top:4px;display:block}
-  .tri-foot{margin-top:16px;text-align:center;min-height:38px}
-  .tri-hint{font-size:11.5px;color:var(--faint);line-height:1.5;display:inline-block;max-width:36ch}
+  .bucket{position:relative;text-align:left;background:linear-gradient(180deg,color-mix(in srgb,var(--bc) 6%,var(--surface)),var(--surface));
+    border:1.5px solid color-mix(in srgb,var(--bc) 26%,var(--border2));border-radius:18px;padding:13px 13px 14px;box-shadow:var(--shadow);
+    transition:transform .09s ease,box-shadow .12s ease;overflow:hidden;top:0}
+  .bucket .b-fill{position:absolute;left:0;right:0;bottom:0;height:0;background:color-mix(in srgb,var(--bc) 13%,transparent);transition:height .45s cubic-bezier(.3,1,.4,1);pointer-events:none}
+  .bucket .b-wm{position:absolute;right:6px;bottom:-6px;font-size:46px;font-weight:900;color:var(--bc);opacity:.08;letter-spacing:-.04em;pointer-events:none}
+  .bucket:active{transform:scale(.96)}
+  .bucket.pulse{animation:bpulse .36s cubic-bezier(.3,1.4,.5,1)}
+  @keyframes bpulse{40%{transform:scale(1.05);box-shadow:0 0 0 5px color-mix(in srgb,var(--bc) 22%,transparent)}}
+  .bucket .b-top{position:relative;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+  .bucket .b-code{font-size:14px;font-weight:850;color:var(--bc);letter-spacing:.03em}
+  .bucket .b-count{font-size:23px;font-weight:850;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1}
+  .bucket .b-name{position:relative;font-weight:750;font-size:13.5px;display:block;letter-spacing:-.01em}
+  .bucket .b-test{position:relative;font-size:10.5px;color:var(--muted);line-height:1.35;margin-top:3px;display:block}
+  .tri-foot{margin-top:13px;text-align:center;min-height:36px}
+  .tri-hint{font-size:11.5px;color:var(--faint);line-height:1.5;display:inline-block;max-width:38ch}
   .tri-undo{font-size:13px;color:var(--muted);font-weight:600;padding:9px 16px;border-radius:11px;background:var(--surface2)}
-  .fly-token{position:fixed;z-index:60;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:12px;background:var(--bc);color:#fff;
-    font-size:14px;font-weight:850;display:grid;place-items:center;pointer-events:none;transition:transform .36s cubic-bezier(.4,0,.2,1),opacity .36s ease;
-    box-shadow:0 8px 20px -6px color-mix(in srgb,var(--bc) 70%,transparent)}
+  /* the flying ticket: X moves linear, Y eases in — a real arc, with spin */
+  .fly{position:fixed;z-index:60;margin:-20px 0 0 -20px;pointer-events:none;transition:transform .42s linear}
+  .fly-in{width:40px;height:40px;border-radius:12px;background:var(--bc);color:#fff;font-size:14px;font-weight:850;display:grid;place-items:center;
+    box-shadow:0 8px 20px -6px color-mix(in srgb,var(--bc) 70%,transparent);transition:transform .42s cubic-bezier(.5,0,.9,.4),opacity .42s ease-in}
+  /* first-run coach */
+  .tri-intro{padding-top:2px}
+  .tri-intro h2{font-size:26px;letter-spacing:-.02em;margin:14px 0 6px}
+  .tri-intro .lead{color:var(--muted);font-size:14px;line-height:1.55;margin:0 0 18px;max-width:42ch}
+  .coach-row{display:flex;gap:12px;align-items:flex-start;background:var(--surface);border:1.5px solid var(--border2);border-radius:15px;
+    padding:12px 13px;margin-bottom:9px;box-shadow:var(--shadow);animation:rise .34s cubic-bezier(.22,1,.36,1) both}
+  .coach-row:nth-child(2){animation-delay:.05s}.coach-row:nth-child(3){animation-delay:.1s}.coach-row:nth-child(4){animation-delay:.15s}.coach-row:nth-child(5){animation-delay:.2s}
+  .coach-code{flex:none;width:44px;height:44px;border-radius:13px;display:grid;place-items:center;font-weight:850;font-size:14px;color:#fff}
+  .coach-row .t{font-weight:750;font-size:14px}
+  .coach-row .d{font-size:12px;color:var(--muted);line-height:1.4;margin-top:2px}
+  .coach-note{font-size:12px;color:var(--ink2);background:color-mix(in srgb,var(--rose) 8%,var(--surface));border:1px solid color-mix(in srgb,var(--rose) 25%,transparent);
+    border-radius:12px;padding:10px 13px;line-height:1.5;margin:14px 0 18px;animation:rise .34s .25s cubic-bezier(.22,1,.36,1) both}
+  /* wide screens: 4 buckets across, board uses the taller viewport */
+  @media (min-width:820px){
+    .tri-board{min-height:calc(100vh - 170px);min-height:calc(100dvh - 170px)}
+    .tri-buckets{grid-template-columns:repeat(4,1fr)}
+    .tri-chip{max-width:380px}
+    .chip-n{font-size:54px}
+    .bucket .b-test{font-size:11px}
+  }
+  /* short landscape: compress the ticket, keep buckets reachable */
+  @media (max-height:560px){
+    .tri-board{min-height:0}
+    .tri-mid{padding:6px 0}
+    .tri-chip{padding:10px 14px 11px}
+    .chip-n{font-size:28px;margin:0 0 6px}
+    .tri-buckets{grid-template-columns:repeat(4,1fr)}
+    .bucket .b-test{display:none}
+  }
   /* triage summary */
   .sm-hero{text-align:center;padding:6px 0 20px}
   .sm-big{font-size:56px;font-weight:850;line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
   .sm-lab{font-size:13.5px;color:var(--muted);margin-top:5px}
   .sm-bars{display:flex;flex-direction:column;gap:13px}
-  .sm-bar{display:grid;grid-template-columns:1fr auto;gap:8px 12px;align-items:center}
+  .sm-bar{display:grid;grid-template-columns:1fr auto;gap:8px 12px;align-items:center;animation:rise .3s cubic-bezier(.22,1,.36,1) both}
+  .sm-bar:nth-child(2){animation-delay:.06s}.sm-bar:nth-child(3){animation-delay:.12s}.sm-bar:nth-child(4){animation-delay:.18s}
+  .sm-fill{transform-origin:left;animation:barin .55s .15s cubic-bezier(.3,1,.4,1) both}
+  @keyframes barin{from{transform:scaleX(0)}}
   .sm-k{font-size:13px;color:var(--ink2);grid-column:1}
   .sm-k b{font-weight:850;margin-right:6px}
   .sm-track{grid-column:1;height:12px;background:var(--surface2);border-radius:7px;overflow:hidden}
@@ -1213,9 +1280,11 @@ function triageCounts(items){
   return {c, blind, sure, total:(items||[]).length};
 }
 function startTriage(){
-  triage={ active:true, set:curSet(), testType:curType(), conf:null, items:[], saved:false, done:false };
+  triage={ active:true, set:curSet(), testType:curType(), conf:null, items:[], saved:false, done:false, decide:null };
   showTriageView(); renderTriage();
 }
+function reducedMotion(){ return !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches); }
+function buzz(p){ try{ if(navigator.vibrate) navigator.vibrate(p); }catch(_){} }
 function showTriageView(){
   if(typeof clearKbd==='function') clearKbd();
   document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on',s.id==='v-triage'));
@@ -1223,49 +1292,113 @@ function showTriageView(){
   window.scrollTo({top:0});
 }
 function exitTriage(){ triage.active=false; switchView('log'); render(); }
+const TRI_QS=[ /* the honest tests, run in the order that eliminates fastest */
+  {q:"Re-read the question cold — would you get it right now?", yes:'execution', ycode:'TE'},
+  {q:"Seeing the answer — instant “oh, obviously” (under ~2 s)?", yes:'retrieval', ycode:'RF'},
+  {q:"Were you actively wrong — “I thought X, but it's Y”?", yes:'reasoning', ycode:'CC', no:'knowledge', ncode:'KG'}
+];
 function renderTriage(){
   const box=document.getElementById('triageBody'); if(!box)return;
-  if(triage.done){ box.innerHTML=triageSummaryHTML(); document.getElementById('triFinish').onclick=exitTriage; document.getElementById('triAgain').onclick=startTriage; return; }
+  if(triage.done){
+    box.innerHTML=triageSummaryHTML();
+    document.getElementById('triFinish').onclick=exitTriage; document.getElementById('triAgain').onclick=startTriage;
+    const big=document.querySelector('.sm-big');
+    if(big && !reducedMotion()){ const to=+big.textContent; const t0=performance.now();
+      const step=t=>{ const p=Math.min(1,(t-t0)/450); big.textContent=Math.round(to*(1-Math.pow(1-p,3))); if(p<1)requestAnimationFrame(step); };
+      big.textContent='0'; requestAnimationFrame(step); }
+    return;
+  }
+  if(!settings.triCoached && !triage.items.length){ renderTriIntro(box); return; }
   const {c,blind,total}=triageCounts(triage.items);
   box.innerHTML=`
+   <div class="tri-board">
     <div class="tri-top">
       <button class="tri-x" id="triBack" aria-label="Exit triage">✕</button>
-      <div class="tri-set">${esc(triage.set)} · triage</div>
+      <div class="tri-set">${esc(triage.set)}</div>
+      <button class="tri-help" id="triHelp" aria-label="Bucket guide">?</button>
       <button class="tri-done" id="triDone" ${total?'':'disabled'}>Done ›</button>
     </div>
-    <div class="tri-hero" id="triHero">
-      <div class="tri-n" id="triN">${total}</div>
-      <div class="tri-nl" id="triNL">${triHeroLabel(total,blind)}</div>
-      <div class="tri-tally" id="triTally">${triTallyHTML(c)}</div>
+    <div class="tri-tally" id="triTally">
+      <span class="tt-total"><b id="triN">${total}</b> sorted</span><span id="triNL">${blind?`· <b class="bl">${blind} blind spot${blind>1?'s':''}</b>`:''}</span>
+      ${ERRORS.map(e=>`<span class="tt-chip" style="--bc:${e.c}"><b>${e.code}</b><span data-count="${e.id}">${c[e.id]}</span></span>`).join('')}
     </div>
-    <div class="tri-conf" id="triConf">
-      <span class="tc-lab">Were you sure?</span>
-      <button class="tc sure ${triage.conf==='high'?'on':''}" data-c="high">Sure</button>
-      <button class="tc unsure ${triage.conf==='low'?'on':''}" data-c="low">Not sure</button>
-    </div>
-    <div class="tri-prompt">Tap the bucket for the next wrong one</div>
+    <div class="tri-mid"><div id="triChipWrap">${triChipHTML(total)}</div>
+      <div class="tri-prompt">drop it in its bucket ↓</div></div>
     <div class="tri-buckets" id="triBuckets">
       ${ERRORS.map(e=>`<button class="bucket" data-b="${e.id}" style="--bc:${e.c}">
-        <span class="b-top"><span class="b-code">${e.code}</span><span class="b-count" data-count="${e.id}">${c[e.id]}</span></span>
+        <span class="b-fill" data-fill="${e.id}" style="height:${total?Math.round(c[e.id]/total*100):0}%"></span>
+        <span class="b-wm">${e.code}</span>
+        <span class="b-top"><span class="b-code">${e.code}</span><span class="b-count" data-bcount="${e.id}">${c[e.id]}</span></span>
         <span class="b-name">${e.t}</span><span class="b-test">${esc(e.test)}</span></button>`).join('')}
     </div>
-    <div class="tri-foot" id="triFoot">${triFootHTML()}</div>`;
+    <div class="tri-foot" id="triFoot">${triFootHTML()}</div>
+   </div>`;
   document.getElementById('triBack').onclick=triageBack;
+  document.getElementById('triHelp').onclick=triGuideSheet;
   document.getElementById('triDone').onclick=triageFinish;
-  document.querySelectorAll('#triConf .tc').forEach(b=>b.onclick=()=>{ triage.conf = (triage.conf===b.dataset.c)?null:b.dataset.c; paintTriConf(); });
-  document.querySelectorAll('#triBuckets .bucket').forEach(b=>b.onclick=()=>triageAdd(b.dataset.b,b));
-  bindTriUndo();
+  document.querySelectorAll('#triBuckets .bucket').forEach(b=>b.onclick=()=>{ if(triage.decide==null) triageAdd(b.dataset.b,b); });
+  bindTriChip(); bindTriUndo();
 }
-function triHeroLabel(total,blind){ return `${total===1?'mistake bucketed':'mistakes bucketed'}${blind?` · <b class="bl">${blind} blind spot${blind>1?'s':''}</b>`:''}`; }
-function triTallyHTML(c){ return ERRORS.map(e=>`<span class="tt-chip" style="--bc:${e.c}"><b>${e.code}</b>${c[e.id]}</span>`).join(''); }
+/* the ticket: carries the number, the sure/not-sure state, and the bucket-finder */
+function triChipHTML(total){
+  if(triage.decide!=null){
+    const s=TRI_QS[triage.decide];
+    return `<div class="tri-chip" id="triChip"><span class="dstep">bucket finder · ${triage.decide+1} / 3</span>
+      <div class="dq">${esc(s.q)}</div>
+      <div class="dbtns"><button class="yes" data-a="yes">Yes → ${s.ycode}</button><button data-a="no">${s.no?'No → '+s.ncode:'No'}</button></div>
+      <button class="chip-help" id="dqCancel">never mind</button></div>`;
+  }
+  return `<div class="tri-chip ${triage.conf==='high'?'sure':''}" id="triChip"><span class="stamp">SURE</span>
+    <span class="chip-eyebrow">wrong question</span><span class="chip-n" id="triNext">#${total+1}</span>
+    <div class="tri-conf" id="triConf">
+      <button class="tc sure ${triage.conf==='high'?'on':''}" data-c="high">I was sure</button>
+      <button class="tc unsure ${triage.conf==='low'?'on':''}" data-c="low">Not sure</button>
+    </div>
+    <button class="chip-help" id="triPick">Which bucket? Ask me →</button></div>`;
+}
+function bindTriChip(){
+  const wrap=document.getElementById('triChipWrap'); if(!wrap)return;
+  wrap.querySelectorAll('#triConf .tc').forEach(b=>b.onclick=()=>{ triage.conf=(triage.conf===b.dataset.c)?null:b.dataset.c; paintTriConf(); });
+  const pick=document.getElementById('triPick'); if(pick) pick.onclick=()=>{ triage.decide=0; redrawChip(); };
+  const cancel=document.getElementById('dqCancel'); if(cancel) cancel.onclick=()=>{ triage.decide=null; redrawChip(); };
+  wrap.querySelectorAll('.dbtns button').forEach(b=>b.onclick=()=>{
+    const s=TRI_QS[triage.decide];
+    if(b.dataset.a==='yes'){ triage.decide=null; redrawChip(); triageAdd(s.yes, document.querySelector(`#triBuckets .bucket[data-b="${s.yes}"]`)); }
+    else if(s.no){ triage.decide=null; redrawChip(); triageAdd(s.no, document.querySelector(`#triBuckets .bucket[data-b="${s.no}"]`)); }
+    else { triage.decide++; redrawChip(); }
+  });
+}
+function redrawChip(){ const w=document.getElementById('triChipWrap'); if(w){ w.innerHTML=triChipHTML(triageCounts(triage.items).total); bindTriChip(); } }
+function renderTriIntro(box){
+  box.innerHTML=`<div class="tri-intro">
+    <div class="tri-top"><button class="tri-x" id="triBack">✕</button><div class="tri-set">${esc(triage.set)}</div><span style="width:34px"></span></div>
+    <h2>Sort the damage.</h2>
+    <p class="lead">No essays. For each wrong question, answer one honest test and drop it in its bucket. ~5 seconds each.</p>
+    ${ERRORS.map(e=>`<div class="coach-row"><span class="coach-code" style="background:${e.c}">${e.code}</span>
+      <div><div class="t">${e.t}</div><div class="d">${esc(e.d)}. Test: <b>${esc(e.test)}</b></div></div></div>`).join('')}
+    <div class="coach-note"><b>Blind spots find themselves:</b> mark a question “I was sure” and drop it in Knowledge gap — it auto-flips to a <b>CC blind spot</b>. You weren't blank; you were wrong. Those cost you double.</div>
+    <div class="actions"><button class="btn primary" id="triStart">Start sorting ▶</button></div></div>`;
+  document.getElementById('triBack').onclick=exitTriage;
+  document.getElementById('triStart').onclick=()=>{ settings.triCoached=true; persistSettings(); renderTriage(); };
+}
+function triGuideSheet(){
+  openSheet(`<h3>The four buckets</h3>
+    ${ERRORS.map(e=>`<div class="coach-row" style="animation:none"><span class="coach-code" style="background:${e.c}">${e.code}</span>
+      <div><div class="t">${e.t}</div><div class="d">${esc(e.d)}.<br><b>Test:</b> ${esc(e.test)}<br><b>Fix:</b> ${esc(FIXTEXT[e.id])}</div></div></div>`).join('')}
+    <p style="margin-top:14px"><b style="color:var(--rose)">Sure + Knowledge gap</b> is impossible — you weren't blank, you were wrong. It auto-files as a CC blind spot.</p>
+    <div class="actions"><button class="btn primary" onclick="closeSheet()">Got it</button></div>`);
+}
 function triFootHTML(){
   const last=triage.items[triage.items.length-1];
-  if(!last) return '<span class="tri-hint">Set “sure / not sure” once — it sticks. Sure + a knowledge-gap becomes a CC blind spot automatically.</span>';
+  if(!last) return '<span class="tri-hint">“I was sure” sticks between questions. Sure + Knowledge gap auto-flips to a CC blind spot.</span>';
   const em=ERR_MAP[last.error];
   return `<button class="tri-undo" id="triUndo">↶ undo last · <b style="color:${em.c}">${em.code}</b>${last.conf==='high'?' sure':last.conf==='low'?' unsure':''}</button>`;
 }
 function bindTriUndo(){ const u=document.getElementById('triUndo'); if(u) u.onclick=triageUndo; }
-function paintTriConf(){ document.querySelectorAll('#triConf .tc').forEach(x=>x.classList.toggle('on',!!triage.conf && x.dataset.c===triage.conf)); }
+function paintTriConf(){
+  document.querySelectorAll('#triConf .tc').forEach(x=>x.classList.toggle('on',!!triage.conf && x.dataset.c===triage.conf));
+  const chip=document.getElementById('triChip'); if(chip) chip.classList.toggle('sure',triage.conf==='high');
+}
 function triageAdd(bucket, btnEl){
   let error=bucket;
   /* confidence interaction: High + knowledge-gap is impossible — you weren't blank, you were wrong → CC */
@@ -1275,33 +1408,45 @@ function triageAdd(bucket, btnEl){
   triage.items.push({error, conf:triage.conf||null, t:Date.now()});
   updateTriageUI();
   flyToken(btnEl, error, blind);
-  if(reclassed) toast('Sure + didn’t-know → you were wrong, not blank. Logged as a CC blind spot.');
+  buzz(blind?[14,45,14]:9);
+  if(reclassed) toast('Sure + didn’t-know → you were wrong, not blank. Filed as a CC blind spot.');
 }
 function triageUndo(){ if(!triage.items.length)return; triage.items.pop(); updateTriageUI(); }
 function updateTriageUI(){
   const {c,blind,total}=triageCounts(triage.items);
   const n=document.getElementById('triN'); if(n) n.textContent=total;
-  const nl=document.getElementById('triNL'); if(nl) nl.innerHTML=triHeroLabel(total,blind);
-  const ty=document.getElementById('triTally'); if(ty) ty.innerHTML=triTallyHTML(c);
-  ERRORS.forEach(e=>{ const el=document.querySelector(`[data-count="${e.id}"]`); if(el) el.textContent=c[e.id]; });
+  const nl=document.getElementById('triNL'); if(nl) nl.innerHTML=blind?`· <b class="bl">${blind} blind spot${blind>1?'s':''}</b>`:'';
+  ERRORS.forEach(e=>{
+    document.querySelectorAll(`[data-count="${e.id}"],[data-bcount="${e.id}"]`).forEach(el=>el.textContent=c[e.id]);
+    const f=document.querySelector(`[data-fill="${e.id}"]`); if(f) f.style.height=(total?Math.round(c[e.id]/total*100):0)+'%';
+  });
+  const nx=document.getElementById('triNext'); if(nx) nx.textContent='#'+(total+1);
   const d=document.getElementById('triDone'); if(d) d.disabled=!total;
   const f=document.getElementById('triFoot'); if(f){ f.innerHTML=triFootHTML(); bindTriUndo(); }
+  if(total && total%10===0){ const ty=document.getElementById('triTally'); if(ty){ ty.classList.remove('milestone'); void ty.offsetWidth; ty.classList.add('milestone'); } }
 }
 function flyToken(btnEl, error, blind){
   if(!btnEl) return;
   const em=ERR_MAP[error];
-  if(!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)){
+  const chip=document.getElementById('triChip');
+  if(!reducedMotion()){
+    const s=chip?chip.getBoundingClientRect():{left:innerWidth/2-20,top:innerHeight*.35,width:40,height:40};
     const r=btnEl.getBoundingClientRect();
-    const tok=document.createElement('div'); tok.className='fly-token'; tok.textContent=em.code;
-    tok.style.setProperty('--bc',em.c);
-    const sx=window.innerWidth/2, sy=window.innerHeight*0.40, ex=r.left+r.width/2, ey=r.top+r.height/2;
-    tok.style.left=sx+'px'; tok.style.top=sy+'px';
-    document.body.appendChild(tok);
-    requestAnimationFrame(()=>{ tok.style.transform=`translate(${(ex-sx).toFixed(0)}px,${(ey-sy).toFixed(0)}px) scale(.35)`; tok.style.opacity='0'; });
-    setTimeout(()=>tok.remove(),380);
+    const sx=s.left+s.width/2, sy=s.top+s.height/2, ex=r.left+r.width/2, ey=r.top+r.height/2;
+    /* two-layer flight: X linear, Y ease-in + spin = a thrown arc */
+    const fx=document.createElement('div'); fx.className='fly';
+    const fy=document.createElement('div'); fy.className='fly-in'; fy.textContent=em.code; fy.style.setProperty('--bc',em.c);
+    fx.appendChild(fy); fx.style.left=sx+'px'; fx.style.top=sy+'px';
+    document.body.appendChild(fx);
+    requestAnimationFrame(()=>{ requestAnimationFrame(()=>{
+      fx.style.transform=`translateX(${(ex-sx).toFixed(0)}px)`;
+      fy.style.transform=`translateY(${(ey-sy).toFixed(0)}px) rotate(230deg) scale(.3)`; fy.style.opacity='0';
+    });});
+    setTimeout(()=>fx.remove(),480);
     btnEl.classList.remove('pulse'); void btnEl.offsetWidth; btnEl.classList.add('pulse');
+    if(chip){ chip.classList.remove('respawn'); void chip.offsetWidth; chip.classList.add('respawn'); }
   }
-  if(blind){ const h=document.getElementById('triHero'); if(h){ h.classList.remove('blindflash'); void h.offsetWidth; h.classList.add('blindflash'); } }
+  if(blind && chip){ chip.classList.remove('blindflash'); void chip.offsetWidth; chip.classList.add('blindflash'); }
 }
 function triageBack(){
   if(triage.items.length && !triage.done){
@@ -1320,7 +1465,9 @@ function saveSession(){
   if(triage.saved) return;
   const sess={ id:newId(), ts:Date.now(), testType:triage.testType, set:triage.set,
     items:triage.items.map(it=>({error:it.error, conf:it.conf||null})) };
-  sessions.unshift(sess); persistSessions(); triage.saved=true;
+  sessions.unshift(sess);
+  sessions=sessions.slice(0,100); /* keep the doc well under Firestore's 1 MB cap */
+  persistSessions(); triage.saved=true;
 }
 function triageSummaryHTML(){
   const {c,blind,total}=triageCounts(triage.items);
@@ -2035,7 +2182,10 @@ function deviceId(){ let d=null; try{d=localStorage.getItem(K_DEV)}catch(_){}; i
 function persistTombstones(){ try{localStorage.setItem(K_TOMB,JSON.stringify(tombstones))}catch(_){} }
 function loadTombstones(){ try{const t=JSON.parse(localStorage.getItem(K_TOMB)||'{}'); if(t&&typeof t==='object'&&!Array.isArray(t)) tombstones=t;}catch(_){} }
 function persistSessions(cloud){ try{localStorage.setItem(K_SESS,JSON.stringify(sessions))}catch(_){}; if(cloud!==false) scheduleCloudPush(); }
-function loadSessions(){ try{const s=JSON.parse(localStorage.getItem(K_SESS)||'[]'); if(Array.isArray(s)) sessions=s.filter(x=>x&&x.id&&Array.isArray(x.items));}catch(_){} }
+function loadSessions(){ try{const s=JSON.parse(localStorage.getItem(K_SESS)||'[]');
+  if(Array.isArray(s)) sessions=s.filter(x=>x&&x.id&&Array.isArray(x.items)).map(x=>({ ...x,
+    items:x.items.filter(it=>it&&ERR_MAP[it.error]).map(it=>({error:it.error, conf:it.conf==='high'?'high':it.conf==='low'?'low':null})) }));
+}catch(_){} }
 function getFbCfg(){ try{const c=JSON.parse(localStorage.getItem(K_FBCFG)||'null'); return (c&&c.apiKey&&c.projectId)?c:null;}catch(_){return null} }
 function setFbCfg(c){ try{localStorage.setItem(K_FBCFG,JSON.stringify(c))}catch(_){} }
 
@@ -2050,9 +2200,9 @@ function mergeLedger(a,b){
   entries.sort((x,y)=>(y.ts||0)-(x.ts||0));
   const au=(a.settings&&a.settings._upd)||0, bu=(b.settings&&b.settings._upd)||0;
   const settings = bu>au ? (b.settings||a.settings||{}) : (a.settings||b.settings||{});
-  /* triage sessions: immutable once saved — union by id */
+  /* triage sessions: immutable once saved — union by id, capped for doc-size safety */
   const sById={}; (a.sessions||[]).concat(b.sessions||[]).forEach(s=>{ if(s&&s.id&&!sById[s.id]) sById[s.id]=s; });
-  const sessions=Object.values(sById).sort((x,y)=>(y.ts||0)-(x.ts||0));
+  const sessions=Object.values(sById).sort((x,y)=>(y.ts||0)-(x.ts||0)).slice(0,150);
   return {entries, settings, tombstones:tomb, sessions};
 }
 
@@ -2239,7 +2389,15 @@ function cloudSetupSheet(){
     let m=raw.match(/\{[^{}]*apiKey[^{}]*\}/i);
     if(!m) m=raw.match(/\{[\s\S]*\}/);
     if(m) obj=m[0];
-    let cfg=null; try{ cfg=JSON.parse(obj); }catch(_){ try{ cfg=(new Function('return ('+obj+')'))(); }catch(e){ toast("Couldn't read that — paste just the { … } config block"); return; } }
+    /* parse without ever executing pasted text: JSON first, then JSON-ified JS-object syntax, then a plain key:"value" scan */
+    let cfg=null;
+    try{ cfg=JSON.parse(obj); }catch(_){
+      try{ cfg=JSON.parse(obj.replace(/([{\s,])([A-Za-z_$][\w$]*)\s*:/g,'$1"$2":').replace(/'/g,'"').replace(/,\s*([}\]])/g,'$1')); }catch(_2){
+        const kv={}; obj.replace(/(['"]?)([A-Za-z_$][\w$]*)\1\s*:\s*(['"])((?:\\.|(?!\3).)*)\3/g,(m,q,k,q2,v)=>{kv[k]=v;return m;});
+        if(kv.apiKey) cfg=kv;
+      }
+    }
+    if(!cfg){ toast("Couldn't read that — paste just the { … } config block"); return; }
     if(!cfg||typeof cfg!=='object'){ toast("That doesn't look like a config"); return; }
     if(!cfg.apiKey||!cfg.projectId){ toast('Config is missing apiKey / projectId'); return; }
     /* keep only the fields the SDK needs (drops stray comments/props) */
