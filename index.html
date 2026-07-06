@@ -362,6 +362,76 @@
   @keyframes fall{to{opacity:0;transform:translateX(40px)}}
   @keyframes bdfade{from{opacity:0}to{opacity:1}}
 
+  /* ---- rapid triage (the bucketing game) ---- */
+  .trilaunch{display:flex;align-items:center;gap:14px;width:100%;text-align:left;color:#fff;background:var(--grad);
+    border-radius:20px;padding:16px 18px;margin-bottom:14px;box-shadow:0 9px 24px -10px rgba(193,80,45,.55);position:relative;top:0;transition:transform .09s ease,box-shadow .09s ease}
+  .trilaunch:active{transform:scale(.985)}
+  .trilaunch .tl-ic{width:42px;height:42px;flex:none;border-radius:13px;background:rgba(255,255,255,.2);display:grid;place-items:center}
+  .trilaunch .tl-ic svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round}
+  .trilaunch .tl-t{font-weight:800;font-size:16px;letter-spacing:-.01em;display:block}
+  .trilaunch .tl-d{font-size:12.5px;opacity:.94;line-height:1.4;margin-top:2px;display:block}
+  .trilaunch .tl-go{margin-left:auto;font-size:15px;opacity:.9}
+  .ordiv{display:flex;align-items:center;gap:12px;margin:2px 0 16px;color:var(--faint);font-size:11.5px;font-weight:600;letter-spacing:.03em}
+  .ordiv::before,.ordiv::after{content:"";flex:1;height:1px;background:var(--border)}
+
+  .tri-top{display:flex;align-items:center;justify-content:space-between;margin:2px 0 16px}
+  .tri-x{width:34px;height:34px;border-radius:11px;background:var(--surface2);color:var(--muted);font-size:16px;font-weight:700}
+  .tri-set{font-weight:750;font-size:14px;letter-spacing:.02em;color:var(--ink2)}
+  .tri-done{font-weight:750;font-size:14px;color:var(--accent-ink);padding:8px 14px;border-radius:11px;background:var(--accent-soft)}
+  .tri-done:disabled{opacity:.4}
+  .tri-hero{text-align:center;padding:12px 0 18px}
+  .tri-hero.blindflash{animation:blindflash .6s ease}
+  @keyframes blindflash{0%{background:transparent}30%{background:color-mix(in srgb,var(--rose) 14%,transparent)}100%{background:transparent}}
+  .tri-n{font-size:60px;font-weight:850;line-height:1;letter-spacing:-.03em;color:var(--ink);font-variant-numeric:tabular-nums}
+  .tri-nl{font-size:13.5px;color:var(--muted);margin-top:5px}
+  .tri-nl .bl,.bl{color:var(--rose);font-weight:750}
+  .tri-tally{display:flex;justify-content:center;gap:7px;margin-top:14px;flex-wrap:wrap}
+  .tt-chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--ink2);background:var(--surface2);
+    border-radius:20px;padding:4px 11px}
+  .tt-chip b{color:var(--bc);font-size:11px}
+  .tri-conf{display:flex;align-items:center;gap:8px;justify-content:center;margin-bottom:16px}
+  .tri-conf .tc-lab{font-size:12.5px;color:var(--muted);margin-right:2px}
+  .tri-conf .tc{padding:8px 15px;border-radius:20px;font-weight:700;font-size:13px;border:1.5px solid var(--border2);background:var(--surface);color:var(--muted);transition:all .13s}
+  .tri-conf .tc.sure.on{border-color:var(--rose);background:color-mix(in srgb,var(--rose) 12%,transparent);color:var(--rose)}
+  .tri-conf .tc.unsure.on{border-color:var(--sage);background:var(--sage-soft);color:var(--sage-ink)}
+  .tri-prompt{text-align:center;font-size:13px;color:var(--faint);font-weight:600;margin-bottom:12px}
+  .tri-buckets{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+  .bucket{position:relative;text-align:left;background:var(--surface);border:1.5px solid var(--border2);border-radius:18px;
+    padding:14px 14px 15px;box-shadow:var(--shadow);transition:transform .09s ease,box-shadow .12s ease,border-color .12s;overflow:hidden;top:0}
+  .bucket::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--bc)}
+  .bucket:active{transform:scale(.97)}
+  .bucket.pulse{animation:bpulse .34s cubic-bezier(.3,1.4,.5,1)}
+  @keyframes bpulse{0%{transform:scale(1)}40%{transform:scale(1.05);box-shadow:0 0 0 4px color-mix(in srgb,var(--bc) 20%,transparent)}100%{transform:scale(1)}}
+  .bucket .b-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
+  .bucket .b-code{font-size:15px;font-weight:850;color:var(--bc);letter-spacing:.02em}
+  .bucket .b-count{font-size:22px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1}
+  .bucket .b-name{font-weight:720;font-size:13.5px;display:block;letter-spacing:-.01em}
+  .bucket .b-test{font-size:11px;color:var(--muted);line-height:1.35;margin-top:4px;display:block}
+  .tri-foot{margin-top:16px;text-align:center;min-height:38px}
+  .tri-hint{font-size:11.5px;color:var(--faint);line-height:1.5;display:inline-block;max-width:36ch}
+  .tri-undo{font-size:13px;color:var(--muted);font-weight:600;padding:9px 16px;border-radius:11px;background:var(--surface2)}
+  .fly-token{position:fixed;z-index:60;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:12px;background:var(--bc);color:#fff;
+    font-size:14px;font-weight:850;display:grid;place-items:center;pointer-events:none;transition:transform .36s cubic-bezier(.4,0,.2,1),opacity .36s ease;
+    box-shadow:0 8px 20px -6px color-mix(in srgb,var(--bc) 70%,transparent)}
+  /* triage summary */
+  .sm-hero{text-align:center;padding:6px 0 20px}
+  .sm-big{font-size:56px;font-weight:850;line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+  .sm-lab{font-size:13.5px;color:var(--muted);margin-top:5px}
+  .sm-bars{display:flex;flex-direction:column;gap:13px}
+  .sm-bar{display:grid;grid-template-columns:1fr auto;gap:8px 12px;align-items:center}
+  .sm-k{font-size:13px;color:var(--ink2);grid-column:1}
+  .sm-k b{font-weight:850;margin-right:6px}
+  .sm-track{grid-column:1;height:12px;background:var(--surface2);border-radius:7px;overflow:hidden}
+  .sm-fill{height:100%;border-radius:7px;transition:width .6s cubic-bezier(.4,0,.2,1);min-width:5px}
+  .sm-v{grid-column:2;grid-row:1/3;font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;align-self:center}
+  /* per-test composition stacks */
+  .ses-chart{display:flex;align-items:flex-end;gap:8px;height:110px;padding-top:6px}
+  .ses-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;min-width:0}
+  .ses-stack{width:100%;max-width:34px;height:86px;border-radius:6px;overflow:hidden;display:flex;flex-direction:column-reverse;background:var(--surface2)}
+  .ses-stack span{display:block;width:100%}
+  .ses-lab{font-size:10px;color:var(--muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+  .ses-c{font-size:10px;color:var(--faint);font-weight:700;margin-top:-3px}
+
   /* spaced-repetition "due" + sync card accent */
   .databtn.due,.databtn.sync{border-color:color-mix(in srgb,var(--accent) 45%,transparent);background:linear-gradient(180deg,var(--accent-soft),var(--surface))}
   .databtn.due .ic,.databtn.sync .ic{stroke:var(--accent-ink)}
@@ -413,8 +483,9 @@
   .chart .plab{fill:var(--ink);font-size:12px;font-weight:800}
   .chart .xlab{fill:var(--muted);font-size:9.5px;font-weight:600}
   .hbars{display:flex;flex-direction:column;gap:13px}
-  .hbar{display:grid;grid-template-columns:96px 1fr auto;align-items:center;gap:12px}
-  .hbar .k{font-size:13px;color:var(--ink2);font-weight:560}
+  .hbar{display:grid;grid-template-columns:112px 1fr auto;align-items:center;gap:11px}
+  .hbar .k{font-size:12.5px;color:var(--ink2);font-weight:560;line-height:1.25}
+  .hbar .k b{font-weight:850}
   .hbar .track{height:12px;background:var(--surface2);border-radius:7px;overflow:hidden}
   .hbar .fill{height:100%;border-radius:7px;transition:width .5s cubic-bezier(.4,0,.2,1);min-width:7px}
   .hbar .v{font-size:13px;font-weight:750;color:var(--ink);font-variant-numeric:tabular-nums;min-width:16px;text-align:right}
@@ -533,6 +604,13 @@
       <span class="chg">change ›</span>
     </button>
 
+    <button class="trilaunch" id="triageLaunch" type="button">
+      <span class="tl-ic"><svg viewBox="0 0 24 24"><path d="M3 6h18M7 12h10M10 18h4"/></svg></span>
+      <span class="tl-txt"><span class="tl-t">Triage this test</span><span class="tl-d">Bucket every wrong question fast — get an instant read on what went wrong.</span></span>
+      <span class="tl-go">▶</span>
+    </button>
+    <div class="ordiv"><span>or log one in detail</span></div>
+
     <div class="editnote" id="editNote">
       <span>Editing an entry — Save overwrites the original.</span>
       <button id="editCancel" type="button">cancel</button>
@@ -613,6 +691,11 @@
   <section class="view" id="v-review">
     <div class="sec-title"><h2>Review</h2><div class="hint">recalling the fix beats re-reading it</div></div>
     <div id="reviewBody"></div>
+  </section>
+
+  <!-- TRIAGE (rapid bucketing game) -->
+  <section class="view" id="v-triage">
+    <div id="triageBody"></div>
   </section>
 
   <!-- INSIGHTS -->
@@ -703,10 +786,10 @@ const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 
 const ERRORS=[
-  {id:'knowledge', t:"Didn't know", d:"never learnt it", c:'var(--rose)'},
-  {id:'retrieval', t:"Knew it, blanked", d:"couldn't pull it out", c:'var(--amber)'},
-  {id:'reasoning', t:"Wrong logic", d:"facts right, applied wrong", c:'var(--violet)'},
-  {id:'execution', t:"Silly slip", d:"misread / mis-marked", c:'var(--teal)'},
+  {id:'knowledge', code:'KG', t:"Knowledge gap",       d:"needed the explanation, not just the answer", c:'var(--rose)',   test:"Did I need the explanation — or just the answer?"},
+  {id:'retrieval', code:'RF', t:"Retrieval failure",   d:"knew it — instant “obviously” on seeing it",   c:'var(--amber)',  test:"Recognised the answer in under 2 seconds?"},
+  {id:'reasoning', code:'CC', t:"Conceptual confusion",d:"wrong mental model — thought X, it's Y",       c:'var(--violet)', test:"Can you say “I thought X, but it's Y”?"},
+  {id:'execution', code:'TE', t:"Trap / execution",    d:"knew it — misread stem, EXCEPT, mis-marked",   c:'var(--teal)',   test:"Re-read it cold — get it right now? Then TE."},
 ];
 const ERR_MAP=Object.fromEntries(ERRORS.map(e=>[e.id,e]));
 const CONFS=[
@@ -716,8 +799,10 @@ const CONFS=[
 ];
 
 let entries=[];
+let sessions=[]; /* rapid-triage sessions: aggregate bucket counts per GT, for the fast game + long-term trend */
 let settings={activeType:'gt', gtSet:'GT-18', moduleSet:'Module 1', examDate:'2026-08-31'};
 let form={subject:SUBJECTS[8], error:null, conf:null, image:false, photo:null};
+let triage={active:false, set:'', testType:'gt', conf:null, items:[], saved:false, done:false};
 let bookFilter={sub:'ALL', type:'ALL', bt:'ALL', q:''};
 let expandedNotes={};
 let editingId=null;
@@ -726,7 +811,7 @@ let deferredPrompt=null;
 let photos={}; /* id -> dataURL, kept in IndexedDB */
 let tombstones={}; /* id -> deletedAt, for delete-safe cloud merge */
 let _grpCache=null; /* memoised recurrence groups, invalidated on every persist() */
-const K_TOMB='ml_tombstones_v1', K_FBCFG='ml_fbcfg_v1', K_DEV='ml_device_v1';
+const K_TOMB='ml_tombstones_v1', K_FBCFG='ml_fbcfg_v1', K_DEV='ml_device_v1', K_SESS='ml_sessions_v1';
 let fbApp=null, fbUser=null, fbUnsub=null, fbPushT=null, fbApplying=false, fbStatus='off', fbLastSync=0, fbError='';
 let fbLastPush=0, fbLastPull=0, fbRemoteCount=null, fbSyncing=false;
 let _idc=0; /* id counter, guarantees uniqueness within a session */
@@ -755,6 +840,7 @@ async function boot(){
   const e=await sget(K_ENTRIES); if(e){try{entries=sanitizeEntries(JSON.parse(e))}catch(_){entries=[]}}
   const s=await sget(K_SET); if(s){try{const p=JSON.parse(s); if(p && typeof p==='object' && !Array.isArray(p)) settings=Object.assign(settings,p)}catch(_){}}
   loadTombstones();
+  loadSessions();
   migrate();
   if(settings.lastSubject && SUBJECTS.includes(settings.lastSubject)) form.subject=settings.lastSubject;
   buildForm(); bindTabs(); bindActions(); bindKeyboard(); render(); switchView('log');
@@ -1120,6 +1206,140 @@ async function markReview(knew){
 }
 function endReview(){review.active=false; renderReview()}
 
+/* ===================== rapid triage: pluck a GT's mistakes into buckets ===================== */
+function triageCounts(items){
+  const c={knowledge:0,retrieval:0,reasoning:0,execution:0}; let blind=0, sure=0;
+  (items||[]).forEach(it=>{ c[it.error]=(c[it.error]||0)+1; if(it.conf==='high'){ sure++; if(it.error==='reasoning') blind++; } });
+  return {c, blind, sure, total:(items||[]).length};
+}
+function startTriage(){
+  triage={ active:true, set:curSet(), testType:curType(), conf:null, items:[], saved:false, done:false };
+  showTriageView(); renderTriage();
+}
+function showTriageView(){
+  if(typeof clearKbd==='function') clearKbd();
+  document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on',s.id==='v-triage'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.v==='log'));
+  window.scrollTo({top:0});
+}
+function exitTriage(){ triage.active=false; switchView('log'); render(); }
+function renderTriage(){
+  const box=document.getElementById('triageBody'); if(!box)return;
+  if(triage.done){ box.innerHTML=triageSummaryHTML(); document.getElementById('triFinish').onclick=exitTriage; document.getElementById('triAgain').onclick=startTriage; return; }
+  const {c,blind,total}=triageCounts(triage.items);
+  box.innerHTML=`
+    <div class="tri-top">
+      <button class="tri-x" id="triBack" aria-label="Exit triage">✕</button>
+      <div class="tri-set">${esc(triage.set)} · triage</div>
+      <button class="tri-done" id="triDone" ${total?'':'disabled'}>Done ›</button>
+    </div>
+    <div class="tri-hero" id="triHero">
+      <div class="tri-n" id="triN">${total}</div>
+      <div class="tri-nl" id="triNL">${triHeroLabel(total,blind)}</div>
+      <div class="tri-tally" id="triTally">${triTallyHTML(c)}</div>
+    </div>
+    <div class="tri-conf" id="triConf">
+      <span class="tc-lab">Were you sure?</span>
+      <button class="tc sure ${triage.conf==='high'?'on':''}" data-c="high">Sure</button>
+      <button class="tc unsure ${triage.conf==='low'?'on':''}" data-c="low">Not sure</button>
+    </div>
+    <div class="tri-prompt">Tap the bucket for the next wrong one</div>
+    <div class="tri-buckets" id="triBuckets">
+      ${ERRORS.map(e=>`<button class="bucket" data-b="${e.id}" style="--bc:${e.c}">
+        <span class="b-top"><span class="b-code">${e.code}</span><span class="b-count" data-count="${e.id}">${c[e.id]}</span></span>
+        <span class="b-name">${e.t}</span><span class="b-test">${esc(e.test)}</span></button>`).join('')}
+    </div>
+    <div class="tri-foot" id="triFoot">${triFootHTML()}</div>`;
+  document.getElementById('triBack').onclick=triageBack;
+  document.getElementById('triDone').onclick=triageFinish;
+  document.querySelectorAll('#triConf .tc').forEach(b=>b.onclick=()=>{ triage.conf = (triage.conf===b.dataset.c)?null:b.dataset.c; paintTriConf(); });
+  document.querySelectorAll('#triBuckets .bucket').forEach(b=>b.onclick=()=>triageAdd(b.dataset.b,b));
+  bindTriUndo();
+}
+function triHeroLabel(total,blind){ return `${total===1?'mistake bucketed':'mistakes bucketed'}${blind?` · <b class="bl">${blind} blind spot${blind>1?'s':''}</b>`:''}`; }
+function triTallyHTML(c){ return ERRORS.map(e=>`<span class="tt-chip" style="--bc:${e.c}"><b>${e.code}</b>${c[e.id]}</span>`).join(''); }
+function triFootHTML(){
+  const last=triage.items[triage.items.length-1];
+  if(!last) return '<span class="tri-hint">Set “sure / not sure” once — it sticks. Sure + a knowledge-gap becomes a CC blind spot automatically.</span>';
+  const em=ERR_MAP[last.error];
+  return `<button class="tri-undo" id="triUndo">↶ undo last · <b style="color:${em.c}">${em.code}</b>${last.conf==='high'?' sure':last.conf==='low'?' unsure':''}</button>`;
+}
+function bindTriUndo(){ const u=document.getElementById('triUndo'); if(u) u.onclick=triageUndo; }
+function paintTriConf(){ document.querySelectorAll('#triConf .tc').forEach(x=>x.classList.toggle('on',!!triage.conf && x.dataset.c===triage.conf)); }
+function triageAdd(bucket, btnEl){
+  let error=bucket;
+  /* confidence interaction: High + knowledge-gap is impossible — you weren't blank, you were wrong → CC */
+  const reclassed = (triage.conf==='high' && bucket==='knowledge');
+  if(reclassed) error='reasoning';
+  const blind = (triage.conf==='high' && error==='reasoning');
+  triage.items.push({error, conf:triage.conf||null, t:Date.now()});
+  updateTriageUI();
+  flyToken(btnEl, error, blind);
+  if(reclassed) toast('Sure + didn’t-know → you were wrong, not blank. Logged as a CC blind spot.');
+}
+function triageUndo(){ if(!triage.items.length)return; triage.items.pop(); updateTriageUI(); }
+function updateTriageUI(){
+  const {c,blind,total}=triageCounts(triage.items);
+  const n=document.getElementById('triN'); if(n) n.textContent=total;
+  const nl=document.getElementById('triNL'); if(nl) nl.innerHTML=triHeroLabel(total,blind);
+  const ty=document.getElementById('triTally'); if(ty) ty.innerHTML=triTallyHTML(c);
+  ERRORS.forEach(e=>{ const el=document.querySelector(`[data-count="${e.id}"]`); if(el) el.textContent=c[e.id]; });
+  const d=document.getElementById('triDone'); if(d) d.disabled=!total;
+  const f=document.getElementById('triFoot'); if(f){ f.innerHTML=triFootHTML(); bindTriUndo(); }
+}
+function flyToken(btnEl, error, blind){
+  if(!btnEl) return;
+  const em=ERR_MAP[error];
+  if(!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)){
+    const r=btnEl.getBoundingClientRect();
+    const tok=document.createElement('div'); tok.className='fly-token'; tok.textContent=em.code;
+    tok.style.setProperty('--bc',em.c);
+    const sx=window.innerWidth/2, sy=window.innerHeight*0.40, ex=r.left+r.width/2, ey=r.top+r.height/2;
+    tok.style.left=sx+'px'; tok.style.top=sy+'px';
+    document.body.appendChild(tok);
+    requestAnimationFrame(()=>{ tok.style.transform=`translate(${(ex-sx).toFixed(0)}px,${(ey-sy).toFixed(0)}px) scale(.35)`; tok.style.opacity='0'; });
+    setTimeout(()=>tok.remove(),380);
+    btnEl.classList.remove('pulse'); void btnEl.offsetWidth; btnEl.classList.add('pulse');
+  }
+  if(blind){ const h=document.getElementById('triHero'); if(h){ h.classList.remove('blindflash'); void h.offsetWidth; h.classList.add('blindflash'); } }
+}
+function triageBack(){
+  if(triage.items.length && !triage.done){
+    openSheet(`<h3>Finish this triage?</h3><p>You've bucketed <b>${triage.items.length}</b> mistake${triage.items.length>1?'s':''}. Save the read, or discard it.</p>
+      <div class="actions"><button class="btn primary" id="tbSave">Save the read</button><button class="btn ghost" id="tbDiscard" style="color:var(--rose)">Discard</button></div>`);
+    document.getElementById('tbSave').onclick=()=>{closeSheet();triageFinish();};
+    document.getElementById('tbDiscard').onclick=()=>{closeSheet();exitTriage();};
+  } else exitTriage();
+}
+function triageFinish(){
+  if(!triage.items.length){ exitTriage(); return; }
+  saveSession();
+  triage.done=true; renderTriage();
+}
+function saveSession(){
+  if(triage.saved) return;
+  const sess={ id:newId(), ts:Date.now(), testType:triage.testType, set:triage.set,
+    items:triage.items.map(it=>({error:it.error, conf:it.conf||null})) };
+  sessions.unshift(sess); persistSessions(); triage.saved=true;
+}
+function triageSummaryHTML(){
+  const {c,blind,total}=triageCounts(triage.items);
+  const max=Math.max(1,...ERRORS.map(e=>c[e.id]));
+  const bars=ERRORS.map(e=>{const n=c[e.id];
+    return `<div class="sm-bar"><span class="sm-k"><b style="color:${e.c}">${e.code}</b> ${e.t}</span><div class="sm-track"><div class="sm-fill" style="width:${Math.max(2,n/max*100)}%;background:${e.c}"></div></div><span class="sm-v">${n}</span></div>`;}).join('');
+  const dom=ERRORS.slice().sort((a,b)=>c[b.id]-c[a.id])[0];
+  const synth = blind
+    ? `<b class="bl">${blind} blind spot${blind>1?'s':''}</b> — sure, but wrong (CC). Your most dangerous marks: write a contrast entry for each before your next test.`
+    : `Mostly <b style="color:${dom.c}">${dom.t.toLowerCase()}</b> (${c[dom.id]}). ${FIXTEXT[dom.id]}`;
+  return `
+    <div class="tri-top"><span style="width:34px"></span><div class="tri-set">${esc(triage.set)} · read</div><span style="width:34px"></span></div>
+    <div class="sm-hero"><div class="sm-big">${total}</div><div class="sm-lab">mistake${total>1?'s':''} triaged${blind?` · <b class="bl">${blind} blind</b>`:''}</div></div>
+    <div class="card"><h3><span class="accent"></span>What went wrong</h3><div class="sm-bars">${bars}</div>
+      <p class="tlab" style="margin-top:16px">${synth}</p></div>
+    <div class="actions" style="margin-top:4px"><button class="btn primary" id="triFinish">Done</button><button class="btn ghost" id="triAgain">Triage another</button></div>
+    <p class="faint" style="font-size:12px;text-align:center;margin-top:12px">Saved — see the long-term breakdown in Insights.</p>`;
+}
+
 function renderReview(){
   const box=document.getElementById('reviewBody'); if(!box)return;
   if(!review.active){
@@ -1193,10 +1413,10 @@ function renderReview(){
 }
 
 const FIXTEXT={
-  knowledge:"straight gaps — pull the ones that keep repeating into revision (not brand-new topics this close in).",
-  retrieval:"you knew these — the fix is a better recall cue, not more reading. Re-word the card to sound like the question.",
-  reasoning:"the facts were right but the logic slipped — slow down on the last line and work it through instead of pattern-matching.",
-  execution:"the cheapest to fix — it's rushing, not knowledge. Read the final line first, commit, and don't change answers."
+  knowledge:"real gaps — a BTR re-read + a fresh Anki card. Pull the repeaters into revision, not brand-new topics this close in.",
+  retrieval:"you knew these — don't re-study. Re-word the Anki front with the clinical trigger so it fires like the question did.",
+  reasoning:"wrong mental model — the dangerous bucket. Write a contrast entry (what you believed vs why the answer's right); these drive negative marking.",
+  execution:"not a study problem — attention. Name the trap (EXCEPT / stem misread / answer-changed / overcall) and drill reading the last line first."
 };
 
 function nextCard(map){
@@ -1330,12 +1550,32 @@ function statStrip(){
   const cell=(n,lab,col)=>`<div class="ss-cell"><div class="ss-n" style="color:${col}">${n}</div><div class="ss-l">${lab}</div></div>`;
   return `<div class="statstrip">${cell(due,'due today','var(--sage-ink)')}${cell(rec,'keep happening','var(--amber)')}${cell(blind,'blind spots','var(--rose)')}</div>`;
 }
+/* long-term read across triage sessions: bucket mix + composition per test + blind-spot count */
+function triageInsightsCard(){
+  if(!sessions.length) return '';
+  const agg={knowledge:0,retrieval:0,reasoning:0,execution:0}; let blind=0, total=0;
+  sessions.forEach(s=>s.items.forEach(it=>{ agg[it.error]=(agg[it.error]||0)+1; total++; if(it.conf==='high'&&it.error==='reasoning') blind++; }));
+  if(!total) return '';
+  const max=Math.max(1,...ERRORS.map(e=>agg[e.id]));
+  const bars=ERRORS.map(e=>`<div class="hbar"><span class="k"><b style="color:${e.c}">${e.code}</b> ${e.t}</span><div class="track"><div class="fill" style="width:${Math.max(3,agg[e.id]/max*100)}%;background:linear-gradient(90deg,${e.c},color-mix(in srgb,${e.c} 72%,#fff))"></div></div><span class="v">${agg[e.id]}</span></div>`).join('');
+  const recent=sessions.slice(0,8).slice().reverse();
+  const stacks=recent.map(s=>{ const cc=triageCounts(s.items), tot=cc.total||1;
+    const seg=ERRORS.map(e=>cc.c[e.id]?`<span style="height:${(cc.c[e.id]/tot*100).toFixed(1)}%;background:${e.c}"></span>`:'').join('');
+    return `<div class="ses-col"><div class="ses-stack">${seg}</div><span class="ses-lab">${esc(String(s.set).replace(/^GT[\s-]*/i,'').slice(0,4))}</span><span class="ses-c">${cc.total}</span></div>`;}).join('');
+  const dom=ERRORS.slice().sort((a,b)=>agg[b.id]-agg[a.id])[0];
+  return `<div class="card"><h3><span class="accent"></span>Triage — long-term read</h3>
+    <div class="tlab" style="margin:-6px 0 15px">${total} mistake${total>1?'s':''} across ${sessions.length} test${sessions.length>1?'s':''}${blind?` · <b class="bl">${blind} blind spot${blind>1?'s':''}</b>`:''}.</div>
+    <div class="hbars">${bars}</div>
+    ${recent.length>=2?`<div class="leak-sub" style="margin-top:22px">Composition by test</div><div class="ses-chart">${stacks}</div>`:''}
+    <p class="tlab" style="margin-top:15px">Your steady leak is <b style="color:${dom.c}">${dom.t.toLowerCase()}</b>. ${FIXTEXT[dom.id]}</p></div>`;
+}
 function renderInsights(){
   const box=document.getElementById('insightsBody');
-  if(entries.length===0){box.innerHTML=`<div class="empty"><svg class="ic" viewBox="0 0 24 24"><path d="M3 3v18h18M7 14l3-3 3 3 5-6"/></svg>
-    <div class="big">Nothing to show yet</div>Log a few mistakes and this fills in — it shows where your marks are leaking and what to do about it.</div>`;return}
+  if(entries.length===0 && !sessions.length){box.innerHTML=`<div class="empty"><svg class="ic" viewBox="0 0 24 24"><path d="M3 3v18h18M7 14l3-3 3 3 5-6"/></svg>
+    <div class="big">Nothing to show yet</div>Triage a test or log a few mistakes and this fills in — it shows where your marks are leaking and what to do about it.</div>`;return}
   const map=recurrenceMap();
-  box.innerHTML = nextCard(map) + masteryCard() + statStrip() + leakCard() + typeSplitCard() + testListCard();
+  const detailed = entries.length ? (nextCard(map)+masteryCard()+statStrip()+leakCard()+typeSplitCard()+testListCard()) : '';
+  box.innerHTML = triageInsightsCard() + detailed;
 }
 
 function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
@@ -1357,6 +1597,7 @@ function toast(msg,action){
 function bindTabs(){document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>switchView(t.dataset.v))}
 function switchView(v){
   if(typeof clearKbd==='function') clearKbd();
+  triage.active=false;
   document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));
   document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.v===v));
   window.scrollTo({top:0});
@@ -1377,6 +1618,7 @@ function bindActions(){
   document.getElementById('fileIn').onchange=importData;
   document.getElementById('pasteBtn').onclick=pasteBackup;
   document.getElementById('bulkBtn').onclick=bulkImportSheet;
+  document.getElementById('triageLaunch').onclick=startTriage;
   document.getElementById('wipeBtn').onclick=wipe;
   document.getElementById('editCancel').onclick=cancelEdit;
   document.getElementById('examChip').onclick=examSheet;
@@ -1792,6 +2034,8 @@ function maybeBackupReminder(){
 function deviceId(){ let d=null; try{d=localStorage.getItem(K_DEV)}catch(_){}; if(!d){ d='d'+Math.random().toString(36).slice(2)+Date.now().toString(36); try{localStorage.setItem(K_DEV,d)}catch(_){}} return d; }
 function persistTombstones(){ try{localStorage.setItem(K_TOMB,JSON.stringify(tombstones))}catch(_){} }
 function loadTombstones(){ try{const t=JSON.parse(localStorage.getItem(K_TOMB)||'{}'); if(t&&typeof t==='object'&&!Array.isArray(t)) tombstones=t;}catch(_){} }
+function persistSessions(cloud){ try{localStorage.setItem(K_SESS,JSON.stringify(sessions))}catch(_){}; if(cloud!==false) scheduleCloudPush(); }
+function loadSessions(){ try{const s=JSON.parse(localStorage.getItem(K_SESS)||'[]'); if(Array.isArray(s)) sessions=s.filter(x=>x&&x.id&&Array.isArray(x.items));}catch(_){} }
 function getFbCfg(){ try{const c=JSON.parse(localStorage.getItem(K_FBCFG)||'null'); return (c&&c.apiKey&&c.projectId)?c:null;}catch(_){return null} }
 function setFbCfg(c){ try{localStorage.setItem(K_FBCFG,JSON.stringify(c))}catch(_){} }
 
@@ -1806,7 +2050,10 @@ function mergeLedger(a,b){
   entries.sort((x,y)=>(y.ts||0)-(x.ts||0));
   const au=(a.settings&&a.settings._upd)||0, bu=(b.settings&&b.settings._upd)||0;
   const settings = bu>au ? (b.settings||a.settings||{}) : (a.settings||b.settings||{});
-  return {entries, settings, tombstones:tomb};
+  /* triage sessions: immutable once saved — union by id */
+  const sById={}; (a.sessions||[]).concat(b.sessions||[]).forEach(s=>{ if(s&&s.id&&!sById[s.id]) sById[s.id]=s; });
+  const sessions=Object.values(sById).sort((x,y)=>(y.ts||0)-(x.ts||0));
+  return {entries, settings, tombstones:tomb, sessions};
 }
 
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.async=true;s.onload=()=>res();s.onerror=()=>rej(new Error('load '+src));document.head.appendChild(s);});}
@@ -1883,15 +2130,17 @@ async function startDocSync(){
 }
 async function applyRemote(remote, initial){
   try{
-    const inc={ entries:remote.entries||[], settings:remote.settings||{}, tombstones:remote.tombstones||{} };
+    const inc={ entries:remote.entries||[], settings:remote.settings||{}, tombstones:remote.tombstones||{}, sessions:remote.sessions||[] };
     fbRemoteCount=inc.entries.length;
-    const merged=mergeLedger({entries, settings, tombstones}, inc);
+    const merged=mergeLedger({entries, settings, tombstones, sessions}, inc);
     const changed = JSON.stringify(merged.entries)!==JSON.stringify(entries) ||
                     JSON.stringify(merged.tombstones)!==JSON.stringify(tombstones) ||
+                    JSON.stringify(merged.sessions)!==JSON.stringify(sessions) ||
                     ((merged.settings&&merged.settings._upd)||0)!==((settings&&settings._upd)||0);
     fbApplying=true;
     entries=sanitizeEntries(merged.entries);
     tombstones=merged.tombstones||{}; persistTombstones();
+    sessions=merged.sessions||[]; persistSessions(false);
     if(merged.settings && Object.keys(merged.settings).length) settings=Object.assign(settings, merged.settings);
     await persist(false); await persistSettings(false);
     fbApplying=false; fbLastSync=Date.now(); fbLastPull=Date.now();
@@ -1903,7 +2152,7 @@ async function applyRemote(remote, initial){
 function scheduleCloudPush(){ if(fbApplying||!fbUser||fbStatus!=='on')return; clearTimeout(fbPushT); fbPushT=setTimeout(pushNow, 900); }
 async function pushNow(){
   if(!fbUser)return;
-  try{ await docRef().set({ entries, settings, tombstones, by:deviceId(), updatedAt:Date.now() }); fbLastSync=Date.now(); fbLastPush=Date.now(); fbRemoteCount=entries.length; fbError=''; renderCloudSync(); }
+  try{ await docRef().set({ entries, settings, tombstones, sessions, by:deviceId(), updatedAt:Date.now() }); fbLastSync=Date.now(); fbLastPush=Date.now(); fbRemoteCount=entries.length; fbError=''; renderCloudSync(); }
   catch(e){ if(e&&e.code==='unavailable') return; fbError=fsHint(e); renderCloudSync(); toast('Could not save to cloud — see Data screen'); }
 }
 /* manual, one-shot full reconcile the user can trigger from the Data screen */
