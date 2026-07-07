@@ -417,10 +417,11 @@
   @keyframes blindflash{30%{box-shadow:0 0 0 7px color-mix(in srgb,var(--rose) 26%,transparent),var(--shadow)}}
   .chip-eyebrow{font-size:10.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
   .chip-n{display:block;font-size:46px;font-weight:900;line-height:1.05;letter-spacing:-.03em;font-variant-numeric:tabular-nums;color:var(--ink);margin:2px 0 10px}
-  .tri-conf{display:inline-flex;background:var(--surface2);border-radius:13px;padding:3px;gap:3px}
-  .tri-conf .tc{padding:8px 16px;border-radius:10px;font-weight:700;font-size:13px;color:var(--muted);transition:all .13s}
+  .tri-conf{display:inline-flex;background:var(--surface2);border-radius:13px;padding:3px;gap:3px;max-width:100%}
+  .tri-conf .tc{padding:8px 11px;border-radius:10px;font-weight:700;font-size:12.5px;color:var(--muted);transition:all .13s;white-space:nowrap}
   .tri-conf .tc.sure.on{background:color-mix(in srgb,var(--rose) 13%,#fff);color:var(--rose);box-shadow:var(--shadow)}
-  .tri-conf .tc.unsure.on{background:#fff;color:var(--sage-ink);box-shadow:var(--shadow)}
+  .tri-conf .tc.twoish.on{background:color-mix(in srgb,var(--amber) 15%,#fff);color:var(--amber);box-shadow:var(--shadow)}
+  .tri-conf .tc.noidea.on{background:#fff;color:var(--ink2);box-shadow:var(--shadow)}
   .chip-help{display:block;margin:12px auto 0;font-size:12.5px;font-weight:700;color:var(--accent-ink);padding:7px 13px;border-radius:10px;background:var(--accent-soft)}
   /* bucket-finder: the honest tests as yes/no prompts */
   .dq{font-size:15.5px;font-weight:700;line-height:1.4;margin:10px auto 14px;max-width:30ch;color:var(--ink);min-height:44px;display:flex;align-items:center;justify-content:center}
@@ -547,6 +548,42 @@
   .ses-row .sr-t{font-weight:700;font-size:14px}
   .ses-row .sr-d{font-size:11.5px;color:var(--muted);margin-top:2px}
   .ses-row .sr-del{margin-left:auto;font-size:12.5px;font-weight:650;color:var(--rose);padding:7px 12px;border-radius:9px;background:color-mix(in srgb,var(--rose) 9%,transparent)}
+  /* session summary: plain-english confidence read */
+  .sm-conf{margin-top:16px;padding-top:14px;border-top:1px dashed var(--border2);display:flex;flex-direction:column;gap:10px}
+  .sm-conf .line{font-size:12.5px;color:var(--ink2);line-height:1.55}
+  /* per-test trend sparklines — the line draws itself in */
+  .sparks{display:flex;flex-direction:column;gap:10px;margin-top:2px}
+  .spark-row{display:flex;align-items:center;gap:11px}
+  .sp-k{font-size:12px;color:var(--muted);font-weight:650;width:98px;flex:none}
+  .spark{flex:1;height:34px;min-width:0}
+  .spark path{stroke-dasharray:320;stroke-dashoffset:320;animation:dashin .9s .15s cubic-bezier(.4,0,.2,1) forwards}
+  @keyframes dashin{to{stroke-dashoffset:0}}
+  .sp-v{font-size:19px;font-weight:850;font-variant-numeric:tabular-nums;width:30px;text-align:right;flex:none}
+  /* integrated test rows: name + its own mini mix + total, tappable */
+  .gtrow.tap{width:100%;text-align:left;background:none;border-radius:10px;transition:background .12s}
+  .gtrow.tap:active{background:var(--surface2)}
+  .gtmini{flex:1;display:flex;height:9px;border-radius:6px;overflow:hidden;background:var(--surface2);margin:0 2px;min-width:40px}
+  .gtmini span{min-width:2px}
+  .gtmini span:not(:last-child){border-right:1px solid var(--surface)}
+  .gtgo{color:var(--accent);font-weight:800;font-size:16px;flex:none}
+  /* fix plan rows */
+  .fp-row{display:flex;gap:12px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--border)}
+  .fp-row:first-of-type{padding-top:0}
+  .fp-row:last-child{border-bottom:0;padding-bottom:0}
+  .fp-code{flex:none;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-weight:850;font-size:13px;color:#fff;background:var(--bc)}
+  .fp-row .fp-t{font-weight:750;font-size:14px}
+  .fp-row .fp-t b{color:var(--bc)}
+  .fp-row .fp-d{font-size:12.5px;color:var(--muted);margin-top:2px;line-height:1.45}
+  .fp-row.hot .fp-t{font-size:15px}
+  .fp-row.hot .fp-d{color:var(--ink2)}
+  /* per-test confidence trio */
+  .trio{display:flex;gap:8px;margin-top:14px}
+  .trio-c{flex:1;text-align:center;background:var(--surface2);border-radius:12px;padding:10px 6px}
+  .trio-c b{display:block;font-size:20px;font-weight:850;line-height:1;font-variant-numeric:tabular-nums}
+  .trio-c span{font-size:10.5px;color:var(--muted);font-weight:650;margin-top:4px;display:block}
+  /* +1 floats off the bucket count on every drop */
+  .bucket .b-plus{position:absolute;right:13px;top:9px;color:var(--bc);font-weight:850;font-size:15px;pointer-events:none;animation:bplus .55s ease-out forwards}
+  @keyframes bplus{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-16px)}}
 
   /* spaced-repetition "due" + sync card accent */
   .databtn.due,.databtn.sync{border-color:color-mix(in srgb,var(--accent) 45%,transparent);background:linear-gradient(180deg,var(--accent-soft),var(--surface))}
@@ -1331,10 +1368,17 @@ function endReview(){review.active=false; renderReview()}
 
 /* ===================== rapid triage: pluck a GT's mistakes into buckets ===================== */
 function triageCounts(items){
-  const c={knowledge:0,retrieval:0,reasoning:0,execution:0}; let blind=0, sure=0;
-  (items||[]).forEach(it=>{ c[it.error]=(c[it.error]||0)+1; if(it.conf==='high'){ sure++; if(it.error==='reasoning') blind++; } });
-  return {c, blind, sure, total:(items||[]).length};
+  const c={knowledge:0,retrieval:0,reasoning:0,execution:0}; let sure=0, twoish=0, noidea=0;
+  (items||[]).forEach(it=>{ c[it.error]=(c[it.error]||0)+1;
+    if(it.conf==='high') sure++;
+    else if(it.conf==='twoish'||it.conf==='low') twoish++; /* 'low' = legacy two-tier value */
+    else if(it.conf==='noidea') noidea++;
+  });
+  /* every triaged item is a lost mark, so sure-and-wrong IS a blind spot */
+  return {c, blind:sure, sure, twoish, noidea, total:(items||[]).length};
 }
+function sessComp(s){ if(s&&s.comp&&typeof s.comp==='object') return {sure:+s.comp.sure||0, twoish:+s.comp.twoish||0, noidea:+s.comp.noidea||0};
+  const cc=triageCounts((s&&s.items)||[]); return {sure:cc.sure, twoish:cc.twoish, noidea:cc.noidea}; }
 function startTriage(){
   triage={ active:true, set:curSet(), testType:curType(), conf:null, subj:null, items:[], saved:false, done:false, decide:null };
   showTriageView(); renderTriage();
@@ -1408,7 +1452,8 @@ function triChipHTML(total){
     <span class="chip-eyebrow">wrong question</span><span class="chip-n" id="triNext">#${total+1}</span>
     <div class="tri-conf" id="triConf">
       <button class="tc sure ${triage.conf==='high'?'on':''}" data-c="high">I was sure</button>
-      <button class="tc unsure ${triage.conf==='low'?'on':''}" data-c="low">Not sure</button>
+      <button class="tc twoish ${triage.conf==='twoish'?'on':''}" data-c="twoish">Down to 2</button>
+      <button class="tc noidea ${triage.conf==='noidea'?'on':''}" data-c="noidea">No read</button>
     </div>
     <div class="chip-meta"><button class="chip-subj ${triage.subj?'set':''}" id="triSubj">${triage.subj?esc(triage.subj):'+ subject'}</button>
       <button class="chip-help sm" id="triPick">which bucket?</button></div></div>`;
@@ -1456,7 +1501,8 @@ function triFootHTML(){
   const last=triage.items[triage.items.length-1];
   if(!last) return '<span class="tri-hint">“I was sure” sticks between questions. Sure + Knowledge gap auto-flips to a CC blind spot.</span>';
   const em=ERR_MAP[last.error];
-  return `<button class="tri-undo" id="triUndo">↶ undo last · <b style="color:${em.c}">${em.code}</b>${last.conf==='high'?' sure':last.conf==='low'?' unsure':''}</button>`;
+  const cl={high:' sure', twoish:' down-to-2', noidea:' no-read', low:' down-to-2'}[last.conf]||'';
+  return `<button class="tri-undo" id="triUndo">↶ undo last · <b style="color:${em.c}">${em.code}</b>${cl}</button>`;
 }
 function bindTriUndo(){ const u=document.getElementById('triUndo'); if(u) u.onclick=triageUndo; }
 function paintTriConf(){
@@ -1508,6 +1554,8 @@ function flyToken(btnEl, error, blind){
     });});
     setTimeout(()=>fx.remove(),480);
     btnEl.classList.remove('pulse'); void btnEl.offsetWidth; btnEl.classList.add('pulse');
+    const plus=document.createElement('span'); plus.className='b-plus'; plus.textContent='+1';
+    btnEl.appendChild(plus); setTimeout(()=>plus.remove(),600);
     if(chip){ chip.classList.remove('respawn'); void chip.offsetWidth; chip.classList.add('respawn'); }
   }
   if(blind && chip){ chip.classList.remove('blindflash'); void chip.offsetWidth; chip.classList.add('blindflash'); }
@@ -1527,25 +1575,32 @@ function triageFinish(){
 }
 function saveSession(){
   if(triage.saved) return;
+  const cc=triageCounts(triage.items);
   const sess={ id:newId(), ts:Date.now(), testType:triage.testType, set:triage.set,
+    comp:{sure:cc.sure, twoish:cc.twoish, noidea:cc.noidea}, /* wrong-composition, for per-GT trends */
     items:triage.items.map(it=>({error:it.error, conf:it.conf||null, subj:it.subj||null})) };
   sessions.unshift(sess);
   sessions=sessions.slice(0,100); /* keep the doc well under Firestore's 1 MB cap */
   persistSessions(); triage.saved=true;
 }
 function triageSummaryHTML(){
-  const {c,blind,total}=triageCounts(triage.items);
+  const {c,blind,total,sure,twoish,noidea}=triageCounts(triage.items);
   const max=Math.max(1,...ERRORS.map(e=>c[e.id]));
   const bars=ERRORS.map(e=>{const n=c[e.id];
     return `<div class="sm-bar"><span class="sm-k"><b style="color:${e.c}">${e.code}</b> ${e.t}</span><div class="sm-track"><div class="sm-fill" style="width:${Math.max(2,n/max*100)}%;background:${e.c}"></div></div><span class="sm-v">${n}</span></div>`;}).join('');
   const dom=ERRORS.slice().sort((a,b)=>c[b.id]-c[a.id])[0];
-  const synth = blind
-    ? `<b class="bl">${blind} blind spot${blind>1?'s':''}</b> — sure, but wrong (CC). Your most dangerous marks: write a contrast entry for each before your next test.`
-    : `Mostly <b style="color:${dom.c}">${dom.t.toLowerCase()}</b> (${c[dom.id]}). ${FIXTEXT[dom.id]}`;
+  const synth=`Mostly <b style="color:${dom.c}">${dom.t.toLowerCase()}</b> (${c[dom.id]}). ${FIXTEXT[dom.id]}`;
+  /* plain-english read of this session's confidence mix — zero lines hidden */
+  const confLines=[
+    sure?`<div class="line"><b class="bl">Blind spots — ${sure}.</b> You were sure and wrong. These come back — they won't feel wrong in the exam either. Fix the concept, don't just move on.</div>`:'',
+    noidea?`<div class="line"><b style="color:var(--ink)">No read — ${noidea}.</b> No real read, and it missed. Test whether skipping these nets you more marks — watch this number across tests.</div>`:'',
+    twoish?`<div class="line"><b style="color:var(--amber)">Down to 2 — ${twoish}.</b> Fair bets. Leave them alone.</div>`:''
+  ].join('');
   return `
     <div class="tri-top"><span style="width:34px"></span><div class="tri-set">${esc(triage.set)} · read</div><span style="width:34px"></span></div>
     <div class="sm-hero"><div class="sm-big">${total}</div><div class="sm-lab">mistake${total>1?'s':''} triaged${blind?` · <b class="bl">${blind} blind</b>`:''}</div></div>
     <div class="card"><h3><span class="accent"></span>What went wrong</h3><div class="sm-bars">${bars}</div>
+      ${confLines?`<div class="sm-conf">${confLines}</div>`:''}
       <p class="tlab" style="margin-top:16px">${synth}</p></div>
     <div class="actions" style="margin-top:4px"><button class="btn primary" id="triFinish">Done</button><button class="btn ghost" id="triAgain">Triage another</button></div>
     <p class="faint" style="font-size:12px;text-align:center;margin-top:12px">Saved — see the long-term breakdown in Insights.</p>`;
@@ -1746,12 +1801,45 @@ function leakCard(){
     <div class="leak-sub">By subject</div><div class="hbars">${subBars}</div>
     <p class="tlab" style="margin-top:15px">${synth}</p></div>`;
 }
+/* one integrated map of every test — detailed logs AND triage reads folded together */
+function buildTests(){
+  const tests={};
+  const touch=(k,set,type)=>tests[k]=tests[k]||{set,type,logged:0,tri:0,blind:0,comp:{sure:0,twoish:0,noidea:0},errs:{knowledge:0,retrieval:0,reasoning:0,execution:0},subs:{},ts:0};
+  entries.forEach(e=>{ const k=e.testType+'|'+e.set, t=touch(k,e.set,e.testType);
+    t.logged++; if(t.errs[e.error]!=null)t.errs[e.error]++; if(e.subject)t.subs[e.subject]=(t.subs[e.subject]||0)+1; t.ts=Math.max(t.ts,e.ts||0); });
+  sessions.forEach(s=>{ const k=s.testType+'|'+s.set, t=touch(k,s.set,s.testType); const cc=triageCounts(s.items), cp=sessComp(s);
+    t.tri+=cc.total; t.blind+=cp.sure; ['sure','twoish','noidea'].forEach(x=>t.comp[x]+=cp[x]);
+    ERRORS.forEach(e=>t.errs[e.id]+=cc.c[e.id]); s.items.forEach(it=>{ if(it.subj)t.subs[it.subj]=(t.subs[it.subj]||0)+1; });
+    t.ts=Math.max(t.ts,s.ts||0); });
+  return tests;
+}
 function testListCard(){
-  const sets={}; entries.forEach(e=>{const k=e.testType+'|'+e.set;(sets[k]=sets[k]||[]).push(e)});
-  const rows=Object.entries(sets).sort((a,b)=>Math.max(...b[1].map(x=>x.ts))-Math.max(...a[1].map(x=>x.ts))).slice(0,10)
-    .map(([k,arr])=>{const dm=ERRORS.slice().sort((a,b)=>arr.filter(x=>x.error===b.id).length-arr.filter(x=>x.error===a.id).length)[0]; const mod=arr[0].testType==='module';
-      return `<div class="gtrow"><span class="gtn ${mod?'mod':''}">${esc(arr[0].set)}</span><span class="gtd">mostly ${dm.t.toLowerCase()}</span><span class="gtc">${arr.length}</span></div>`;}).join('');
-  return `<div class="card gtlist"><h3><span class="accent"></span>Test by test</h3>${rows}</div>`;
+  const tests=buildTests();
+  const keys=Object.keys(tests).sort((a,b)=>tests[b].ts-tests[a].ts).slice(0,12);
+  if(!keys.length) return '';
+  const rows=keys.map(k=>{ const t=tests[k], tot=t.logged+t.tri;
+    const mini=ERRORS.map(e=>t.errs[e.id]?`<span style="flex:${t.errs[e.id]};background:${e.c}"></span>`:'').join('');
+    return `<button class="gtrow tap" data-test="${esc(k)}"><span class="gtn ${t.type==='module'?'mod':''}">${esc(t.set)}</span>
+      <span class="gtmini">${mini}</span><span class="gtc">${tot}</span><span class="gtgo">›</span></button>`;}).join('');
+  return `<div class="card gtlist"><h3><span class="accent"></span>Every test — tap one to open it</h3>${rows}</div>`;
+}
+/* the per-test deep dive: its own mix, confidence trio, and subject hits */
+function testDetailSheet(key){
+  const t=buildTests()[key]; if(!t) return;
+  const tot=t.logged+t.tri; if(!tot) return;
+  const dom=ERRORS.slice().sort((a,b)=>t.errs[b.id]-t.errs[a.id])[0];
+  const subs=Object.entries(t.subs).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const trio=(t.comp.sure||t.comp.twoish||t.comp.noidea)?`<div class="trio">
+    <div class="trio-c"><b class="bl">${t.comp.sure}</b><span>blind</span></div>
+    <div class="trio-c"><b style="color:var(--amber)">${t.comp.twoish}</b><span>down to 2</span></div>
+    <div class="trio-c"><b style="color:var(--ink2)">${t.comp.noidea}</b><span>no read</span></div></div>`:'';
+  openSheet(`<h3>${esc(t.set)}</h3>
+    <p style="margin-bottom:14px">${tot} mistake${tot>1?'s':''}${t.tri?` · ${t.tri} triaged`:''}${t.logged?` · ${t.logged} logged in detail`:''}</p>
+    ${mixBar(t.errs,tot)}
+    ${trio}
+    ${subs.length?`<div class="sp-lab">where they landed</div><div class="sp-chips">${subs.map(([s,n])=>`<span class="chip" style="pointer-events:none">${esc(s)}<span class="n">${n}</span></span>`).join('')}</div>`:''}
+    <p class="tlab" style="margin-top:16px">Biggest leak here: <b style="color:${dom.c}">${dom.t.toLowerCase()}</b>. ${esc(FIXACT[dom.id])}</p>
+    <div class="actions" style="margin-top:16px"><button class="btn primary" onclick="closeSheet()">Done</button></div>`);
 }
 function statStrip(){
   const map=recurrenceMap();
@@ -1790,18 +1878,54 @@ function mixBar(agg,total){
   const keys=ERRORS.map(e=>`<span class="mx-key"><i style="background:${e.c}"></i>${e.code}<b>${agg[e.id]}</b></span>`).join('');
   return `<div class="mixbar">${segs}</div><div class="mx-keys">${keys}</div>`;
 }
+/* tiny trend line with a big current value — no axes, just the shape */
+function sparkRow(label,color,vals){
+  const W=150,H=34,x0=4,x1=W-4,y0=6,y1=H-6;
+  const mx=Math.max(1,...vals);
+  const pts=vals.map((v,i)=>({x: vals.length===1?(x0+x1)/2 : x0+i*(x1-x0)/(vals.length-1), y: y1-(v/mx)*(y1-y0)}));
+  const last=pts[pts.length-1];
+  return `<div class="spark-row"><span class="sp-k">${label}</span>
+    <svg class="spark" viewBox="0 0 ${W} ${H}" aria-hidden="true"><path d="${smoothPath(pts)}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="${last.x.toFixed(1)}" cy="${last.y.toFixed(1)}" r="3.4" fill="${color}"/></svg>
+    <span class="sp-v" style="color:${color}">${vals[vals.length-1]}</span></div>`;
+}
 function triageInsightsCard(){
   if(!sessions.length) return '';
   const agg={knowledge:0,retrieval:0,reasoning:0,execution:0}; let blind=0, total=0;
-  sessions.forEach(s=>s.items.forEach(it=>{ agg[it.error]=(agg[it.error]||0)+1; total++; if(it.conf==='high'&&it.error==='reasoning') blind++; }));
+  sessions.forEach(s=>{ s.items.forEach(it=>{ agg[it.error]=(agg[it.error]||0)+1; total++; }); blind+=sessComp(s).sure; });
   if(!total) return '';
   const recent=sessions.slice(0,10).slice().reverse();
   const dom=ERRORS.slice().sort((a,b)=>agg[b.id]-agg[a.id])[0];
+  let trends='';
+  if(recent.length>=2){
+    const comps=recent.map(sessComp);
+    trends=`<div class="leak-sub" style="margin-top:20px">Per-test trends</div><div class="sparks">
+      ${sparkRow('Blind spots','var(--rose)',comps.map(x=>x.sure))}
+      ${sparkRow('No-read misses','var(--ink2)',comps.map(x=>x.noidea))}</div>`;
+  }
   return `<div class="card"><h3><span class="accent"></span>Triage — long-term read</h3>
     <div class="tlab" style="margin:-6px 0 14px">${total} mistake${total>1?'s':''} across ${sessions.length} test${sessions.length>1?'s':''}${blind?` · <b class="bl">${blind} blind spot${blind>1?'s':''}</b>`:''}.</div>
     ${mixBar(agg,total)}
     ${recent.length>=2?`<div class="leak-sub" style="margin-top:20px">How the mix flows, test by test</div><div class="chartwrap" style="margin-top:2px">${streamChart(recent)}</div>`:''}
+    ${trends}
     <p class="tlab" style="margin-top:14px">Your steady leak is <b style="color:${dom.c}">${dom.t.toLowerCase()}</b>. ${FIXTEXT[dom.id]}</p></div>`;
+}
+/* what to DO about each bucket — concrete actions, biggest leak first */
+const FIXACT={
+  knowledge:"Re-read that topic once, then make one Anki card for it.",
+  retrieval:"Don't re-study — re-word your Anki card's front so it sounds like the question.",
+  reasoning:"Write the contrast in the Book: “I thought X — it's actually Y.”",
+  execution:"Name the trap (EXCEPT / misread / changed answer). Read the last line first."
+};
+function fixPlanCard(){
+  const n={knowledge:0,retrieval:0,reasoning:0,execution:0};
+  entries.forEach(e=>{ if(n[e.error]!=null) n[e.error]++; });
+  sessions.forEach(s=>s.items.forEach(it=>{ if(n[it.error]!=null) n[it.error]++; }));
+  const rows=ERRORS.slice().sort((a,b)=>n[b.id]-n[a.id]).filter(e=>n[e.id]>0);
+  if(rows.length<2) return '';
+  return `<div class="card"><h3><span class="accent"></span>Fix plan — what each bucket needs</h3>
+    ${rows.map((e,i)=>`<div class="fp-row${i===0?' hot':''}" style="--bc:${e.c}"><span class="fp-code">${e.code}</span>
+      <div><div class="fp-t">${e.t} <b>· ${n[e.id]}</b></div><div class="fp-d">${esc(FIXACT[e.id])}</div></div></div>`).join('')}</div>`;
 }
 /* subject × mistake-type heatmap — the systematic 2-D view: which bucket concentrates in which subject */
 function heatmapCard(){
@@ -1831,8 +1955,9 @@ function renderInsights(){
   if(entries.length===0 && !sessions.length){box.innerHTML=`<div class="empty"><svg class="ic" viewBox="0 0 24 24"><path d="M3 3v18h18M7 14l3-3 3 3 5-6"/></svg>
     <div class="big">Nothing to show yet</div>Triage a test or log a few mistakes and this fills in — it shows where your marks are leaking and what to do about it.</div>`;return}
   const map=recurrenceMap();
-  const detailed = entries.length ? (nextCard(map)+masteryCard()+statStrip()+leakCard()+typeSplitCard()+testListCard()) : '';
-  box.innerHTML = triageInsightsCard() + heatmapCard() + detailed;
+  const detailed = entries.length ? (nextCard(map)+masteryCard()+statStrip()+leakCard()+typeSplitCard()) : '';
+  box.innerHTML = triageInsightsCard() + fixPlanCard() + heatmapCard() + detailed + testListCard();
+  box.querySelectorAll('[data-test]').forEach(b=>b.onclick=()=>testDetailSheet(b.dataset.test));
 }
 
 function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
@@ -2351,10 +2476,19 @@ function deviceId(){ let d=null; try{d=localStorage.getItem(K_DEV)}catch(_){}; i
 function persistTombstones(){ try{localStorage.setItem(K_TOMB,JSON.stringify(tombstones))}catch(_){} }
 function loadTombstones(){ try{const t=JSON.parse(localStorage.getItem(K_TOMB)||'{}'); if(t&&typeof t==='object'&&!Array.isArray(t)) tombstones=t;}catch(_){} }
 function persistSessions(cloud){ try{localStorage.setItem(K_SESS,JSON.stringify(sessions))}catch(_){}; if(cloud!==false) scheduleCloudPush(); }
-function loadSessions(){ try{const s=JSON.parse(localStorage.getItem(K_SESS)||'[]');
-  if(Array.isArray(s)) sessions=s.filter(x=>x&&x.id&&Array.isArray(x.items)).map(x=>({ ...x,
-    items:x.items.filter(it=>it&&ERR_MAP[it.error]).map(it=>({error:it.error, conf:it.conf==='high'?'high':it.conf==='low'?'low':null, subj:(it.subj&&SUBJECTS.includes(it.subj))?it.subj:null})) }));
-}catch(_){} }
+/* one sanitizer for every path sessions enter by (storage, cloud merge, import):
+   migrates the old two-tier 'low' to 'twoish' and rebuilds comp when missing */
+function sanitizeSessions(arr){
+  if(!Array.isArray(arr)) return [];
+  const conf=v=> v==='high'?'high' : (v==='twoish'||v==='low')?'twoish' : v==='noidea'?'noidea' : null;
+  return arr.filter(x=>x&&x.id&&Array.isArray(x.items)).map(x=>{
+    const items=x.items.filter(it=>it&&ERR_MAP[it.error]).map(it=>({error:it.error, conf:conf(it.conf), subj:(it.subj&&SUBJECTS.includes(it.subj))?it.subj:null}));
+    const cc=triageCounts(items);
+    const comp=(x.comp&&typeof x.comp==='object')?{sure:+x.comp.sure||0,twoish:+x.comp.twoish||0,noidea:+x.comp.noidea||0}:{sure:cc.sure,twoish:cc.twoish,noidea:cc.noidea};
+    return {...x, items, comp};
+  });
+}
+function loadSessions(){ try{ sessions=sanitizeSessions(JSON.parse(localStorage.getItem(K_SESS)||'[]')); }catch(_){} }
 function getFbCfg(){ try{const c=JSON.parse(localStorage.getItem(K_FBCFG)||'null'); return (c&&c.apiKey&&c.projectId)?c:null;}catch(_){return null} }
 function setFbCfg(c){ try{localStorage.setItem(K_FBCFG,JSON.stringify(c))}catch(_){} }
 
@@ -2460,7 +2594,7 @@ async function applyRemote(remote, initial){
     fbApplying=true;
     entries=sanitizeEntries(merged.entries);
     tombstones=merged.tombstones||{}; persistTombstones();
-    sessions=merged.sessions||[]; persistSessions(false);
+    sessions=sanitizeSessions(merged.sessions||[]); persistSessions(false);
     if(merged.settings && Object.keys(merged.settings).length) settings=Object.assign(settings, merged.settings);
     await persist(false); await persistSettings(false);
     fbApplying=false; fbLastSync=Date.now(); fbLastPull=Date.now();
