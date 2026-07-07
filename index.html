@@ -82,6 +82,10 @@
   @keyframes fade{from{opacity:0;transform:translateY(11px) scale(.995)}to{opacity:1;transform:none}}
   .tab.on svg{animation:tabpop .3s cubic-bezier(.34,1.56,.64,1)}
   @keyframes tabpop{45%{transform:scale(1.18) translateY(-1px)}}
+  /* insights: cards flow in on a gentle stagger */
+  #insightsBody > *{animation:rise .36s cubic-bezier(.22,1,.36,1) both}
+  #insightsBody > :nth-child(2){animation-delay:.05s} #insightsBody > :nth-child(3){animation-delay:.1s}
+  #insightsBody > :nth-child(4){animation-delay:.14s} #insightsBody > :nth-child(n+5){animation-delay:.17s}
   .sec-title{margin:2px 0 18px}
   .sec-title h2{font-size:28px;font-weight:790;letter-spacing:-.035em;line-height:1.1}
   .sec-title .hint{font-size:13.5px;color:var(--muted);margin-top:5px}
@@ -498,6 +502,51 @@
   .ses-stack span{display:block;width:100%}
   .ses-lab{font-size:10px;color:var(--muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
   .ses-c{font-size:10px;color:var(--faint);font-weight:700;margin-top:-3px}
+  /* ticket subject chip + finder meta row */
+  .chip-meta{display:flex;gap:8px;justify-content:center;align-items:center;margin-top:12px;flex-wrap:wrap}
+  .chip-subj{font-size:12px;font-weight:650;color:var(--muted);padding:6px 12px;border-radius:20px;background:var(--surface2);border:1px dashed var(--border2);transition:all .13s}
+  .chip-subj.set{color:var(--accent-ink);background:var(--accent-soft);border-style:solid;border-color:transparent}
+  .chip-help.sm{margin:0;font-size:12px;padding:6px 12px}
+  .subgrid{display:flex;flex-wrap:wrap;gap:8px}
+  .subgrid .chip{flex:none}
+  /* mistake-mix DNA bar */
+  .mixbar{display:flex;height:16px;border-radius:9px;overflow:hidden;background:var(--surface2);box-shadow:inset 0 1px 2px rgba(90,60,35,.06)}
+  .mx-seg{min-width:3px;transition:flex-grow .5s cubic-bezier(.4,0,.2,1)}
+  .mx-seg:not(:last-child){border-right:1.5px solid var(--surface)}
+  .mx-keys{display:flex;flex-wrap:wrap;gap:6px 15px;margin-top:11px}
+  .mx-key{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:650;color:var(--muted)}
+  .mx-key i{width:9px;height:9px;border-radius:3px;flex:none}
+  .mx-key b{color:var(--ink);font-variant-numeric:tabular-nums}
+  /* subject × mistake heatmap */
+  .heatmap{display:flex;flex-direction:column;gap:5px;overflow-x:auto;margin:0 -2px;padding:0 2px}
+  .hm-row{display:grid;grid-template-columns:96px repeat(4,1fr) 34px;gap:5px;align-items:stretch}
+  .hm-head .hm-c,.hm-head .hm-tot{font-size:10.5px;font-weight:800;letter-spacing:.03em;background:none;color:var(--faint);height:auto;padding-bottom:2px}
+  .hm-head .hm-c{color:inherit}
+  .hm-sub{font-size:12px;font-weight:640;color:var(--ink2);align-self:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .hm-c{display:grid;place-items:center;height:34px;border-radius:8px;font-size:13px;font-weight:750;color:var(--ink2);font-variant-numeric:tabular-nums;transition:background .4s}
+  .hm-c.lt{color:#fff}
+  .hm-tot{align-self:center;text-align:right;font-size:12.5px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums}
+  /* smart set picker */
+  .setnew{display:flex;align-items:center;gap:13px;width:100%;text-align:left;color:#fff;background:var(--grad);border-radius:16px;padding:14px 16px;margin-bottom:8px;
+    box-shadow:0 8px 20px -9px rgba(193,80,45,.55);transition:transform .09s}
+  .setnew:active{transform:scale(.98)}
+  .setnew .sp-plus{width:34px;height:34px;flex:none;border-radius:11px;background:rgba(255,255,255,.22);display:grid;place-items:center;font-size:20px;font-weight:700}
+  .setnew .sp-t{font-weight:800;font-size:15px}
+  .setnew .sp-d{font-size:12px;opacity:.94;margin-top:1px}
+  .setnew .sp-go{margin-left:auto;opacity:.9}
+  .sp-cur{font-size:12.5px;color:var(--muted);margin:4px 2px 2px}
+  .sp-cur b{color:var(--ink)}
+  .sp-lab{font-size:11px;font-weight:750;letter-spacing:.07em;text-transform:uppercase;color:var(--faint);margin:16px 0 9px 2px}
+  .sp-chips{display:flex;flex-wrap:wrap;gap:8px}
+  .sp-custom{display:flex;gap:8px;margin-top:2px}
+  .sp-custom input{flex:1}
+  .sp-custom .btn{flex:none;padding:0 20px}
+  /* manage triage reads */
+  .ses-list{display:flex;flex-direction:column;gap:8px;max-height:52vh;overflow-y:auto}
+  .ses-row{display:flex;align-items:center;gap:10px;background:var(--surface2);border-radius:12px;padding:11px 13px}
+  .ses-row .sr-t{font-weight:700;font-size:14px}
+  .ses-row .sr-d{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .ses-row .sr-del{margin-left:auto;font-size:12.5px;font-weight:650;color:var(--rose);padding:7px 12px;border-radius:9px;background:color-mix(in srgb,var(--rose) 9%,transparent)}
 
   /* spaced-repetition "due" + sync card accent */
   .databtn.due,.databtn.sync{border-color:color-mix(in srgb,var(--accent) 45%,transparent);background:linear-gradient(180deg,var(--accent-soft),var(--surface))}
@@ -811,10 +860,16 @@
       <svg class="ic" viewBox="0 0 24 24"><path d="M9 4h6a1 1 0 0 1 1 1v1H8V5a1 1 0 0 1 1-1zM8 6H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-2"/></svg>
       <div><div class="tt">Paste a backup</div><div class="dd">Restore from copied text.</div></div>
     </button>
+    <div class="datahead">Manage</div>
+    <button class="databtn" id="manageTriBtn">
+      <svg class="ic" viewBox="0 0 24 24"><path d="M3 6h18M7 12h10M10 18h4"/></svg>
+      <div><div class="tt">Triage reads</div><div class="dd" id="manageTriSub">Review or delete individual triage sessions.</div></div>
+      <span class="arrow">›</span>
+    </button>
     <div class="datahead">Danger</div>
     <button class="databtn danger" id="wipeBtn">
       <svg class="ic" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
-      <div><div class="tt">Delete everything</div><div class="dd">Can't be undone. Back up first.</div></div>
+      <div><div class="tt">Delete everything</div><div class="dd">Mistakes + triage reads, on every synced device. Can't be undone.</div></div>
     </button>
     <p class="faint" id="storeNote" style="font-size:12px;margin-top:18px;text-align:center;line-height:1.6"></p>
   </section>
@@ -853,10 +908,10 @@ const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 
 const ERRORS=[
-  {id:'knowledge', code:'KG', t:"Knowledge gap",       d:"needed the explanation, not just the answer", c:'var(--rose)',   test:"Did I need the explanation — or just the answer?"},
-  {id:'retrieval', code:'RF', t:"Retrieval failure",   d:"knew it — instant “obviously” on seeing it",   c:'var(--amber)',  test:"Recognised the answer in under 2 seconds?"},
-  {id:'reasoning', code:'CC', t:"Conceptual confusion",d:"wrong mental model — thought X, it's Y",       c:'var(--violet)', test:"Can you say “I thought X, but it's Y”?"},
-  {id:'execution', code:'TE', t:"Trap / execution",    d:"knew it — misread stem, EXCEPT, mis-marked",   c:'var(--teal)',   test:"Re-read it cold — get it right now? Then TE."},
+  {id:'knowledge', code:'KG', t:"Knowledge gap",       d:"you didn't know it — had to read the explanation", c:'var(--rose)',   test:"Did you have to read the explanation to get it?"},
+  {id:'retrieval', code:'RF', t:"Retrieval slip",      d:"you knew it, but blanked in the moment",           c:'var(--amber)',  test:"Did the answer feel obvious the second you saw it?"},
+  {id:'reasoning', code:'CC', t:"Wrong idea",          d:"you were sure of something that was actually wrong",c:'var(--violet)', test:"Were you sure of an answer that turned out wrong?"},
+  {id:'execution', code:'TE', t:"Careless slip",       d:"you knew it — misread, or ticked the wrong option",c:'var(--teal)',   test:"Read it slowly now — do you get it right?"},
 ];
 const ERR_MAP=Object.fromEntries(ERRORS.map(e=>[e.id,e]));
 const CONFS=[
@@ -1119,6 +1174,7 @@ function isRecurring(e,map){return (map[e.id]||0)>=2}
 
 function render(){
   document.getElementById('totalTag').textContent=entries.length+' logged · '+entries.filter(e=>e.status==='open').length+' to fix';
+  const mts=document.getElementById('manageTriSub'); if(mts) mts.textContent=sessions.length?`${sessions.length} read${sessions.length===1?'':'s'} saved · tap to review or delete`:'No triage reads yet.';
   const d=daysToExam();
   const num=document.getElementById('examNum'), lbl=document.getElementById('examLbl'), chip=document.getElementById('examChip');
   if(d===null){num.textContent='set'; lbl.textContent='exam date'; chip.style.color='var(--muted)'}
@@ -1280,7 +1336,7 @@ function triageCounts(items){
   return {c, blind, sure, total:(items||[]).length};
 }
 function startTriage(){
-  triage={ active:true, set:curSet(), testType:curType(), conf:null, items:[], saved:false, done:false, decide:null };
+  triage={ active:true, set:curSet(), testType:curType(), conf:null, subj:null, items:[], saved:false, done:false, decide:null };
   showTriageView(); renderTriage();
 }
 function reducedMotion(){ return !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches); }
@@ -1292,10 +1348,10 @@ function showTriageView(){
   window.scrollTo({top:0});
 }
 function exitTriage(){ triage.active=false; switchView('log'); render(); }
-const TRI_QS=[ /* the honest tests, run in the order that eliminates fastest */
-  {q:"Re-read the question cold — would you get it right now?", yes:'execution', ycode:'TE'},
-  {q:"Seeing the answer — instant “oh, obviously” (under ~2 s)?", yes:'retrieval', ycode:'RF'},
-  {q:"Were you actively wrong — “I thought X, but it's Y”?", yes:'reasoning', ycode:'CC', no:'knowledge', ncode:'KG'}
+const TRI_QS=[ /* plain yes/no tests, in the order that sorts fastest */
+  {q:"Read it again slowly — do you get it right now?", yes:'execution', ycode:'TE'},
+  {q:"Did the answer feel obvious the moment you saw it?", yes:'retrieval', ycode:'RF'},
+  {q:"Were you sure of an answer that turned out wrong?", yes:'reasoning', ycode:'CC', no:'knowledge', ncode:'KG'}
 ];
 function renderTriage(){
   const box=document.getElementById('triageBody'); if(!box)return;
@@ -1354,12 +1410,14 @@ function triChipHTML(total){
       <button class="tc sure ${triage.conf==='high'?'on':''}" data-c="high">I was sure</button>
       <button class="tc unsure ${triage.conf==='low'?'on':''}" data-c="low">Not sure</button>
     </div>
-    <button class="chip-help" id="triPick">Which bucket? Ask me →</button></div>`;
+    <div class="chip-meta"><button class="chip-subj ${triage.subj?'set':''}" id="triSubj">${triage.subj?esc(triage.subj):'+ subject'}</button>
+      <button class="chip-help sm" id="triPick">which bucket?</button></div></div>`;
 }
 function bindTriChip(){
   const wrap=document.getElementById('triChipWrap'); if(!wrap)return;
   wrap.querySelectorAll('#triConf .tc').forEach(b=>b.onclick=()=>{ triage.conf=(triage.conf===b.dataset.c)?null:b.dataset.c; paintTriConf(); });
   const pick=document.getElementById('triPick'); if(pick) pick.onclick=()=>{ triage.decide=0; redrawChip(); };
+  const subj=document.getElementById('triSubj'); if(subj) subj.onclick=triSubjSheet;
   const cancel=document.getElementById('dqCancel'); if(cancel) cancel.onclick=()=>{ triage.decide=null; redrawChip(); };
   wrap.querySelectorAll('.dbtns button').forEach(b=>b.onclick=()=>{
     const s=TRI_QS[triage.decide];
@@ -1369,14 +1427,20 @@ function bindTriChip(){
   });
 }
 function redrawChip(){ const w=document.getElementById('triChipWrap'); if(w){ w.innerHTML=triChipHTML(triageCounts(triage.items).total); bindTriChip(); } }
+/* sticky subject on the ticket — set it once when you move to a new subject's questions; it feeds the subject × mistake map */
+function triSubjSheet(){
+  openSheet(`<h3>Subject for these</h3><p>Optional — tag which subject you're triaging so the map can show where each mistake type clusters. It sticks until you change it.</p>
+    <div class="subgrid">${triage.subj?`<button class="chip on" data-s="">✕ clear</button>`:''}${SUBJECTS.map(s=>`<button class="chip ${s===triage.subj?'on':''}" data-s="${esc(s)}">${esc(s)}</button>`).join('')}</div>`);
+  document.querySelectorAll('.subgrid .chip').forEach(b=>b.onclick=()=>{ triage.subj=b.dataset.s||null; closeSheet(); redrawChip(); });
+}
 function renderTriIntro(box){
   box.innerHTML=`<div class="tri-intro">
     <div class="tri-top"><button class="tri-x" id="triBack">✕</button><div class="tri-set">${esc(triage.set)}</div><span style="width:34px"></span></div>
-    <h2>Sort the damage.</h2>
-    <p class="lead">No essays. For each wrong question, answer one honest test and drop it in its bucket. ~5 seconds each.</p>
+    <h2>Sort your mistakes.</h2>
+    <p class="lead">No writing. For each wrong question, drop it in the bucket that fits — about 5 seconds each. Here's what they mean:</p>
     ${ERRORS.map(e=>`<div class="coach-row"><span class="coach-code" style="background:${e.c}">${e.code}</span>
-      <div><div class="t">${e.t}</div><div class="d">${esc(e.d)}. Test: <b>${esc(e.test)}</b></div></div></div>`).join('')}
-    <div class="coach-note"><b>Blind spots find themselves:</b> mark a question “I was sure” and drop it in Knowledge gap — it auto-flips to a <b>CC blind spot</b>. You weren't blank; you were wrong. Those cost you double.</div>
+      <div><div class="t">${e.t}</div><div class="d">${esc(e.d)}.<br>Ask: <b>${esc(e.test)}</b></div></div></div>`).join('')}
+    <div class="coach-note"><b>Not sure which one?</b> Tap “Which bucket? Ask me” and answer a couple of quick questions. And if you were <b>sure</b> but still got it wrong, that's a <b>blind spot</b> — the app flags it for you. Those hurt most.</div>
     <div class="actions"><button class="btn primary" id="triStart">Start sorting ▶</button></div></div>`;
   document.getElementById('triBack').onclick=exitTriage;
   document.getElementById('triStart').onclick=()=>{ settings.triCoached=true; persistSettings(); renderTriage(); };
@@ -1405,7 +1469,7 @@ function triageAdd(bucket, btnEl){
   const reclassed = (triage.conf==='high' && bucket==='knowledge');
   if(reclassed) error='reasoning';
   const blind = (triage.conf==='high' && error==='reasoning');
-  triage.items.push({error, conf:triage.conf||null, t:Date.now()});
+  triage.items.push({error, conf:triage.conf||null, subj:triage.subj||null, t:Date.now()});
   updateTriageUI();
   flyToken(btnEl, error, blind);
   buzz(blind?[14,45,14]:9);
@@ -1464,7 +1528,7 @@ function triageFinish(){
 function saveSession(){
   if(triage.saved) return;
   const sess={ id:newId(), ts:Date.now(), testType:triage.testType, set:triage.set,
-    items:triage.items.map(it=>({error:it.error, conf:it.conf||null})) };
+    items:triage.items.map(it=>({error:it.error, conf:it.conf||null, subj:it.subj||null})) };
   sessions.unshift(sess);
   sessions=sessions.slice(0,100); /* keep the doc well under Firestore's 1 MB cap */
   persistSessions(); triage.saved=true;
@@ -1698,23 +1762,69 @@ function statStrip(){
   return `<div class="statstrip">${cell(due,'due today','var(--sage-ink)')}${cell(rec,'keep happening','var(--amber)')}${cell(blind,'blind spots','var(--rose)')}</div>`;
 }
 /* long-term read across triage sessions: bucket mix + composition per test + blind-spot count */
+/* smooth stacked band: top curve L→R, bottom curve R→L, closed */
+function areaBand(topPts, botRev){
+  const top=smoothPath(topPts), bot=smoothPath(botRev);
+  return top+' L '+botRev[0].x.toFixed(1)+' '+botRev[0].y.toFixed(1)+' '+bot.replace(/^M[\d.\- ]+/, '')+' Z';
+}
+/* stacked-area stream: how the KG/RF/CC/TE mix flows across your tests (normalised to each test) */
+function streamChart(sess){
+  const n=sess.length; if(n<2) return '';
+  const W=336,H=132,x0=8,x1=W-8,y0=8,y1=H-20;
+  const fr=sess.map(s=>{const cc=triageCounts(s.items),t=cc.total||1; return ERRORS.map(e=>(cc.c[e.id]||0)/t);});
+  const X=i=>x0+i*(x1-x0)/(n-1), Y=f=>y1-f*(y1-y0);
+  let cum=fr.map(()=>0);
+  const bands=ERRORS.map((e,bi)=>{
+    const lower=cum.slice(); cum=cum.map((v,i)=>v+fr[i][bi]); const upper=cum.slice();
+    const topPts=upper.map((v,i)=>({x:X(i),y:Y(v)}));
+    const botRev=lower.map((v,i)=>({x:X(i),y:Y(v)})).reverse();
+    return `<path d="${areaBand(topPts,botRev)}" fill="${e.c}" opacity="0.9" stroke="#FDFAF4" stroke-width="1.1" stroke-linejoin="round"/>`;
+  }).join('');
+  const dots=sess.map((s,i)=>`<circle cx="${X(i).toFixed(1)}" cy="${y1}" r="2" fill="var(--faint)"/>`).join('');
+  const labs=sess.map((s,i)=>`<text class="xlab" x="${X(i).toFixed(1)}" y="${H-6}" text-anchor="middle">${esc(String(s.set).replace(/^GT[\s-]*/i,'').slice(0,4))}</text>`).join('');
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Mistake-type mix across tests">${bands}${dots}${labs}</svg>`;
+}
+/* one segmented bar = your mistake DNA, no four-bar clutter */
+function mixBar(agg,total){
+  const segs=ERRORS.map((e,i)=>{ const p=agg[e.id]/total*100; return p>0?`<span class="mx-seg" style="flex:${agg[e.id]};background:${e.c}"></span>`:''; }).join('');
+  const keys=ERRORS.map(e=>`<span class="mx-key"><i style="background:${e.c}"></i>${e.code}<b>${agg[e.id]}</b></span>`).join('');
+  return `<div class="mixbar">${segs}</div><div class="mx-keys">${keys}</div>`;
+}
 function triageInsightsCard(){
   if(!sessions.length) return '';
   const agg={knowledge:0,retrieval:0,reasoning:0,execution:0}; let blind=0, total=0;
   sessions.forEach(s=>s.items.forEach(it=>{ agg[it.error]=(agg[it.error]||0)+1; total++; if(it.conf==='high'&&it.error==='reasoning') blind++; }));
   if(!total) return '';
-  const max=Math.max(1,...ERRORS.map(e=>agg[e.id]));
-  const bars=ERRORS.map(e=>`<div class="hbar"><span class="k"><b style="color:${e.c}">${e.code}</b> ${e.t}</span><div class="track"><div class="fill" style="width:${Math.max(3,agg[e.id]/max*100)}%;background:linear-gradient(90deg,${e.c},color-mix(in srgb,${e.c} 72%,#fff))"></div></div><span class="v">${agg[e.id]}</span></div>`).join('');
-  const recent=sessions.slice(0,8).slice().reverse();
-  const stacks=recent.map(s=>{ const cc=triageCounts(s.items), tot=cc.total||1;
-    const seg=ERRORS.map(e=>cc.c[e.id]?`<span style="height:${(cc.c[e.id]/tot*100).toFixed(1)}%;background:${e.c}"></span>`:'').join('');
-    return `<div class="ses-col"><div class="ses-stack">${seg}</div><span class="ses-lab">${esc(String(s.set).replace(/^GT[\s-]*/i,'').slice(0,4))}</span><span class="ses-c">${cc.total}</span></div>`;}).join('');
+  const recent=sessions.slice(0,10).slice().reverse();
   const dom=ERRORS.slice().sort((a,b)=>agg[b.id]-agg[a.id])[0];
   return `<div class="card"><h3><span class="accent"></span>Triage — long-term read</h3>
-    <div class="tlab" style="margin:-6px 0 15px">${total} mistake${total>1?'s':''} across ${sessions.length} test${sessions.length>1?'s':''}${blind?` · <b class="bl">${blind} blind spot${blind>1?'s':''}</b>`:''}.</div>
-    <div class="hbars">${bars}</div>
-    ${recent.length>=2?`<div class="leak-sub" style="margin-top:22px">Composition by test</div><div class="ses-chart">${stacks}</div>`:''}
-    <p class="tlab" style="margin-top:15px">Your steady leak is <b style="color:${dom.c}">${dom.t.toLowerCase()}</b>. ${FIXTEXT[dom.id]}</p></div>`;
+    <div class="tlab" style="margin:-6px 0 14px">${total} mistake${total>1?'s':''} across ${sessions.length} test${sessions.length>1?'s':''}${blind?` · <b class="bl">${blind} blind spot${blind>1?'s':''}</b>`:''}.</div>
+    ${mixBar(agg,total)}
+    ${recent.length>=2?`<div class="leak-sub" style="margin-top:20px">How the mix flows, test by test</div><div class="chartwrap" style="margin-top:2px">${streamChart(recent)}</div>`:''}
+    <p class="tlab" style="margin-top:14px">Your steady leak is <b style="color:${dom.c}">${dom.t.toLowerCase()}</b>. ${FIXTEXT[dom.id]}</p></div>`;
+}
+/* subject × mistake-type heatmap — the systematic 2-D view: which bucket concentrates in which subject */
+function heatmapCard(){
+  const grid={}, subTot={};
+  const add=(sub,err)=>{ if(!sub||!ERR_MAP[err])return; (grid[sub]=grid[sub]||{})[err]=(grid[sub][err]||0)+1; subTot[sub]=(subTot[sub]||0)+1; };
+  entries.forEach(e=>add(e.subject,e.error));
+  sessions.forEach(s=>s.items.forEach(it=>add(it.subj,it.error)));
+  const subs=Object.keys(subTot).sort((a,b)=>subTot[b]-subTot[a]);
+  const total=subs.reduce((a,s)=>a+subTot[s],0);
+  if(subs.length<2 || total<4) return '';
+  const top=subs.slice(0,8);
+  let max=1; top.forEach(su=>ERRORS.forEach(e=>max=Math.max(max,grid[su][e.id]||0)));
+  const head=`<div class="hm-row hm-head"><span class="hm-sub"></span>${ERRORS.map(e=>`<span class="hm-c" style="color:${e.c}">${e.code}</span>`).join('')}<span class="hm-tot">all</span></div>`;
+  const rows=top.map(su=>{
+    const cells=ERRORS.map(e=>{ const n=grid[su][e.id]||0, a=n/max;
+      const bg=n?`color-mix(in srgb, ${e.c} ${Math.round(16+70*a)}%, transparent)`:'var(--surface2)';
+      return `<span class="hm-c${a>0.6?' lt':''}" style="background:${bg}">${n||''}</span>`; }).join('');
+    return `<div class="hm-row"><span class="hm-sub" title="${esc(su)}">${esc(su)}</span>${cells}<span class="hm-tot">${subTot[su]}</span></div>`;
+  }).join('');
+  let hot=null; top.forEach(su=>ERRORS.forEach(e=>{const n=grid[su][e.id]||0; if(!hot||n>hot.n)hot={su,e,n};}));
+  const note=hot&&hot.n>=2?`<p class="tlab" style="margin-top:13px">Hotspot: <b style="color:${hot.e.c}">${hot.e.t.toLowerCase()}</b> in <b>${esc(hot.su)}</b> (${hot.n}). ${FIXTEXT[hot.e.id]}</p>`:'';
+  return `<div class="card"><h3><span class="accent"></span>Subject × mistake map</h3>
+    <div class="heatmap">${head}${rows}</div>${note}</div>`;
 }
 function renderInsights(){
   const box=document.getElementById('insightsBody');
@@ -1722,7 +1832,7 @@ function renderInsights(){
     <div class="big">Nothing to show yet</div>Triage a test or log a few mistakes and this fills in — it shows where your marks are leaking and what to do about it.</div>`;return}
   const map=recurrenceMap();
   const detailed = entries.length ? (nextCard(map)+masteryCard()+statStrip()+leakCard()+typeSplitCard()+testListCard()) : '';
-  box.innerHTML = triageInsightsCard() + detailed;
+  box.innerHTML = triageInsightsCard() + heatmapCard() + detailed;
 }
 
 function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
@@ -1766,6 +1876,7 @@ function bindActions(){
   document.getElementById('pasteBtn').onclick=pasteBackup;
   document.getElementById('bulkBtn').onclick=bulkImportSheet;
   document.getElementById('triageLaunch').onclick=startTriage;
+  document.getElementById('manageTriBtn').onclick=manageTriage;
   document.getElementById('wipeBtn').onclick=wipe;
   document.getElementById('editCancel').onclick=cancelEdit;
   document.getElementById('examChip').onclick=examSheet;
@@ -1803,14 +1914,39 @@ function examSheet(){
       <button class="btn ghost" onclick="document.getElementById('backdrop').classList.remove('show')">Cancel</button></div>`);
   document.getElementById('examSave').onclick=async()=>{const v=document.getElementById('examInput').value;if(v){settings.examDate=v;await persistSettings();render()}closeSheet();};
 }
+function recentSets(type){
+  const seen=new Set(), out=[];
+  entries.filter(e=>e.testType===type).sort((a,b)=>(b.ts||0)-(a.ts||0)).forEach(e=>{ if(e.set&&!seen.has(e.set)){seen.add(e.set);out.push(e.set);} });
+  sessions.filter(s=>s.testType===type).forEach(s=>{ if(s.set&&!seen.has(s.set)){seen.add(s.set);out.push(s.set);} });
+  return out.slice(0,10);
+}
+function nextGTName(){
+  let max=0;
+  const scan=s=>{ const m=/(\d+)/.exec(s||''); if(m) max=Math.max(max,+m[1]); };
+  entries.filter(e=>e.testType==='gt').forEach(e=>scan(e.set));
+  sessions.filter(s=>s.testType==='gt').forEach(s=>scan(s.set));
+  scan(settings.gtSet);
+  return 'GT-'+(max+1);
+}
+function todayLabel(){ try{ return new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short'}); }catch(_){ return new Date().toISOString().slice(5,10); } }
+function suggestNewSet(type){ return type==='gt' ? nextGTName() : ('Module · '+todayLabel()); }
+async function useSet(v){ const t=curType(); v=(v||'').trim(); if(!v) return; if(t==='gt') settings.gtSet=v; else settings.moduleSet=v; await persistSettings(); render(); if(triage.active){ triage.set=v; renderTriage(); } closeSheet(); toast('Now on '+v); }
+/* smart set picker — one tap to start the next GT / today's module, or reuse a recent one; typing is the fallback, not the default */
 function renameSet(){
   const t=curType();
-  openSheet(`<h3>${typeLabel(t)} you're logging to</h3><p>New mistakes get tagged with this name. Change it when you start a new ${t==='gt'?'grand test':'module'}.</p>
-    <input type="text" id="setInput" value="${esc(curSet())}" placeholder="${t==='gt'?'e.g. GT-19':'e.g. PSM — Epidemiology'}">
-    <div class="actions" style="margin-top:16px"><button class="btn primary" id="setSave">Use this</button>
-      <button class="btn ghost" onclick="document.getElementById('backdrop').classList.remove('show')">Cancel</button></div>`);
-  const inp=document.getElementById('setInput');inp.focus();inp.select();
-  document.getElementById('setSave').onclick=async()=>{const v=inp.value.trim();if(v){if(t==='gt')settings.gtSet=v;else settings.moduleSet=v;await persistSettings();render()}closeSheet();toast('Now logging to '+curSet());};
+  const sugg=suggestNewSet(t);
+  const recents=recentSets(t).filter(s=>s!==curSet());
+  openSheet(`<h3>Which ${t==='gt'?'grand test':'module'}?</h3><p>New mistakes get tagged with this. Start a fresh one in a tap — no typing.</p>
+    <button class="setnew" id="setNew" data-set="${esc(sugg)}"><span class="sp-plus">+</span><div><div class="sp-t">Start ${esc(sugg)}</div><div class="sp-d">new ${t==='gt'?'weekly grand test':'daily module — auto-dated'}</div></div><span class="sp-go">▶</span></button>
+    ${curSet()?`<div class="sp-cur">logging to now: <b>${esc(curSet())}</b></div>`:''}
+    ${recents.length?`<div class="sp-lab">jump back to</div><div class="sp-chips">${recents.map(s=>`<button class="chip" data-set="${esc(s)}">${esc(s)}</button>`).join('')}</div>`:''}
+    <div class="sp-lab">or name it yourself</div>
+    <div class="sp-custom"><input type="text" id="setInput" placeholder="${t==='gt'?'GT-20':'e.g. Pharma — Antibiotics'}" autocomplete="off"><button class="btn primary" id="setSave">Use</button></div>`);
+  openSheet._setBind=()=>{};
+  document.querySelectorAll('.setnew,[data-set]').forEach(b=>{ if(b.dataset.set!==undefined) b.onclick=()=>useSet(b.dataset.set); });
+  const inp=document.getElementById('setInput');
+  document.getElementById('setSave').onclick=()=>useSet(inp.value);
+  inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); useSet(inp.value); } });
 }
 
 /* ---------- backup / restore ---------- */
@@ -2111,11 +2247,44 @@ function commitImport(){
 }
 
 function wipe(){
-  openSheet(`<h3>Delete everything?</h3><p>All ${entries.length} mistakes will be gone for good. If you haven't backed up, do that first.</p>
+  const sesN=sessions.length;
+  openSheet(`<h3>Delete everything?</h3><p>All <b>${entries.length}</b> logged mistake${entries.length===1?'':'s'}${sesN?` and <b>${sesN}</b> triage read${sesN===1?'':'s'}`:''} will be gone for good — on this device and any synced ones. Back up first if you're unsure.</p>
     <div class="actions"><button class="btn ghost" onclick="document.getElementById('backdrop').classList.remove('show')">Keep them</button>
     <button class="btn primary" style="background:var(--rose)" id="wipeYes">Delete all</button></div>`);
-  document.getElementById('wipeYes').onclick=async()=>{for(const id of Object.keys(photos))idbDel(id);photos={};entries=[];await persist();render();closeSheet();toast('Cleared')};
+  document.getElementById('wipeYes').onclick=async()=>{
+    const now=Date.now();
+    entries.forEach(e=>{ tombstones[e.id]=now; });
+    sessions.forEach(s=>{ tombstones[s.id]=now; }); /* tombstone so sync can't resurrect them */
+    persistTombstones();
+    for(const id of Object.keys(photos)) idbDel(id);
+    photos={}; entries=[]; sessions=[];
+    persistSessions(); await persist(); render(); closeSheet(); toast('Cleared everything');
+  };
 }
+function deleteSession(id){
+  const i=sessions.findIndex(s=>s.id===id); if(i<0)return;
+  tombstones[id]=Date.now(); persistTombstones();
+  sessions.splice(i,1); persistSessions(); render();
+}
+function clearTriage(){
+  if(!sessions.length){ toast('No triage reads to clear'); return; }
+  openSheet(`<h3>Clear triage reads?</h3><p>Removes all <b>${sessions.length}</b> triage session${sessions.length===1?'':'s'} and their bucket breakdown from Insights — on every synced device. Your logged mistakes stay.</p>
+    <div class="actions"><button class="btn ghost" onclick="document.getElementById('backdrop').classList.remove('show')">Keep them</button>
+    <button class="btn primary" style="background:var(--rose)" id="clrYes">Clear reads</button></div>`);
+  document.getElementById('clrYes').onclick=()=>{ const now=Date.now(); sessions.forEach(s=>tombstones[s.id]=now); persistTombstones(); sessions=[]; persistSessions(); render(); closeSheet(); toast('Triage reads cleared'); };
+}
+function manageTriage(){
+  if(!sessions.length){ toast('No triage reads yet'); return; }
+  const rows=sessions.slice(0,40).map(s=>{ const cc=triageCounts(s.items);
+    return `<div class="ses-row"><div><div class="sr-t">${esc(s.set)}</div><div class="sr-d">${cc.total} sorted${cc.blind?` · ${cc.blind} blind`:''} · ${relTime(s.ts)}</div></div><button class="sr-del" data-del="${s.id}">Delete</button></div>`;}).join('');
+  openSheet(`<h3>Triage reads</h3><p>Tap Delete to drop a single read, or clear them all.</p>
+    <div class="ses-list">${rows}</div>
+    <div class="actions" style="margin-top:14px"><button class="btn ghost" style="color:var(--rose)" id="clrAll">Clear all reads</button>
+      <button class="btn primary" onclick="closeSheet()">Done</button></div>`);
+  document.querySelectorAll('.sr-del').forEach(b=>b.onclick=()=>{ deleteSession(b.dataset.del); const r=b.closest('.ses-row'); if(r) r.remove(); if(!sessions.length) closeSheet(); });
+  document.getElementById('clrAll').onclick=clearTriage;
+}
+function relTime(t){ if(!t)return ''; const s=Math.round((Date.now()-t)/1000); return s<60?'just now':s<3600?Math.floor(s/60)+'m ago':s<86400?Math.floor(s/3600)+'h ago':Math.floor(s/86400)+'d ago'; }
 
 /* ---------- install / storage note ---------- */
 function isStandalone(){return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone===true}
@@ -2184,7 +2353,7 @@ function loadTombstones(){ try{const t=JSON.parse(localStorage.getItem(K_TOMB)||
 function persistSessions(cloud){ try{localStorage.setItem(K_SESS,JSON.stringify(sessions))}catch(_){}; if(cloud!==false) scheduleCloudPush(); }
 function loadSessions(){ try{const s=JSON.parse(localStorage.getItem(K_SESS)||'[]');
   if(Array.isArray(s)) sessions=s.filter(x=>x&&x.id&&Array.isArray(x.items)).map(x=>({ ...x,
-    items:x.items.filter(it=>it&&ERR_MAP[it.error]).map(it=>({error:it.error, conf:it.conf==='high'?'high':it.conf==='low'?'low':null})) }));
+    items:x.items.filter(it=>it&&ERR_MAP[it.error]).map(it=>({error:it.error, conf:it.conf==='high'?'high':it.conf==='low'?'low':null, subj:(it.subj&&SUBJECTS.includes(it.subj))?it.subj:null})) }));
 }catch(_){} }
 function getFbCfg(){ try{const c=JSON.parse(localStorage.getItem(K_FBCFG)||'null'); return (c&&c.apiKey&&c.projectId)?c:null;}catch(_){return null} }
 function setFbCfg(c){ try{localStorage.setItem(K_FBCFG,JSON.stringify(c))}catch(_){} }
@@ -2200,9 +2369,10 @@ function mergeLedger(a,b){
   entries.sort((x,y)=>(y.ts||0)-(x.ts||0));
   const au=(a.settings&&a.settings._upd)||0, bu=(b.settings&&b.settings._upd)||0;
   const settings = bu>au ? (b.settings||a.settings||{}) : (a.settings||b.settings||{});
-  /* triage sessions: immutable once saved — union by id, capped for doc-size safety */
+  /* triage sessions: immutable once saved — union by id, honour tombstones (so a delete/wipe
+     can't be resurrected by a copy still sitting on the cloud), capped for doc-size safety */
   const sById={}; (a.sessions||[]).concat(b.sessions||[]).forEach(s=>{ if(s&&s.id&&!sById[s.id]) sById[s.id]=s; });
-  const sessions=Object.values(sById).sort((x,y)=>(y.ts||0)-(x.ts||0)).slice(0,150);
+  const sessions=Object.values(sById).filter(s=>!(tomb[s.id] && tomb[s.id]>=(s.ts||0))).sort((x,y)=>(y.ts||0)-(x.ts||0)).slice(0,150);
   return {entries, settings, tombstones:tomb, sessions};
 }
 
