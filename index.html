@@ -323,7 +323,7 @@
   .impcard:nth-child(4){animation-delay:.11s}.impcard:nth-child(5){animation-delay:.14s}.impcard:nth-child(6){animation-delay:.17s}
   .impcard:nth-child(7){animation-delay:.2s}.impcard:nth-child(8){animation-delay:.22s}.impcard:nth-child(n+9){animation-delay:.24s}
   .sheet{background:var(--surface);border-top-left-radius:24px;border-top-right-radius:24px;width:100%;max-width:680px;
-    padding:22px 18px calc(26px + env(safe-area-inset-bottom));animation:up .24s ease;max-height:88vh;overflow-y:auto;box-shadow:0 -8px 40px rgba(20,28,45,.18)}
+    padding:22px 18px calc(26px + env(safe-area-inset-bottom));animation:up .34s cubic-bezier(.22,1.18,.36,1);max-height:88vh;overflow-y:auto;box-shadow:0 -8px 40px rgba(20,28,45,.18)}
   @keyframes up{from{transform:translateY(30px);opacity:.6}to{transform:none;opacity:1}}
   .sheet .grip{width:38px;height:4px;border-radius:2px;background:var(--border2);margin:-8px auto 16px}
   .sheet h3{font-size:18px;margin-bottom:7px}
@@ -393,7 +393,9 @@
   .tri-done:disabled{opacity:.4}
   .tri-tally{display:flex;justify-content:center;align-items:center;gap:7px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}
   .tri-tally .tt-total{font-weight:600}
-  .tri-tally .tt-total b{font-size:15px;color:var(--ink);font-variant-numeric:tabular-nums}
+  .tri-tally .tt-total b{display:inline-block;font-size:15px;color:var(--ink);font-variant-numeric:tabular-nums}
+  .tri-tally .tt-total b.pop{animation:npop .26s cubic-bezier(.3,1.5,.5,1)}
+  @keyframes npop{45%{transform:scale(1.35)}}
   .tri-tally.milestone{animation:mspulse .5s cubic-bezier(.3,1.4,.5,1)}
   @keyframes mspulse{40%{transform:scale(1.12)}}
   .tt-chip{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:700;color:var(--ink2);background:var(--surface2);border-radius:20px;padding:3px 9px}
@@ -520,7 +522,9 @@
   .mx-key b{color:var(--ink);font-variant-numeric:tabular-nums}
   /* subject × mistake heatmap */
   .heatmap{display:flex;flex-direction:column;gap:5px;overflow-x:auto;margin:0 -2px;padding:0 2px}
-  .hm-row{display:grid;grid-template-columns:96px repeat(4,1fr) 34px;gap:5px;align-items:stretch}
+  .hm-row{display:grid;grid-template-columns:96px repeat(4,1fr) 34px;gap:5px;align-items:stretch;animation:rise .3s cubic-bezier(.22,1,.36,1) both}
+  .hm-row:nth-child(3){animation-delay:.04s}.hm-row:nth-child(4){animation-delay:.08s}.hm-row:nth-child(5){animation-delay:.12s}
+  .hm-row:nth-child(6){animation-delay:.15s}.hm-row:nth-child(n+7){animation-delay:.18s}
   .hm-head .hm-c,.hm-head .hm-tot{font-size:10.5px;font-weight:800;letter-spacing:.03em;background:none;color:var(--faint);height:auto;padding-bottom:2px}
   .hm-head .hm-c{color:inherit}
   .hm-sub{font-size:12px;font-weight:640;color:var(--ink2);align-self:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -550,7 +554,8 @@
   .ses-row .sr-del{margin-left:auto;font-size:12.5px;font-weight:650;color:var(--rose);padding:7px 12px;border-radius:9px;background:color-mix(in srgb,var(--rose) 9%,transparent)}
   /* session summary: plain-english confidence read */
   .sm-conf{margin-top:16px;padding-top:14px;border-top:1px dashed var(--border2);display:flex;flex-direction:column;gap:10px}
-  .sm-conf .line{font-size:12.5px;color:var(--ink2);line-height:1.55}
+  .sm-conf .line{font-size:12.5px;color:var(--ink2);line-height:1.55;animation:rise .32s cubic-bezier(.22,1,.36,1) both}
+  .sm-conf .line:nth-child(2){animation-delay:.07s} .sm-conf .line:nth-child(3){animation-delay:.14s}
   /* per-test trend sparklines — the line draws itself in */
   .sparks{display:flex;flex-direction:column;gap:10px;margin-top:2px}
   .spark-row{display:flex;align-items:center;gap:11px}
@@ -584,6 +589,61 @@
   /* +1 floats off the bucket count on every drop */
   .bucket .b-plus{position:absolute;right:13px;top:9px;color:var(--bc);font-weight:850;font-size:15px;pointer-events:none;animation:bplus .55s ease-out forwards}
   @keyframes bplus{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-16px)}}
+  /* ---- triage home ---- */
+  .th-card{background:var(--surface);border:var(--cardborder);border-radius:var(--r);padding:15px;box-shadow:var(--shadow);margin-bottom:14px}
+  .segbar.mini{margin-bottom:12px}
+  .segbar.mini button{padding:9px 6px}
+  .th-switch{display:flex;align-items:center;gap:9px;width:100%;text-align:left;background:var(--surface2);border-radius:13px;padding:12px 14px;
+    font-weight:750;font-size:15px;color:var(--ink);margin-bottom:12px;transition:background .12s}
+  .th-switch:active{background:var(--surface3)}
+  .th-switch .chg{margin-left:auto;font-size:12.5px;font-weight:700;color:var(--accent)}
+  .th-start{position:relative;display:flex;align-items:center;justify-content:center;gap:11px;width:100%;color:#fff;background:var(--grad);
+    border-radius:16px;padding:16px;font-weight:800;font-size:17px;letter-spacing:-.01em;box-shadow:0 9px 24px -10px rgba(193,80,45,.55),0 3px 0 0 var(--edge-dk);
+    top:0;transition:transform .09s ease,box-shadow .09s ease;overflow:hidden}
+  .th-start:active{top:3px;box-shadow:0 6px 18px -10px rgba(193,80,45,.5),0 0 0 0 var(--edge-dk)}
+  .th-start .th-play{font-size:13px;opacity:.95}
+  /* slow sheen sweep — premium, cheap (transform-only), and killed by reduced-motion */
+  .th-start::after{content:"";position:absolute;top:-40%;bottom:-40%;left:-30%;width:34%;transform:rotate(18deg) translateX(-260%);
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.28),transparent);animation:sheen 4.6s cubic-bezier(.6,.1,.3,.9) infinite}
+  @keyframes sheen{0%,55%{transform:rotate(18deg) translateX(-260%)}75%,100%{transform:rotate(18deg) translateX(680%)}}
+  .th-last{display:block;width:100%;text-align:left;background:var(--surface);border:var(--cardborder);border-radius:var(--r);
+    padding:14px 15px;box-shadow:var(--shadow);margin-bottom:14px;transition:transform .1s}
+  .th-last:active{transform:scale(.99)}
+  .th-lhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+  .th-eyebrow{font-size:10.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+  .th-when{font-size:11.5px;color:var(--muted);font-weight:600}
+  .th-lset{font-size:18px;font-weight:800;letter-spacing:-.01em;margin-bottom:11px}
+  .th-lmeta{display:flex;align-items:center;gap:5px;font-size:12.5px;color:var(--muted);margin-top:11px;font-weight:600}
+  .th-go{margin-left:auto;color:var(--accent);font-weight:800;font-size:17px}
+  .card.thin{padding:15px 16px 14px}
+  .ses-row.tap{width:100%;text-align:left;background:var(--surface);border:1px solid var(--border2);transition:border-color .12s}
+  .ses-row.tap:active{border-color:var(--accent)}
+  /* bucket-finder escape */
+  .dq-esc{display:block;margin:10px auto 0;font-size:12px;font-weight:650;color:var(--muted);padding:7px 14px;border-radius:20px;
+    border:1px dashed var(--border2);background:var(--surface2);transition:all .12s}
+  .dq-esc:active{color:var(--ink);border-style:solid}
+  /* weak areas */
+  .wk-row{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:11px 0;border-bottom:1px solid var(--border);transition:background .12s}
+  .wk-row:first-of-type{padding-top:0}
+  .wk-row:last-child{border-bottom:0;padding-bottom:0}
+  .wk-row:active{background:var(--surface2)}
+  .wk-rank{flex:none;width:26px;height:26px;border-radius:9px;display:grid;place-items:center;font-weight:850;font-size:12.5px;background:var(--surface2);color:var(--muted)}
+  .wk-rank.worst{background:color-mix(in srgb,var(--rose) 13%,transparent);color:var(--rose)}
+  .wk-mid{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
+  .wk-t{font-weight:750;font-size:14.5px}
+  .wk-d{font-size:11.5px;color:var(--muted);font-weight:600}
+  /* fix box inside the bucket sheet */
+  .fixbox{background:var(--surface2);border-radius:14px;padding:13px 14px;margin-top:8px}
+  .fixbox .fx-h{font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:6px}
+  .fixbox .fx-b{font-size:14px;font-weight:700;line-height:1.45}
+  .fixbox .fx-b2{font-size:12.5px;color:var(--muted);line-height:1.5;margin-top:8px}
+  /* tappable marks */
+  .hm-c.tapc{cursor:pointer;transition:transform .1s,background .4s}
+  .hm-c.tapc:active{transform:scale(.92)}
+  .mx-seg,.mx-key{cursor:pointer}
+  .mixbar .mx-seg:active{filter:brightness(1.12)}
+  .h3-hint{margin-left:auto;font-size:10px;font-weight:650;letter-spacing:.04em;color:var(--faint);text-transform:none}
+  .faintlab{opacity:.55}
 
   /* spaced-repetition "due" + sync card accent */
   .databtn.due,.databtn.sync{border-color:color-mix(in srgb,var(--accent) 45%,transparent);background:linear-gradient(180deg,var(--accent-soft),var(--surface))}
@@ -757,13 +817,6 @@
       <span class="chg">change ›</span>
     </button>
 
-    <button class="trilaunch" id="triageLaunch" type="button">
-      <span class="tl-ic"><svg viewBox="0 0 24 24"><path d="M3 6h18M7 12h10M10 18h4"/></svg></span>
-      <span class="tl-txt"><span class="tl-t">Triage this test</span><span class="tl-d">Bucket every wrong question fast — get an instant read on what went wrong.</span></span>
-      <span class="tl-go">▶</span>
-    </button>
-    <div class="ordiv"><span>or log one in detail</span></div>
-
     <div class="editnote" id="editNote">
       <span>Editing an entry — Save overwrites the original.</span>
       <button id="editCancel" type="button">cancel</button>
@@ -826,6 +879,11 @@
   <!-- BOOK -->
   <section class="view" id="v-book">
     <div class="sec-title"><h2>The book</h2><div class="hint">skim it the night before your next GT</div></div>
+    <button class="databtn due" id="revEntry" style="margin-bottom:14px">
+      <svg class="ic" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5"/></svg>
+      <div><div class="tt">Recall practice</div><div class="dd" id="revEntrySub">Quiz yourself on your logged fixes.</div></div>
+      <span class="arrow">›</span>
+    </button>
     <div class="segbar" id="bookType">
       <button data-bt="ALL" class="gt"><span class="lab">All</span></button>
       <button data-bt="gt" class="gt"><span class="lab">Weekly GTs</span></button>
@@ -861,14 +919,14 @@
   <section class="view" id="v-data">
     <div class="sec-title"><h2>Data &amp; app</h2><div class="hint">it lives on this device — keep a backup</div></div>
     <div id="installWrap"></div>
-    <div class="datahead">Bring in old mistakes</div>
-    <button class="databtn bring" id="bulkBtn">
-      <svg class="ic" viewBox="0 0 24 24"><path d="M16 3h5v5M21 3l-9 9M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3"/></svg>
-      <div><div class="tt">Paste from Telegram &amp; sort</div><div class="dd">Drop in your old notes — each gets auto-sorted into a subject &amp; mistake-type. Check, fix, add. They join everything else.</div></div>
-      <span class="arrow">›</span>
-    </button>
     <div class="datahead">Cloud sync</div>
     <div id="cloudSync"></div>
+    <div class="datahead">Manage</div>
+    <button class="databtn" id="manageTriBtn">
+      <svg class="ic" viewBox="0 0 24 24"><path d="M3 6h18M7 12h10M10 18h4"/></svg>
+      <div><div class="tt">Triage reads</div><div class="dd" id="manageTriSub">Review or delete individual triage sessions.</div></div>
+      <span class="arrow">›</span>
+    </button>
     <div class="datahead">Move by file</div>
     <button class="databtn sync" id="syncBtn">
       <svg class="ic" viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 13.7-5.6L20 8M20 4v4h-4M20 12a8 8 0 0 1-13.7 5.6L4 16M4 20v-4h4"/></svg>
@@ -897,10 +955,10 @@
       <svg class="ic" viewBox="0 0 24 24"><path d="M9 4h6a1 1 0 0 1 1 1v1H8V5a1 1 0 0 1 1-1zM8 6H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-2"/></svg>
       <div><div class="tt">Paste a backup</div><div class="dd">Restore from copied text.</div></div>
     </button>
-    <div class="datahead">Manage</div>
-    <button class="databtn" id="manageTriBtn">
-      <svg class="ic" viewBox="0 0 24 24"><path d="M3 6h18M7 12h10M10 18h4"/></svg>
-      <div><div class="tt">Triage reads</div><div class="dd" id="manageTriSub">Review or delete individual triage sessions.</div></div>
+    <div class="datahead">Bring in old mistakes</div>
+    <button class="databtn bring" id="bulkBtn">
+      <svg class="ic" viewBox="0 0 24 24"><path d="M16 3h5v5M21 3l-9 9M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3"/></svg>
+      <div><div class="tt">Paste from Telegram &amp; sort</div><div class="dd">Drop in your old notes — each gets auto-sorted into a subject &amp; mistake-type. Check, fix, add. They join everything else.</div></div>
       <span class="arrow">›</span>
     </button>
     <div class="datahead">Danger</div>
@@ -918,14 +976,14 @@
     <b>Ledger</b>
   </div>
   <div class="tabs">
-    <button class="tab on" data-v="log">
-      <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span>Log</span></button>
-    <button class="tab" data-v="book">
-      <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z"/></svg><span>Book</span></button>
-    <button class="tab" data-v="review">
-      <span class="tabic"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5"/></svg><span class="tabbadge" id="revBadge" hidden></span></span><span>Review</span></button>
+    <button class="tab on" data-v="triage">
+      <svg viewBox="0 0 24 24"><path d="M3 5h18l-7 8v5l-4 2v-7L3 5z"/></svg><span>Triage</span></button>
     <button class="tab" data-v="insights">
       <svg viewBox="0 0 24 24"><path d="M3 3v18h18M7 14l3-3 3 3 5-6"/></svg><span>Insights</span></button>
+    <button class="tab" data-v="log">
+      <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span>Log</span></button>
+    <button class="tab" data-v="book">
+      <span class="tabic"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z"/></svg><span class="tabbadge" id="revBadge" hidden></span></span><span>Book</span></button>
     <button class="tab" data-v="data">
       <svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg><span>Data</span></button>
   </div>
@@ -1002,7 +1060,7 @@ async function boot(){
   loadSessions();
   migrate();
   if(settings.lastSubject && SUBJECTS.includes(settings.lastSubject)) form.subject=settings.lastSubject;
-  buildForm(); bindTabs(); bindActions(); bindKeyboard(); render(); switchView('log');
+  buildForm(); bindTabs(); bindActions(); bindKeyboard(); render(); switchView('triage');
   requestPersistence();
   if('serviceWorker' in navigator && location.protocol!=='file:'){ try{navigator.serviceWorker.register('./sw.js').catch(()=>{})}catch(_){}}
   loadPhotos().then(()=>render());
@@ -1219,8 +1277,9 @@ function render(){
   else {num.textContent=d===0?'today':'done'; lbl.textContent=d===0?'exam day':'exam done'; chip.style.color='var(--emerald)'}
   const badge=document.getElementById('revBadge'), dc=dueCount();
   if(badge){ if(dc>0 && !review.active){ badge.textContent=dc>99?'99+':dc; badge.hidden=false; } else badge.hidden=true; }
+  const res=document.getElementById('revEntrySub'); if(res) res.textContent=dc?`${dc} due for recall today — quiz yourself.`:'Nothing due. Quiz yourself on your logged fixes.';
   renderCtx(); paintTypeSwitch();
-  renderBook(); renderReview(); renderInsights(); renderInstall(); renderCloudSync();
+  renderTriage(); renderBook(); renderReview(); renderInsights(); renderInstall(); renderCloudSync();
 }
 function daysToExam(){
   if(!settings.examDate)return null;
@@ -1385,20 +1444,84 @@ function startTriage(){
 }
 function reducedMotion(){ return !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches); }
 function buzz(p){ try{ if(navigator.vibrate) navigator.vibrate(p); }catch(_){} }
+
+/* the app's front door: start a sort, glance at the damage, revisit reads */
+function renderTriHome(box){
+  const t=curType();
+  const last=sessions[0];
+  const recent=sessions.slice(0,8).slice().reverse();
+  let lastCard='';
+  if(last){
+    const cc=triageCounts(last.items), cp=sessComp(last);
+    lastCard=`<button class="th-last" data-ses="${esc(last.id)}">
+      <div class="th-lhead"><span class="th-eyebrow">last read</span><span class="th-when">${relTime(last.ts)}</span></div>
+      <div class="th-lset">${esc(last.set)}</div>
+      ${mixBar(cc.c,cc.total||1)}
+      <div class="th-lmeta">${cc.total} sorted${cp.sure?` · <b class="bl">${cp.sure} blind</b>`:''}${cp.noidea?` · ${cp.noidea} no-read`:''}<span class="th-go">›</span></div>
+    </button>`;
+  }
+  let sparks='';
+  if(recent.length>=2){
+    const comps=recent.map(sessComp);
+    sparks=`<div class="card thin"><h3><span class="accent"></span>Your two numbers to shrink</h3><div class="sparks">
+      ${sparkRow('Blind spots','var(--rose)',comps.map(x=>x.sure))}
+      ${sparkRow('No-read misses','var(--ink2)',comps.map(x=>x.noidea))}</div></div>`;
+  }
+  const reads=sessions.slice(0,5).map(s=>{ const cc=triageCounts(s.items), cp=sessComp(s);
+    return `<button class="ses-row tap" data-ses="${esc(s.id)}"><div><div class="sr-t">${esc(s.set)}</div><div class="sr-d">${cc.total} sorted${cp.sure?` · ${cp.sure} blind`:''} · ${relTime(s.ts)}</div></div><span class="th-go">›</span></button>`;}).join('');
+  box.innerHTML=`<div class="tri-home">
+    <div class="sec-title"><h2>Triage</h2><div class="hint">after a test — sort every wrong question, ~2 min</div></div>
+    <div class="th-card">
+      <div class="segbar mini" id="thType">
+        <button data-type="gt" class="${t==='gt'?'on':''}"><span class="lab">Weekly GT</span></button>
+        <button data-type="module" class="${t==='module'?'on':''}"><span class="lab">Daily module</span></button>
+      </div>
+      <button class="th-switch" id="thChange"><span class="dotc" style="background:${typeColor(t)}"></span>${esc(curSet())}<span class="chg">change ›</span></button>
+      <button class="th-start" id="triageLaunch"><span>Start sorting</span><span class="th-play">▶</span></button>
+    </div>
+    ${lastCard}
+    ${sparks}
+    ${reads?`<div class="sp-lab" style="margin-top:18px">recent reads</div><div class="ses-list">${reads}</div>`:''}
+    <button class="databtn" id="thGuide" style="margin-top:16px">
+      <svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 2.4-3 4M12 17.5h.01"/></svg>
+      <div><div class="tt">How the buckets work</div><div class="dd">KG · RF · CC · TE, the honest tests, and the blind-spot rule.</div></div></button>
+  </div>`;
+  document.getElementById('triageLaunch').onclick=startTriage;
+  document.getElementById('thChange').onclick=renameSet;
+  document.getElementById('thGuide').onclick=triGuideSheet;
+  box.querySelectorAll('#thType button').forEach(b=>b.onclick=async()=>{ await setType(b.dataset.type); renderTriage(); });
+  box.querySelectorAll('[data-ses]').forEach(b=>b.onclick=()=>sessionSheet(b.dataset.ses));
+}
+/* one saved read, in full — same visual language as the end-of-game summary */
+function sessionSheet(id){
+  const s=sessions.find(x=>x.id===id); if(!s)return;
+  const cc=triageCounts(s.items), cp=sessComp(s), tot=cc.total||1;
+  const max=Math.max(1,...ERRORS.map(e=>cc.c[e.id]));
+  const bars=ERRORS.map(e=>`<div class="sm-bar"><span class="sm-k"><b style="color:${e.c}">${e.code}</b> ${e.t}</span><div class="sm-track"><div class="sm-fill" style="width:${Math.max(2,cc.c[e.id]/max*100)}%;background:${e.c}"></div></div><span class="sm-v">${cc.c[e.id]}</span></div>`).join('');
+  openSheet(`<h3>${esc(s.set)}</h3><p style="margin-bottom:14px">${cc.total} sorted · ${relTime(s.ts)}</p>
+    <div class="sm-bars">${bars}</div>
+    <div class="trio"><div class="trio-c"><b class="bl">${cp.sure}</b><span>blind</span></div>
+      <div class="trio-c"><b style="color:var(--amber)">${cp.twoish}</b><span>down to 2</span></div>
+      <div class="trio-c"><b style="color:var(--ink2)">${cp.noidea}</b><span>no read</span></div></div>
+    <div class="actions" style="margin-top:16px"><button class="btn primary" onclick="closeSheet()">Done</button>
+      <button class="btn ghost" style="color:var(--rose)" id="sesDel">Delete read</button></div>`);
+  document.getElementById('sesDel').onclick=()=>{ deleteSession(id); closeSheet(); toast('Read deleted'); };
+}
 function showTriageView(){
   if(typeof clearKbd==='function') clearKbd();
   document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on',s.id==='v-triage'));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.v==='log'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.v==='triage'));
   window.scrollTo({top:0});
 }
-function exitTriage(){ triage.active=false; switchView('log'); render(); }
+function exitTriage(){ triage.active=false; triage.done=false; switchView('triage'); render(); }
 const TRI_QS=[ /* plain yes/no tests, in the order that sorts fastest */
-  {q:"Read it again slowly — do you get it right now?", yes:'execution', ycode:'TE'},
-  {q:"Did the answer feel obvious the moment you saw it?", yes:'retrieval', ycode:'RF'},
-  {q:"Were you sure of an answer that turned out wrong?", yes:'reasoning', ycode:'CC', no:'knowledge', ncode:'KG'}
+  {q:"Was it a misread — missed an EXCEPT / NOT, or ticked the wrong option?", yes:'execution', ycode:'TE'},
+  {q:"Did the answer feel obvious the moment you saw it?", yes:'retrieval', ycode:'RF', esc:true},
+  {q:"Were you sure of an answer that turned out wrong?", yes:'reasoning', ycode:'CC', no:'knowledge', ncode:'KG', esc:true}
 ];
 function renderTriage(){
   const box=document.getElementById('triageBody'); if(!box)return;
+  if(!triage.active){ renderTriHome(box); return; }
   if(triage.done){
     box.innerHTML=triageSummaryHTML();
     document.getElementById('triFinish').onclick=exitTriage; document.getElementById('triAgain').onclick=startTriage;
@@ -1446,6 +1569,7 @@ function triChipHTML(total){
     return `<div class="tri-chip" id="triChip"><span class="dstep">bucket finder · ${triage.decide+1} / 3</span>
       <div class="dq">${esc(s.q)}</div>
       <div class="dbtns"><button class="yes" data-a="yes">Yes → ${s.ycode}</button><button data-a="no">${s.no?'No → '+s.ncode:'No'}</button></div>
+      ${s.esc?'<button class="dq-esc" data-a="esc">Can’t tell → file as KG</button>':''}
       <button class="chip-help" id="dqCancel">never mind</button></div>`;
   }
   return `<div class="tri-chip ${triage.conf==='high'?'sure':''}" id="triChip"><span class="stamp">SURE</span>
@@ -1470,6 +1594,14 @@ function bindTriChip(){
     else if(s.no){ triage.decide=null; redrawChip(); triageAdd(s.no, document.querySelector(`#triBuckets .bucket[data-b="${s.no}"]`)); }
     else { triage.decide++; redrawChip(); }
   });
+  /* the escape hatch: can't tell → the conservative bucket (re-reading half-known material is never wasted).
+     Files with neutral confidence so a sticky "I was sure" can't fake a blind spot out of a can't-tell. */
+  const escBtn=wrap.querySelector('.dq-esc');
+  if(escBtn) escBtn.onclick=()=>{ triage.decide=null; redrawChip();
+    const btn=document.querySelector('#triBuckets .bucket[data-b="knowledge"]');
+    triage.items.push({error:'knowledge', conf:null, subj:triage.subj||null, t:Date.now()});
+    updateTriageUI(); flyToken(btn,'knowledge',false); buzz(9);
+    toast('Filed as a knowledge gap — the safe default when you can’t tell.'); };
 }
 function redrawChip(){ const w=document.getElementById('triChipWrap'); if(w){ w.innerHTML=triChipHTML(triageCounts(triage.items).total); bindTriChip(); } }
 /* sticky subject on the ticket — set it once when you move to a new subject's questions; it feeds the subject × mistake map */
@@ -1524,7 +1656,7 @@ function triageAdd(bucket, btnEl){
 function triageUndo(){ if(!triage.items.length)return; triage.items.pop(); updateTriageUI(); }
 function updateTriageUI(){
   const {c,blind,total}=triageCounts(triage.items);
-  const n=document.getElementById('triN'); if(n) n.textContent=total;
+  const n=document.getElementById('triN'); if(n){ n.textContent=total; n.classList.remove('pop'); void n.offsetWidth; n.classList.add('pop'); }
   const nl=document.getElementById('triNL'); if(nl) nl.innerHTML=blind?`· <b class="bl">${blind} blind spot${blind>1?'s':''}</b>`:'';
   ERRORS.forEach(e=>{
     document.querySelectorAll(`[data-count="${e.id}"],[data-bcount="${e.id}"]`).forEach(el=>el.textContent=c[e.id]);
@@ -1679,10 +1811,10 @@ function renderReview(){
 }
 
 const FIXTEXT={
-  knowledge:"real gaps — a BTR re-read + a fresh Anki card. Pull the repeaters into revision, not brand-new topics this close in.",
-  retrieval:"you knew these — don't re-study. Re-word the Anki front with the clinical trigger so it fires like the question did.",
-  reasoning:"wrong mental model — the dangerous bucket. Write a contrast entry (what you believed vs why the answer's right); these drive negative marking.",
-  execution:"not a study problem — attention. Name the trap (EXCEPT / stem misread / answer-changed / overcall) and drill reading the last line first."
+  knowledge:"Real gaps: one focused re-read plus a fresh Anki card each. Pull the repeat offenders into revision — skip brand-new topics this close in.",
+  retrieval:"You knew these — don't re-study. Re-word the Anki front with the clinical trigger so it fires the way the question asked.",
+  reasoning:"The dangerous bucket: a wrong idea you trusted. Write the contrast — what you believed vs why the answer is right — so it stops feeling right.",
+  execution:"Not a study problem, an attention one. Name the trap (EXCEPT / misread / changed answer) and drill reading the last line first."
 };
 
 function nextCard(map){
@@ -1858,7 +1990,7 @@ function areaBand(topPts, botRev){
 /* stacked-area stream: how the KG/RF/CC/TE mix flows across your tests (normalised to each test) */
 function streamChart(sess){
   const n=sess.length; if(n<2) return '';
-  const W=336,H=132,x0=8,x1=W-8,y0=8,y1=H-20;
+  const W=336,H=142,x0=8,x1=W-8,y0=8,y1=H-30;
   const fr=sess.map(s=>{const cc=triageCounts(s.items),t=cc.total||1; return ERRORS.map(e=>(cc.c[e.id]||0)/t);});
   const X=i=>x0+i*(x1-x0)/(n-1), Y=f=>y1-f*(y1-y0);
   let cum=fr.map(()=>0);
@@ -1869,14 +2001,57 @@ function streamChart(sess){
     return `<path d="${areaBand(topPts,botRev)}" fill="${e.c}" opacity="0.9" stroke="#FDFAF4" stroke-width="1.1" stroke-linejoin="round"/>`;
   }).join('');
   const dots=sess.map((s,i)=>`<circle cx="${X(i).toFixed(1)}" cy="${y1}" r="2" fill="var(--faint)"/>`).join('');
-  const labs=sess.map((s,i)=>`<text class="xlab" x="${X(i).toFixed(1)}" y="${H-6}" text-anchor="middle">${esc(String(s.set).replace(/^GT[\s-]*/i,'').slice(0,4))}</text>`).join('');
+  const labs=sess.map((s,i)=>`<text class="xlab" x="${X(i).toFixed(1)}" y="${H-17}" text-anchor="middle">${esc(String(s.set).replace(/^GT[\s-]*/i,'').slice(0,4))}</text>
+    <text class="xlab faintlab" x="${X(i).toFixed(1)}" y="${H-5}" text-anchor="middle">${triageCounts(s.items).total}</text>`).join('');
   return `<svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Mistake-type mix across tests">${bands}${dots}${labs}</svg>`;
 }
-/* one segmented bar = your mistake DNA, no four-bar clutter */
+/* one segmented bar = your mistake DNA, no four-bar clutter. Segments are tappable → the fix. */
 function mixBar(agg,total){
-  const segs=ERRORS.map((e,i)=>{ const p=agg[e.id]/total*100; return p>0?`<span class="mx-seg" style="flex:${agg[e.id]};background:${e.c}"></span>`:''; }).join('');
-  const keys=ERRORS.map(e=>`<span class="mx-key"><i style="background:${e.c}"></i>${e.code}<b>${agg[e.id]}</b></span>`).join('');
+  const segs=ERRORS.map(e=> agg[e.id]>0?`<span class="mx-seg" data-e="${e.id}" title="${esc(e.t+' — tap for the fix')}" style="flex:${agg[e.id]};background:${e.c}"></span>`:'').join('');
+  const keys=ERRORS.map(e=>`<span class="mx-key" data-e="${e.id}"><i style="background:${e.c}"></i>${e.code}<b>${agg[e.id]}</b></span>`).join('');
   return `<div class="mixbar">${segs}</div><div class="mx-keys">${keys}</div>`;
+}
+/* tap any mark → what it means and exactly what to do about it */
+function bucketFixSheet(errId, sub, n){
+  const e=ERR_MAP[errId]; if(!e)return;
+  openSheet(`<h3><span style="color:${e.c}">${e.code}</span> · ${e.t}${sub?` in ${esc(sub)}`:''}</h3>
+    <p style="margin-bottom:6px">${n!=null?`<b>${n}</b> mistake${n===1?'':'s'}${sub?` here`:''} · `:''}${esc(e.d)}.</p>
+    <div class="fixbox"><div class="fx-h">The fix</div><div class="fx-b">${esc(FIXACT[errId])}</div>
+      <div class="fx-b2">${esc(FIXTEXT[errId])}</div></div>
+    <div class="actions" style="margin-top:16px"><button class="btn primary" onclick="closeSheet()">Got it</button></div>`);
+}
+/* subject → everything the data says about it, and what to do */
+function buildSubjects(){
+  const m={};
+  const touch=s=>m[s]=m[s]||{n:0,sure:0,errs:{knowledge:0,retrieval:0,reasoning:0,execution:0},tests:{}};
+  entries.forEach(e=>{ if(!e.subject)return; const t=touch(e.subject); t.n++; if(t.errs[e.error]!=null)t.errs[e.error]++; if(e.conf==='high')t.sure++; t.tests[e.set]=1; });
+  sessions.forEach(s=>s.items.forEach(it=>{ if(!it.subj)return; const t=touch(it.subj); t.n++; if(t.errs[it.error]!=null)t.errs[it.error]++; if(it.conf==='high')t.sure++; t.tests[s.set]=1; }));
+  return m;
+}
+function weakAreasCard(){
+  const m=buildSubjects();
+  const subs=Object.keys(m).map(s=>({s,...m[s],score:m[s].n+m[s].sure})).sort((a,b)=>b.score-a.score);
+  if(subs.length<2 || subs.reduce((a,x)=>a+x.n,0)<4) return '';
+  const rows=subs.slice(0,5).map((x,i)=>{ const dom=ERRORS.slice().sort((a,b)=>x.errs[b.id]-x.errs[a.id])[0];
+    const mini=ERRORS.map(e=>x.errs[e.id]?`<span style="flex:${x.errs[e.id]};background:${e.c}"></span>`:'').join('');
+    return `<button class="wk-row" data-sub="${esc(x.s)}"><span class="wk-rank${i===0?' worst':''}">${i+1}</span>
+      <div class="wk-mid"><div class="wk-t">${esc(x.s)}</div><div class="gtmini">${mini}</div>
+      <div class="wk-d">${x.n} mark${x.n>1?'s':''} lost${x.sure?` · <b class="bl">${x.sure} blind</b>`:''} · mostly ${dom.t.toLowerCase()}</div></div>
+      <span class="th-go">›</span></button>`;}).join('');
+  return `<div class="card"><h3><span class="accent"></span>Weak areas — study these first</h3>${rows}</div>`;
+}
+function subjectSheet(sub){
+  const x=buildSubjects()[sub]; if(!x)return;
+  const top=ERRORS.slice().sort((a,b)=>x.errs[b.id]-x.errs[a.id]).filter(e=>x.errs[e.id]>0).slice(0,2);
+  const tests=Object.keys(x.tests).slice(0,6);
+  openSheet(`<h3>${esc(sub)}</h3>
+    <p style="margin-bottom:14px">${x.n} mark${x.n>1?'s':''} lost${x.sure?` · <b class="bl">${x.sure} blind</b>`:''}${tests.length?` · across ${tests.length} test${tests.length>1?'s':''}`:''}</p>
+    ${mixBar(x.errs,x.n)}
+    <div class="sp-lab" style="margin-top:16px">what to do</div>
+    ${top.map(e=>`<div class="fp-row" style="--bc:${e.c}"><span class="fp-code">${e.code}</span>
+      <div><div class="fp-t">${e.t} <b>· ${x.errs[e.id]}</b></div><div class="fp-d">${esc(FIXACT[e.id])}</div></div></div>`).join('')}
+    ${tests.length?`<div class="sp-lab">seen in</div><div class="sp-chips">${tests.map(t=>`<span class="chip" style="pointer-events:none">${esc(t)}</span>`).join('')}</div>`:''}
+    <div class="actions" style="margin-top:16px"><button class="btn primary" onclick="closeSheet()">Done</button></div>`);
 }
 /* tiny trend line with a big current value — no axes, just the shape */
 function sparkRow(label,color,vals){
@@ -1942,22 +2117,28 @@ function heatmapCard(){
   const rows=top.map(su=>{
     const cells=ERRORS.map(e=>{ const n=grid[su][e.id]||0, a=n/max;
       const bg=n?`color-mix(in srgb, ${e.c} ${Math.round(16+70*a)}%, transparent)`:'var(--surface2)';
-      return `<span class="hm-c${a>0.6?' lt':''}" style="background:${bg}">${n||''}</span>`; }).join('');
+      return n?`<button class="hm-c tapc${a>0.6?' lt':''}" data-sub="${esc(su)}" data-e="${e.id}" data-n="${n}" title="${esc(e.t+' in '+su+' — tap for the fix')}" style="background:${bg}">${n}</button>`
+             :`<span class="hm-c" style="background:${bg}"></span>`; }).join('');
     return `<div class="hm-row"><span class="hm-sub" title="${esc(su)}">${esc(su)}</span>${cells}<span class="hm-tot">${subTot[su]}</span></div>`;
   }).join('');
   let hot=null; top.forEach(su=>ERRORS.forEach(e=>{const n=grid[su][e.id]||0; if(!hot||n>hot.n)hot={su,e,n};}));
   const note=hot&&hot.n>=2?`<p class="tlab" style="margin-top:13px">Hotspot: <b style="color:${hot.e.c}">${hot.e.t.toLowerCase()}</b> in <b>${esc(hot.su)}</b> (${hot.n}). ${FIXTEXT[hot.e.id]}</p>`:'';
-  return `<div class="card"><h3><span class="accent"></span>Subject × mistake map</h3>
-    <div class="heatmap">${head}${rows}</div>${note}</div>`;
+  let untagged=0; sessions.forEach(s=>s.items.forEach(it=>{ if(!it.subj) untagged++; }));
+  const tagNote=untagged?`<p class="tlab" style="margin-top:10px;color:var(--faint)">${untagged} triaged mistake${untagged>1?'s':''} ha${untagged>1?'ve':'s'} no subject — tap “+ subject” on the ticket to put them on this map.</p>`:'';
+  return `<div class="card"><h3><span class="accent"></span>Subject × mistake map <span class="h3-hint">tap a cell</span></h3>
+    <div class="heatmap">${head}${rows}</div>${note}${tagNote}</div>`;
 }
 function renderInsights(){
   const box=document.getElementById('insightsBody');
   if(entries.length===0 && !sessions.length){box.innerHTML=`<div class="empty"><svg class="ic" viewBox="0 0 24 24"><path d="M3 3v18h18M7 14l3-3 3 3 5-6"/></svg>
     <div class="big">Nothing to show yet</div>Triage a test or log a few mistakes and this fills in — it shows where your marks are leaking and what to do about it.</div>`;return}
   const map=recurrenceMap();
-  const detailed = entries.length ? (nextCard(map)+masteryCard()+statStrip()+leakCard()+typeSplitCard()) : '';
-  box.innerHTML = triageInsightsCard() + fixPlanCard() + heatmapCard() + detailed + testListCard();
+  const detailed = entries.length ? (`<div class="leak-sub" style="margin:22px 0 12px 3px">From your detailed logs</div>`+nextCard(map)+masteryCard()+statStrip()+leakCard()+typeSplitCard()) : '';
+  box.innerHTML = triageInsightsCard() + weakAreasCard() + fixPlanCard() + heatmapCard() + testListCard() + detailed;
   box.querySelectorAll('[data-test]').forEach(b=>b.onclick=()=>testDetailSheet(b.dataset.test));
+  box.querySelectorAll('[data-sub]:not([data-e])').forEach(b=>b.onclick=()=>subjectSheet(b.dataset.sub));
+  box.querySelectorAll('.hm-c.tapc').forEach(b=>b.onclick=()=>bucketFixSheet(b.dataset.e, b.dataset.sub, +b.dataset.n));
+  box.querySelectorAll('.mixbar .mx-seg, .mx-keys .mx-key').forEach(b=>b.onclick=()=>bucketFixSheet(b.dataset.e));
 }
 
 function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
@@ -1979,9 +2160,12 @@ function toast(msg,action){
 function bindTabs(){document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>switchView(t.dataset.v))}
 function switchView(v){
   if(typeof clearKbd==='function') clearKbd();
-  triage.active=false;
+  if(v!=='triage') triage.active=false; /* navigating away abandons a game; landing on Triage keeps it */
   document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.v===v));
+  /* review lives under Book now — keep the Book tab lit while reviewing */
+  const hl = v==='review' ? 'book' : v;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.v===hl));
+  if(v==='triage') renderTriage();
   window.scrollTo({top:0});
 }
 function openSheet(html){if(typeof clearKbd==='function')clearKbd();document.getElementById('sheet').innerHTML='<div class="grip"></div>'+html;document.getElementById('backdrop').classList.add('show')}
@@ -2000,8 +2184,8 @@ function bindActions(){
   document.getElementById('fileIn').onchange=importData;
   document.getElementById('pasteBtn').onclick=pasteBackup;
   document.getElementById('bulkBtn').onclick=bulkImportSheet;
-  document.getElementById('triageLaunch').onclick=startTriage;
   document.getElementById('manageTriBtn').onclick=manageTriage;
+  document.getElementById('revEntry').onclick=()=>switchView('review');
   document.getElementById('wipeBtn').onclick=wipe;
   document.getElementById('editCancel').onclick=cancelEdit;
   document.getElementById('examChip').onclick=examSheet;
@@ -2076,7 +2260,8 @@ function renameSet(){
 
 /* ---------- backup / restore ---------- */
 function backupPayload(withPhotos){
-  const p={app:'mistake-ledger',version:4,exportedAt:new Date().toISOString(),settings,entries};
+  /* v5 adds triage sessions + tombstones — the reads are now first-class data */
+  const p={app:'mistake-ledger',version:5,exportedAt:new Date().toISOString(),settings,entries,sessions,tombstones};
   if(withPhotos){p.photos={};entries.forEach(e=>{if(e.hasPhoto&&photos[e.id])p.photos[e.id]=photos[e.id]})}
   return JSON.stringify(p,null,2);
 }
@@ -2147,7 +2332,14 @@ async function copyText(txt,msg){
 function mergeIncoming(data){
   const raw=Array.isArray(data)?data:(data&&data.entries);
   const incoming=sanitizeEntries(raw); /* drop anything malformed */
-  if(!incoming.length){toast('No valid mistakes in that backup');return}
+  /* v5 backups carry triage sessions too — union by id, respect tombstones */
+  let sesAdded=0;
+  if(data && Array.isArray(data.sessions)){
+    const have=new Set(sessions.map(s=>s.id));
+    sanitizeSessions(data.sessions).forEach(s=>{ if(!have.has(s.id) && !(tombstones[s.id]&&tombstones[s.id]>=(s.ts||0))){ sessions.push(s); have.add(s.id); sesAdded++; } });
+    if(sesAdded){ sessions.sort((a,b)=>(b.ts||0)-(a.ts||0)); sessions=sessions.slice(0,150); persistSessions(); }
+  }
+  if(!incoming.length && !sesAdded){toast('Nothing new in that backup');return}
   const inPhotos=(data&&data.photos&&typeof data.photos==='object')?data.photos:{};
   const ids=new Set(entries.map(e=>e.id));let added=0;
   incoming.forEach(e=>{
@@ -2159,7 +2351,8 @@ function mergeIncoming(data){
     else if(e.hasPhoto){ e.hasPhoto=false; } /* referenced photo missing/invalid — don't dangle */
   });
   entries.sort((a,b)=>(b.ts||0)-(a.ts||0));persist();render();
-  toast(added?added+' added':'Nothing new to add');
+  const bits=[]; if(added)bits.push(added+' mistake'+(added>1?'s':'')); if(sesAdded)bits.push(sesAdded+' triage read'+(sesAdded>1?'s':''));
+  toast(bits.length?bits.join(' + ')+' added':'Nothing new to add');
 }
 function importData(ev){
   const file=ev.target.files[0];if(!file)return;const r=new FileReader();
