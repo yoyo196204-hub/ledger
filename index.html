@@ -849,7 +849,7 @@
       <summary>Add depth — how sure you were · full note · the trap · picture Q</summary>
       <div class="inner">
         <div class="field">
-          <label>How sure were you? <span class="op">— powers your blind-spot count</span></label>
+          <label>How sure were you in the exam? <span class="op">— sure + wrong idea = a blind spot</span></label>
           <div class="seg c3" id="f-conf"></div>
         </div>
         <div class="field">
@@ -1004,15 +1004,19 @@ const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology"
 
 const ERRORS=[
   {id:'knowledge', code:'KG', t:"Knowledge gap",       d:"you didn't know it — had to read the explanation", c:'var(--rose)',   test:"Did you have to read the explanation to get it?"},
-  {id:'retrieval', code:'RF', t:"Retrieval slip",      d:"you knew it, but blanked in the moment",           c:'var(--amber)',  test:"Did the answer feel obvious the second you saw it?"},
+  {id:'retrieval', code:'RF', t:"Retrieval slip",      d:"you knew it, but blanked in the moment",           c:'var(--amber)',  test:"In the exam, did you actually know this — but pick wrong?"},
   {id:'reasoning', code:'CC', t:"Wrong idea",          d:"you were sure of something that was actually wrong",c:'var(--violet)', test:"Were you sure of an answer that turned out wrong?"},
   {id:'execution', code:'TE', t:"Careless slip",       d:"you knew it — misread, or ticked the wrong option",c:'var(--teal)',   test:"Read it slowly now — do you get it right?"},
 ];
 const ERR_MAP=Object.fromEntries(ERRORS.map(e=>[e.id,e]));
+/* ONE definition of a blind spot, used everywhere:
+   you were sure AND the error was a belief error (wrong idea, or a gap you didn't know you had).
+   Sure-but-misread (TE) and sure-but-blanked (RF) are NOT blind spots — you know that material. */
+const isBlind = x => !!x && x.conf==='high' && (x.error==='reasoning' || x.error==='knowledge');
 const CONFS=[
-  {id:'high', t:'I was sure', d:'a blind spot', c:'var(--rose)'},
-  {id:'med',  t:'Down to 2',  d:'one fact away', c:'var(--amber)'},
-  {id:'low',  t:'No idea',    d:'a raw gap', c:'var(--muted)'},
+  {id:'high',   t:'Sure in exam', d:'sure in the moment — and still wrong', c:'var(--rose)'},
+  {id:'twoish', t:'Down to 2',    d:'it was between two options', c:'var(--amber)'},
+  {id:'noidea', t:'No read',      d:'no real idea — a straight gap', c:'var(--muted)'},
 ];
 
 let entries=[];
@@ -1043,6 +1047,8 @@ function sanitizeEntries(arr){
     subject: typeof e.subject==='string'?e.subject:'Medicine',
     concept: typeof e.concept==='string'?e.concept:'',
     lesson: typeof e.lesson==='string'?e.lesson:'',
+    /* one confidence vocabulary everywhere: old med -> twoish, old low -> noidea */
+    conf: e.conf==='high'?'high' : (e.conf==='med'||e.conf==='twoish')?'twoish' : (e.conf==='low'||e.conf==='noidea')?'noidea' : null,
     status: e.status==='fixed'?'fixed':'open'
   })).filter(e=>e.concept);
 }
@@ -1313,7 +1319,7 @@ function renderBook(){
   const t=bookFilter.type;
   if(t==='open') list=list.filter(e=>e.status==='open');
   else if(t==='recurring') list=list.filter(e=>isRecurring(e,map));
-  else if(t==='blind') list=list.filter(e=>e.conf==='high');
+  else if(t==='blind') list=list.filter(isBlind);
   else if(t==='image') list=list.filter(e=>e.image);
   else if(ERR_MAP[t]) list=list.filter(e=>e.error===t);
   list.sort((a,b)=>{const d=priorityScore(b,map)-priorityScore(a,map); return d!==0?d:b.ts-a.ts});
@@ -1384,7 +1390,7 @@ async function undoDelete(){
   await persist();render();toast('Restored');
 }
 
-function priorityScore(e,map){let s=0; if(e.status==='open')s+=8; if(isRecurring(e,map))s+=4; if(e.conf==='high')s+=2; return s}
+function priorityScore(e,map){let s=0; if(e.status==='open')s+=8; if(isRecurring(e,map))s+=4; if(isBlind(e))s+=2; return s}
 
 /* ---- spaced repetition (SM-2 lite), exam-aware ---- */
 function endOfToday(){const d=new Date();d.setHours(23,59,59,999);return d.getTime()}
@@ -1427,14 +1433,15 @@ function endReview(){review.active=false; renderReview()}
 
 /* ===================== rapid triage: pluck a GT's mistakes into buckets ===================== */
 function triageCounts(items){
-  const c={knowledge:0,retrieval:0,reasoning:0,execution:0}; let sure=0, twoish=0, noidea=0;
+  const c={knowledge:0,retrieval:0,reasoning:0,execution:0}; let sure=0, twoish=0, noidea=0, blind=0;
   (items||[]).forEach(it=>{ c[it.error]=(c[it.error]||0)+1;
     if(it.conf==='high') sure++;
-    else if(it.conf==='twoish'||it.conf==='low') twoish++; /* 'low' = legacy two-tier value */
+    else if(it.conf==='twoish') twoish++;
     else if(it.conf==='noidea') noidea++;
+    if(isBlind(it)) blind++;
   });
-  /* every triaged item is a lost mark, so sure-and-wrong IS a blind spot */
-  return {c, blind:sure, sure, twoish, noidea, total:(items||[]).length};
+  /* sure = raw calibration count; blind = sure AND a belief error (the number that matters) */
+  return {c, blind, sure, twoish, noidea, total:(items||[]).length};
 }
 function sessComp(s){ if(s&&s.comp&&typeof s.comp==='object') return {sure:+s.comp.sure||0, twoish:+s.comp.twoish||0, noidea:+s.comp.noidea||0};
   const cc=triageCounts((s&&s.items)||[]); return {sure:cc.sure, twoish:cc.twoish, noidea:cc.noidea}; }
@@ -1457,18 +1464,18 @@ function renderTriHome(box){
       <div class="th-lhead"><span class="th-eyebrow">last read</span><span class="th-when">${relTime(last.ts)}</span></div>
       <div class="th-lset">${esc(last.set)}</div>
       ${mixBar(cc.c,cc.total||1)}
-      <div class="th-lmeta">${cc.total} sorted${cp.sure?` · <b class="bl">${cp.sure} blind</b>`:''}${cp.noidea?` · ${cp.noidea} no-read`:''}<span class="th-go">›</span></div>
+      <div class="th-lmeta">${cc.total} sorted${cc.blind?` · <b class="bl">${cc.blind} blind</b>`:''}${cp.noidea?` · ${cp.noidea} no-read`:''}<span class="th-go">›</span></div>
     </button>`;
   }
   let sparks='';
   if(recent.length>=2){
     const comps=recent.map(sessComp);
     sparks=`<div class="card thin"><h3><span class="accent"></span>Your two numbers to shrink</h3><div class="sparks">
-      ${sparkRow('Blind spots','var(--rose)',comps.map(x=>x.sure))}
+      ${sparkRow('Blind spots','var(--rose)',recent.map(s=>triageCounts(s.items).blind))}
       ${sparkRow('No-read misses','var(--ink2)',comps.map(x=>x.noidea))}</div></div>`;
   }
-  const reads=sessions.slice(0,5).map(s=>{ const cc=triageCounts(s.items), cp=sessComp(s);
-    return `<button class="ses-row tap" data-ses="${esc(s.id)}"><div><div class="sr-t">${esc(s.set)}</div><div class="sr-d">${cc.total} sorted${cp.sure?` · ${cp.sure} blind`:''} · ${relTime(s.ts)}</div></div><span class="th-go">›</span></button>`;}).join('');
+  const reads=sessions.slice(0,5).map(s=>{ const cc=triageCounts(s.items);
+    return `<button class="ses-row tap" data-ses="${esc(s.id)}"><div><div class="sr-t">${esc(s.set)}</div><div class="sr-d">${cc.total} sorted${cc.blind?` · ${cc.blind} blind`:''} · ${relTime(s.ts)}</div></div><span class="th-go">›</span></button>`;}).join('');
   box.innerHTML=`<div class="tri-home">
     <div class="sec-title"><h2>Triage</h2><div class="hint">after a test — sort every wrong question, ~2 min</div></div>
     <div class="th-card">
@@ -1500,7 +1507,7 @@ function sessionSheet(id){
   const bars=ERRORS.map(e=>`<div class="sm-bar"><span class="sm-k"><b style="color:${e.c}">${e.code}</b> ${e.t}</span><div class="sm-track"><div class="sm-fill" style="width:${Math.max(2,cc.c[e.id]/max*100)}%;background:${e.c}"></div></div><span class="sm-v">${cc.c[e.id]}</span></div>`).join('');
   openSheet(`<h3>${esc(s.set)}</h3><p style="margin-bottom:14px">${cc.total} sorted · ${relTime(s.ts)}</p>
     <div class="sm-bars">${bars}</div>
-    <div class="trio"><div class="trio-c"><b class="bl">${cp.sure}</b><span>blind</span></div>
+    <div class="trio"><div class="trio-c"><b class="bl">${cp.sure}</b><span>sure</span></div>
       <div class="trio-c"><b style="color:var(--amber)">${cp.twoish}</b><span>down to 2</span></div>
       <div class="trio-c"><b style="color:var(--ink2)">${cp.noidea}</b><span>no read</span></div></div>
     <div class="actions" style="margin-top:16px"><button class="btn primary" onclick="closeSheet()">Done</button>
@@ -1516,7 +1523,7 @@ function showTriageView(){
 function exitTriage(){ triage.active=false; triage.done=false; switchView('triage'); render(); }
 const TRI_QS=[ /* plain yes/no tests, in the order that sorts fastest */
   {q:"Was it a misread — missed an EXCEPT / NOT, or ticked the wrong option?", yes:'execution', ycode:'TE'},
-  {q:"Did the answer feel obvious the moment you saw it?", yes:'retrieval', ycode:'RF', esc:true},
+  {q:"In the exam, did you know this cold — but still picked wrong?", yes:'retrieval', ycode:'RF', esc:true},
   {q:"Were you sure of an answer that turned out wrong?", yes:'reasoning', ycode:'CC', no:'knowledge', ncode:'KG', esc:true}
 ];
 function renderTriage(){
@@ -1575,7 +1582,7 @@ function triChipHTML(total){
   return `<div class="tri-chip ${triage.conf==='high'?'sure':''}" id="triChip"><span class="stamp">SURE</span>
     <span class="chip-eyebrow">wrong question</span><span class="chip-n" id="triNext">#${total+1}</span>
     <div class="tri-conf" id="triConf">
-      <button class="tc sure ${triage.conf==='high'?'on':''}" data-c="high">I was sure</button>
+      <button class="tc sure ${triage.conf==='high'?'on':''}" data-c="high">Sure in exam</button>
       <button class="tc twoish ${triage.conf==='twoish'?'on':''}" data-c="twoish">Down to 2</button>
       <button class="tc noidea ${triage.conf==='noidea'?'on':''}" data-c="noidea">No read</button>
     </div>
@@ -1617,7 +1624,7 @@ function renderTriIntro(box){
     <p class="lead">No writing. For each wrong question, drop it in the bucket that fits — about 5 seconds each. Here's what they mean:</p>
     ${ERRORS.map(e=>`<div class="coach-row"><span class="coach-code" style="background:${e.c}">${e.code}</span>
       <div><div class="t">${e.t}</div><div class="d">${esc(e.d)}.<br>Ask: <b>${esc(e.test)}</b></div></div></div>`).join('')}
-    <div class="coach-note"><b>Not sure which one?</b> Tap “Which bucket? Ask me” and answer a couple of quick questions. And if you were <b>sure</b> but still got it wrong, that's a <b>blind spot</b> — the app flags it for you. Those hurt most.</div>
+    <div class="coach-note"><b>Not sure which one?</b> Tap “Which bucket? Ask me” and answer a couple of quick questions. “Sure in exam” means how it felt <b>in the exam</b> — not how it feels now. Sure + a wrong idea = a <b>blind spot</b>. Those hurt most.</div>
     <div class="actions"><button class="btn primary" id="triStart">Start sorting ▶</button></div></div>`;
   document.getElementById('triBack').onclick=exitTriage;
   document.getElementById('triStart').onclick=()=>{ settings.triCoached=true; persistSettings(); renderTriage(); };
@@ -1626,7 +1633,7 @@ function triGuideSheet(){
   openSheet(`<h3>The four buckets</h3>
     ${ERRORS.map(e=>`<div class="coach-row" style="animation:none"><span class="coach-code" style="background:${e.c}">${e.code}</span>
       <div><div class="t">${e.t}</div><div class="d">${esc(e.d)}.<br><b>Test:</b> ${esc(e.test)}<br><b>Fix:</b> ${esc(FIXTEXT[e.id])}</div></div></div>`).join('')}
-    <p style="margin-top:14px"><b style="color:var(--rose)">Sure + Knowledge gap</b> is impossible — you weren't blank, you were wrong. It auto-files as a CC blind spot.</p>
+    <p style="margin-top:14px"><b style="color:var(--rose)">Sure + Knowledge gap</b> is impossible — you weren't blank, you were wrong. It auto-files as a CC blind spot. “Sure” always means how it felt <b>in the exam</b>, not now.</p>
     <div class="actions"><button class="btn primary" onclick="closeSheet()">Got it</button></div>`);
 }
 function triFootHTML(){
@@ -1724,7 +1731,7 @@ function triageSummaryHTML(){
   const synth=`Mostly <b style="color:${dom.c}">${dom.t.toLowerCase()}</b> (${c[dom.id]}). ${FIXTEXT[dom.id]}`;
   /* plain-english read of this session's confidence mix — zero lines hidden */
   const confLines=[
-    sure?`<div class="line"><b class="bl">Blind spots — ${sure}.</b> You were sure and wrong. These come back — they won't feel wrong in the exam either. Fix the concept, don't just move on.</div>`:'',
+    blind?`<div class="line"><b class="bl">Blind spots — ${blind}.</b> You were sure and wrong about the fact itself. These come back — they won't feel wrong in the exam either. Fix the concept, don't just move on.</div>`:'',
     noidea?`<div class="line"><b style="color:var(--ink)">No read — ${noidea}.</b> No real read, and it missed. Test whether skipping these nets you more marks — watch this number across tests.</div>`:'',
     twoish?`<div class="line"><b style="color:var(--amber)">Down to 2 — ${twoish}.</b> Fair bets. Leave them alone.</div>`:''
   ].join('');
@@ -1827,7 +1834,7 @@ function nextCard(map){
   const openBySub={}; open.forEach(e=>openBySub[e.subject]=(openBySub[e.subject]||0)+1);
   const worst=Object.entries(openBySub).sort((a,b)=>b[1]-a[1])[0];
   if(worst && worst[1]>=3) rows.push(`<div class="row"><span class="n">${i++}</span><span><b>${esc(worst[0])}</b> is leaking most right now — ${worst[1]} open. Give it first slot in this week's modules.</span></div>`);
-  const blindOpen=open.filter(e=>e.conf==='high').length;
+  const blindOpen=open.filter(isBlind).length;
   if(blindOpen) rows.push(`<div class="row"><span class="n">${i++}</span><span><b>${blindOpen} blind spot${blindOpen>1?'s':''}</b> — sure but wrong. These won't feel wrong in the exam either; re-learn them properly.</span></div>`);
   if(!rows.length) rows.push(`<div class="row"><span class="n">✓</span><span>Nothing open — you're clear. Log your next GT or module and keep it that way.</span></div>`);
   const d=daysToExam();
@@ -1940,7 +1947,7 @@ function buildTests(){
   entries.forEach(e=>{ const k=e.testType+'|'+e.set, t=touch(k,e.set,e.testType);
     t.logged++; if(t.errs[e.error]!=null)t.errs[e.error]++; if(e.subject)t.subs[e.subject]=(t.subs[e.subject]||0)+1; t.ts=Math.max(t.ts,e.ts||0); });
   sessions.forEach(s=>{ const k=s.testType+'|'+s.set, t=touch(k,s.set,s.testType); const cc=triageCounts(s.items), cp=sessComp(s);
-    t.tri+=cc.total; t.blind+=cp.sure; ['sure','twoish','noidea'].forEach(x=>t.comp[x]+=cp[x]);
+    t.tri+=cc.total; t.blind+=cc.blind; ['sure','twoish','noidea'].forEach(x=>t.comp[x]+=cp[x]);
     ERRORS.forEach(e=>t.errs[e.id]+=cc.c[e.id]); s.items.forEach(it=>{ if(it.subj)t.subs[it.subj]=(t.subs[it.subj]||0)+1; });
     t.ts=Math.max(t.ts,s.ts||0); });
   return tests;
@@ -1962,7 +1969,7 @@ function testDetailSheet(key){
   const dom=ERRORS.slice().sort((a,b)=>t.errs[b.id]-t.errs[a.id])[0];
   const subs=Object.entries(t.subs).sort((a,b)=>b[1]-a[1]).slice(0,5);
   const trio=(t.comp.sure||t.comp.twoish||t.comp.noidea)?`<div class="trio">
-    <div class="trio-c"><b class="bl">${t.comp.sure}</b><span>blind</span></div>
+    <div class="trio-c"><b class="bl">${t.comp.sure}</b><span>sure</span></div>
     <div class="trio-c"><b style="color:var(--amber)">${t.comp.twoish}</b><span>down to 2</span></div>
     <div class="trio-c"><b style="color:var(--ink2)">${t.comp.noidea}</b><span>no read</span></div></div>`:'';
   openSheet(`<h3>${esc(t.set)}</h3>
@@ -1977,7 +1984,7 @@ function statStrip(){
   const map=recurrenceMap();
   const due=dueCount();
   const rec=entries.filter(e=>isRecurring(e,map)).length;
-  const blind=entries.filter(e=>e.conf==='high').length;
+  const blind=entries.filter(isBlind).length;
   const cell=(n,lab,col)=>`<div class="ss-cell"><div class="ss-n" style="color:${col}">${n}</div><div class="ss-l">${lab}</div></div>`;
   return `<div class="statstrip">${cell(due,'due today','var(--sage-ink)')}${cell(rec,'keep happening','var(--amber)')}${cell(blind,'blind spots','var(--rose)')}</div>`;
 }
@@ -2024,8 +2031,8 @@ function bucketFixSheet(errId, sub, n){
 function buildSubjects(){
   const m={};
   const touch=s=>m[s]=m[s]||{n:0,sure:0,errs:{knowledge:0,retrieval:0,reasoning:0,execution:0},tests:{}};
-  entries.forEach(e=>{ if(!e.subject)return; const t=touch(e.subject); t.n++; if(t.errs[e.error]!=null)t.errs[e.error]++; if(e.conf==='high')t.sure++; t.tests[e.set]=1; });
-  sessions.forEach(s=>s.items.forEach(it=>{ if(!it.subj)return; const t=touch(it.subj); t.n++; if(t.errs[it.error]!=null)t.errs[it.error]++; if(it.conf==='high')t.sure++; t.tests[s.set]=1; }));
+  entries.forEach(e=>{ if(!e.subject)return; const t=touch(e.subject); t.n++; if(t.errs[e.error]!=null)t.errs[e.error]++; if(isBlind(e))t.sure++; t.tests[e.set]=1; });
+  sessions.forEach(s=>s.items.forEach(it=>{ if(!it.subj)return; const t=touch(it.subj); t.n++; if(t.errs[it.error]!=null)t.errs[it.error]++; if(isBlind(it))t.sure++; t.tests[s.set]=1; }));
   return m;
 }
 function weakAreasCard(){
@@ -2067,16 +2074,15 @@ function sparkRow(label,color,vals){
 function triageInsightsCard(){
   if(!sessions.length) return '';
   const agg={knowledge:0,retrieval:0,reasoning:0,execution:0}; let blind=0, total=0;
-  sessions.forEach(s=>{ s.items.forEach(it=>{ agg[it.error]=(agg[it.error]||0)+1; total++; }); blind+=sessComp(s).sure; });
+  sessions.forEach(s=>{ s.items.forEach(it=>{ agg[it.error]=(agg[it.error]||0)+1; total++; }); blind+=triageCounts(s.items).blind; });
   if(!total) return '';
   const recent=sessions.slice(0,10).slice().reverse();
   const dom=ERRORS.slice().sort((a,b)=>agg[b.id]-agg[a.id])[0];
   let trends='';
   if(recent.length>=2){
-    const comps=recent.map(sessComp);
     trends=`<div class="leak-sub" style="margin-top:20px">Per-test trends</div><div class="sparks">
-      ${sparkRow('Blind spots','var(--rose)',comps.map(x=>x.sure))}
-      ${sparkRow('No-read misses','var(--ink2)',comps.map(x=>x.noidea))}</div>`;
+      ${sparkRow('Blind spots','var(--rose)',recent.map(s=>triageCounts(s.items).blind))}
+      ${sparkRow('No-read misses','var(--ink2)',recent.map(s=>sessComp(s).noidea))}</div>`;
   }
   return `<div class="card"><h3><span class="accent"></span>Triage — long-term read</h3>
     <div class="tlab" style="margin:-6px 0 14px">${total} mistake${total>1?'s':''} across ${sessions.length} test${sessions.length>1?'s':''}${blind?` · <b class="bl">${blind} blind spot${blind>1?'s':''}</b>`:''}.</div>
@@ -2312,7 +2318,7 @@ async function ankiExport(includeAll){
     if(e.trap) parts.push('Trap: '+e.trap);
     const back=field(parts.join('\n'));
     const tags=[tag(e.subject),tag(e.error),tag(e.set)];
-    if(e.conf==='high') tags.push('blind');
+    if(isBlind(e)) tags.push('blind');
     if(e.image) tags.push('picture');
     return [front,back,tags.filter(Boolean).join(' ')].join('\t');
   });
