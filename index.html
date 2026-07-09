@@ -440,6 +440,8 @@
     transition:transform .09s ease,box-shadow .12s ease;overflow:hidden;top:0}
   .bucket .b-fill{position:absolute;left:0;right:0;bottom:0;height:0;background:color-mix(in srgb,var(--bc) 13%,transparent);transition:height .45s cubic-bezier(.3,1,.4,1);pointer-events:none}
   .bucket .b-wm{position:absolute;right:6px;bottom:-6px;font-size:46px;font-weight:900;color:var(--bc);opacity:.08;letter-spacing:-.04em;pointer-events:none}
+  .bucket.locked{opacity:.45;pointer-events:none}
+  .chip-help.locked{opacity:.45;pointer-events:none}
   .bucket:active{transform:scale(.96)}
   .bucket.pulse{animation:bpulse .36s cubic-bezier(.3,1.4,.5,1)}
   @keyframes bpulse{40%{transform:scale(1.05);box-shadow:0 0 0 5px color-mix(in srgb,var(--bc) 22%,transparent)}}
@@ -1003,16 +1005,33 @@ const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 
 const ERRORS=[
-  {id:'knowledge', code:'KG', t:"Knowledge gap",       d:"you didn't know it — had to read the explanation", c:'var(--rose)',   test:"Did you have to read the explanation to get it?"},
-  {id:'retrieval', code:'RF', t:"Retrieval slip",      d:"you knew it, but blanked in the moment",           c:'var(--amber)',  test:"In the exam, did you actually know this — but pick wrong?"},
-  {id:'reasoning', code:'CC', t:"Wrong idea",          d:"you were sure of something that was actually wrong",c:'var(--violet)', test:"Were you sure of an answer that turned out wrong?"},
-  {id:'execution', code:'TE', t:"Careless slip",       d:"you knew it — misread, or ticked the wrong option",c:'var(--teal)',   test:"Read it slowly now — do you get it right?"},
+  {id:'knowledge', code:'KG', t:"Didn't know it",
+   d:"the content was new or unread — you had nothing to retrieve",
+   c:'var(--rose)',
+   test:"Was the correct answer new information to you?"},
+  {id:'retrieval', code:'RF', t:"Knew it, didn't fire",
+   d:"you owned this — it just didn't surface under the clock",
+   c:'var(--amber)',
+   test:"Can you say why your option is wrong, right now, without the explanation?"},
+  {id:'reasoning', code:'CC', t:"Confidently wrong",
+   d:"you held a belief that turned out to be false",
+   c:'var(--violet)',
+   test:"Would you have bet money on your answer?"},
+  {id:'execution', code:'TE', t:"Misread it",
+   d:"nothing to do with knowing — a negation missed, or the wrong bubble",
+   c:'var(--teal)',
+   test:"Was there an EXCEPT/NOT, or did you tick an option you didn't mean?"},
 ];
 const ERR_MAP=Object.fromEntries(ERRORS.map(e=>[e.id,e]));
-/* ONE definition of a blind spot, used everywhere:
-   you were sure AND the error was a belief error (wrong idea, or a gap you didn't know you had).
-   Sure-but-misread (TE) and sure-but-blanked (RF) are NOT blind spots — you know that material. */
-const isBlind = x => !!x && x.conf==='high' && (x.error==='reasoning' || x.error==='knowledge');
+/* high confidence + "didn't know it" is contradictory: you weren't blank, you held a wrong belief.
+   Applied identically on both write paths so one input can never yield two classifications. */
+function normalizeErr(error, conf){
+  return (conf==='high' && error==='knowledge') ? 'reasoning' : error;
+}
+/* ONE definition of a blind spot, used everywhere: sure + a false belief.
+   'knowledge' can no longer co-occur with 'high' after normalizeErr, so reasoning is the only arm.
+   Parked (uncertain) items never count — an unclassified mistake can't drive the headline number. */
+const isBlind = x => !!x && !x.uncertain && x.conf==='high' && x.error==='reasoning';
 const CONFS=[
   {id:'high',   t:'Sure in exam', d:'sure in the moment — and still wrong', c:'var(--rose)'},
   {id:'twoish', t:'Down to 2',    d:'it was between two options', c:'var(--amber)'},
@@ -1087,6 +1106,14 @@ function migrate(){
     if(settings.moduleSet==='Module 1') settings.moduleSet=recent('module','Module 1');
     settings._migrated=true; changed=true;
   }
+  /* v22: normalize any stored sure+didn't-know into the belief-error bucket, once */
+  if(!settings._normv22){
+    let sChanged=false;
+    entries.forEach(e=>{ if(e.conf==='high' && e.error==='knowledge'){ e.error='reasoning'; e.upd=Date.now(); changed=true; } });
+    sessions.forEach(sn=>sn.items.forEach(it=>{ if(it.conf==='high' && it.error==='knowledge'){ it.error='reasoning'; sChanged=true; } }));
+    if(sChanged) persistSessions(false);
+    settings._normv22=true; changed=true;
+  }
   if(changed){ persist(); persistSettings(); }
 }
 let _saveWarned=false;
@@ -1141,6 +1168,21 @@ function bindKeyboard(){
   const recheck=()=>setTimeout(()=>{ if(!isTextField(document.activeElement)) clearKbd(); }, 0);
   document.addEventListener('focusout',e=>{ if(isTextField(e.target)) recheck(); });
   document.addEventListener('blur',e=>{ if(isTextField(e.target)) recheck(); }, true);
+  /* triage keys: 1/2/3 confidence, Q/W/E/R buckets, U undo, ? guide */
+  document.addEventListener('keydown',e=>{
+    if(!triage.active || triage.done || triage.decide!=null) return;
+    const v=document.getElementById('v-triage'); if(!v || !v.classList.contains('on')) return;
+    if(document.getElementById('backdrop').classList.contains('show')) return;
+    if(isTextField(e.target)) return;
+    const k=(e.key||'').toLowerCase();
+    if(k==='1'||k==='2'||k==='3'){ triage.conf=['high','twoish','noidea'][+k-1]; paintTriConf(); lockUI(); }
+    else if(k==='u') triageUndo();
+    else if(e.key==='?') triGuideSheet();
+    else if(k==='q'||k==='w'||k==='e'||k==='r'){
+      const map={q:'knowledge',w:'retrieval',e:'reasoning',r:'execution'};
+      triageAdd(map[k], document.querySelector(`#triBuckets .bucket[data-b="${map[k]}"]`)); /* no-op while locked */
+    }
+  });
 }
 function paint(container,attr,val){container.querySelectorAll('.opt').forEach(b=>b.classList.toggle('on',b.dataset[attr]===val));}
 function paintTypeSwitch(){document.querySelectorAll('#typeSwitch button').forEach(b=>b.classList.toggle('on',b.dataset.type===curType()));}
@@ -1211,7 +1253,7 @@ async function doSave(again){
     const e=entries.find(x=>x.id===editingId);
     if(e){
       Object.assign(e,{subject:form.subject, concept:f.concept, lesson:f.lesson, note:f.note, trap:f.trap,
-        error:form.error, conf:form.conf, image:form.image||hasPhoto, hasPhoto, upd:Date.now()});
+        error:normalizeErr(form.error, form.conf), conf:form.conf, image:form.image||hasPhoto, hasPhoto, upd:Date.now()});
       if(hasPhoto){photos[e.id]=form.photo; idbSet(e.id,form.photo)} else {delete photos[e.id]; idbDel(e.id)}
     }
     editingId=null; updateEditUI();
@@ -1221,7 +1263,7 @@ async function doSave(again){
   if(hasPhoto){photos[id]=form.photo; idbSet(id,form.photo)}
   entries.unshift({ id, ts:Date.now(), upd:Date.now(), testType:curType(), set:curSet(), subject:form.subject,
     concept:f.concept, lesson:f.lesson, note:f.note, trap:f.trap,
-    error:form.error, conf:form.conf, image:form.image||hasPhoto, hasPhoto, status:'open' });
+    error:normalizeErr(form.error, form.conf), conf:form.conf, image:form.image||hasPhoto, hasPhoto, status:'open' });
   await persist();
   const n=entries.length;
   toast(again?'Saved — next one':'Saved to '+curSet());
@@ -1433,20 +1475,25 @@ function endReview(){review.active=false; renderReview()}
 
 /* ===================== rapid triage: pluck a GT's mistakes into buckets ===================== */
 function triageCounts(items){
-  const c={knowledge:0,retrieval:0,reasoning:0,execution:0}; let sure=0, twoish=0, noidea=0, blind=0;
+  const c={knowledge:0,retrieval:0,reasoning:0,execution:0};
+  let sure=0, twoish=0, noidea=0, blind=0, nearMiss=0, uncertain=0, img=0;
   (items||[]).forEach(it=>{ c[it.error]=(c[it.error]||0)+1;
     if(it.conf==='high') sure++;
     else if(it.conf==='twoish') twoish++;
     else if(it.conf==='noidea') noidea++;
     if(isBlind(it)) blind++;
+    if(it.conf==='twoish' && (it.error==='knowledge'||it.error==='reasoning')) nearMiss++;
+    if(it.uncertain) uncertain++;
+    if(it.img) img++;
   });
-  /* sure = raw calibration count; blind = sure AND a belief error (the number that matters) */
-  return {c, blind, sure, twoish, noidea, total:(items||[]).length};
+  /* three numbers that steer study: blind (false beliefs), nearMiss (closest marks),
+     blindAttempt (attempt discipline). sure stays as the raw calibration count. */
+  return {c, blind, nearMiss, blindAttempt:noidea, uncertain, img, sure, twoish, noidea, total:(items||[]).length};
 }
 function sessComp(s){ if(s&&s.comp&&typeof s.comp==='object') return {sure:+s.comp.sure||0, twoish:+s.comp.twoish||0, noidea:+s.comp.noidea||0};
   const cc=triageCounts((s&&s.items)||[]); return {sure:cc.sure, twoish:cc.twoish, noidea:cc.noidea}; }
 function startTriage(){
-  triage={ active:true, set:curSet(), testType:curType(), conf:null, subj:null, items:[], saved:false, done:false, decide:null };
+  triage={ active:true, set:curSet(), testType:curType(), conf:null, subj:null, img:false, items:[], saved:false, done:false, decide:null };
   showTriageView(); renderTriage();
 }
 function reducedMotion(){ return !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches); }
@@ -1521,10 +1568,17 @@ function showTriageView(){
   window.scrollTo({top:0});
 }
 function exitTriage(){ triage.active=false; triage.done=false; switchView('triage'); render(); }
-const TRI_QS=[ /* plain yes/no tests, in the order that sorts fastest */
-  {q:"Was it a misread — missed an EXCEPT / NOT, or ticked the wrong option?", yes:'execution', ycode:'TE'},
-  {q:"In the exam, did you know this cold — but still picked wrong?", yes:'retrieval', ycode:'RF', esc:true},
-  {q:"Were you sure of an answer that turned out wrong?", yes:'reasoning', ycode:'CC', no:'knowledge', ncode:'KG', esc:true}
+const TRI_QS=[
+  /* 1. Mechanical, objectively checkable. Exits ~a third of cases in one tap. */
+  {q:"Look at the stem again. Was there an EXCEPT / NOT / 'least likely' you missed, or did you tick an option you didn't mean to?",
+   yes:'execution', ycode:'TE'},
+  /* 2. Novelty. Cleanly separates "nothing to retrieve" from "retrieved the wrong thing". */
+  {q:"Was the correct answer genuinely new to you — content you'd never read?",
+   yes:'knowledge', ycode:'KG', esc:true},
+  /* 3. The RF/CC split. Present-tense, unaided recall is the discriminator —
+        not how confident it felt, which is already captured separately. */
+  {q:"Right now, without reading the explanation — can you say why your option is wrong?",
+   yes:'retrieval', ycode:'RF', no:'reasoning', ncode:'CC', esc:true}
 ];
 function renderTriage(){
   const box=document.getElementById('triageBody'); if(!box)return;
@@ -1553,9 +1607,9 @@ function renderTriage(){
       ${ERRORS.map(e=>`<span class="tt-chip" style="--bc:${e.c}"><b>${e.code}</b><span data-count="${e.id}">${c[e.id]}</span></span>`).join('')}
     </div>
     <div class="tri-mid"><div id="triChipWrap">${triChipHTML(total)}</div>
-      <div class="tri-prompt">drop it in its bucket ↓</div></div>
+      <div class="tri-prompt" id="triPrompt">${triage.conf?'drop it in its bucket ↓':'pick how it felt in the exam ↑'}</div></div>
     <div class="tri-buckets" id="triBuckets">
-      ${ERRORS.map(e=>`<button class="bucket" data-b="${e.id}" style="--bc:${e.c}">
+      ${ERRORS.map(e=>`<button class="bucket ${triage.conf?'':'locked'}" ${triage.conf?'':'disabled aria-disabled="true"'} data-b="${e.id}" style="--bc:${e.c}">
         <span class="b-fill" data-fill="${e.id}" style="height:${total?Math.round(c[e.id]/total*100):0}%"></span>
         <span class="b-wm">${e.code}</span>
         <span class="b-top"><span class="b-code">${e.code}</span><span class="b-count" data-bcount="${e.id}">${c[e.id]}</span></span>
@@ -1576,7 +1630,7 @@ function triChipHTML(total){
     return `<div class="tri-chip" id="triChip"><span class="dstep">bucket finder · ${triage.decide+1} / 3</span>
       <div class="dq">${esc(s.q)}</div>
       <div class="dbtns"><button class="yes" data-a="yes">Yes → ${s.ycode}</button><button data-a="no">${s.no?'No → '+s.ncode:'No'}</button></div>
-      ${s.esc?'<button class="dq-esc" data-a="esc">Can’t tell → file as KG</button>':''}
+      ${s.esc?'<button class="dq-esc" data-a="esc">Can’t tell → park it</button>':''}
       <button class="chip-help" id="dqCancel">never mind</button></div>`;
   }
   return `<div class="tri-chip ${triage.conf==='high'?'sure':''}" id="triChip"><span class="stamp">SURE</span>
@@ -1587,12 +1641,20 @@ function triChipHTML(total){
       <button class="tc noidea ${triage.conf==='noidea'?'on':''}" data-c="noidea">No read</button>
     </div>
     <div class="chip-meta"><button class="chip-subj ${triage.subj?'set':''}" id="triSubj">${triage.subj?esc(triage.subj):'+ subject'}</button>
-      <button class="chip-help sm" id="triPick">which bucket?</button></div></div>`;
+      <button class="chip-subj ${triage.img?'set':''}" id="triImg">${triage.img?'📷 image':'📷 image Q'}</button>
+      <button class="chip-help sm ${triage.conf?'':'locked'}" id="triPick">which bucket?</button></div></div>`;
+}
+function lockUI(){
+  const locked=!triage.conf;
+  document.querySelectorAll('#triBuckets .bucket').forEach(b=>{ b.classList.toggle('locked',locked); b.disabled=locked; b.setAttribute('aria-disabled',locked?'true':'false'); });
+  const p=document.getElementById('triPrompt'); if(p) p.textContent=locked?'pick how it felt in the exam ↑':'drop it in its bucket ↓';
+  const pk=document.getElementById('triPick'); if(pk) pk.classList.toggle('locked',locked);
 }
 function bindTriChip(){
   const wrap=document.getElementById('triChipWrap'); if(!wrap)return;
-  wrap.querySelectorAll('#triConf .tc').forEach(b=>b.onclick=()=>{ triage.conf=(triage.conf===b.dataset.c)?null:b.dataset.c; paintTriConf(); });
-  const pick=document.getElementById('triPick'); if(pick) pick.onclick=()=>{ triage.decide=0; redrawChip(); };
+  wrap.querySelectorAll('#triConf .tc').forEach(b=>b.onclick=()=>{ triage.conf=(triage.conf===b.dataset.c)?null:b.dataset.c; paintTriConf(); lockUI(); });
+  const img=document.getElementById('triImg'); if(img) img.onclick=()=>{ triage.img=!triage.img; redrawChip(); };
+  const pick=document.getElementById('triPick'); if(pick) pick.onclick=()=>{ if(!triage.conf)return; triage.decide=0; redrawChip(); };
   const subj=document.getElementById('triSubj'); if(subj) subj.onclick=triSubjSheet;
   const cancel=document.getElementById('dqCancel'); if(cancel) cancel.onclick=()=>{ triage.decide=null; redrawChip(); };
   wrap.querySelectorAll('.dbtns button').forEach(b=>b.onclick=()=>{
@@ -1601,14 +1663,17 @@ function bindTriChip(){
     else if(s.no){ triage.decide=null; redrawChip(); triageAdd(s.no, document.querySelector(`#triBuckets .bucket[data-b="${s.no}"]`)); }
     else { triage.decide++; redrawChip(); }
   });
-  /* the escape hatch: can't tell → the conservative bucket (re-reading half-known material is never wasted).
-     Files with neutral confidence so a sticky "I was sure" can't fake a blind spot out of a can't-tell. */
+  /* the escape hatch: can't tell → park it. Keeps the honestly-given confidence but marks the
+     bucket unknown, so it can never inflate KG re-reads or the blind-spot count. */
   const escBtn=wrap.querySelector('.dq-esc');
-  if(escBtn) escBtn.onclick=()=>{ triage.decide=null; redrawChip();
+  if(escBtn) escBtn.onclick=()=>{ triage.decide=null;
     const btn=document.querySelector('#triBuckets .bucket[data-b="knowledge"]');
-    triage.items.push({error:'knowledge', conf:null, subj:triage.subj||null, t:Date.now()});
+    const it={error:'knowledge', conf:triage.conf||null, uncertain:true, subj:triage.subj||null, t:Date.now()};
+    if(triage.img) it.img=true;
+    triage.items.push(it);
+    triage.conf=null; triage.img=false; redrawChip();
     updateTriageUI(); flyToken(btn,'knowledge',false); buzz(9);
-    toast('Filed as a knowledge gap — the safe default when you can’t tell.'); };
+    toast('Parked. It won’t count as a blind spot until you sort it.'); };
 }
 function redrawChip(){ const w=document.getElementById('triChipWrap'); if(w){ w.innerHTML=triChipHTML(triageCounts(triage.items).total); bindTriChip(); } }
 /* sticky subject on the ticket — set it once when you move to a new subject's questions; it feeds the subject × mistake map */
@@ -1638,7 +1703,7 @@ function triGuideSheet(){
 }
 function triFootHTML(){
   const last=triage.items[triage.items.length-1];
-  if(!last) return '<span class="tri-hint">“I was sure” sticks between questions. Sure + Knowledge gap auto-flips to a CC blind spot.</span>';
+  if(!last) return '<span class="tri-hint">Confidence first, then the bucket. Sure + didn’t-know auto-flips to a CC blind spot.</span>';
   const em=ERR_MAP[last.error];
   const cl={high:' sure', twoish:' down-to-2', noidea:' no-read', low:' down-to-2'}[last.conf]||'';
   return `<button class="tri-undo" id="triUndo">↶ undo last · <b style="color:${em.c}">${em.code}</b>${cl}</button>`;
@@ -1649,12 +1714,14 @@ function paintTriConf(){
   const chip=document.getElementById('triChip'); if(chip) chip.classList.toggle('sure',triage.conf==='high');
 }
 function triageAdd(bucket, btnEl){
-  let error=bucket;
-  /* confidence interaction: High + knowledge-gap is impossible — you weren't blank, you were wrong → CC */
-  const reclassed = (triage.conf==='high' && bucket==='knowledge');
-  if(reclassed) error='reasoning';
+  if(!triage.conf) return; /* confidence is mandatory, per item */
+  const error=normalizeErr(bucket, triage.conf);
+  const reclassed = error!==bucket;
   const blind = (triage.conf==='high' && error==='reasoning');
-  triage.items.push({error, conf:triage.conf||null, subj:triage.subj||null, t:Date.now()});
+  const it={error, conf:triage.conf, subj:triage.subj||null, t:Date.now()};
+  if(triage.img) it.img=true;
+  triage.items.push(it);
+  triage.conf=null; triage.img=false; /* no carry-over: one forgotten tap must not fake the next blind spot */
   updateTriageUI();
   flyToken(btnEl, error, blind);
   buzz(blind?[14,45,14]:9);
@@ -1672,6 +1739,8 @@ function updateTriageUI(){
   const nx=document.getElementById('triNext'); if(nx) nx.textContent='#'+(total+1);
   const d=document.getElementById('triDone'); if(d) d.disabled=!total;
   const f=document.getElementById('triFoot'); if(f){ f.innerHTML=triFootHTML(); bindTriUndo(); }
+  paintTriConf(); lockUI();
+  const imgBtn=document.getElementById('triImg'); if(imgBtn){ imgBtn.classList.toggle('set',!!triage.img); imgBtn.textContent=triage.img?'📷 image':'📷 image Q'; }
   if(total && total%10===0){ const ty=document.getElementById('triTally'); if(ty){ ty.classList.remove('milestone'); void ty.offsetWidth; ty.classList.add('milestone'); } }
 }
 function flyToken(btnEl, error, blind){
@@ -1717,7 +1786,7 @@ function saveSession(){
   const cc=triageCounts(triage.items);
   const sess={ id:newId(), ts:Date.now(), testType:triage.testType, set:triage.set,
     comp:{sure:cc.sure, twoish:cc.twoish, noidea:cc.noidea}, /* wrong-composition, for per-GT trends */
-    items:triage.items.map(it=>({error:it.error, conf:it.conf||null, subj:it.subj||null})) };
+    items:triage.items.map(it=>{ const o={error:it.error, conf:it.conf||null, subj:it.subj||null}; if(it.img)o.img=true; if(it.uncertain)o.uncertain=true; return o; }) };
   sessions.unshift(sess);
   sessions=sessions.slice(0,100); /* keep the doc well under Firestore's 1 MB cap */
   persistSessions(); triage.saved=true;
@@ -1732,7 +1801,7 @@ function triageSummaryHTML(){
   /* plain-english read of this session's confidence mix — zero lines hidden */
   const confLines=[
     blind?`<div class="line"><b class="bl">Blind spots — ${blind}.</b> You were sure and wrong about the fact itself. These come back — they won't feel wrong in the exam either. Fix the concept, don't just move on.</div>`:'',
-    noidea?`<div class="line"><b style="color:var(--ink)">No read — ${noidea}.</b> Blind attempts, each cost −1. Break-even is 20% (+4/−1): if you couldn't kill even one option, skip it. You don't guess at a clean 25% — you get pulled to the trap, which is under 20%. If this number climbs GT to GT, discipline is your leak, not knowledge.</div>`:'',
+    noidea?`<div class="line"><b style="color:var(--ink)">Blind attempts — ${noidea}.</b> Every one cost −1. On a +4/−1 paper you need better than 1-in-5 on blind attempts to break even. If this number rises test to test while your correct count holds, your leak is attempt discipline, not knowledge.</div>`:'',
     twoish?`<div class="line"><b style="color:var(--amber)">Down to 2 — ${twoish}.</b> +EV bets (~+1.5 each). Right to attempt — don't let these scare you into over-skipping. One elimination always beats leaving it blank.</div>`:''
   ].join('');
   return `
@@ -2681,7 +2750,12 @@ function sanitizeSessions(arr){
   if(!Array.isArray(arr)) return [];
   const conf=v=> v==='high'?'high' : (v==='twoish'||v==='low')?'twoish' : v==='noidea'?'noidea' : null;
   return arr.filter(x=>x&&x.id&&Array.isArray(x.items)).map(x=>{
-    const items=x.items.filter(it=>it&&ERR_MAP[it.error]).map(it=>({error:it.error, conf:conf(it.conf), subj:(it.subj&&SUBJECTS.includes(it.subj))?it.subj:null}));
+    const items=x.items.filter(it=>it&&ERR_MAP[it.error]).map(it=>{
+      const o={error:it.error, conf:conf(it.conf), subj:(it.subj&&SUBJECTS.includes(it.subj))?it.subj:null};
+      if(it.img) o.img=true;            /* preserved — a rebuild that drops these erases them on every sync */
+      if(it.uncertain) o.uncertain=true;
+      return o;
+    });
     const cc=triageCounts(items);
     const comp=(x.comp&&typeof x.comp==='object')?{sure:+x.comp.sure||0,twoish:+x.comp.twoish||0,noidea:+x.comp.noidea||0}:{sure:cc.sure,twoish:cc.twoish,noidea:cc.noidea};
     return {...x, items, comp};
