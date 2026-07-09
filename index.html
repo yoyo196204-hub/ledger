@@ -1732,8 +1732,8 @@ function triageSummaryHTML(){
   /* plain-english read of this session's confidence mix — zero lines hidden */
   const confLines=[
     blind?`<div class="line"><b class="bl">Blind spots — ${blind}.</b> You were sure and wrong about the fact itself. These come back — they won't feel wrong in the exam either. Fix the concept, don't just move on.</div>`:'',
-    noidea?`<div class="line"><b style="color:var(--ink)">No read — ${noidea}.</b> No real read, and it missed. Test whether skipping these nets you more marks — watch this number across tests.</div>`:'',
-    twoish?`<div class="line"><b style="color:var(--amber)">Down to 2 — ${twoish}.</b> Fair bets. Leave them alone.</div>`:''
+    noidea?`<div class="line"><b style="color:var(--ink)">No read — ${noidea}.</b> Blind attempts, each cost −1. Break-even is 20% (+4/−1): if you couldn't kill even one option, skip it. You don't guess at a clean 25% — you get pulled to the trap, which is under 20%. If this number climbs GT to GT, discipline is your leak, not knowledge.</div>`:'',
+    twoish?`<div class="line"><b style="color:var(--amber)">Down to 2 — ${twoish}.</b> +EV bets (~+1.5 each). Right to attempt — don't let these scare you into over-skipping. One elimination always beats leaving it blank.</div>`:''
   ].join('');
   return `
     <div class="tri-top"><span style="width:34px"></span><div class="tri-set">${esc(triage.set)} · read</div><span style="width:34px"></span></div>
