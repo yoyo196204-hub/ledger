@@ -620,6 +620,68 @@
   .card.thin{padding:15px 16px 14px}
   .ses-row.tap{width:100%;text-align:left;background:var(--surface);border:1px solid var(--border2);transition:border-color .12s}
   .ses-row.tap:active{border-color:var(--accent)}
+  /* ---- Plan (reading grid) ---- */
+  .fab-log{margin-left:auto;width:36px;height:36px;border-radius:12px;background:var(--accent-soft);color:var(--accent-ink);font-size:22px;font-weight:700;line-height:1}
+  .sec-title{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .pl-head{margin-bottom:14px}
+  .pl-hrow{display:flex;align-items:baseline;gap:14px;font-size:13px;color:var(--muted)}
+  .pl-hrow b{font-size:16px;color:var(--ink)}
+  .pl-hrow span:last-child{margin-left:auto}
+  .pl-bar{height:10px;border-radius:6px;background:var(--surface2);overflow:hidden;margin:10px 0 7px}
+  .pl-bar i{display:block;height:100%;background:var(--grad);border-radius:6px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+  .pl-hsub{font-size:12px;color:var(--muted)}
+  .pl-cov{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}
+  .pl-chip{font-size:9.5px;font-weight:750;letter-spacing:.02em;padding:3px 7px;border-radius:7px;border:1.5px solid var(--border2);color:var(--muted);background:var(--surface2)}
+  .pl-chip.on{background:var(--sage-soft);border-color:color-mix(in srgb,var(--sage) 45%,transparent);color:var(--sage-ink)}
+  .pl-chip.off{border-style:dashed;background:transparent;color:var(--faint)}
+  .pl-missing{display:block;width:100%;text-align:left;font-size:12px;color:var(--ink2);background:color-mix(in srgb,var(--amber) 9%,transparent);
+    border:1px dashed color-mix(in srgb,var(--amber) 40%,transparent);border-radius:11px;padding:9px 12px;margin-top:11px;line-height:1.5}
+  .pl-today .pl-trow{font-size:17px;font-weight:800;letter-spacing:-.01em}
+  .pl-wk{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin:18px 0 8px 3px}
+  .pl-row{display:flex;align-items:center;gap:9px;width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:13px;
+    padding:11px 12px;margin-bottom:7px;cursor:pointer;transition:transform .08s,border-color .12s;position:relative}
+  .pl-row:active{transform:scale(.99)}
+  .pl-row.today{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 12%,transparent)}
+  .pl-row.test{background:color-mix(in srgb,#9DC3E6 16%,var(--surface))}
+  .pl-row.buffer{background:color-mix(in srgb,var(--sage) 12%,var(--surface))}
+  .pl-row.done{opacity:.62}
+  .pl-row.done .pl-t{text-decoration:line-through;text-decoration-thickness:1.5px;text-decoration-color:var(--sage-ink)}
+  .pl-row.slip{border-left:3px solid var(--amber)}
+  .pl-row.donepop{animation:bpulse .3s cubic-bezier(.3,1.4,.5,1)}
+  .pl-date{flex:none;width:52px;font-size:11.5px;font-weight:650;color:var(--muted);font-variant-numeric:tabular-nums}
+  .pl-row.today .pl-date{color:var(--accent-ink);font-weight:800}
+  .pl-t{flex:1;min-width:0;font-weight:700;font-size:13.5px;letter-spacing:-.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .pl-t .pl-part{font-style:normal;font-size:10px;color:var(--amber);font-weight:750}
+  .pl-tag{flex:none;font-size:9.5px;font-weight:800;padding:2.5px 7px;border-radius:7px}
+  .pl-tag.weak{color:var(--amber);background:color-mix(in srgb,var(--amber) 15%,transparent)}
+  .pl-tag.x2{color:var(--violet);background:color-mix(in srgb,var(--violet) 13%,transparent)}
+  .pl-tag.nr{color:var(--ink2);background:rgba(255,255,255,.6)}
+  .pl-tag.slipped{color:var(--amber);background:color-mix(in srgb,var(--amber) 15%,transparent)}
+  .pl-check{flex:none;color:var(--sage-ink);font-weight:800}
+  .pl-more{flex:none;width:26px;height:26px;border-radius:8px;color:var(--accent);font-weight:800;font-size:15px;background:var(--surface2)}
+  .pl-unplanned{display:flex;align-items:center;gap:8px;width:100%;text-align:left;border:1.5px dashed var(--border2);border-radius:14px;
+    padding:13px 14px;margin-top:12px;color:var(--muted);font-size:13px;background:transparent}
+  .pl-unplanned .chg{margin-left:auto;color:var(--accent);font-weight:750;font-size:12.5px}
+  .rv-row{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--border)}
+  .rv-row:last-child{border-bottom:0;padding-bottom:0}
+  .rv-row .rv-t{font-weight:700;font-size:13.5px}
+  .rv-row .rv-d{font-size:11.5px;color:var(--muted);margin-top:1px}
+  .rv-row>div{flex:1;min-width:0}
+  .rv-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--rose);margin-right:6px;vertical-align:1px}
+  .rv-btn{flex:none;font-size:12px;font-weight:750;padding:7px 12px;border-radius:9px;background:var(--surface2);color:var(--ink2)}
+  .rv-btn.full{background:var(--accent-soft);color:var(--accent-ink)}
+  /* score capture */
+  .sc-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+  .sc-cell{min-width:0}
+  .sc-cell label{display:block;font-size:11px;font-weight:750;letter-spacing:.05em;text-transform:uppercase;color:var(--faint);margin-bottom:6px;text-align:center}
+  .stp{display:flex;align-items:stretch;border:1.5px solid var(--border2);border-radius:12px;overflow:hidden;background:var(--surface)}
+  .stp button{width:38px;font-size:19px;font-weight:700;color:var(--accent-ink);background:var(--surface2);flex:none}
+  .stp input{flex:1;width:0;min-width:0;border:none;text-align:center;font-weight:800;font-size:16px;padding:10px 2px;outline:none;background:transparent;box-shadow:none}
+  .sc-warn{margin-top:10px;font-size:12px;color:var(--amber);font-weight:600;background:color-mix(in srgb,var(--amber) 10%,transparent);border-radius:10px;padding:8px 11px;line-height:1.45}
+  .sm-score{margin-top:8px;font-size:13.5px;font-weight:700;color:var(--ink2)}
+  .fixcta{width:100%;margin-top:12px;background:linear-gradient(135deg,#8A5CA8,#6E4390);box-shadow:0 8px 20px -9px rgba(110,67,144,.6),0 3px 0 0 #4E2F66;font-size:14px;line-height:1.35;padding:13px 16px}
+  .linkish{font-size:inherit;color:var(--accent-ink);font-weight:700;text-align:left;display:inline}
+  .gtsc{flex:none;width:34px;text-align:right;font-size:12px;font-weight:750;color:var(--ink2);font-variant-numeric:tabular-nums}
   /* bucket-finder escape */
   .dq-esc{display:block;margin:10px auto 0;font-size:12px;font-weight:650;color:var(--muted);padding:7px 14px;border-radius:20px;
     border:1px dashed var(--border2);background:var(--surface2);transition:all .12s}
@@ -880,7 +942,8 @@
 
   <!-- BOOK -->
   <section class="view" id="v-book">
-    <div class="sec-title"><h2>The book</h2><div class="hint">skim it the night before your next GT</div></div>
+    <div class="sec-title"><h2>The book</h2><div class="hint">skim it the night before your next GT</div>
+      <button class="fab-log" id="addDetailBtn" aria-label="Log a mistake in detail">+</button></div>
     <button class="databtn due" id="revEntry" style="margin-bottom:14px">
       <svg class="ic" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5"/></svg>
       <div><div class="tt">Recall practice</div><div class="dd" id="revEntrySub">Quiz yourself on your logged fixes.</div></div>
@@ -909,6 +972,11 @@
   <!-- TRIAGE (rapid bucketing game) -->
   <section class="view" id="v-triage">
     <div id="triageBody"></div>
+  </section>
+
+  <!-- PLAN (reading grid) -->
+  <section class="view" id="v-plan">
+    <div id="planBody"></div>
   </section>
 
   <!-- INSIGHTS -->
@@ -980,10 +1048,10 @@
   <div class="tabs">
     <button class="tab on" data-v="triage">
       <svg viewBox="0 0 24 24"><path d="M3 5h18l-7 8v5l-4 2v-7L3 5z"/></svg><span>Triage</span></button>
+    <button class="tab" data-v="plan">
+      <span class="tabic"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4M16 2v4M3 9h18M8 14l2.5 2.5L15 12"/></svg><span class="tabbadge" id="planBadge" hidden></span></span><span>Plan</span></button>
     <button class="tab" data-v="insights">
       <svg viewBox="0 0 24 24"><path d="M3 3v18h18M7 14l3-3 3 3 5-6"/></svg><span>Insights</span></button>
-    <button class="tab" data-v="log">
-      <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span>Log</span></button>
     <button class="tab" data-v="book">
       <span class="tabic"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z"/></svg><span class="tabbadge" id="revBadge" hidden></span></span><span>Book</span></button>
     <button class="tab" data-v="data">
@@ -1040,10 +1108,11 @@ const CONFS=[
 
 let entries=[];
 let sessions=[]; /* rapid-triage sessions: aggregate bucket counts per GT, for the fast game + long-term trend */
+let plan={rows:[], done:{}, skims:{}, _upd:0}; /* the reading grid: rows + done stamps + revisit passes */
 let settings={activeType:'gt', gtSet:'GT-18', moduleSet:'Module 1', examDate:'2026-08-31'};
 let form={subject:SUBJECTS[8], error:null, conf:null, image:false, photo:null};
 let triage={active:false, set:'', testType:'gt', conf:null, items:[], saved:false, done:false};
-let bookFilter={sub:'ALL', type:'ALL', bt:'ALL', q:''};
+let bookFilter={sub:'ALL', type:'ALL', bt:'ALL', q:'', src:''};
 let expandedNotes={};
 let editingId=null;
 let review={active:false, queue:[], i:0, revealed:false, known:0, shaky:0, noteOpen:false};
@@ -1051,7 +1120,7 @@ let deferredPrompt=null;
 let photos={}; /* id -> dataURL, kept in IndexedDB */
 let tombstones={}; /* id -> deletedAt, for delete-safe cloud merge */
 let _grpCache=null; /* memoised recurrence groups, invalidated on every persist() */
-const K_TOMB='ml_tombstones_v1', K_FBCFG='ml_fbcfg_v1', K_DEV='ml_device_v1', K_SESS='ml_sessions_v1';
+const K_TOMB='ml_tombstones_v1', K_FBCFG='ml_fbcfg_v1', K_DEV='ml_device_v1', K_SESS='ml_sessions_v1', K_PLAN='ml_plan_v1';
 let fbApp=null, fbUser=null, fbUnsub=null, fbPushT=null, fbApplying=false, fbStatus='off', fbLastSync=0, fbError='';
 let fbLastPush=0, fbLastPull=0, fbRemoteCount=null, fbSyncing=false;
 let _idc=0; /* id counter, guarantees uniqueness within a session */
@@ -1083,6 +1152,7 @@ async function boot(){
   const s=await sget(K_SET); if(s){try{const p=JSON.parse(s); if(p && typeof p==='object' && !Array.isArray(p)) settings=Object.assign(settings,p)}catch(_){}}
   loadTombstones();
   loadSessions();
+  loadPlan();
   migrate();
   if(settings.lastSubject && SUBJECTS.includes(settings.lastSubject)) form.subject=settings.lastSubject;
   buildForm(); bindTabs(); bindActions(); bindKeyboard(); render(); switchView('triage');
@@ -1105,6 +1175,11 @@ function migrate(){
     if(settings.gtSet==='GT-18') settings.gtSet=recent('gt','GT-18');
     if(settings.moduleSet==='Module 1') settings.moduleSet=recent('module','Module 1');
     settings._migrated=true; changed=true;
+  }
+  /* seed the Pass-3 grid once; a user edit is never overwritten */
+  if(!settings._planSeeded && plan.rows.length===0){
+    plan=sanitizePlan({rows:PLAN_SEED, done:{}, skims:{}, _upd:Date.now()});
+    persistPlan(false); settings._planSeeded=true; changed=true;
   }
   /* v22: normalize any stored sure+didn't-know into the belief-error bucket, once */
   if(!settings._normv22){
@@ -1327,7 +1402,7 @@ function render(){
   if(badge){ if(dc>0 && !review.active){ badge.textContent=dc>99?'99+':dc; badge.hidden=false; } else badge.hidden=true; }
   const res=document.getElementById('revEntrySub'); if(res) res.textContent=dc?`${dc} due for recall today — quiz yourself.`:'Nothing due. Quiz yourself on your logged fixes.';
   renderCtx(); paintTypeSwitch();
-  renderTriage(); renderBook(); renderReview(); renderInsights(); renderInstall(); renderCloudSync();
+  renderTriage(); renderPlan(); renderBook(); renderReview(); renderInsights(); renderInstall(); renderCloudSync();
 }
 function daysToExam(){
   if(!settings.examDate)return null;
@@ -1355,6 +1430,7 @@ function renderBook(){
   tf.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{bookFilter.type=c.dataset.t;renderBook()});
 
   let list=scoped;
+  if(bookFilter.src) list=list.filter(e=>e.srcSession===bookFilter.src);
   if(bookFilter.q){const q=bookFilter.q.toLowerCase();
     list=list.filter(e=>((e.concept||'')+' '+(e.lesson||'')+' '+(e.note||'')+' '+(e.trap||'')+' '+(e.subject||'')+' '+(e.set||'')).toLowerCase().includes(q));}
   if(bookFilter.sub!=='ALL') list=list.filter(e=>e.subject===bookFilter.sub);
@@ -1367,6 +1443,8 @@ function renderBook(){
   list.sort((a,b)=>{const d=priorityScore(b,map)-priorityScore(a,map); return d!==0?d:b.ts-a.ts});
 
   const box=document.getElementById('bookList');
+  const srcChip=bookFilter.src?`<button class="chip on" id="srcClear" style="margin-bottom:10px">from one triage read ✕</button>`:'';
+  if(srcChip){ box.insertAdjacentHTML('beforebegin',''); }
   if(list.length===0){
     box.innerHTML=`<div class="empty"><svg class="ic" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z"/></svg>
       <div class="big">${entries.length===0?'Your book is empty':'Nothing matches'}</div>
@@ -1409,6 +1487,10 @@ function renderBook(){
   box.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>delEntry(b.dataset.del));
   box.querySelectorAll('[data-note]').forEach(b=>b.onclick=()=>{expandedNotes[b.dataset.note]=!expandedNotes[b.dataset.note];renderBook()});
   box.querySelectorAll('[data-zoom]').forEach(b=>b.onclick=()=>zoomPhoto(b.dataset.zoom));
+  if(bookFilter.src){
+    box.insertAdjacentHTML('afterbegin', `<button class="chip on" id="srcClear" style="margin-bottom:11px">showing fixes from one read ✕</button>`);
+    const sc=document.getElementById('srcClear'); if(sc) sc.onclick=()=>{ bookFilter.src=''; renderBook(); };
+  }
 }
 function zoomPhoto(id){ if(photos[id]) openSheet(`<img class="zoom" src="${photos[id]}" alt=""><div class="actions" style="margin-top:16px"><button class="btn primary" onclick="document.getElementById('backdrop').classList.remove('show')">Close</button></div>`); }
 async function toggleFix(id){const e=entries.find(x=>x.id===id);if(!e)return;e.status=e.status==='fixed'?'open':'fixed';e.fixedTs=e.status==='fixed'?Date.now():null;e.upd=Date.now();await persist();render()}
@@ -1546,6 +1628,258 @@ function renderTriHome(box){
   box.querySelectorAll('#thType button').forEach(b=>b.onclick=async()=>{ await setType(b.dataset.type); renderTriage(); });
   box.querySelectorAll('[data-ses]').forEach(b=>b.onclick=()=>sessionSheet(b.dataset.ses));
 }
+/* ===================== the Plan: reading grid + revisit ladder ===================== */
+function todayISO(){ const d=new Date(); const p=n=>String(n).padStart(2,'0'); return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); }
+function fmtDay(iso){ try{ const d=new Date(iso+'T12:00:00'); return d.toLocaleDateString('en-GB',{weekday:'short'})+' '+d.getDate(); }catch(_){ return iso; } }
+function fmtShort(iso){ try{ const d=new Date(iso+'T12:00:00'); return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'}); }catch(_){ return iso; } }
+const REVISIT_RUNGS=[3,9,21]; /* expanding, not personalised — a nudge, not a schedule */
+function addDays(iso,n){ const d=new Date(iso+'T12:00:00'); d.setDate(d.getDate()+n); const p=x=>String(x).padStart(2,'0'); return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); }
+function clipISO(iso){ return iso>'2026-08-30' ? '2026-08-30' : iso; }
+function nextRevisit(rowId){
+  const dn=plan.done[rowId]; if(!dn) return null;
+  const passes=(plan.skims[rowId]||[]).length; if(passes>=REVISIT_RUNGS.length) return null;
+  const doneISO=new Date(dn.ts).getFullYear()+'-'+String(new Date(dn.ts).getMonth()+1).padStart(2,'0')+'-'+String(new Date(dn.ts).getDate()).padStart(2,'0');
+  return clipISO(addDays(doneISO, REVISIT_RUNGS[passes]));
+}
+function revisitQueue(){
+  const today=todayISO(), out=[];
+  plan.rows.forEach(r=>{ if(r.k!=='read') return; const due=nextRevisit(r.id); if(!due) return;
+    const passes=(plan.skims[r.id]||[]).length;
+    const doneTs=plan.done[r.id].ts;
+    const stale = passes===0 && (Date.now()-doneTs) > 14*864e5;
+    out.push({row:r, due, overdue:due<=today, passes, stale});
+  });
+  out.sort((a,b)=> (b.stale-a.stale) || (b.overdue-a.overdue) || (a.due<b.due?-1:1));
+  return out.slice(0,5);
+}
+function planSlipped(){ const t=todayISO(); return plan.rows.filter(r=>r.d<t && !plan.done[r.id]); }
+function planMissingSubjects(){ const sched=new Set(); plan.rows.forEach(r=>(r.s||[]).forEach(x=>sched.add(x))); return SUBJECTS.filter(x=>!sched.has(x)); }
+function gtFromTitle(t){ const m=/(GT[-\s]?\d+)/i.exec(t||''); return m? m[1].toUpperCase().replace(/\s/,'-') : null; }
+function planWeeks(){ /* group rows into blocks that each end at a test row (matches the grid's rhythm) */
+  const rows=plan.rows.slice().sort((a,b)=>a.d<b.d?-1:1), weeks=[]; let cur=[];
+  rows.forEach(r=>{ cur.push(r); if(r.k==='test'){ weeks.push(cur); cur=[]; } });
+  if(cur.length) weeks.push(cur);
+  return weeks;
+}
+function renderPlan(){
+  const box=document.getElementById('planBody'); if(!box) return;
+  const today=todayISO();
+  const total=plan.rows.length, doneN=plan.rows.filter(r=>plan.done[r.id]).length;
+  const slipped=planSlipped().length;
+  const buffers=plan.rows.filter(r=>r.k==='buffer' && !plan.done[r.id]).length;
+  const d2e=daysToExam();
+  const missing=planMissingSubjects();
+  const doneSubs=new Set(); plan.rows.forEach(r=>{ if(plan.done[r.id]&&r.k==='read') (r.s||[]).forEach(x=>doneSubs.add(x)); });
+  const schedSubs=new Set(); plan.rows.forEach(r=>(r.s||[]).forEach(x=>schedSubs.add(x)));
+  if(!total){
+    box.innerHTML=`<div class="sec-title"><h2>Plan</h2><div class="hint">your reading grid</div></div>
+      <div class="empty"><div class="big">No plan yet</div>Add your first day below.</div>
+      <div class="actions"><button class="btn primary" id="planAdd">+ Add days</button></div>`;
+    document.getElementById('planAdd').onclick=()=>planEditSheet(null);
+    return;
+  }
+  /* header */
+  const pct=total?Math.round(doneN/total*100):0;
+  let html=`<div class="sec-title"><h2>Plan</h2><div class="hint">Pass 3 — tap a day when it's done</div></div>
+    <div class="pl-head card thin">
+      <div class="pl-hrow"><b>Pass 3</b><span>${doneN} / ${total} sessions</span><span>${d2e!=null?d2e+' days to exam':''}</span></div>
+      <div class="pl-bar"><i style="width:${pct}%"></i></div>
+      <div class="pl-hsub">${slipped?`<b class="bl">${slipped} slipped</b> · `:''}${buffers} buffer left</div>
+      <div class="pl-cov">${SUBJECTS.map(x=>{
+        const cls=doneSubs.has(x)?'on':schedSubs.has(x)?'':'off';
+        return `<span class="pl-chip ${cls}" title="${esc(x)}">${esc(x.split(' ')[0].slice(0,5))}</span>`;}).join('')}</div>
+      ${missing.length?`<button class="pl-missing" id="planMissing">Not scheduled this cycle: <b>${missing.map(esc).join(' · ')}</b> — add a day ›</button>`:''}
+    </div>`;
+  /* today card */
+  const trow=plan.rows.find(r=>r.d===today);
+  if(trow){
+    const subs=buildSubjects();
+    const stat=(trow.s||[]).map(x=>{ const t=subs[x]; return t?`${esc(x)} · ${t.n} marks lost${t.sure?` · ${t.sure} blind`:''}`:esc(x); }).join('  ·  ');
+    html+=`<div class="pl-today card"><h3><span class="accent"></span>Today — ${fmtShort(today)}</h3>
+      <div class="pl-trow">${esc(trow.t)}</div>
+      ${stat?`<div class="tlab" style="margin-top:4px">${stat}</div>`:''}
+      <div class="actions" style="margin-top:12px">${trow.k==='test'
+        ? `<button class="btn primary" data-plango="${esc(trow.id)}">Start ${esc(gtFromTitle(trow.t)||'triage')} ▶</button>`
+        : `<button class="btn primary" data-plandone="${esc(trow.id)}">${plan.done[trow.id]?'✓ Done':'Mark done'}</button>`}
+      </div></div>`;
+  }
+  /* revisit queue */
+  const q=revisitQueue();
+  html+=`<div class="card thin"><h3><span class="accent"></span>Suggested revisits <span class="h3-hint">expanding, not personalised</span></h3>
+    ${q.length? q.map(x=>`<div class="rv-row${x.stale?' stale':''}"><div><div class="rv-t">${x.stale?'<span class="rv-dot"></span>':''}${esc(x.row.t)}</div>
+      <div class="rv-d">read ${fmtShort(x.row.d)} · ${x.passes? x.passes+' pass'+(x.passes>1?'es':'')+' · ':''}${x.overdue?'<b class="bl">due now</b>':'due '+fmtShort(x.due)}</div></div>
+      <button class="rv-btn" data-skim="${esc(x.row.id)}">skim</button><button class="rv-btn full" data-full="${esc(x.row.id)}">full</button></div>`).join('')
+    : `<div class="tlab">Nothing due. Read something first.</div>`}</div>`;
+  /* weeks */
+  planWeeks().forEach(week=>{
+    const a=week[0].d, b=week[week.length-1].d;
+    html+=`<div class="pl-wk">${fmtShort(a)}${a!==b?' – '+fmtShort(b).replace(/ .*/,'')+' '+fmtShort(b).split(' ')[1]:''}</div>`;
+    html+=week.map(r=>{
+      const dn=plan.done[r.id], slip=(!dn && r.d<today);
+      const isToday=r.d===today;
+      return `<div class="pl-row ${r.k} ${dn?'done':''} ${slip?'slip':''} ${isToday?'today':''}" data-row="${esc(r.id)}">
+        <span class="pl-date">${fmtDay(r.d)}</span>
+        <span class="pl-t">${esc(r.t)}${dn&&dn.mode==='partial'?' <i class="pl-part">partial</i>':''}</span>
+        ${r.weak?'<span class="pl-tag weak">weak</span>':''}
+        ${r.x2?'<span class="pl-tag x2">×2</span>':''}
+        ${r.k==='test'?'<span class="pl-tag nr">no reading</span>':''}
+        ${slip?'<span class="pl-tag slipped">slipped</span>':''}
+        ${dn?'<span class="pl-check">✓</span>':''}
+        <button class="pl-more" data-more="${esc(r.id)}">›</button>
+      </div>`;}).join('');
+  });
+  /* unplanned tail */
+  const lastD=plan.rows[plan.rows.length-1].d;
+  if(lastD<'2026-08-30'){
+    const days=Math.round((new Date('2026-08-30T12:00:00')-new Date(lastD+'T12:00:00'))/864e5);
+    html+=`<button class="pl-unplanned" id="planAdd">${fmtShort(addDays(lastD,1))} → 30 Aug · <b>${days} days unplanned</b><span class="chg">+ Add days</span></button>`;
+  } else {
+    html+=`<div class="actions" style="margin-top:12px"><button class="btn ghost" id="planAdd">+ Add days</button></div>`;
+  }
+  box.innerHTML=html;
+  /* bindings */
+  const mBtn=document.getElementById('planMissing'); if(mBtn) mBtn.onclick=()=>planEditSheet(null, planMissingSubjects());
+  const aBtn=document.getElementById('planAdd'); if(aBtn) aBtn.onclick=()=>planEditSheet(null);
+  box.querySelectorAll('[data-plandone]').forEach(b=>b.onclick=()=>togglePlanDone(b.dataset.plandone));
+  box.querySelectorAll('[data-plango]').forEach(b=>b.onclick=()=>planGoTest(b.dataset.plango));
+  box.querySelectorAll('[data-skim]').forEach(b=>b.onclick=e=>{e.stopPropagation();logRevisit(b.dataset.skim,'skim');});
+  box.querySelectorAll('[data-full]').forEach(b=>b.onclick=e=>{e.stopPropagation();logRevisit(b.dataset.full,'full');});
+  box.querySelectorAll('.pl-more').forEach(b=>b.onclick=e=>{e.stopPropagation();planRowSheet(b.dataset.more);});
+  box.querySelectorAll('.pl-row').forEach(el=>el.onclick=()=>{
+    const r=plan.rows.find(x=>x.id===el.dataset.row); if(!r)return;
+    if(r.k==='test') planGoTest(r.id); else togglePlanDone(r.id);
+  });
+  updatePlanBadge();
+}
+function updatePlanBadge(){
+  const b=document.getElementById('planBadge'); if(!b)return;
+  const n=planSlipped().length + revisitQueue().filter(x=>x.overdue).length;
+  if(n>0){ b.textContent=n>9?'9+':n; b.hidden=false; } else b.hidden=true;
+}
+function togglePlanDone(id){
+  const r=plan.rows.find(x=>x.id===id); if(!r)return;
+  if(plan.done[id]){ delete plan.done[id]; persistPlan(); renderPlan(); toast('Marked not done'); return; }
+  plan.done[id]={ts:Date.now(), mode:'full'};
+  persistPlan();
+  const el=document.querySelector(`.pl-row[data-row="${CSS.escape(id)}"]`);
+  if(el && !reducedMotion()){ el.classList.add('donepop'); setTimeout(()=>el.classList.remove('donepop'),300); }
+  buzz(9);
+  renderPlan();
+  toast(r.t+' — done',{label:'Undo',fn:()=>{ delete plan.done[id]; persistPlan(); renderPlan(); }});
+}
+function planGoTest(id){
+  const r=plan.rows.find(x=>x.id===id); if(!r)return;
+  const gt=gtFromTitle(r.t);
+  if(gt){ settings.gtSet=gt; settings.activeType='gt'; persistSettings(); }
+  startTriage();
+}
+function logRevisit(id,depth){
+  (plan.skims[id]=plan.skims[id]||[]).push({ts:Date.now(), depth});
+  persistPlan(); renderPlan(); buzz(9);
+  const nxt=nextRevisit(id);
+  toast(depth==='skim'?'Skim logged'+(nxt?' — next around '+fmtShort(nxt):''):'Full pass logged'+(nxt?' — next around '+fmtShort(nxt):''));
+}
+function planRowSheet(id){
+  const r=plan.rows.find(x=>x.id===id); if(!r)return;
+  const dn=plan.done[id];
+  const passes=plan.skims[id]||[];
+  openSheet(`<h3>${esc(r.t)}</h3><p>${fmtDay(r.d)} · ${r.k}${r.weak?' · weak':''}${r.x2?' · ×2':''}</p>
+    <div class="sp-lab">status</div>
+    <div class="actions">
+      <button class="btn ${dn?'ghost':'primary'}" id="prDone">${dn?'Mark not done':'Mark done now'}</button>
+      ${dn?`<button class="btn ghost" id="prPartial">${dn.mode==='partial'?'Set full':'Set partial'}</button>`:''}
+    </div>
+    ${dn?`<div class="sp-lab" style="margin-top:14px">details</div>
+      <div class="sp-custom"><input type="number" id="prMins" inputmode="numeric" placeholder="minutes spent" value="${dn.mins||''}"><button class="btn primary" id="prMinsSave">Save</button></div>
+      <div class="sp-lab" style="margin-top:14px">revisits (${passes.length})</div>
+      <div class="actions"><button class="btn ghost" id="prSkim">+ log a skim</button><button class="btn ghost" id="prFull">+ log a full pass</button></div>`:''}
+    <div class="sp-lab" style="margin-top:14px">edit</div>
+    <div class="actions"><button class="btn ghost" id="prEdit">Edit this day</button><button class="btn ghost" style="color:var(--rose)" id="prDel">Delete</button></div>
+    <div class="actions" style="margin-top:10px"><button class="btn primary" onclick="closeSheet()">Close</button></div>`);
+  document.getElementById('prDone').onclick=()=>{ closeSheet(); togglePlanDone(id); };
+  const pp=document.getElementById('prPartial'); if(pp) pp.onclick=()=>{ dn.mode=dn.mode==='partial'?'full':'partial'; persistPlan(); closeSheet(); renderPlan(); };
+  const pm=document.getElementById('prMinsSave'); if(pm) pm.onclick=()=>{ dn.mins=+document.getElementById('prMins').value||undefined; persistPlan(); toast('Saved'); };
+  const ps=document.getElementById('prSkim'); if(ps) ps.onclick=()=>{ closeSheet(); logRevisit(id,'skim'); };
+  const pf=document.getElementById('prFull'); if(pf) pf.onclick=()=>{ closeSheet(); logRevisit(id,'full'); };
+  document.getElementById('prEdit').onclick=()=>planEditSheet(id);
+  document.getElementById('prDel').onclick=()=>{ plan.rows=plan.rows.filter(x=>x.id!==id); delete plan.done[id]; delete plan.skims[id]; persistPlan(); closeSheet(); renderPlan(); toast('Day removed'); };
+}
+function planEditSheet(id, prefillSubs){
+  const r=id? plan.rows.find(x=>x.id===id) : null;
+  const subs=r?(r.s||[]):(prefillSubs||[]);
+  openSheet(`<h3>${r?'Edit day':'Add a day'}</h3>
+    <div class="sp-lab">date</div><input type="date" id="peD" value="${r?r.d:todayISO()}" min="2026-07-01" max="2026-08-30">
+    <div class="sp-lab" style="margin-top:12px">title</div><input type="text" id="peT" value="${r?esc(r.t):''}" placeholder="e.g. Biochemistry" maxlength="80">
+    <div class="sp-lab" style="margin-top:12px">kind</div>
+    <div class="seg c3" id="peK">${['read','test','buffer'].map(k=>`<button class="opt center ${((r&&r.k)||'read')===k?'on':''}" data-k="${k}"><div class="t">${k}</div></button>`).join('')}</div>
+    <div class="sp-lab" style="margin-top:12px">subjects</div>
+    <div class="subgrid" id="peS">${SUBJECTS.map(x=>`<button class="chip ${subs.includes(x)?'on':''}" data-s="${esc(x)}">${esc(x)}</button>`).join('')}</div>
+    <div class="actions" style="margin-top:12px">
+      <button class="chip ${r&&r.weak?'on':''}" id="peW">weak</button>
+      <button class="chip ${r&&r.x2?'on':''}" id="peX">×2 read-only</button></div>
+    <div class="actions" style="margin-top:14px"><button class="btn primary" id="peSave">${r?'Save':'Add day'}</button>
+      <button class="btn ghost" onclick="closeSheet()">Cancel</button></div>`);
+  let kind=(r&&r.k)||'read';
+  document.querySelectorAll('#peK .opt').forEach(b=>b.onclick=()=>{kind=b.dataset.k;document.querySelectorAll('#peK .opt').forEach(x=>x.classList.toggle('on',x===b));});
+  document.querySelectorAll('#peS .chip').forEach(b=>b.onclick=()=>b.classList.toggle('on'));
+  const wB=document.getElementById('peW'), xB=document.getElementById('peX');
+  wB.onclick=()=>wB.classList.toggle('on'); xB.onclick=()=>xB.classList.toggle('on');
+  document.getElementById('peSave').onclick=()=>{
+    const d=document.getElementById('peD').value, t=document.getElementById('peT').value.trim();
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(d)){toast('Pick a date');return}
+    if(!t){toast('Give it a title');return}
+    const sSel=[...document.querySelectorAll('#peS .chip.on')].map(b=>b.dataset.s);
+    const row={ id:r?r.id:('p'+Date.now().toString(36)), d, t, k:kind, s:sSel, weak:wB.classList.contains('on')?1:0, x2:xB.classList.contains('on')?1:0 };
+    if(r){ Object.assign(r,row); } else plan.rows.push(row);
+    plan.rows.sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:0);
+    persistPlan(); closeSheet(); renderPlan(); toast(r?'Saved':'Day added');
+  };
+}
+
+/* triage → Book funnel: turn blind spots into written contrasts, via the existing entry pipeline */
+function fixQueueFor(sess){
+  const items=(sess.items||[]);
+  return items.filter(isBlind).concat(items.filter(it=>!it.uncertain && it.conf==='twoish' && (it.error==='knowledge'||it.error==='reasoning')));
+}
+function writtenCount(sessId){ return entries.filter(e=>e.srcSession===sessId).length; }
+function writeFixComposer(sessId){
+  const sess=sessions.find(x=>x.id===sessId); if(!sess){ toast('Read not found'); return; }
+  const queue=fixQueueFor(sess);
+  if(!queue.length){ toast('Nothing to write up — no blind spots or near-misses in this read.'); return; }
+  let i=0, written=0;
+  const show=()=>{
+    if(i>=queue.length){
+      closeSheet(); persist(); render();
+      toast(written?written+' fix'+(written>1?'es':'')+' written to the Book':'Nothing written');
+      if(triage.done) renderTriage();
+      return;
+    }
+    const it=queue[i]; const em=ERR_MAP[it.error];
+    openSheet(`<h3>Write the fix · ${i+1} / ${queue.length}</h3>
+      <p><b style="color:${em.c}">${em.code}</b> ${esc(em.t.toLowerCase())}${it.subj?` · ${esc(it.subj)}`:''}${it.conf==='high'?' · <b class="bl">you were sure</b>':''}</p>
+      <div class="sp-lab">the trap — what did you believe?</div>
+      <textarea id="fxTrap" placeholder="e.g. I believed sensitivity rules OUT"></textarea>
+      <div class="sp-lab" style="margin-top:12px">the correction — what's actually true, with the number or threshold?</div>
+      <textarea id="fxCorr" placeholder="e.g. SnNout: high sensitivity + negative test rules OUT. SpPin rules IN."></textarea>
+      <div class="actions" style="margin-top:14px"><button class="btn primary" id="fxDone">Done — next</button>
+        <button class="btn ghost" id="fxSkip">Skip</button></div>`);
+    document.getElementById('fxSkip').onclick=()=>{ i++; show(); };
+    document.getElementById('fxDone').onclick=()=>{
+      const trap=document.getElementById('fxTrap').value.trim();
+      const corr=document.getElementById('fxCorr').value.trim();
+      if(!corr){ toast('Write the correction — that\'s the card you\'ll revise'); return; }
+      const subject=(it.subj&&SUBJECTS.includes(it.subj))?it.subj:'Medicine';
+      const concept=subject+' · '+(trap||corr).slice(0,60);
+      /* the existing pipeline: unshift + persist → Book, recurrence, SRS all pick it up free */
+      entries.unshift({ id:newId(), ts:Date.now(), upd:Date.now(), testType:sess.testType, set:sess.set,
+        subject, concept, lesson:corr, note:'', trap, error:it.error, conf:it.conf||null,
+        image:!!it.img, hasPhoto:false, status:'open', srcSession:sess.id });
+      written++; i++; show();
+    };
+  };
+  show();
+}
+
 /* one saved read, in full — same visual language as the end-of-game summary */
 function sessionSheet(id){
   const s=sessions.find(x=>x.id===id); if(!s)return;
@@ -1557,8 +1891,10 @@ function sessionSheet(id){
     <div class="trio"><div class="trio-c"><b class="bl">${cp.sure}</b><span>sure</span></div>
       <div class="trio-c"><b style="color:var(--amber)">${cp.twoish}</b><span>down to 2</span></div>
       <div class="trio-c"><b style="color:var(--ink2)">${cp.noidea}</b><span>no read</span></div></div>
+    ${cc.blind?`<button class="linkish" id="sesWr" style="margin-top:12px">${Math.min(writtenCount(id),cc.blind)} of ${cc.blind} blind spot${cc.blind>1?'s':''} written up ›</button>`:''}
     <div class="actions" style="margin-top:16px"><button class="btn primary" onclick="closeSheet()">Done</button>
       <button class="btn ghost" style="color:var(--rose)" id="sesDel">Delete read</button></div>`);
+  const wr=document.getElementById('sesWr'); if(wr) wr.onclick=()=>{ closeSheet(); if(writtenCount(id)>0){ bookFilter.src=id; bookFilter.q=''; switchView('book'); renderBook(); } else writeFixComposer(id); };
   document.getElementById('sesDel').onclick=()=>{ deleteSession(id); closeSheet(); toast('Read deleted'); };
 }
 function showTriageView(){
@@ -1586,6 +1922,8 @@ function renderTriage(){
   if(triage.done){
     box.innerHTML=triageSummaryHTML();
     document.getElementById('triFinish').onclick=exitTriage; document.getElementById('triAgain').onclick=startTriage;
+    const fc=document.getElementById('fixCta'); if(fc) fc.onclick=()=>writeFixComposer(triage.sessionId);
+    const sl=document.getElementById('sumLog'); if(sl) sl.onclick=()=>{ triage.active=false; switchView('log'); };
     const big=document.querySelector('.sm-big');
     if(big && !reducedMotion()){ const to=+big.textContent; const t0=performance.now();
       const step=t=>{ const p=Math.min(1,(t-t0)/450); big.textContent=Math.round(to*(1-Math.pow(1-p,3))); if(p<1)requestAnimationFrame(step); };
@@ -1778,15 +2116,62 @@ function triageBack(){
 }
 function triageFinish(){
   if(!triage.items.length){ exitTriage(); return; }
-  saveSession();
-  triage.done=true; renderTriage();
+  scoreSheet();
 }
-function saveSession(){
+/* skippable one-screen score capture — three integers unlock accuracy + W:C */
+function scoreSheet(){
+  const isGT=triage.testType==='gt';
+  const n=triage.items.length;
+  const stp=(id,ph)=>`<div class="stp"><button data-dn="${id}">−</button><input type="number" id="${id}" inputmode="numeric" min="0" placeholder="${ph}"><button data-up="${id}">+</button></div>`;
+  openSheet(`<h3>How did ${esc(triage.set)} finish?</h3>
+    <div class="sc-grid">
+      <div class="sc-cell"><label>Correct</label>${stp('scC','—')}</div>
+      <div class="sc-cell"><label>Wrong</label>${stp('scW','—')}</div>
+      <div class="sc-cell"><label>Skipped</label>${stp('scS','—')}</div>
+    </div>
+    <div class="tlab" id="scTotal" style="margin-top:10px">${isGT?'Total: 200 · auto-computed, editable':'Total: — · auto-computed'}</div>
+    <div class="sc-warn" id="scWarn" hidden></div>
+    <div class="sp-lab" style="margin-top:14px">blind attempts <span style="text-transform:none;letter-spacing:0">(optional — of your wrong ones, how many were pure guesses; leave blank if you didn't count)</span></div>
+    ${stp('scB','leave blank')}
+    <div class="actions" style="margin-top:16px"><button class="btn primary" id="scSave">Save the read</button>
+      <button class="btn ghost" id="scSkip">Skip this</button></div>`);
+  const g=id=>document.getElementById(id);
+  const val=id=>{ const v=g(id).value.trim(); return v===''?null:Math.max(0,Math.round(+v)||0); };
+  const refresh=()=>{
+    const c=val('scC'),w=val('scW'),sk=val('scS');
+    const tot=(c!=null||w!=null||sk!=null)?((c||0)+(w||0)+(sk||0)):null;
+    g('scTotal').textContent='Total: '+(tot!=null?tot:(isGT?'200':'—'))+' · auto-computed';
+    const warn=g('scWarn');
+    if(w!=null && Math.abs(w-n)>2){ warn.hidden=false; warn.textContent=`You triaged ${n} but logged ${w} wrong. Sort the rest before you trust the mix.`; }
+    else warn.hidden=true;
+  };
+  document.querySelectorAll('.stp [data-up],[data-dn]').forEach(b=>b.onclick=()=>{
+    const id=b.dataset.up||b.dataset.dn, inp=g(id);
+    inp.value=Math.max(0,(+inp.value||0)+(b.dataset.up?1:-1)); refresh();
+  });
+  ['scC','scW','scS','scB'].forEach(id=>g(id).oninput=refresh);
+  g('scW').value=n; refresh();
+  g('scSave').onclick=()=>{
+    const c=val('scC'), w=val('scW'), sk=val('scS'), b=val('scB');
+    let score=null;
+    if(c!=null && w!=null){ score={c,w,s:sk!=null?sk:null,total:(c+w+(sk||0))||(isGT?200:null)}; if(b!=null) score.blindTried=b; }
+    closeSheet(); saveSession(score); triage.done=true; renderTriage();
+  };
+  g('scSkip').onclick=()=>{ closeSheet(); saveSession(null); triage.done=true; renderTriage(); };
+}
+function scoreStats(sn){
+  const k=sn&&sn.score; if(!k || k.c==null || k.w==null) return null;
+  const att=k.c+k.w;
+  return { marks:4*k.c-k.w, attemptRate:k.total?att/k.total:null, accuracy:att?k.c/att:0, wc:k.c?k.w/k.c:null };
+}
+function saveSession(score){
   if(triage.saved) return;
   const cc=triageCounts(triage.items);
   const sess={ id:newId(), ts:Date.now(), testType:triage.testType, set:triage.set,
     comp:{sure:cc.sure, twoish:cc.twoish, noidea:cc.noidea}, /* wrong-composition, for per-GT trends */
     items:triage.items.map(it=>{ const o={error:it.error, conf:it.conf||null, subj:it.subj||null}; if(it.img)o.img=true; if(it.uncertain)o.uncertain=true; return o; }) };
+  if(score && score.c!=null && score.w!=null) sess.score=score;
+  triage.sessionId=sess.id;
   sessions.unshift(sess);
   sessions=sessions.slice(0,100); /* keep the doc well under Firestore's 1 MB cap */
   persistSessions(); triage.saved=true;
@@ -1804,14 +2189,25 @@ function triageSummaryHTML(){
     noidea?`<div class="line"><b style="color:var(--ink)">Blind attempts — ${noidea}.</b> Every one cost −1. On a +4/−1 paper you need better than 1-in-5 on blind attempts to break even. If this number rises test to test while your correct count holds, your leak is attempt discipline, not knowledge.</div>`:'',
     twoish?`<div class="line"><b style="color:var(--amber)">Down to 2 — ${twoish}.</b> +EV bets (~+1.5 each). Right to attempt — don't let these scare you into over-skipping. One elimination always beats leaving it blank.</div>`:''
   ].join('');
+  const sess=sessions.find(x=>x.id===triage.sessionId);
+  const st=sess?scoreStats(sess):null;
+  const scoreLine=st?`<div class="sm-score">${st.marks} marks · ${Math.round(st.accuracy*100)}% when attempted${st.wc!=null?` · W:C ${st.wc.toFixed(2)}`:''}</div>`:'';
+  let evLine='';
+  if(sess && sess.score && sess.score.blindTried!=null){
+    const B=sess.score.blindTried, N=Math.min(noidea,B), hits=Math.max(0,B-N), net=4*hits-N;
+    evLine=`<div class="line">You attempted <b>${B}</b> blind, hit <b>${hits}</b>. Net: <b>${net>=0?'+':''}${net}</b> marks.</div>`;
+  }
+  const {blind:bl2, nearMiss:nm2}=triageCounts(triage.items);
+  const cta=(bl2>0||nm2>0)?`<button class="btn primary fixcta" id="fixCta">Write the fix for your ${bl2||nm2} ${bl2?'blind spot'+(bl2>1?'s':''):'near-miss'+(nm2>1?'es':'')} — 2 min now, or they come back next test</button>`:'';
   return `
     <div class="tri-top"><span style="width:34px"></span><div class="tri-set">${esc(triage.set)} · read</div><span style="width:34px"></span></div>
-    <div class="sm-hero"><div class="sm-big">${total}</div><div class="sm-lab">mistake${total>1?'s':''} triaged${blind?` · <b class="bl">${blind} blind</b>`:''}</div></div>
+    <div class="sm-hero"><div class="sm-big">${total}</div><div class="sm-lab">mistake${total>1?'s':''} triaged${blind?` · <b class="bl">${blind} blind</b>`:''}</div>${scoreLine}</div>
     <div class="card"><h3><span class="accent"></span>What went wrong</h3><div class="sm-bars">${bars}</div>
-      ${confLines?`<div class="sm-conf">${confLines}</div>`:''}
+      ${confLines||evLine?`<div class="sm-conf">${confLines}${evLine}</div>`:''}
       <p class="tlab" style="margin-top:16px">${synth}</p></div>
-    <div class="actions" style="margin-top:4px"><button class="btn primary" id="triFinish">Done</button><button class="btn ghost" id="triAgain">Triage another</button></div>
-    <p class="faint" style="font-size:12px;text-align:center;margin-top:12px">Saved — see the long-term breakdown in Insights.</p>`;
+    ${cta}
+    <div class="actions" style="margin-top:10px"><button class="btn primary" id="triFinish">Done</button><button class="btn ghost" id="triAgain">Triage another</button></div>
+    <p class="faint" style="font-size:12px;text-align:center;margin-top:12px">Saved — see the long-term breakdown in Insights. <button class="linkish" id="sumLog">Log in detail ›</button></p>`;
 }
 
 function renderReview(){
@@ -1887,10 +2283,10 @@ function renderReview(){
 }
 
 const FIXTEXT={
-  knowledge:"Real gaps: one focused re-read plus a fresh Anki card each. Pull the repeat offenders into revision — skip brand-new topics this close in.",
-  retrieval:"You knew these — don't re-study. Re-word the Anki front with the clinical trigger so it fires the way the question asked.",
-  reasoning:"The dangerous bucket: a wrong idea you trusted. Write the contrast — what you believed vs why the answer is right — so it stops feeling right.",
-  execution:"Not a study problem, an attention one. Name the trap (EXCEPT / misread / changed answer) and drill reading the last line first."
+  knowledge:"Nothing was there to retrieve. One focused re-read plus one card. At this range, do not open new topics — only close ones that keep reappearing.",
+  retrieval:"You own this content. Re-studying it is wasted time. The card's front is what failed — rewrite it with the clinical trigger the question used.",
+  reasoning:"The expensive bucket. A false belief you would have bet on. It will feel right again in the exam unless you write down what you believed next to what is true.",
+  execution:"Not a knowledge problem. Name the exact trap — EXCEPT, NOT, least-likely, changed answer — and drill reading the stem's final line before the options."
 };
 
 function nextCard(map){
@@ -2025,10 +2421,11 @@ function testListCard(){
   const tests=buildTests();
   const keys=Object.keys(tests).sort((a,b)=>tests[b].ts-tests[a].ts).slice(0,12);
   if(!keys.length) return '';
+  const marksBySet={}; sessions.forEach(sn=>{ const k2=sn.testType+'|'+sn.set; const st=scoreStats(sn); if(st&&marksBySet[k2]==null) marksBySet[k2]=st.marks; });
   const rows=keys.map(k=>{ const t=tests[k], tot=t.logged+t.tri;
     const mini=ERRORS.map(e=>t.errs[e.id]?`<span style="flex:${t.errs[e.id]};background:${e.c}"></span>`:'').join('');
     return `<button class="gtrow tap" data-test="${esc(k)}"><span class="gtn ${t.type==='module'?'mod':''}">${esc(t.set)}</span>
-      <span class="gtmini">${mini}</span><span class="gtc">${tot}</span><span class="gtgo">›</span></button>`;}).join('');
+      <span class="gtmini">${mini}</span><span class="gtsc">${marksBySet[k]!=null?marksBySet[k]:'—'}</span><span class="gtc">${tot}</span><span class="gtgo">›</span></button>`;}).join('');
   return `<div class="card gtlist"><h3><span class="accent"></span>Every test — tap one to open it</h3>${rows}</div>`;
 }
 /* the per-test deep dive: its own mix, confidence trio, and subject hits */
@@ -2158,25 +2555,90 @@ function triageInsightsCard(){
     ${mixBar(agg,total)}
     ${recent.length>=2?`<div class="leak-sub" style="margin-top:20px">How the mix flows, test by test</div><div class="chartwrap" style="margin-top:2px">${streamChart(recent)}</div>`:''}
     ${trends}
+    ${(()=>{ let nm=0,im=0,un=0; sessions.forEach(x=>{const q=triageCounts(x.items); nm+=q.nearMiss; im+=q.img; un+=q.uncertain;});
+      const bits=[];
+      if(nm) bits.push(`<div class="tlab" style="margin-top:12px"><b style="color:var(--amber)">${nm} near-miss${nm>1?'es':''}</b> — down to two with a belief error. ${FIXNEAR}</div>`);
+      if(im) bits.push(`<div class="tlab" style="margin-top:8px"><b>${im}</b> ${im>1?'were':'was'} image-based — your documented leak. Drill images for the hotspot subjects.</div>`);
+      if(un) bits.push(`<button class="linkish" id="uncLine" style="margin-top:8px">${un} mistake${un>1?'s':''} you couldn't classify. Reopen them when you review the paper — an unsorted mistake is an unsorted fix. ›</button>`);
+      return bits.join('');})()}
     <p class="tlab" style="margin-top:14px">Your steady leak is <b style="color:${dom.c}">${dom.t.toLowerCase()}</b>. ${FIXTEXT[dom.id]}</p></div>`;
+}
+function uncertainSheet(){
+  const rows=sessions.map(sn=>{ const parked=(sn.items||[]).filter(it=>it.uncertain); if(!parked.length) return '';
+    const bySub={}; parked.forEach(it=>{ const k=it.subj||'untagged'; bySub[k]=(bySub[k]||0)+1; });
+    return `<div class="ses-row"><div><div class="sr-t">${esc(sn.set)}</div><div class="sr-d">${parked.length} parked · ${Object.entries(bySub).map(([k,n])=>esc(k)+' '+n).join(' · ')}</div></div></div>`; }).join('');
+  openSheet(`<h3>Parked mistakes</h3><p>You couldn't classify these at triage time. Reopen the paper, decide the bucket, and re-file them in your next read.</p>
+    <div class="ses-list">${rows||'<div class="tlab">None parked.</div>'}</div>
+    <div class="actions" style="margin-top:14px"><button class="btn primary" onclick="closeSheet()">Done</button></div>`);
+}
+/* the week's argument in three moves — each row ends in a verb */
+function threeMovesCard(){
+  if(!sessions.length && !entries.length) return '';
+  const rows=[];
+  /* 1 — hotspot */
+  const grid={}; const add=(sub,err)=>{ if(!sub||!ERR_MAP[err])return; const k=sub+'|'+err; grid[k]=(grid[k]||0)+1; };
+  entries.forEach(e=>add(e.subject,e.error));
+  sessions.forEach(sn=>sn.items.forEach(it=>{ if(!it.uncertain) add(it.subj,it.error); }));
+  const hot=Object.entries(grid).sort((a,b)=>b[1]-a[1])[0];
+  if(hot && hot[1]>=2){
+    const [sub,err]=hot[0].split('|'); const e=ERR_MAP[err];
+    let when='';
+    const cand=plan.rows.filter(r=>r.k==='read'&&(r.s||[]).includes(sub));
+    const due=cand.map(r=>nextRevisit(r.id)).filter(Boolean).sort()[0];
+    const sched=cand.filter(r=>!plan.done[r.id]&&r.d>=todayISO()).map(r=>r.d).sort()[0];
+    if(due) when=` ${esc(sub)}'s next revisit is due ${fmtShort(due)} — do it there.`;
+    else if(sched) when=` ${esc(sub)} is scheduled ${fmtShort(sched)} — do it there.`;
+    rows.push(`<div class="row"><span class="n">1</span><span><b style="color:${e.c}">${e.code}</b> in <b>${esc(sub)}</b> (${hot[1]}). ${esc(FIXACT[err])}${when}</span></div>`);
+  } else rows.push(`<div class="row"><span class="n">1</span><span>No hotspot yet — tag subjects while you triage to find one.</span></div>`);
+  /* 2 — discipline */
+  const last3=sessions.slice(0,3).slice().reverse().map(x=>triageCounts(x.items).blindAttempt);
+  if(sessions.length<3) rows.push(`<div class="row"><span class="n">2</span><span>Blind-attempt trend: not enough tests yet — triage 3 reads to see it.</span></div>`);
+  else{
+    const [a,b2,c2]=last3, lost=a+b2+c2;
+    if(c2>a) rows.push(`<div class="row"><span class="n">2</span><span>Your blind attempts went <b>${a} → ${b2} → ${c2}</b>. That's −${lost} marks across three tests. Skip anything you can't reduce to two options.</span></div>`);
+    else if(c2<a) rows.push(`<div class="row"><span class="n">2</span><span>Blind attempts fell <b>${a} → ${b2} → ${c2}</b>. Discipline is working — keep skipping the no-reads.</span></div>`);
+    else rows.push(`<div class="row"><span class="n">2</span><span>Blind attempts are flat (<b>${a} → ${b2} → ${c2}</b>). Hold the line and keep skipping.</span></div>`);
+  }
+  /* 3 — unfinished */
+  let unWritten=0, offender=null, parked=0;
+  sessions.forEach(sn=>{ const q=triageCounts(sn.items); parked+=q.uncertain;
+    if(q.blind>0 && (Date.now()-sn.ts)>48*3600e3){ const miss=Math.max(0,q.blind-writtenCount(sn.id)); if(miss>0){ unWritten+=miss; if(!offender) offender=sn; } } });
+  if(unWritten||parked){
+    rows.push(`<button class="row rowtap" id="tmUnfin"><span class="n">3</span><span>${unWritten?`<b class="bl">${unWritten} blind spot${unWritten>1?'s':''}</b>${offender?` from ${esc(offender.set)}`:''} never got a fix written`:''}${unWritten&&parked?' · ':''}${parked?`<b>${parked}</b> parked unsorted`:''}. Write them now.</span></button>`);
+  } else rows.push(`<div class="row"><span class="n">3</span><span>Nothing unfinished — every blind spot has a written fix. Keep it that way.</span></div>`);
+  return `<div class="card next"><h3><span class="accent"></span>This week's three moves</h3>${rows.join('')}</div>`;
+}
+/* marks · accuracy · W:C across scored reads */
+function scoreTrendCard(){
+  const scored=sessions.filter(x=>scoreStats(x)).slice(0,10).reverse();
+  if(!scored.length) return '';
+  const st=scored.map(scoreStats);
+  if(scored.length===1){
+    const k=st[0];
+    return `<div class="card thin"><h3><span class="accent"></span>Score</h3>
+      <div class="tlab"><b>${k.marks}</b> marks · <b>${Math.round(k.accuracy*100)}%</b> when attempted${k.wc!=null?` · W:C <b>${k.wc.toFixed(2)}</b>`:''} — one scored read so far.</div></div>`;
+  }
+  let cap='';
+  if(scored.length>=3){
+    const f=st[0].wc, l=st[st.length-1].wc;
+    if(f!=null&&l!=null){ const dir=l<f?'down':l>f?'up':'flat';
+      cap=`<p class="tlab" style="margin-top:12px">W:C is trending <b>${dir}</b> — ${l.toFixed(2)} vs ${f.toFixed(2)}. ${dir==='down'?'Down is good.':dir==='up'?'Up is the wrong way — check attempt discipline.':'Holding.'}</p>`; }
+  }
+  return `<div class="card thin"><h3><span class="accent"></span>Score trend</h3><div class="sparks">
+    ${sparkRow('Marks','var(--accent-ink)',st.map(k=>k.marks))}
+    ${sparkRow('Accuracy %','var(--sage-ink)',st.map(k=>Math.round(k.accuracy*100)))}
+    ${sparkRow('W:C ×100','var(--rose)',st.map(k=>k.wc!=null?Math.round(k.wc*100):0))}
+  </div>${cap}</div>`;
 }
 /* what to DO about each bucket — concrete actions, biggest leak first */
 const FIXACT={
-  knowledge:"Re-read that topic once, then make one Anki card for it.",
-  retrieval:"Don't re-study — re-word your Anki card's front so it sounds like the question.",
-  reasoning:"Write the contrast in the Book: “I thought X — it's actually Y.”",
-  execution:"Name the trap (EXCEPT / misread / changed answer). Read the last line first."
+  knowledge:"Re-read the topic once. One Anki card. Then leave it.",
+  retrieval:"Do not re-study. Re-word the card's front to sound like the question stem.",
+  reasoning:"Write the contrast in the Book: “I believed X — it is actually Y, because Z.”",
+  execution:"Name the trap out loud. Read the last line of the stem first, every time."
 };
-function fixPlanCard(){
-  const n={knowledge:0,retrieval:0,reasoning:0,execution:0};
-  entries.forEach(e=>{ if(n[e.error]!=null) n[e.error]++; });
-  sessions.forEach(s=>s.items.forEach(it=>{ if(n[it.error]!=null) n[it.error]++; }));
-  const rows=ERRORS.slice().sort((a,b)=>n[b.id]-n[a.id]).filter(e=>n[e.id]>0);
-  if(rows.length<2) return '';
-  return `<div class="card"><h3><span class="accent"></span>Fix plan — what each bucket needs</h3>
-    ${rows.map((e,i)=>`<div class="fp-row${i===0?' hot':''}" style="--bc:${e.c}"><span class="fp-code">${e.code}</span>
-      <div><div class="fp-t">${e.t} <b>· ${n[e.id]}</b></div><div class="fp-d">${esc(FIXACT[e.id])}</div></div></div>`).join('')}</div>`;
-}
+/* near-misses are a cross-cut, not a bucket */
+const FIXNEAR="Down to two and lost it. These are the closest marks you have. Re-read only the discriminating feature between your option and the key — not the whole topic.";
 /* subject × mistake-type heatmap — the systematic 2-D view: which bucket concentrates in which subject */
 function heatmapCard(){
   const grid={}, subTot={};
@@ -2209,7 +2671,12 @@ function renderInsights(){
     <div class="big">Nothing to show yet</div>Triage a test or log a few mistakes and this fills in — it shows where your marks are leaking and what to do about it.</div>`;return}
   const map=recurrenceMap();
   const detailed = entries.length ? (`<div class="leak-sub" style="margin:22px 0 12px 3px">From your detailed logs</div>`+nextCard(map)+masteryCard()+statStrip()+leakCard()+typeSplitCard()) : '';
-  box.innerHTML = triageInsightsCard() + weakAreasCard() + fixPlanCard() + heatmapCard() + testListCard() + detailed;
+  box.innerHTML = threeMovesCard() + scoreTrendCard() + triageInsightsCard() + heatmapCard() + weakAreasCard() + testListCard() + detailed;
+  const tm=document.getElementById('tmUnfin'); if(tm) tm.onclick=()=>{
+    let off=null; sessions.forEach(sn=>{ const q=triageCounts(sn.items); if(!off && q.blind>writtenCount(sn.id)) off=sn; });
+    if(off) writeFixComposer(off.id); else uncertainSheet();
+  };
+  const ul=document.getElementById('uncLine'); if(ul) ul.onclick=uncertainSheet;
   box.querySelectorAll('[data-test]').forEach(b=>b.onclick=()=>testDetailSheet(b.dataset.test));
   box.querySelectorAll('[data-sub]:not([data-e])').forEach(b=>b.onclick=()=>subjectSheet(b.dataset.sub));
   box.querySelectorAll('.hm-c.tapc').forEach(b=>b.onclick=()=>bucketFixSheet(b.dataset.e, b.dataset.sub, +b.dataset.n));
@@ -2238,7 +2705,7 @@ function switchView(v){
   if(v!=='triage') triage.active=false; /* navigating away abandons a game; landing on Triage keeps it */
   document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));
   /* review lives under Book now — keep the Book tab lit while reviewing */
-  const hl = v==='review' ? 'book' : v;
+  const hl = v==='review' ? 'book' : v==='log' ? 'book' : v;
   document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.v===hl));
   if(v==='triage') renderTriage();
   window.scrollTo({top:0});
@@ -2260,6 +2727,7 @@ function bindActions(){
   document.getElementById('pasteBtn').onclick=pasteBackup;
   document.getElementById('bulkBtn').onclick=bulkImportSheet;
   document.getElementById('manageTriBtn').onclick=manageTriage;
+  document.getElementById('addDetailBtn').onclick=()=>switchView('log');
   document.getElementById('revEntry').onclick=()=>switchView('review');
   document.getElementById('wipeBtn').onclick=wipe;
   document.getElementById('editCancel').onclick=cancelEdit;
@@ -2335,8 +2803,8 @@ function renameSet(){
 
 /* ---------- backup / restore ---------- */
 function backupPayload(withPhotos){
-  /* v5 adds triage sessions + tombstones — the reads are now first-class data */
-  const p={app:'mistake-ledger',version:5,exportedAt:new Date().toISOString(),settings,entries,sessions,tombstones};
+  /* v6 adds the plan; v5 added sessions + tombstones */
+  const p={app:'mistake-ledger',version:6,exportedAt:new Date().toISOString(),settings,entries,sessions,tombstones,plan};
   if(withPhotos){p.photos={};entries.forEach(e=>{if(e.hasPhoto&&photos[e.id])p.photos[e.id]=photos[e.id]})}
   return JSON.stringify(p,null,2);
 }
@@ -2414,7 +2882,12 @@ function mergeIncoming(data){
     sanitizeSessions(data.sessions).forEach(s=>{ if(!have.has(s.id) && !(tombstones[s.id]&&tombstones[s.id]>=(s.ts||0))){ sessions.push(s); have.add(s.id); sesAdded++; } });
     if(sesAdded){ sessions.sort((a,b)=>(b.ts||0)-(a.ts||0)); sessions=sessions.slice(0,150); persistSessions(); }
   }
-  if(!incoming.length && !sesAdded){toast('Nothing new in that backup');return}
+  /* v6 backups carry the plan — apply only if newer; a v5 file leaves the plan untouched */
+  let planApplied=false;
+  if(data && data.plan && typeof data.plan==='object' && (+data.plan._upd||0) > (plan._upd||0)){
+    plan=sanitizePlan(data.plan); persistPlan(); planApplied=true;
+  }
+  if(!incoming.length && !sesAdded && !planApplied){toast('Nothing new in that backup');return}
   const inPhotos=(data&&data.photos&&typeof data.photos==='object')?data.photos:{};
   const ids=new Set(entries.map(e=>e.id));let added=0;
   incoming.forEach(e=>{
@@ -2651,6 +3124,7 @@ function wipe(){
     persistTombstones();
     for(const id of Object.keys(photos)) idbDel(id);
     photos={}; entries=[]; sessions=[];
+    plan={rows:[],done:{},skims:{},_upd:Date.now()}; delete settings._planSeeded; persistPlan(); persistSettings();
     persistSessions(); await persist(); render(); closeSheet(); toast('Cleared everything');
   };
 }
@@ -2744,6 +3218,51 @@ function deviceId(){ let d=null; try{d=localStorage.getItem(K_DEV)}catch(_){}; i
 function persistTombstones(){ try{localStorage.setItem(K_TOMB,JSON.stringify(tombstones))}catch(_){} }
 function loadTombstones(){ try{const t=JSON.parse(localStorage.getItem(K_TOMB)||'{}'); if(t&&typeof t==='object'&&!Array.isArray(t)) tombstones=t;}catch(_){} }
 function persistSessions(cloud){ try{localStorage.setItem(K_SESS,JSON.stringify(sessions))}catch(_){}; if(cloud!==false) scheduleCloudPush(); }
+function persistPlan(cloud){ plan._upd=Date.now(); try{localStorage.setItem(K_PLAN,JSON.stringify(plan))}catch(_){}; if(cloud!==false) scheduleCloudPush(); }
+function sanitizePlan(obj){
+  const p={rows:[], done:{}, skims:{}, _upd:0};
+  if(!obj||typeof obj!=='object') return p;
+  p._upd=+obj._upd||0;
+  const kinds=['read','test','buffer'];
+  (Array.isArray(obj.rows)?obj.rows:[]).forEach(r=>{
+    if(!r||typeof r.id!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(r.d||'')) return;
+    p.rows.push({ id:r.id, d:r.d, t:typeof r.t==='string'?r.t.slice(0,80):'', k:kinds.includes(r.k)?r.k:'read',
+      s:(Array.isArray(r.s)?r.s:[]).filter(x=>SUBJECTS.includes(x)), weak:r.weak?1:0, x2:r.x2?1:0, note:typeof r.note==='string'?r.note.slice(0,300):undefined });
+  });
+  p.rows.sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:0);
+  const ids=new Set(p.rows.map(r=>r.id));
+  Object.entries(obj.done||{}).forEach(([k,v])=>{ if(ids.has(k)&&v&&typeof v.ts==='number') p.done[k]={ts:v.ts, mins:+v.mins||undefined, mode:v.mode==='partial'?'partial':'full'}; });
+  Object.entries(obj.skims||{}).forEach(([k,v])=>{ if(ids.has(k)&&Array.isArray(v)) p.skims[k]=v.filter(x=>x&&typeof x.ts==='number').map(x=>({ts:x.ts, depth:x.depth==='full'?'full':'skim'})); });
+  return p;
+}
+function loadPlan(){ try{ plan=sanitizePlan(JSON.parse(localStorage.getItem(K_PLAN)||'null')); }catch(_){ plan={rows:[],done:{},skims:{},_upd:0}; } }
+/* Pass 3 reading grid, 2026-07-04 → 2026-07-27. Pass 4 is deliberately unplanned. */
+const PLAN_SEED=[
+ {id:'p0704',d:'2026-07-04',t:'Pathology',k:'read',s:['Pathology']},
+ {id:'p0705',d:'2026-07-05',t:'Pharmacology',k:'read',s:['Pharmacology'],weak:1},
+ {id:'p0706',d:'2026-07-06',t:'GT-18 + analysis',k:'test'},
+ {id:'p0707',d:'2026-07-07',t:'Medicine — CVS',k:'read',s:['Medicine']},
+ {id:'p0708',d:'2026-07-08',t:'Microbiology',k:'read',s:['Microbiology']},
+ {id:'p0709',d:'2026-07-09',t:'Medicine — GIT',k:'read',s:['Medicine']},
+ {id:'p0710',d:'2026-07-10',t:'PSM',k:'read',s:['PSM / Community Med'],weak:1},
+ {id:'p0711',d:'2026-07-11',t:'Surgery',k:'read',s:['Surgery'],weak:1},
+ {id:'p0712',d:'2026-07-12',t:'Medicine — Respiratory',k:'read',s:['Medicine']},
+ {id:'p0713',d:'2026-07-13',t:'GT-19 + analysis',k:'test'},
+ {id:'p0714',d:'2026-07-14',t:'OBGYN',k:'read',s:['OBGYN'],weak:1},
+ {id:'p0715',d:'2026-07-15',t:'Medicine — Nephrology',k:'read',s:['Medicine']},
+ {id:'p0716',d:'2026-07-16',t:'Pediatrics',k:'read',s:['Pediatrics']},
+ {id:'p0717',d:'2026-07-17',t:'Medicine — Haematology',k:'read',s:['Medicine']},
+ {id:'p0718',d:'2026-07-18',t:'Ophthalmology + ENT',k:'read',s:['Ophthalmology','ENT'],x2:1},
+ {id:'p0719',d:'2026-07-19',t:'Medicine — Neurology',k:'read',s:['Medicine']},
+ {id:'p0720',d:'2026-07-20',t:'GT-20 + analysis',k:'test'},
+ {id:'p0721',d:'2026-07-21',t:'Anatomy',k:'read',s:['Anatomy']},
+ {id:'p0722',d:'2026-07-22',t:'Medicine — Endo + Rheum',k:'read',s:['Medicine'],x2:1},
+ {id:'p0723',d:'2026-07-23',t:'Physiology',k:'read',s:['Physiology']},
+ {id:'p0724',d:'2026-07-24',t:'Dermatology + Psychiatry',k:'read',s:['Dermatology','Psychiatry'],x2:1},
+ {id:'p0725',d:'2026-07-25',t:'Radiology + Orthopaedics',k:'read',s:['Radiology','Orthopaedics'],x2:1},
+ {id:'p0726',d:'2026-07-26',t:'Buffer — catch up any slip',k:'buffer'},
+ {id:'p0727',d:'2026-07-27',t:'GT-21 → Pass 4 starts',k:'test'},
+];
 /* one sanitizer for every path sessions enter by (storage, cloud merge, import):
    migrates the old two-tier 'low' to 'twoish' and rebuilds comp when missing */
 function sanitizeSessions(arr){
@@ -2758,7 +3277,12 @@ function sanitizeSessions(arr){
     });
     const cc=triageCounts(items);
     const comp=(x.comp&&typeof x.comp==='object')?{sure:+x.comp.sure||0,twoish:+x.comp.twoish||0,noidea:+x.comp.noidea||0}:{sure:cc.sure,twoish:cc.twoish,noidea:cc.noidea};
-    return {...x, items, comp};
+    const out={...x, items, comp};
+    if(x.score&&typeof x.score==='object'&&x.score.c!=null&&x.score.w!=null){
+      out.score={c:+x.score.c||0, w:+x.score.w||0, s:x.score.s!=null?+x.score.s||0:null, total:x.score.total!=null?+x.score.total||null:null};
+      if(x.score.blindTried!=null) out.score.blindTried=+x.score.blindTried||0;
+    } else delete out.score;
+    return out;
   });
 }
 function loadSessions(){ try{ sessions=sanitizeSessions(JSON.parse(localStorage.getItem(K_SESS)||'[]')); }catch(_){} }
@@ -2780,7 +3304,10 @@ function mergeLedger(a,b){
      can't be resurrected by a copy still sitting on the cloud), capped for doc-size safety */
   const sById={}; (a.sessions||[]).concat(b.sessions||[]).forEach(s=>{ if(s&&s.id&&!sById[s.id]) sById[s.id]=s; });
   const sessions=Object.values(sById).filter(s=>!(tomb[s.id] && tomb[s.id]>=(s.ts||0))).sort((x,y)=>(y.ts||0)-(x.ts||0)).slice(0,150);
-  return {entries, settings, tombstones:tomb, sessions};
+  /* plan: last-write-wins whole-object on _upd, like settings — row-by-row merging breeds zombie rows */
+  const ap=(a.plan&&a.plan._upd)||0, bp=(b.plan&&b.plan._upd)||0;
+  const plan = bp>ap ? (b.plan||a.plan) : (a.plan||b.plan);
+  return {entries, settings, tombstones:tomb, sessions, plan};
 }
 
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.async=true;s.onload=()=>res();s.onerror=()=>rej(new Error('load '+src));document.head.appendChild(s);});}
@@ -2857,17 +3384,19 @@ async function startDocSync(){
 }
 async function applyRemote(remote, initial){
   try{
-    const inc={ entries:remote.entries||[], settings:remote.settings||{}, tombstones:remote.tombstones||{}, sessions:remote.sessions||[] };
+    const inc={ entries:remote.entries||[], settings:remote.settings||{}, tombstones:remote.tombstones||{}, sessions:remote.sessions||[], plan:remote.plan||null };
     fbRemoteCount=inc.entries.length;
-    const merged=mergeLedger({entries, settings, tombstones, sessions}, inc);
+    const merged=mergeLedger({entries, settings, tombstones, sessions, plan}, inc);
     const changed = JSON.stringify(merged.entries)!==JSON.stringify(entries) ||
                     JSON.stringify(merged.tombstones)!==JSON.stringify(tombstones) ||
                     JSON.stringify(merged.sessions)!==JSON.stringify(sessions) ||
+                    ((merged.plan&&merged.plan._upd)||0)!==((plan&&plan._upd)||0) ||
                     ((merged.settings&&merged.settings._upd)||0)!==((settings&&settings._upd)||0);
     fbApplying=true;
     entries=sanitizeEntries(merged.entries);
     tombstones=merged.tombstones||{}; persistTombstones();
     sessions=sanitizeSessions(merged.sessions||[]); persistSessions(false);
+    if(merged.plan && (merged.plan._upd||0)!==(plan._upd||0)){ plan=sanitizePlan(merged.plan); try{localStorage.setItem(K_PLAN,JSON.stringify(plan))}catch(_){} }
     if(merged.settings && Object.keys(merged.settings).length) settings=Object.assign(settings, merged.settings);
     await persist(false); await persistSettings(false);
     fbApplying=false; fbLastSync=Date.now(); fbLastPull=Date.now();
@@ -2879,7 +3408,7 @@ async function applyRemote(remote, initial){
 function scheduleCloudPush(){ if(fbApplying||!fbUser||fbStatus!=='on')return; clearTimeout(fbPushT); fbPushT=setTimeout(pushNow, 900); }
 async function pushNow(){
   if(!fbUser)return;
-  try{ await docRef().set({ entries, settings, tombstones, sessions, by:deviceId(), updatedAt:Date.now() }); fbLastSync=Date.now(); fbLastPush=Date.now(); fbRemoteCount=entries.length; fbError=''; renderCloudSync(); }
+  try{ await docRef().set({ entries, settings, tombstones, sessions, plan, by:deviceId(), updatedAt:Date.now() }); fbLastSync=Date.now(); fbLastPush=Date.now(); fbRemoteCount=entries.length; fbError=''; renderCloudSync(); }
   catch(e){ if(e&&e.code==='unavailable') return; fbError=fsHint(e); renderCloudSync(); toast('Could not save to cloud — see Data screen'); }
 }
 /* manual, one-shot full reconcile the user can trigger from the Data screen */
