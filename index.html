@@ -560,12 +560,25 @@
   .sm-conf .line:nth-child(2){animation-delay:.07s} .sm-conf .line:nth-child(3){animation-delay:.14s}
   /* per-test trend sparklines — the line draws itself in */
   .sparks{display:flex;flex-direction:column;gap:10px;margin-top:2px}
-  .spark-row{display:flex;align-items:center;gap:11px}
+  .spark-row{display:flex;align-items:center;gap:11px;width:100%;background:none;border:none;padding:4px 0;text-align:left;border-radius:10px;transition:background .12s}
+  .spark-row:active{background:var(--surface2)}
   .sp-k{font-size:12px;color:var(--muted);font-weight:650;width:98px;flex:none}
   .spark{flex:1;height:34px;min-width:0}
-  .spark path{stroke-dasharray:320;stroke-dashoffset:320;animation:dashin .9s .15s cubic-bezier(.4,0,.2,1) forwards}
+  .spark .ln{stroke-dasharray:320;stroke-dashoffset:320;animation:dashin .9s .15s cubic-bezier(.4,0,.2,1) forwards}
+  .sp-d{flex:none;font-size:10.5px;font-weight:800;padding:2.5px 6px;border-radius:7px;font-variant-numeric:tabular-nums;color:var(--muted);background:var(--surface2)}
+  .sp-d.good{color:var(--sage-ink);background:color-mix(in srgb,var(--sage) 18%,transparent)}
+  .sp-d.bad{color:var(--rose);background:color-mix(in srgb,var(--rose) 12%,transparent)}
+  .spd-list{display:flex;flex-direction:column;gap:8px;margin-top:6px;max-height:46vh;overflow-y:auto}
+  .spd-row{display:flex;align-items:center;gap:10px}
+  .spd-l{font-size:12px;font-weight:650;color:var(--muted);width:86px;flex:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .spd-track{flex:1;height:8px;border-radius:5px;background:var(--surface2);overflow:hidden}
+  .spd-track i{display:block;height:100%;border-radius:5px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+  .spd-v{font-size:13.5px;font-variant-numeric:tabular-nums;width:44px;text-align:right;flex:none}
+  .hm-in{animation:hmin .34s cubic-bezier(.3,1.2,.5,1) both}
+  @keyframes hmin{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+  .st-tap{cursor:pointer}
   @keyframes dashin{to{stroke-dashoffset:0}}
-  .sp-v{font-size:19px;font-weight:850;font-variant-numeric:tabular-nums;width:30px;text-align:right;flex:none}
+  .sp-v{font-size:17px;font-weight:850;font-variant-numeric:tabular-nums;min-width:34px;text-align:right;flex:none}
   /* integrated test rows: name + its own mini mix + total, tappable */
   .gtrow.tap{width:100%;text-align:left;background:none;border-radius:10px;transition:background .12s}
   .gtrow.tap:active{background:var(--surface2)}
@@ -1120,7 +1133,7 @@ let deferredPrompt=null;
 let photos={}; /* id -> dataURL, kept in IndexedDB */
 let tombstones={}; /* id -> deletedAt, for delete-safe cloud merge */
 let _grpCache=null; /* memoised recurrence groups, invalidated on every persist() */
-const K_TOMB='ml_tombstones_v1', K_FBCFG='ml_fbcfg_v1', K_DEV='ml_device_v1', K_SESS='ml_sessions_v1', K_PLAN='ml_plan_v1';
+const K_TOMB='ml_tombstones_v1', K_FBCFG='ml_fbcfg_v1', K_DEV='ml_device_v1', K_SESS='ml_sessions_v1', K_PLAN='ml_plan_v1', K_LIVETRI='ml_livetri_v1';
 let fbApp=null, fbUser=null, fbUnsub=null, fbPushT=null, fbApplying=false, fbStatus='off', fbLastSync=0, fbError='';
 let fbLastPush=0, fbLastPull=0, fbRemoteCount=null, fbSyncing=false;
 let _idc=0; /* id counter, guarantees uniqueness within a session */
@@ -1155,7 +1168,9 @@ async function boot(){
   loadPlan();
   migrate();
   if(settings.lastSubject && SUBJECTS.includes(settings.lastSubject)) form.subject=settings.lastSubject;
+  const resumed=restoreLiveTriage();
   buildForm(); bindTabs(); bindActions(); bindKeyboard(); render(); switchView('triage');
+  if(resumed) toast('Resumed your '+triage.set+' read — '+triage.items.length+' already sorted');
   requestPersistence();
   if('serviceWorker' in navigator && location.protocol!=='file:'){ try{navigator.serviceWorker.register('./sw.js').catch(()=>{})}catch(_){}}
   loadPhotos().then(()=>render());
@@ -1208,7 +1223,7 @@ function idbOpen(){return new Promise((res,rej)=>{try{const r=indexedDB.open('ml
 function req(r){return new Promise((res,rej)=>{r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
 async function idbSet(k,v){try{const d=await idbOpen();const t=d.transaction('photos','readwrite');t.objectStore('photos').put(v,k);return new Promise(r=>{t.oncomplete=r;t.onerror=r})}catch(_){}}
 async function idbDel(k){try{const d=await idbOpen();const t=d.transaction('photos','readwrite');t.objectStore('photos').delete(k);return new Promise(r=>{t.oncomplete=r;t.onerror=r})}catch(_){}}
-async function loadPhotos(){try{const d=await idbOpen();const t=d.transaction('photos','readonly');const s=t.objectStore('photos');const keys=await req(s.getAllKeys());const vals=await req(s.getAll());keys.forEach((k,i)=>photos[k]=vals[i])}catch(_){}}
+async function loadPhotos(){try{const d=await idbOpen();const t=d.transaction('photos','readonly');const s=t.objectStore('photos');const keys=await req(s.getAllKeys());const vals=await req(s.getAll());keys.forEach((k,i)=>{const v=vals[i];if(typeof v==='string'&&v.startsWith('data:image/'))photos[k]=v})}catch(_){}}
 function compressImage(file,max=1100,q=0.62){return new Promise((res,rej)=>{const rd=new FileReader();rd.onload=()=>{const img=new Image();img.onload=()=>{let w=img.width,h=img.height;if(w>h&&w>max){h=Math.round(h*max/w);w=max}else if(h>=w&&h>max){w=Math.round(w*max/h);h=max}const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);try{res(c.toDataURL('image/jpeg',q))}catch(e){rej(e)}};img.onerror=rej;img.src=rd.result};rd.onerror=rej;rd.readAsDataURL(file)})}
 
 function buildForm(){
@@ -1402,7 +1417,23 @@ function render(){
   if(badge){ if(dc>0 && !review.active){ badge.textContent=dc>99?'99+':dc; badge.hidden=false; } else badge.hidden=true; }
   const res=document.getElementById('revEntrySub'); if(res) res.textContent=dc?`${dc} due for recall today — quiz yourself.`:'Nothing due. Quiz yourself on your logged fixes.';
   renderCtx(); paintTypeSwitch();
-  renderTriage(); renderPlan(); renderBook(); renderReview(); renderInsights(); renderInstall(); renderCloudSync();
+  /* only rebuild the view on screen — the rest re-render lazily when switched to (big win on older phones) */
+  Object.keys(_dirty).forEach(k=>_dirty[k]=true);
+  renderActiveView();
+  updatePlanBadge();
+  renderInstall(); renderCloudSync();
+}
+let _dirty={triage:true,plan:true,book:true,review:true,insights:true};
+function renderActiveView(){
+  const on=document.querySelector('.view.on');
+  renderViewByName(on ? on.id.slice(2) : 'triage');
+}
+function renderViewByName(v){
+  if(v==='triage'){ renderTriage(); _dirty.triage=false; }
+  else if(v==='plan'){ renderPlan(); _dirty.plan=false; }
+  else if(v==='book'){ renderBook(); _dirty.book=false; }
+  else if(v==='review'){ renderReview(); _dirty.review=false; }
+  else if(v==='insights'){ renderInsights(); _dirty.insights=false; }
 }
 function daysToExam(){
   if(!settings.examDate)return null;
@@ -1551,6 +1582,7 @@ async function markReview(knew){
   if(knew){ e.streak=(e.streak||0)+1; if(e.streak>=2 && e.status==='open'){e.status='fixed';e.fixedTs=Date.now()} review.known++; review.combo=(review.combo||0)+1; }
   else { e.streak=0; if(e.status==='fixed'){e.status='open';e.fixedTs=null} review.shaky++; review.combo=0; }
   review.i++; review.revealed=false; review.noteOpen=false;
+  buzz(knew?6:[10,28,10]);
   await persist(); render();
 }
 function endReview(){review.active=false; renderReview()}
@@ -1578,6 +1610,33 @@ function startTriage(){
   triage={ active:true, set:curSet(), testType:curType(), conf:null, subj:null, img:false, items:[], saved:false, done:false, decide:null };
   showTriageView(); renderTriage();
 }
+/* a live board survives backgrounding, floating-window and app kills —
+   snapshotted on every state change, restored on boot, cleared once saved or discarded */
+function persistLiveTriage(){
+  try{
+    if(triage.active && !triage.done && !triage.saved)
+      localStorage.setItem(K_LIVETRI, JSON.stringify({ set:triage.set, testType:triage.testType,
+        conf:triage.conf||null, subj:triage.subj||null, img:!!triage.img, items:triage.items, ts:Date.now() }));
+    else localStorage.removeItem(K_LIVETRI);
+  }catch(_){}
+}
+function restoreLiveTriage(){
+  try{
+    const raw=localStorage.getItem(K_LIVETRI); if(!raw) return false;
+    const s=JSON.parse(raw);
+    if(!s || typeof s.set!=='string' || !Array.isArray(s.items)) { localStorage.removeItem(K_LIVETRI); return false; }
+    if(Date.now()-(+s.ts||0) > 36*3600*1000){ localStorage.removeItem(K_LIVETRI); return false; } /* stale board — don't resurrect last week's read */
+    const items=s.items.filter(it=>it&&ERR_MAP[it.error]).map(it=>{
+      const o={error:it.error, conf:['high','twoish','noidea'].includes(it.conf)?it.conf:null, subj:(it.subj&&SUBJECTS.includes(it.subj))?it.subj:null};
+      if(it.img) o.img=true; if(it.uncertain) o.uncertain=true; return o;
+    });
+    if(!items.length) { localStorage.removeItem(K_LIVETRI); return false; }
+    triage={ active:true, set:s.set, testType:s.testType==='module'?'module':'gt',
+      conf:['high','twoish','noidea'].includes(s.conf)?s.conf:null, subj:(s.subj&&SUBJECTS.includes(s.subj))?s.subj:null,
+      img:!!s.img, items, saved:false, done:false, decide:null };
+    return true;
+  }catch(_){ try{localStorage.removeItem(K_LIVETRI)}catch(__){} return false; }
+}
 function reducedMotion(){ return !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches); }
 function buzz(p){ try{ if(navigator.vibrate) navigator.vibrate(p); }catch(_){} }
 
@@ -1598,10 +1657,10 @@ function renderTriHome(box){
   }
   let sparks='';
   if(recent.length>=2){
-    const comps=recent.map(sessComp);
-    sparks=`<div class="card thin"><h3><span class="accent"></span>Your two numbers to shrink</h3><div class="sparks">
-      ${sparkRow('Blind spots','var(--rose)',recent.map(s=>triageCounts(s.items).blind))}
-      ${sparkRow('No-read misses','var(--ink2)',comps.map(x=>x.noidea))}</div></div>`;
+    const comps=recent.map(sessComp), labs=recent.map(s=>s.set);
+    sparks=`<div class="card thin"><h3><span class="accent"></span>Your two numbers to shrink <span class="h3-hint">tap a line</span></h3><div class="sparks">
+      ${sparkRow('Blind spots','var(--rose)',recent.map(s=>triageCounts(s.items).blind),{labels:labs,goodDown:true})}
+      ${sparkRow('No-read misses','var(--ink2)',comps.map(x=>x.noidea),{labels:labs,goodDown:true})}</div></div>`;
   }
   const reads=sessions.slice(0,5).map(s=>{ const cc=triageCounts(s.items);
     return `<button class="ses-row tap" data-ses="${esc(s.id)}"><div><div class="sr-t">${esc(s.set)}</div><div class="sr-d">${cc.total} sorted${cc.blind?` · ${cc.blind} blind`:''} · ${relTime(s.ts)}</div></div><span class="th-go">›</span></button>`;}).join('');
@@ -1627,6 +1686,8 @@ function renderTriHome(box){
   document.getElementById('thGuide').onclick=triGuideSheet;
   box.querySelectorAll('#thType button').forEach(b=>b.onclick=async()=>{ await setType(b.dataset.type); renderTriage(); });
   box.querySelectorAll('[data-ses]').forEach(b=>b.onclick=()=>sessionSheet(b.dataset.ses));
+  box.querySelectorAll('.spark-row[data-sp]').forEach(b=>b.onclick=()=>{ try{ buzz(6); sparkSheet(JSON.parse(b.dataset.sp)); }catch(_){} });
+  box.querySelectorAll('.mixbar .mx-seg, .mx-keys .mx-key').forEach(b=>b.onclick=e=>{ e.stopPropagation(); buzz(6); bucketFixSheet(b.dataset.e); });
 }
 /* ===================== the Plan: reading grid + revisit ladder ===================== */
 function todayISO(){ const d=new Date(); const p=n=>String(n).padStart(2,'0'); return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); }
@@ -1798,7 +1859,7 @@ function planRowSheet(id){
     <div class="actions" style="margin-top:10px"><button class="btn primary" onclick="closeSheet()">Close</button></div>`);
   document.getElementById('prDone').onclick=()=>{ closeSheet(); togglePlanDone(id); };
   const pp=document.getElementById('prPartial'); if(pp) pp.onclick=()=>{ dn.mode=dn.mode==='partial'?'full':'partial'; persistPlan(); closeSheet(); renderPlan(); };
-  const pm=document.getElementById('prMinsSave'); if(pm) pm.onclick=()=>{ dn.mins=+document.getElementById('prMins').value||undefined; persistPlan(); toast('Saved'); };
+  const pm=document.getElementById('prMinsSave'); if(pm) pm.onclick=()=>{ const m=+document.getElementById('prMins').value; if(m>0) dn.mins=m; else delete dn.mins; persistPlan(); toast('Saved'); };
   const ps=document.getElementById('prSkim'); if(ps) ps.onclick=()=>{ closeSheet(); logRevisit(id,'skim'); };
   const pf=document.getElementById('prFull'); if(pf) pf.onclick=()=>{ closeSheet(); logRevisit(id,'full'); };
   document.getElementById('prEdit').onclick=()=>planEditSheet(id);
@@ -1918,6 +1979,7 @@ const TRI_QS=[
 ];
 function renderTriage(){
   const box=document.getElementById('triageBody'); if(!box)return;
+  persistLiveTriage();
   if(!triage.active){ renderTriHome(box); return; }
   if(triage.done){
     box.innerHTML=triageSummaryHTML();
@@ -1990,7 +2052,7 @@ function lockUI(){
 }
 function bindTriChip(){
   const wrap=document.getElementById('triChipWrap'); if(!wrap)return;
-  wrap.querySelectorAll('#triConf .tc').forEach(b=>b.onclick=()=>{ triage.conf=(triage.conf===b.dataset.c)?null:b.dataset.c; paintTriConf(); lockUI(); });
+  wrap.querySelectorAll('#triConf .tc').forEach(b=>b.onclick=()=>{ buzz(5); triage.conf=(triage.conf===b.dataset.c)?null:b.dataset.c; paintTriConf(); lockUI(); });
   const img=document.getElementById('triImg'); if(img) img.onclick=()=>{ triage.img=!triage.img; redrawChip(); };
   const pick=document.getElementById('triPick'); if(pick) pick.onclick=()=>{ if(!triage.conf)return; triage.decide=0; redrawChip(); };
   const subj=document.getElementById('triSubj'); if(subj) subj.onclick=triSubjSheet;
@@ -2147,7 +2209,7 @@ function scoreSheet(){
   };
   document.querySelectorAll('.stp [data-up],[data-dn]').forEach(b=>b.onclick=()=>{
     const id=b.dataset.up||b.dataset.dn, inp=g(id);
-    inp.value=Math.max(0,(+inp.value||0)+(b.dataset.up?1:-1)); refresh();
+    inp.value=Math.max(0,(+inp.value||0)+(b.dataset.up?1:-1)); buzz(4); refresh();
   });
   ['scC','scW','scS','scB'].forEach(id=>g(id).oninput=refresh);
   g('scW').value=n; refresh();
@@ -2174,7 +2236,7 @@ function saveSession(score){
   triage.sessionId=sess.id;
   sessions.unshift(sess);
   sessions=sessions.slice(0,100); /* keep the doc well under Firestore's 1 MB cap */
-  persistSessions(); triage.saved=true;
+  persistSessions(); triage.saved=true; persistLiveTriage();
 }
 function triageSummaryHTML(){
   const {c,blind,total,sure,twoish,noidea}=triageCounts(triage.items);
@@ -2474,9 +2536,13 @@ function streamChart(sess){
     return `<path d="${areaBand(topPts,botRev)}" fill="${e.c}" opacity="0.9" stroke="#FDFAF4" stroke-width="1.1" stroke-linejoin="round"/>`;
   }).join('');
   const dots=sess.map((s,i)=>`<circle cx="${X(i).toFixed(1)}" cy="${y1}" r="2" fill="var(--faint)"/>`).join('');
+  const grid=[0.25,0.5,0.75].map(f=>`<line x1="${x0}" x2="${x1}" y1="${Y(f).toFixed(1)}" y2="${Y(f).toFixed(1)}" stroke="#FDFAF4" stroke-width="1" stroke-dasharray="2 5" opacity=".55"/>`).join('');
   const labs=sess.map((s,i)=>`<text class="xlab" x="${X(i).toFixed(1)}" y="${H-17}" text-anchor="middle">${esc(String(s.set).replace(/^GT[\s-]*/i,'').slice(0,4))}</text>
     <text class="xlab faintlab" x="${X(i).toFixed(1)}" y="${H-5}" text-anchor="middle">${triageCounts(s.items).total}</text>`).join('');
-  return `<svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Mistake-type mix across tests">${bands}${dots}${labs}</svg>`;
+  /* invisible full-height hit areas: tap any test column → that test's deep dive */
+  const cw=(x1-x0)/(n-1);
+  const taps=sess.map((s,i)=>`<rect class="st-tap" data-stest="${esc(s.testType+'|'+s.set)}" x="${Math.max(0,X(i)-cw/2).toFixed(1)}" y="0" width="${cw.toFixed(1)}" height="${H}" fill="transparent"/>`).join('');
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Mistake-type mix across tests — tap a test to open it">${bands}${grid}${dots}${labs}${taps}</svg>`;
 }
 /* one segmented bar = your mistake DNA, no four-bar clutter. Segments are tappable → the fix. */
 function mixBar(agg,total){
@@ -2526,16 +2592,46 @@ function subjectSheet(sub){
     ${tests.length?`<div class="sp-lab">seen in</div><div class="sp-chips">${tests.map(t=>`<span class="chip" style="pointer-events:none">${esc(t)}</span>`).join('')}</div>`:''}
     <div class="actions" style="margin-top:16px"><button class="btn primary" onclick="closeSheet()">Done</button></div>`);
 }
-/* tiny trend line with a big current value — no axes, just the shape */
-function sparkRow(label,color,vals){
+/* tiny trend line with a big current value — min–max scaled so the shape reads, area fill,
+   a dot per test, a Δ-vs-last-test chip, and tap → the per-test numbers behind it */
+function sparkRow(label,color,vals,o){
+  o=o||{};
   const W=150,H=34,x0=4,x1=W-4,y0=6,y1=H-6;
-  const mx=Math.max(1,...vals);
-  const pts=vals.map((v,i)=>({x: vals.length===1?(x0+x1)/2 : x0+i*(x1-x0)/(vals.length-1), y: y1-(v/mx)*(y1-y0)}));
+  const lo=Math.min(...vals), hi=Math.max(...vals), span=(hi-lo)||1;
+  const pts=vals.map((v,i)=>({x: vals.length===1?(x0+x1)/2 : x0+i*(x1-x0)/(vals.length-1), y: y1-((v-lo)/span)*(y1-y0)}));
   const last=pts[pts.length-1];
-  return `<div class="spark-row"><span class="sp-k">${label}</span>
-    <svg class="spark" viewBox="0 0 ${W} ${H}" aria-hidden="true"><path d="${smoothPath(pts)}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round"/>
+  const line=smoothPath(pts);
+  const area=vals.length>1?`<path class="ar" d="${line} L ${last.x.toFixed(1)} ${y1} L ${pts[0].x.toFixed(1)} ${y1} Z" fill="${color}" opacity="0.10"/>`:'';
+  const dots=pts.slice(0,-1).map(p=>`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="1.9" fill="${color}" opacity=".55"/>`).join('');
+  /* Δ vs the previous test — coloured by whether that direction is good for THIS metric */
+  let delta='';
+  if(vals.length>=2){
+    const d=vals[vals.length-1]-vals[vals.length-2];
+    const good=o.goodDown? d<0 : d>0;
+    const cls=d===0?'flat':good?'good':'bad';
+    const dv=o.dscale?d/o.dscale:d; /* show the delta in the same units as the displayed value */
+    const mag=Math.abs(dv)<10?Math.round(Math.abs(dv)*100)/100:Math.round(Math.abs(dv));
+    delta=`<span class="sp-d ${cls}">${d===0?'—':(d>0?'▲':'▼')+' '+mag}</span>`;
+  }
+  const shown=o.disp?o.disp[o.disp.length-1]:vals[vals.length-1];
+  const payload=esc(JSON.stringify({label, vals, disp:o.disp||null, labels:o.labels||null, color}));
+  return `<button class="spark-row" data-sp="${payload}" aria-label="${esc(label)} trend — tap for per-test numbers"><span class="sp-k">${label}</span>
+    <svg class="spark" viewBox="0 0 ${W} ${H}" aria-hidden="true">${area}<path class="ln" d="${line}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round"/>${dots}
     <circle cx="${last.x.toFixed(1)}" cy="${last.y.toFixed(1)}" r="3.4" fill="${color}"/></svg>
-    <span class="sp-v" style="color:${color}">${vals[vals.length-1]}</span></div>`;
+    <span class="sp-v" style="color:${color}">${shown}</span>${delta}</button>`;
+}
+/* the numbers behind a sparkline, test by test, newest last */
+function sparkSheet(p){
+  const hi=Math.max(1,...p.vals.map(v=>Math.abs(v)));
+  const rows=p.vals.map((v,i)=>{
+    const lab=p.labels&&p.labels[i]?p.labels[i]:('#'+(i+1));
+    const show=p.disp?p.disp[i]:v;
+    return `<div class="spd-row"><span class="spd-l">${esc(String(lab))}</span>
+      <div class="spd-track"><i style="width:${Math.round(Math.abs(v)/hi*100)}%;background:${esc(p.color)}"></i></div>
+      <b class="spd-v">${esc(String(show))}</b></div>`;
+  }).join('');
+  openSheet(`<h3>${esc(p.label)} — test by test</h3><div class="spd-list">${rows}</div>
+    <div class="actions" style="margin-top:16px"><button class="btn primary" onclick="closeSheet()">Done</button></div>`);
 }
 function triageInsightsCard(){
   if(!sessions.length) return '';
@@ -2546,14 +2642,15 @@ function triageInsightsCard(){
   const dom=ERRORS.slice().sort((a,b)=>agg[b.id]-agg[a.id])[0];
   let trends='';
   if(recent.length>=2){
-    trends=`<div class="leak-sub" style="margin-top:20px">Per-test trends</div><div class="sparks">
-      ${sparkRow('Blind spots','var(--rose)',recent.map(s=>triageCounts(s.items).blind))}
-      ${sparkRow('No-read misses','var(--ink2)',recent.map(s=>sessComp(s).noidea))}</div>`;
+    const labs=recent.map(s=>s.set);
+    trends=`<div class="leak-sub" style="margin-top:20px">Per-test trends <span class="h3-hint">tap a line</span></div><div class="sparks">
+      ${sparkRow('Blind spots','var(--rose)',recent.map(s=>triageCounts(s.items).blind),{labels:labs,goodDown:true})}
+      ${sparkRow('No-read misses','var(--ink2)',recent.map(s=>sessComp(s).noidea),{labels:labs,goodDown:true})}</div>`;
   }
   return `<div class="card"><h3><span class="accent"></span>Triage — long-term read</h3>
     <div class="tlab" style="margin:-6px 0 14px">${total} mistake${total>1?'s':''} across ${sessions.length} test${sessions.length>1?'s':''}${blind?` · <b class="bl">${blind} blind spot${blind>1?'s':''}</b>`:''}.</div>
     ${mixBar(agg,total)}
-    ${recent.length>=2?`<div class="leak-sub" style="margin-top:20px">How the mix flows, test by test</div><div class="chartwrap" style="margin-top:2px">${streamChart(recent)}</div>`:''}
+    ${recent.length>=2?`<div class="leak-sub" style="margin-top:20px">How the mix flows, test by test <span class="h3-hint">tap a test</span></div><div class="chartwrap" style="margin-top:2px">${streamChart(recent)}</div>`:''}
     ${trends}
     ${(()=>{ let nm=0,im=0,un=0; sessions.forEach(x=>{const q=triageCounts(x.items); nm+=q.nearMiss; im+=q.img; un+=q.uncertain;});
       const bits=[];
@@ -2624,10 +2721,11 @@ function scoreTrendCard(){
     if(f!=null&&l!=null){ const dir=l<f?'down':l>f?'up':'flat';
       cap=`<p class="tlab" style="margin-top:12px">W:C is trending <b>${dir}</b> — ${l.toFixed(2)} vs ${f.toFixed(2)}. ${dir==='down'?'Down is good.':dir==='up'?'Up is the wrong way — check attempt discipline.':'Holding.'}</p>`; }
   }
-  return `<div class="card thin"><h3><span class="accent"></span>Score trend</h3><div class="sparks">
-    ${sparkRow('Marks','var(--accent-ink)',st.map(k=>k.marks))}
-    ${sparkRow('Accuracy %','var(--sage-ink)',st.map(k=>Math.round(k.accuracy*100)))}
-    ${sparkRow('W:C ×100','var(--rose)',st.map(k=>k.wc!=null?Math.round(k.wc*100):0))}
+  const labs=scored.map(x=>x.set);
+  return `<div class="card thin"><h3><span class="accent"></span>Score trend <span class="h3-hint">tap a line</span></h3><div class="sparks">
+    ${sparkRow('Marks','var(--accent-ink)',st.map(k=>k.marks),{labels:labs,goodDown:false})}
+    ${sparkRow('Accuracy %','var(--sage-ink)',st.map(k=>Math.round(k.accuracy*100)),{labels:labs,goodDown:false,disp:st.map(k=>Math.round(k.accuracy*100)+'%')})}
+    ${sparkRow('Wrong : correct','var(--rose)',st.map(k=>k.wc!=null?Math.round(k.wc*100):0),{labels:labs,goodDown:true,dscale:100,disp:st.map(k=>k.wc!=null?k.wc.toFixed(2):'—')})}
   </div>${cap}</div>`;
 }
 /* what to DO about each bucket — concrete actions, biggest leak first */
@@ -2651,12 +2749,12 @@ function heatmapCard(){
   const top=subs.slice(0,8);
   let max=1; top.forEach(su=>ERRORS.forEach(e=>max=Math.max(max,grid[su][e.id]||0)));
   const head=`<div class="hm-row hm-head"><span class="hm-sub"></span>${ERRORS.map(e=>`<span class="hm-c" style="color:${e.c}">${e.code}</span>`).join('')}<span class="hm-tot">all</span></div>`;
-  const rows=top.map(su=>{
+  const rows=top.map((su,ri)=>{
     const cells=ERRORS.map(e=>{ const n=grid[su][e.id]||0, a=n/max;
       const bg=n?`color-mix(in srgb, ${e.c} ${Math.round(16+70*a)}%, transparent)`:'var(--surface2)';
       return n?`<button class="hm-c tapc${a>0.6?' lt':''}" data-sub="${esc(su)}" data-e="${e.id}" data-n="${n}" title="${esc(e.t+' in '+su+' — tap for the fix')}" style="background:${bg}">${n}</button>`
              :`<span class="hm-c" style="background:${bg}"></span>`; }).join('');
-    return `<div class="hm-row"><span class="hm-sub" title="${esc(su)}">${esc(su)}</span>${cells}<span class="hm-tot">${subTot[su]}</span></div>`;
+    return `<div class="hm-row hm-in" style="animation-delay:${ri*26}ms"><span class="hm-sub" title="${esc(su)}">${esc(su)}</span>${cells}<span class="hm-tot">${subTot[su]}</span></div>`;
   }).join('');
   let hot=null; top.forEach(su=>ERRORS.forEach(e=>{const n=grid[su][e.id]||0; if(!hot||n>hot.n)hot={su,e,n};}));
   const note=hot&&hot.n>=2?`<p class="tlab" style="margin-top:13px">Hotspot: <b style="color:${hot.e.c}">${hot.e.t.toLowerCase()}</b> in <b>${esc(hot.su)}</b> (${hot.n}). ${FIXTEXT[hot.e.id]}</p>`:'';
@@ -2677,10 +2775,12 @@ function renderInsights(){
     if(off) writeFixComposer(off.id); else uncertainSheet();
   };
   const ul=document.getElementById('uncLine'); if(ul) ul.onclick=uncertainSheet;
-  box.querySelectorAll('[data-test]').forEach(b=>b.onclick=()=>testDetailSheet(b.dataset.test));
-  box.querySelectorAll('[data-sub]:not([data-e])').forEach(b=>b.onclick=()=>subjectSheet(b.dataset.sub));
-  box.querySelectorAll('.hm-c.tapc').forEach(b=>b.onclick=()=>bucketFixSheet(b.dataset.e, b.dataset.sub, +b.dataset.n));
-  box.querySelectorAll('.mixbar .mx-seg, .mx-keys .mx-key').forEach(b=>b.onclick=()=>bucketFixSheet(b.dataset.e));
+  box.querySelectorAll('[data-test]').forEach(b=>b.onclick=()=>{buzz(6);testDetailSheet(b.dataset.test)});
+  box.querySelectorAll('[data-sub]:not([data-e])').forEach(b=>b.onclick=()=>{buzz(6);subjectSheet(b.dataset.sub)});
+  box.querySelectorAll('.hm-c.tapc').forEach(b=>b.onclick=()=>{buzz(6);bucketFixSheet(b.dataset.e, b.dataset.sub, +b.dataset.n)});
+  box.querySelectorAll('.mixbar .mx-seg, .mx-keys .mx-key').forEach(b=>b.onclick=()=>{buzz(6);bucketFixSheet(b.dataset.e)});
+  box.querySelectorAll('.st-tap').forEach(r=>r.onclick=()=>{buzz(6);testDetailSheet(r.dataset.stest)});
+  box.querySelectorAll('.spark-row[data-sp]').forEach(b=>b.onclick=()=>{ try{ buzz(6); sparkSheet(JSON.parse(b.dataset.sp)); }catch(_){} });
 }
 
 function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
@@ -2699,11 +2799,12 @@ function toast(msg,action){
   toastT=setTimeout(()=>t.classList.remove('show','act'),action?5000:2200);
 }
 
-function bindTabs(){document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>switchView(t.dataset.v))}
+function bindTabs(){document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{buzz(4);switchView(t.dataset.v)})}
 function switchView(v){
   if(typeof clearKbd==='function') clearKbd();
-  if(v!=='triage') triage.active=false; /* navigating away abandons a game; landing on Triage keeps it */
+  /* a live board is never abandoned by navigation — it stays (and is snapshotted) until saved or explicitly discarded */
   document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));
+  if(_dirty[v]) renderViewByName(v); /* lazy re-render on first visit after a data change */
   /* review lives under Book now — keep the Book tab lit while reviewing */
   const hl = v==='review' ? 'book' : v==='log' ? 'book' : v;
   document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.v===hl));
@@ -3226,12 +3327,14 @@ function sanitizePlan(obj){
   const kinds=['read','test','buffer'];
   (Array.isArray(obj.rows)?obj.rows:[]).forEach(r=>{
     if(!r||typeof r.id!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(r.d||'')) return;
-    p.rows.push({ id:r.id, d:r.d, t:typeof r.t==='string'?r.t.slice(0,80):'', k:kinds.includes(r.k)?r.k:'read',
-      s:(Array.isArray(r.s)?r.s:[]).filter(x=>SUBJECTS.includes(x)), weak:r.weak?1:0, x2:r.x2?1:0, note:typeof r.note==='string'?r.note.slice(0,300):undefined });
+    const row={ id:r.id, d:r.d, t:typeof r.t==='string'?r.t.slice(0,80):'', k:kinds.includes(r.k)?r.k:'read',
+      s:(Array.isArray(r.s)?r.s:[]).filter(x=>SUBJECTS.includes(x)), weak:r.weak?1:0, x2:r.x2?1:0 };
+    if(typeof r.note==='string'&&r.note) row.note=r.note.slice(0,300); /* never an explicit undefined — Firestore set() rejects it */
+    p.rows.push(row);
   });
   p.rows.sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:0);
   const ids=new Set(p.rows.map(r=>r.id));
-  Object.entries(obj.done||{}).forEach(([k,v])=>{ if(ids.has(k)&&v&&typeof v.ts==='number') p.done[k]={ts:v.ts, mins:+v.mins||undefined, mode:v.mode==='partial'?'partial':'full'}; });
+  Object.entries(obj.done||{}).forEach(([k,v])=>{ if(ids.has(k)&&v&&typeof v.ts==='number'){ const d={ts:v.ts, mode:v.mode==='partial'?'partial':'full'}; if(+v.mins>0) d.mins=+v.mins; p.done[k]=d; } });
   Object.entries(obj.skims||{}).forEach(([k,v])=>{ if(ids.has(k)&&Array.isArray(v)) p.skims[k]=v.filter(x=>x&&typeof x.ts==='number').map(x=>({ts:x.ts, depth:x.depth==='full'?'full':'skim'})); });
   return p;
 }
@@ -3408,7 +3511,10 @@ async function applyRemote(remote, initial){
 function scheduleCloudPush(){ if(fbApplying||!fbUser||fbStatus!=='on')return; clearTimeout(fbPushT); fbPushT=setTimeout(pushNow, 900); }
 async function pushNow(){
   if(!fbUser)return;
-  try{ await docRef().set({ entries, settings, tombstones, sessions, plan, by:deviceId(), updatedAt:Date.now() }); fbLastSync=Date.now(); fbLastPush=Date.now(); fbRemoteCount=entries.length; fbError=''; renderCloudSync(); }
+  try{
+    /* JSON round-trip drops every explicit undefined (Firestore set() hard-rejects them) */
+    const payload=JSON.parse(JSON.stringify({ entries, settings, tombstones, sessions, plan, by:deviceId(), updatedAt:Date.now() }));
+    await docRef().set(payload); fbLastSync=Date.now(); fbLastPush=Date.now(); fbRemoteCount=entries.length; fbError=''; renderCloudSync(); }
   catch(e){ if(e&&e.code==='unavailable') return; fbError=fsHint(e); renderCloudSync(); toast('Could not save to cloud — see Data screen'); }
 }
 /* manual, one-shot full reconcile the user can trigger from the Data screen */
@@ -3430,7 +3536,9 @@ async function syncNow(){
 /* opening the app / coming back online should immediately pull the latest */
 if(typeof window!=='undefined'){
   window.addEventListener('online', ()=>{ if(getFbCfg()){ if(!fbUser) initSync(); else syncNow(); } });
-  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden && fbUser && fbStatus==='on' && !fbSyncing) syncNow(); });
+  /* backgrounding (home screen, floating window, app switch) snapshots the live board immediately */
+  document.addEventListener('visibilitychange', ()=>{ if(document.hidden){ try{persistLiveTriage()}catch(_){} return; } if(fbUser && fbStatus==='on' && !fbSyncing) syncNow(); });
+  window.addEventListener('pagehide', ()=>{ try{persistLiveTriage()}catch(_){} });
   window.addEventListener('focus', ()=>{ if(fbUser && fbStatus==='on' && !fbSyncing){ const now=Date.now(); if(now-fbLastPull>4000) syncNow(); } });
 }
 
