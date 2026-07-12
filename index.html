@@ -577,6 +577,34 @@
   .hm-in{animation:hmin .34s cubic-bezier(.3,1.2,.5,1) both}
   @keyframes hmin{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
   .st-tap{cursor:pointer}
+  /* v24: whole-picture section + numbers + wrongs↔plan chips */
+  .ins-sec{margin:24px 3px 12px;font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);display:flex;align-items:center;gap:10px}
+  .ins-sec::after{content:'';flex:1;height:1px;background:var(--border)}
+  .num-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+  .num{background:var(--surface2);border-radius:12px;padding:10px 8px;text-align:center}
+  .num b{display:block;font-size:19px;font-weight:850;letter-spacing:-.01em;color:var(--ink);font-variant-numeric:tabular-nums}
+  .num span{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.02em}
+  .wk-next{margin-left:7px;font-size:9.5px;font-weight:800;padding:2.5px 7px;border-radius:7px;color:var(--sage-ink);background:color-mix(in srgb,var(--sage) 16%,transparent);vertical-align:1px}
+  .wk-next.now{color:var(--accent-ink);background:color-mix(in srgb,var(--accent) 14%,transparent)}
+  .sub-fix{font-size:12.5px;color:var(--ink2);padding:6px 0;border-bottom:1px solid var(--border)}
+  .sub-fix:last-of-type{border:none}
+  .sub-ok{color:var(--sage-ink);font-weight:750;font-size:11px}
+  /* satisfying presses everywhere, hovers where a pointer exists */
+  .linkish:active,.wk-row:active,.gtrow.tap:active,.ses-row.tap:active{transform:scale(.985)}
+  #insightsBody>.card{animation:cardin .4s cubic-bezier(.3,1,.4,1) both}
+  #insightsBody>.card:nth-child(2){animation-delay:.05s}
+  #insightsBody>.card:nth-child(3){animation-delay:.1s}
+  #insightsBody>.card:nth-child(4){animation-delay:.15s}
+  #insightsBody>.card:nth-child(5){animation-delay:.2s}
+  @keyframes cardin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  @media (hover:hover){
+    .gtrow.tap:hover,.wk-row:hover,.spark-row:hover,.ses-row.tap:hover{background:var(--surface2)}
+    .pl-row:hover{border-color:var(--accent)}
+    .hm-c.tapc:hover{transform:scale(1.08)}
+    .mixbar .mx-seg:hover{filter:brightness(1.12)}
+    .linkish:hover{color:var(--accent-ink)}
+    .bucket:not(.locked):not([disabled]):hover{transform:translateY(-2px)}
+  }
   @keyframes dashin{to{stroke-dashoffset:0}}
   .sp-v{font-size:17px;font-weight:850;font-variant-numeric:tabular-nums;min-width:34px;text-align:right;flex:none}
   /* integrated test rows: name + its own mini mix + total, tappable */
@@ -1126,6 +1154,7 @@ let settings={activeType:'gt', gtSet:'GT-18', moduleSet:'Module 1', examDate:'20
 let form={subject:SUBJECTS[8], error:null, conf:null, image:false, photo:null};
 let triage={active:false, set:'', testType:'gt', conf:null, items:[], saved:false, done:false};
 let bookFilter={sub:'ALL', type:'ALL', bt:'ALL', q:'', src:''};
+let hmAll=false, wkAll=false; /* insights "whole picture" toggles — session-only, not stored */
 let expandedNotes={};
 let editingId=null;
 let review={active:false, queue:[], i:0, revealed:false, known:0, shaky:0, noteOpen:false};
@@ -2237,6 +2266,7 @@ function saveSession(score){
   sessions.unshift(sess);
   sessions=sessions.slice(0,100); /* keep the doc well under Firestore's 1 MB cap */
   persistSessions(); triage.saved=true; persistLiveTriage();
+  flushCloudPush(); /* a finished read is the highest-value write — don't sit on it */
 }
 function triageSummaryHTML(){
   const {c,blind,total,sure,twoish,noidea}=triageCounts(triage.items);
@@ -2560,37 +2590,77 @@ function bucketFixSheet(errId, sub, n){
     <div class="actions" style="margin-top:16px"><button class="btn primary" onclick="closeSheet()">Got it</button></div>`);
 }
 /* subject → everything the data says about it, and what to do */
+/* recency decay: a wrong from this fortnight matters more than one from six weeks ago —
+   this is what keeps the priorities honest as the data pile grows */
+function recencyW(ts){ const d=(Date.now()-(ts||0))/864e5; return d<=14?1 : d<=28?0.6 : 0.3; }
 function buildSubjects(){
   const m={};
-  const touch=s=>m[s]=m[s]||{n:0,sure:0,errs:{knowledge:0,retrieval:0,reasoning:0,execution:0},tests:{}};
-  entries.forEach(e=>{ if(!e.subject)return; const t=touch(e.subject); t.n++; if(t.errs[e.error]!=null)t.errs[e.error]++; if(isBlind(e))t.sure++; t.tests[e.set]=1; });
-  sessions.forEach(s=>s.items.forEach(it=>{ if(!it.subj)return; const t=touch(it.subj); t.n++; if(t.errs[it.error]!=null)t.errs[it.error]++; if(isBlind(it))t.sure++; t.tests[s.set]=1; }));
+  const touch=s=>m[s]=m[s]||{n:0,sure:0,wgt:0,errs:{knowledge:0,retrieval:0,reasoning:0,execution:0},tests:{}};
+  entries.forEach(e=>{ if(!e.subject)return; const t=touch(e.subject), w=recencyW(e.ts); t.n++; t.wgt+=w; if(t.errs[e.error]!=null)t.errs[e.error]++; if(isBlind(e)){t.sure++; t.wgt+=w;} t.tests[e.set]=1; });
+  sessions.forEach(s=>{ const w=recencyW(s.ts); s.items.forEach(it=>{ if(!it.subj)return; const t=touch(it.subj); t.n++; t.wgt+=w; if(t.errs[it.error]!=null)t.errs[it.error]++; if(isBlind(it)){t.sure++; t.wgt+=w;} t.tests[s.set]=1; }); });
   return m;
+}
+/* the wrongs ↔ plan bridge: when is this subject next touched? */
+function subjectNextTouch(sub){
+  const cand=plan.rows.filter(r=>r.k==='read'&&(r.s||[]).includes(sub));
+  const due=cand.map(r=>nextRevisit(r.id)).filter(Boolean).sort()[0];
+  const sched=cand.filter(r=>!plan.done[r.id]&&r.d>=todayISO()).map(r=>r.d).sort()[0];
+  if(due && (!sched || due<=sched)) return {kind:'revisit', d:due};
+  if(sched) return {kind:'read', d:sched};
+  if(due) return {kind:'revisit', d:due};
+  return null;
 }
 function weakAreasCard(){
   const m=buildSubjects();
-  const subs=Object.keys(m).map(s=>({s,...m[s],score:m[s].n+m[s].sure})).sort((a,b)=>b.score-a.score);
+  const subs=Object.keys(m).map(s=>({s,...m[s]})).sort((a,b)=>b.wgt-a.wgt);
   if(subs.length<2 || subs.reduce((a,x)=>a+x.n,0)<4) return '';
-  const rows=subs.slice(0,5).map((x,i)=>{ const dom=ERRORS.slice().sort((a,b)=>x.errs[b.id]-x.errs[a.id])[0];
+  const today=todayISO();
+  const shown=wkAll?subs:subs.slice(0,5);
+  const rows=shown.map((x,i)=>{ const dom=ERRORS.slice().sort((a,b)=>x.errs[b.id]-x.errs[a.id])[0];
     const mini=ERRORS.map(e=>x.errs[e.id]?`<span style="flex:${x.errs[e.id]};background:${e.c}"></span>`:'').join('');
+    const nx=subjectNextTouch(x.s);
+    const nxChip=nx?`<span class="wk-next${nx.d<=today?' now':''}">${nx.kind==='revisit'?'revisit':'read'} ${nx.d<=today?'today':fmtShort(nx.d)}</span>`:'';
     return `<button class="wk-row" data-sub="${esc(x.s)}"><span class="wk-rank${i===0?' worst':''}">${i+1}</span>
-      <div class="wk-mid"><div class="wk-t">${esc(x.s)}</div><div class="gtmini">${mini}</div>
+      <div class="wk-mid"><div class="wk-t">${esc(x.s)}${nxChip}</div><div class="gtmini">${mini}</div>
       <div class="wk-d">${x.n} mark${x.n>1?'s':''} lost${x.sure?` · <b class="bl">${x.sure} blind</b>`:''} · mostly ${dom.t.toLowerCase()}</div></div>
       <span class="th-go">›</span></button>`;}).join('');
-  return `<div class="card"><h3><span class="accent"></span>Weak areas — study these first</h3>${rows}</div>`;
+  const more=subs.length>5?`<button class="linkish" id="wkMore" style="margin-top:10px">${wkAll?'Show top 5 only ‹':'Show all '+subs.length+' subjects ›'}</button>`:'';
+  return `<div class="card"><h3><span class="accent"></span>Weak areas — study these first <span class="h3-hint">recent tests count more</span></h3>${rows}${more}</div>`;
 }
 function subjectSheet(sub){
   const x=buildSubjects()[sub]; if(!x)return;
   const top=ERRORS.slice().sort((a,b)=>x.errs[b.id]-x.errs[a.id]).filter(e=>x.errs[e.id]>0).slice(0,2);
   const tests=Object.keys(x.tests).slice(0,6);
+  /* this subject's wrongs, test by test — is it improving or festering? */
+  const recent=sessions.slice(0,10).slice().reverse();
+  const perTest=recent.map(s=>s.items.filter(it=>it.subj===sub).length);
+  const trend=(recent.length>=2 && perTest.some(v=>v>0))
+    ? `<div class="sp-lab" style="margin-top:16px">wrongs here, test by test</div><div class="sparks">${sparkRow('This subject','var(--accent-ink)',perTest,{labels:recent.map(s=>s.set),goodDown:true})}</div>`:'';
+  /* the wrongs ↔ plan bridge, tappable */
+  const nx=subjectNextTouch(sub); const today=todayISO();
+  const planLine=nx?`<button class="linkish" id="subPlan" style="margin-top:12px">${nx.kind==='revisit'?'Revisit due':'Read scheduled'} <b>${nx.d<=today?'today':fmtShort(nx.d)}</b> — see it in the Plan ›</button>`
+    :`<p class="tlab" style="margin-top:12px;color:var(--faint)">Not in the plan this cycle — add a day if it keeps bleeding.</p>`;
+  /* the wrongs ↔ book bridge: written fixes here */
+  const fixes=entries.filter(e=>e.subject===sub).slice(0,3);
+  const fixList=fixes.length?`<div class="sp-lab" style="margin-top:14px">written fixes here (${entries.filter(e=>e.subject===sub).length})</div>
+    ${fixes.map(e=>`<div class="sub-fix"><b>${esc(e.concept)}</b>${e.status==='fixed'?' <span class="sub-ok">✓ fixed</span>':''}</div>`).join('')}
+    <button class="linkish" id="subBook">All of ${esc(sub)} in the Book ›</button>`:'';
   openSheet(`<h3>${esc(sub)}</h3>
     <p style="margin-bottom:14px">${x.n} mark${x.n>1?'s':''} lost${x.sure?` · <b class="bl">${x.sure} blind</b>`:''}${tests.length?` · across ${tests.length} test${tests.length>1?'s':''}`:''}</p>
     ${mixBar(x.errs,x.n)}
+    ${trend}
+    ${planLine}
     <div class="sp-lab" style="margin-top:16px">what to do</div>
     ${top.map(e=>`<div class="fp-row" style="--bc:${e.c}"><span class="fp-code">${e.code}</span>
       <div><div class="fp-t">${e.t} <b>· ${x.errs[e.id]}</b></div><div class="fp-d">${esc(FIXACT[e.id])}</div></div></div>`).join('')}
+    ${fixList}
     ${tests.length?`<div class="sp-lab">seen in</div><div class="sp-chips">${tests.map(t=>`<span class="chip" style="pointer-events:none">${esc(t)}</span>`).join('')}</div>`:''}
     <div class="actions" style="margin-top:16px"><button class="btn primary" onclick="closeSheet()">Done</button></div>`);
+  const sh=document.getElementById('sheet');
+  const sp=document.getElementById('subPlan'); if(sp) sp.onclick=()=>{ buzz(6); closeSheet(); switchView('plan'); };
+  const sb=document.getElementById('subBook'); if(sb) sb.onclick=()=>{ buzz(6); closeSheet(); bookFilter.sub=sub; renderBook(); switchView('book'); };
+  sh.querySelectorAll('.spark-row[data-sp]').forEach(b=>b.onclick=()=>{ try{ buzz(6); sparkSheet(JSON.parse(b.dataset.sp)); }catch(_){} });
+  sh.querySelectorAll('.mixbar .mx-seg, .mx-keys .mx-key').forEach(b=>b.onclick=()=>{ buzz(6); bucketFixSheet(b.dataset.e, sub); });
 }
 /* tiny trend line with a big current value — min–max scaled so the shape reads, area fill,
    a dot per test, a Δ-vs-last-test chip, and tap → the per-test numbers behind it */
@@ -2680,11 +2750,8 @@ function threeMovesCard(){
   if(hot && hot[1]>=2){
     const [sub,err]=hot[0].split('|'); const e=ERR_MAP[err];
     let when='';
-    const cand=plan.rows.filter(r=>r.k==='read'&&(r.s||[]).includes(sub));
-    const due=cand.map(r=>nextRevisit(r.id)).filter(Boolean).sort()[0];
-    const sched=cand.filter(r=>!plan.done[r.id]&&r.d>=todayISO()).map(r=>r.d).sort()[0];
-    if(due) when=` ${esc(sub)}'s next revisit is due ${fmtShort(due)} — do it there.`;
-    else if(sched) when=` ${esc(sub)} is scheduled ${fmtShort(sched)} — do it there.`;
+    const nx=subjectNextTouch(sub);
+    if(nx) when=` ${esc(sub)}'s next ${nx.kind==='revisit'?'revisit is due':'read is scheduled'} ${nx.d<=todayISO()?'today':fmtShort(nx.d)} — do it there.`;
     rows.push(`<div class="row"><span class="n">1</span><span><b style="color:${e.c}">${e.code}</b> in <b>${esc(sub)}</b> (${hot[1]}). ${esc(FIXACT[err])}${when}</span></div>`);
   } else rows.push(`<div class="row"><span class="n">1</span><span>No hotspot yet — tag subjects while you triage to find one.</span></div>`);
   /* 2 — discipline */
@@ -2746,7 +2813,7 @@ function heatmapCard(){
   const subs=Object.keys(subTot).sort((a,b)=>subTot[b]-subTot[a]);
   const total=subs.reduce((a,s)=>a+subTot[s],0);
   if(subs.length<2 || total<4) return '';
-  const top=subs.slice(0,8);
+  const top=hmAll?subs:subs.slice(0,8);
   let max=1; top.forEach(su=>ERRORS.forEach(e=>max=Math.max(max,grid[su][e.id]||0)));
   const head=`<div class="hm-row hm-head"><span class="hm-sub"></span>${ERRORS.map(e=>`<span class="hm-c" style="color:${e.c}">${e.code}</span>`).join('')}<span class="hm-tot">all</span></div>`;
   const rows=top.map((su,ri)=>{
@@ -2760,16 +2827,38 @@ function heatmapCard(){
   const note=hot&&hot.n>=2?`<p class="tlab" style="margin-top:13px">Hotspot: <b style="color:${hot.e.c}">${hot.e.t.toLowerCase()}</b> in <b>${esc(hot.su)}</b> (${hot.n}). ${FIXTEXT[hot.e.id]}</p>`:'';
   let untagged=0; sessions.forEach(s=>s.items.forEach(it=>{ if(!it.subj) untagged++; }));
   const tagNote=untagged?`<p class="tlab" style="margin-top:10px;color:var(--faint)">${untagged} triaged mistake${untagged>1?'s':''} ha${untagged>1?'ve':'s'} no subject — tap “+ subject” on the ticket to put them on this map.</p>`:'';
+  const more=subs.length>8?`<button class="linkish" id="hmMore" style="margin-top:10px">${hmAll?'Show top 8 only ‹':'Show all '+subs.length+' subjects ›'}</button>`:'';
   return `<div class="card"><h3><span class="accent"></span>Subject × mistake map <span class="h3-hint">tap a cell</span></h3>
-    <div class="heatmap">${head}${rows}</div>${note}${tagNote}</div>`;
+    <div class="heatmap">${head}${rows}</div>${more}${note}${tagNote}</div>`;
+}
+/* the raw numbers behind everything — one glance, in the deep-dive section */
+function numbersCard(){
+  let total=0, blind=0, img=0, parked=0;
+  sessions.forEach(s=>{ const q=triageCounts(s.items); total+=q.total; blind+=q.blind; img+=q.img; parked+=q.uncertain; });
+  const tests=sessions.length;
+  if(!tests && !entries.length) return '';
+  const written=entries.filter(e=>e.srcSession).length;
+  const scored=sessions.filter(x=>scoreStats(x));
+  const best=scored.length?Math.max(...scored.map(x=>scoreStats(x).marks)):null;
+  const tile=(n,lab)=>`<div class="num"><b>${n}</b><span>${lab}</span></div>`;
+  return `<div class="card thin"><h3><span class="accent"></span>The raw numbers</h3><div class="num-grid">
+    ${tile(total,'wrongs triaged')}${tile(tests,'tests read')}${tile(blind,'blind spots')}
+    ${tile(tests?(total/tests).toFixed(1):'—','avg wrongs / test')}${tile(img,'image-based')}${tile(parked,'parked')}
+    ${entries.length?tile(entries.length,'in the Book'):''}${written?tile(written,'fixes written'):''}${best!=null?tile(best,'best marks'):''}
+  </div></div>`;
 }
 function renderInsights(){
   const box=document.getElementById('insightsBody');
   if(entries.length===0 && !sessions.length){box.innerHTML=`<div class="empty"><svg class="ic" viewBox="0 0 24 24"><path d="M3 3v18h18M7 14l3-3 3 3 5-6"/></svg>
     <div class="big">Nothing to show yet</div>Triage a test or log a few mistakes and this fills in — it shows where your marks are leaking and what to do about it.</div>`;return}
   const map=recurrenceMap();
-  const detailed = entries.length ? (`<div class="leak-sub" style="margin:22px 0 12px 3px">From your detailed logs</div>`+nextCard(map)+masteryCard()+statStrip()+leakCard()+typeSplitCard()) : '';
-  box.innerHTML = threeMovesCard() + scoreTrendCard() + triageInsightsCard() + heatmapCard() + weakAreasCard() + testListCard() + detailed;
+  const detailed = entries.length ? (`<div class="ins-sec">From your detailed logs</div>`+nextCard(map)+masteryCard()+statStrip()+leakCard()+typeSplitCard()) : '';
+  const deep = heatmapCard()+weakAreasCard()+numbersCard()+testListCard();
+  box.innerHTML = threeMovesCard() + scoreTrendCard() + triageInsightsCard()
+    + (deep?`<div class="ins-sec">The whole picture — every subject, every test</div>`+deep:'')
+    + detailed;
+  const hm=document.getElementById('hmMore'); if(hm) hm.onclick=()=>{ buzz(5); hmAll=!hmAll; renderInsights(); };
+  const wk=document.getElementById('wkMore'); if(wk) wk.onclick=()=>{ buzz(5); wkAll=!wkAll; renderInsights(); };
   const tm=document.getElementById('tmUnfin'); if(tm) tm.onclick=()=>{
     let off=null; sessions.forEach(sn=>{ const q=triageCounts(sn.items); if(!off && q.blind>writtenCount(sn.id)) off=sn; });
     if(off) writeFixComposer(off.id); else uncertainSheet();
@@ -3508,9 +3597,13 @@ async function applyRemote(remote, initial){
     if(changed){ render(); if(!initial) toast('Synced from your other device'); } else renderCloudSync();
   }catch(e){ fbApplying=false; }
 }
-function scheduleCloudPush(){ if(fbApplying||!fbUser||fbStatus!=='on')return; clearTimeout(fbPushT); fbPushT=setTimeout(pushNow, 900); }
+let fbPushPending=false;
+function scheduleCloudPush(){ if(fbApplying||!fbUser||fbStatus!=='on')return; fbPushPending=true; clearTimeout(fbPushT); fbPushT=setTimeout(pushNow, 400); }
+/* leaving the app should not leave a pending write behind — flush it right away */
+function flushCloudPush(){ if(fbPushPending && fbUser && fbStatus==='on' && !fbApplying){ clearTimeout(fbPushT); pushNow(); } }
 async function pushNow(){
   if(!fbUser)return;
+  fbPushPending=false;
   try{
     /* JSON round-trip drops every explicit undefined (Firestore set() hard-rejects them) */
     const payload=JSON.parse(JSON.stringify({ entries, settings, tombstones, sessions, plan, by:deviceId(), updatedAt:Date.now() }));
@@ -3536,9 +3629,9 @@ async function syncNow(){
 /* opening the app / coming back online should immediately pull the latest */
 if(typeof window!=='undefined'){
   window.addEventListener('online', ()=>{ if(getFbCfg()){ if(!fbUser) initSync(); else syncNow(); } });
-  /* backgrounding (home screen, floating window, app switch) snapshots the live board immediately */
-  document.addEventListener('visibilitychange', ()=>{ if(document.hidden){ try{persistLiveTriage()}catch(_){} return; } if(fbUser && fbStatus==='on' && !fbSyncing) syncNow(); });
-  window.addEventListener('pagehide', ()=>{ try{persistLiveTriage()}catch(_){} });
+  /* backgrounding (home screen, floating window, app switch) snapshots the live board AND flushes any pending cloud write */
+  document.addEventListener('visibilitychange', ()=>{ if(document.hidden){ try{persistLiveTriage()}catch(_){} try{flushCloudPush()}catch(_){} return; } if(fbUser && fbStatus==='on' && !fbSyncing) syncNow(); });
+  window.addEventListener('pagehide', ()=>{ try{persistLiveTriage()}catch(_){} try{flushCloudPush()}catch(_){} });
   window.addEventListener('focus', ()=>{ if(fbUser && fbStatus==='on' && !fbSyncing){ const now=Date.now(); if(now-fbLastPull>4000) syncNow(); } });
 }
 
