@@ -577,6 +577,14 @@
   .hm-in{animation:hmin .34s cubic-bezier(.3,1.2,.5,1) both}
   @keyframes hmin{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
   .st-tap{cursor:pointer}
+  /* v26: scope chips, heatmap mode, continuation badges */
+  .scope-row{display:flex;gap:7px;margin:0 0 14px}
+  .sc-chip{flex:1;padding:8px 4px;border-radius:11px;font-size:12px;font-weight:750;color:var(--muted);background:var(--surface);border:1.5px solid var(--border2);transition:all .16s}
+  .sc-chip.on{color:var(--accent-ink);border-color:var(--accent);background:color-mix(in srgb,var(--accent) 9%,var(--surface))}
+  .sc-chip:active{transform:scale(.97)}
+  .hm-mode{margin-left:auto;width:30px;height:24px;border-radius:8px;font-size:12px;font-weight:800;color:var(--accent-ink);background:var(--surface2)}
+  .tri-cont{display:block;font-size:10px;font-weight:700;color:var(--faint);letter-spacing:.02em}
+  .th-cont{font-weight:650;opacity:.75}
   /* v24: whole-picture section + numbers + wrongs↔plan chips */
   .ins-sec{margin:24px 3px 12px;font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);display:flex;align-items:center;gap:10px}
   .ins-sec::after{content:'';flex:1;height:1px;background:var(--border)}
@@ -1154,7 +1162,7 @@ let settings={activeType:'gt', gtSet:'GT-18', moduleSet:'Module 1', examDate:'20
 let form={subject:SUBJECTS[8], error:null, conf:null, image:false, photo:null};
 let triage={active:false, set:'', testType:'gt', conf:null, items:[], saved:false, done:false};
 let bookFilter={sub:'ALL', type:'ALL', bt:'ALL', q:'', src:''};
-let hmAll=false, wkAll=false; /* insights "whole picture" toggles — session-only, not stored */
+let hmAll=false, wkAll=false, hmPct=false; /* insights "whole picture" toggles — session-only, not stored */
 let expandedNotes={};
 let editingId=null;
 let review={active:false, queue:[], i:0, revealed:false, known:0, shaky:0, noteOpen:false};
@@ -1635,8 +1643,15 @@ function triageCounts(items){
 }
 function sessComp(s){ if(s&&s.comp&&typeof s.comp==='object') return {sure:+s.comp.sure||0, twoish:+s.comp.twoish||0, noidea:+s.comp.noidea||0};
   const cc=triageCounts((s&&s.items)||[]); return {sure:cc.sure, twoish:cc.twoish, noidea:cc.noidea}; }
+/* the same set finished within ~20 h is one test read in sittings — this finds the sitting to continue */
+function mergeTarget(set,type){
+  const cut=Date.now()-20*3600e3;
+  return sessions.find(s=>s && s.set===set && s.testType===type && (s.ts||0)>=cut)||null;
+}
 function startTriage(){
-  triage={ active:true, set:curSet(), testType:curType(), conf:null, subj:null, img:false, items:[], saved:false, done:false, decide:null };
+  const prev=mergeTarget(curSet(),curType());
+  triage={ active:true, set:curSet(), testType:curType(), conf:null, subj:null, img:false, items:[], saved:false, done:false, decide:null,
+    base:prev?prev.items.length:0 }; /* ticket numbers continue across sittings */
   showTriageView(); renderTriage();
 }
 /* a live board survives backgrounding, floating-window and app kills —
@@ -1701,7 +1716,7 @@ function renderTriHome(box){
         <button data-type="module" class="${t==='module'?'on':''}"><span class="lab">Daily module</span></button>
       </div>
       <button class="th-switch" id="thChange"><span class="dotc" style="background:${typeColor(t)}"></span>${esc(curSet())}<span class="chg">change ›</span></button>
-      <button class="th-start" id="triageLaunch"><span>Start sorting</span><span class="th-play">▶</span></button>
+      <button class="th-start" id="triageLaunch"><span>${(()=>{const p=mergeTarget(curSet(),curType());return p?`Continue today’s read <b class="th-cont">· ${p.items.length} in</b>`:'Start sorting';})()}</span><span class="th-play">▶</span></button>
     </div>
     ${lastCard}
     ${sparks}
@@ -2027,7 +2042,7 @@ function renderTriage(){
    <div class="tri-board">
     <div class="tri-top">
       <button class="tri-x" id="triBack" aria-label="Exit triage">✕</button>
-      <div class="tri-set">${esc(triage.set)}</div>
+      <div class="tri-set">${esc(triage.set)}${triage.base?`<span class="tri-cont">sitting 2 · ${triage.base} in</span>`:''}</div>
       <button class="tri-help" id="triHelp" aria-label="Bucket guide">?</button>
       <button class="tri-done" id="triDone" ${total?'':'disabled'}>Done ›</button>
     </div>
@@ -2063,7 +2078,7 @@ function triChipHTML(total){
       <button class="chip-help" id="dqCancel">never mind</button></div>`;
   }
   return `<div class="tri-chip ${triage.conf==='high'?'sure':''}" id="triChip"><span class="stamp">SURE</span>
-    <span class="chip-eyebrow">wrong question</span><span class="chip-n" id="triNext">#${total+1}</span>
+    <span class="chip-eyebrow">wrong question</span><span class="chip-n" id="triNext">#${(triage.base||0)+total+1}</span>
     <div class="tri-conf" id="triConf">
       <button class="tc sure ${triage.conf==='high'?'on':''}" data-c="high">Sure in exam</button>
       <button class="tc twoish ${triage.conf==='twoish'?'on':''}" data-c="twoish">Down to 2</button>
@@ -2165,7 +2180,7 @@ function updateTriageUI(){
     document.querySelectorAll(`[data-count="${e.id}"],[data-bcount="${e.id}"]`).forEach(el=>el.textContent=c[e.id]);
     const f=document.querySelector(`[data-fill="${e.id}"]`); if(f) f.style.height=(total?Math.round(c[e.id]/total*100):0)+'%';
   });
-  const nx=document.getElementById('triNext'); if(nx) nx.textContent='#'+(total+1);
+  const nx=document.getElementById('triNext'); if(nx) nx.textContent='#'+((triage.base||0)+total+1);
   const d=document.getElementById('triDone'); if(d) d.disabled=!total;
   const f=document.getElementById('triFoot'); if(f){ f.innerHTML=triFootHTML(); bindTriUndo(); }
   paintTriConf(); lockUI();
@@ -2233,7 +2248,8 @@ function scoreSheet(){
     const tot=(c!=null||w!=null||sk!=null)?((c||0)+(w||0)+(sk||0)):null;
     g('scTotal').textContent='Total: '+(tot!=null?tot:(isGT?'200':'—'))+' · auto-computed';
     const warn=g('scWarn');
-    if(w!=null && Math.abs(w-n)>2){ warn.hidden=false; warn.textContent=`You triaged ${n} but logged ${w} wrong. Sort the rest before you trust the mix.`; }
+    const totalTri=(triage.base||0)+n; /* across all sittings of this read */
+    if(w!=null && Math.abs(w-totalTri)>2){ warn.hidden=false; warn.textContent=`You triaged ${totalTri} but logged ${w} wrong. Sort the rest before you trust the mix.`; }
     else warn.hidden=true;
   };
   document.querySelectorAll('.stp [data-up],[data-dn]').forEach(b=>b.onclick=()=>{
@@ -2241,7 +2257,11 @@ function scoreSheet(){
     inp.value=Math.max(0,(+inp.value||0)+(b.dataset.up?1:-1)); buzz(4); refresh();
   });
   ['scC','scW','scS','scB'].forEach(id=>g(id).oninput=refresh);
-  g('scW').value=n; refresh();
+  /* second sitting: show the score already on this read instead of a blank sheet */
+  const ps=(mergeTarget(triage.set,triage.testType)||{}).score;
+  if(ps && ps.c!=null){ g('scC').value=ps.c; g('scW').value=ps.w; if(ps.s!=null)g('scS').value=ps.s; if(ps.blindTried!=null)g('scB').value=ps.blindTried; }
+  else g('scW').value=(triage.base||0)+n;
+  refresh();
   g('scSave').onclick=()=>{
     const c=val('scC'), w=val('scW'), sk=val('scS'), b=val('scB');
     let score=null;
@@ -2260,8 +2280,7 @@ function saveSession(score){
   const items=triage.items.map(it=>{ const o={error:it.error, conf:it.conf||null, subj:it.subj||null}; if(it.img)o.img=true; if(it.uncertain)o.uncertain=true; return o; });
   /* batch reads: finishing the same set again within ~20 h continues THAT read instead of
      spawning a twin — you triage a GT in sittings, it is still one test */
-  const cut=Date.now()-20*3600e3;
-  const prev=sessions.find(s=>s && s.set===triage.set && s.testType===triage.testType && (s.ts||0)>=cut);
+  const prev=mergeTarget(triage.set, triage.testType);
   if(prev){
     prev.items=prev.items.concat(items);
     const cc2=triageCounts(prev.items);
@@ -2526,7 +2545,8 @@ function buildTests(){
 }
 function testListCard(){
   const tests=buildTests();
-  const keys=Object.keys(tests).sort((a,b)=>tests[b].ts-tests[a].ts).slice(0,12);
+  const inScope=new Set(scopedSessions().map(s=>s.testType+'|'+s.set).concat(scopedEntries().map(e=>e.testType+'|'+e.set)));
+  const keys=Object.keys(tests).filter(k=>inScope.has(k)).sort((a,b)=>tests[b].ts-tests[a].ts).slice(0,15);
   if(!keys.length) return '';
   const marksBySet={}; sessions.forEach(sn=>{ const k2=sn.testType+'|'+sn.set; const st=scoreStats(sn); if(st&&marksBySet[k2]==null) marksBySet[k2]=st.marks; });
   const rows=keys.map(k=>{ const t=tests[k], tot=t.logged+t.tri;
@@ -2608,12 +2628,56 @@ function bucketFixSheet(errId, sub, n){
 /* recency decay: a wrong from this fortnight matters more than one from six weeks ago —
    this is what keeps the priorities honest as the data pile grows */
 function recencyW(ts){ const d=(Date.now()-(ts||0))/864e5; return d<=14?1 : d<=28?0.6 : 0.3; }
-function buildSubjects(){
+/* ============ insights scope: at 50 wrongs a day, "all time" stops being a view and becomes noise ============ */
+let insScope=null; /* null = auto: 14 days once there's enough data, everything while it's still small */
+function insScopeVal(){ return insScope || (sessions.length>6 ? '14d' : 'all'); }
+function scopedSessions(){
+  const v=insScopeVal();
+  if(v==='3t') return sessions.slice(0,3);
+  if(v==='14d'){ const cut=Date.now()-14*864e5; return sessions.filter(s=>(s.ts||0)>=cut); }
+  return sessions;
+}
+function scopedEntries(){
+  const v=insScopeVal();
+  if(v==='all') return entries;
+  if(v==='3t'){ const sets=new Set(scopedSessions().map(s=>s.set)); return entries.filter(e=>sets.has(e.set)); }
+  const cut=Date.now()-14*864e5; return entries.filter(e=>(e.ts||0)>=cut);
+}
+function buildSubjects(ss,ee){
+  ss=ss||sessions; ee=ee||entries;
   const m={};
   const touch=s=>m[s]=m[s]||{n:0,sure:0,wgt:0,errs:{knowledge:0,retrieval:0,reasoning:0,execution:0},tests:{}};
-  entries.forEach(e=>{ if(!e.subject)return; const t=touch(e.subject), w=recencyW(e.ts); t.n++; t.wgt+=w; if(t.errs[e.error]!=null)t.errs[e.error]++; if(isBlind(e)){t.sure++; t.wgt+=w;} t.tests[e.set]=1; });
-  sessions.forEach(s=>{ const w=recencyW(s.ts); s.items.forEach(it=>{ if(!it.subj)return; const t=touch(it.subj); t.n++; t.wgt+=w; if(t.errs[it.error]!=null)t.errs[it.error]++; if(isBlind(it)){t.sure++; t.wgt+=w;} t.tests[s.set]=1; }); });
+  ee.forEach(e=>{ if(!e.subject)return; const t=touch(e.subject), w=recencyW(e.ts); t.n++; t.wgt+=w; if(t.errs[e.error]!=null)t.errs[e.error]++; if(isBlind(e)){t.sure++; t.wgt+=w;} t.tests[e.set]=1; });
+  ss.forEach(s=>{ const w=recencyW(s.ts); s.items.forEach(it=>{ if(!it.subj)return; const t=touch(it.subj); t.n++; t.wgt+=w; if(t.errs[it.error]!=null)t.errs[it.error]++; if(isBlind(it)){t.sure++; t.wgt+=w;} t.tests[s.set]=1; }); });
   return m;
+}
+/* ============ the signal engine: a hotspot is a RATE out of line with your baseline, on enough data —
+   never just the biggest subject (volume), never a 2-question fluke (sample). Shrinkage pulls small
+   samples toward the baseline so they must earn their flag. ============ */
+function subjectSignals(){
+  const m=buildSubjects(scopedSessions(), scopedEntries());
+  const subs=Object.keys(m); if(!subs.length) return [];
+  let N=0, B=0; const Q={knowledge:0,retrieval:0,reasoning:0,execution:0};
+  subs.forEach(s=>{ N+=m[s].n; B+=m[s].sure; ERRORS.forEach(e=>Q[e.id]+=m[s].errs[e.id]); });
+  if(N<8) return []; /* not enough data to call anything abnormal yet */
+  const p0=B/N, k=4;
+  const shrunk=(x,n,base)=>(x+k*base)/(n+k);
+  const out=[];
+  subs.forEach(s=>{
+    const t=m[s]; if(t.n<5) return; /* below this, "100% blind" is a fluke, not a finding */
+    /* signal 1: blind-spot rate above baseline */
+    const bp=shrunk(t.sure,t.n,p0)-p0;
+    if(bp>0.06) out.push({sub:s, kind:'blind', n:t.n, x:t.sure, rate:t.sure/t.n, base:p0, score:bp*Math.sqrt(t.n)});
+    /* signal 2: one bucket clustering above its overall share */
+    ERRORS.forEach(e=>{
+      const q0=Q[e.id]/N;
+      const qp=shrunk(t.errs[e.id],t.n,q0)-q0;
+      if(qp>0.10) out.push({sub:s, kind:e.id, n:t.n, x:t.errs[e.id], rate:t.errs[e.id]/t.n, base:q0, score:qp*Math.sqrt(t.n)});
+    });
+  });
+  out.sort((a,b)=>b.score-a.score);
+  /* one signal per subject — the strongest */
+  const seen={}; return out.filter(s=>seen[s.sub]?false:(seen[s.sub]=1));
 }
 /* the wrongs ↔ plan bridge: when is this subject next touched? */
 function subjectNextTouch(sub){
@@ -2626,7 +2690,7 @@ function subjectNextTouch(sub){
   return null;
 }
 function weakAreasCard(){
-  const m=buildSubjects();
+  const m=buildSubjects(scopedSessions(), scopedEntries());
   const subs=Object.keys(m).map(s=>({s,...m[s]})).sort((a,b)=>b.wgt-a.wgt);
   if(subs.length<2 || subs.reduce((a,x)=>a+x.n,0)<4) return '';
   const today=todayISO();
@@ -2719,25 +2783,27 @@ function sparkSheet(p){
     <div class="actions" style="margin-top:16px"><button class="btn primary" onclick="closeSheet()">Done</button></div>`);
 }
 function triageInsightsCard(){
-  if(!sessions.length) return '';
+  const ss=scopedSessions();
+  if(!ss.length) return '';
   const agg={knowledge:0,retrieval:0,reasoning:0,execution:0}; let blind=0, total=0;
-  sessions.forEach(s=>{ s.items.forEach(it=>{ agg[it.error]=(agg[it.error]||0)+1; total++; }); blind+=triageCounts(s.items).blind; });
+  ss.forEach(s=>{ s.items.forEach(it=>{ agg[it.error]=(agg[it.error]||0)+1; total++; }); blind+=triageCounts(s.items).blind; });
   if(!total) return '';
-  const recent=sessions.slice(0,10).slice().reverse();
+  const recent=ss.slice(0,10).slice().reverse();
   const dom=ERRORS.slice().sort((a,b)=>agg[b.id]-agg[a.id])[0];
   let trends='';
   if(recent.length>=2){
     const labs=recent.map(s=>s.set);
     trends=`<div class="leak-sub" style="margin-top:20px">Per-test trends <span class="h3-hint">tap a line</span></div><div class="sparks">
       ${sparkRow('Blind spots','var(--rose)',recent.map(s=>triageCounts(s.items).blind),{labels:labs,goodDown:true})}
+      ${sparkRow('Blind rate %','var(--violet)',recent.map(s=>{const q=triageCounts(s.items);return q.total?Math.round(q.blind/q.total*100):0;}),{labels:labs,goodDown:true,disp:recent.map(s=>{const q=triageCounts(s.items);return (q.total?Math.round(q.blind/q.total*100):0)+'%';})})}
       ${sparkRow('No-read misses','var(--ink2)',recent.map(s=>sessComp(s).noidea),{labels:labs,goodDown:true})}</div>`;
   }
   return `<div class="card"><h3><span class="accent"></span>Triage — long-term read</h3>
-    <div class="tlab" style="margin:-6px 0 14px">${total} mistake${total>1?'s':''} across ${sessions.length} test${sessions.length>1?'s':''}${blind?` · <b class="bl">${blind} blind spot${blind>1?'s':''}</b>`:''}.</div>
+    <div class="tlab" style="margin:-6px 0 14px">${total} mistake${total>1?'s':''} across ${ss.length} test${ss.length>1?'s':''}${blind?` · <b class="bl">${blind} blind spot${blind>1?'s':''}</b>`:''}.</div>
     ${mixBar(agg,total)}
     ${recent.length>=2?`<div class="leak-sub" style="margin-top:20px">How the mix flows, test by test <span class="h3-hint">tap a test</span></div><div class="chartwrap" style="margin-top:2px">${streamChart(recent)}</div>`:''}
     ${trends}
-    ${(()=>{ let nm=0,im=0,un=0; sessions.forEach(x=>{const q=triageCounts(x.items); nm+=q.nearMiss; im+=q.img; un+=q.uncertain;});
+    ${(()=>{ let nm=0,im=0,un=0; ss.forEach(x=>{const q=triageCounts(x.items); nm+=q.nearMiss; im+=q.img; un+=q.uncertain;});
       const bits=[];
       if(nm) bits.push(`<div class="tlab" style="margin-top:12px"><b style="color:var(--amber)">${nm} near-miss${nm>1?'es':''}</b> — down to two with a belief error. ${FIXNEAR}</div>`);
       if(im) bits.push(`<div class="tlab" style="margin-top:8px"><b>${im}</b> ${im>1?'were':'was'} image-based — your documented leak. Drill images for the hotspot subjects.</div>`);
@@ -2757,18 +2823,24 @@ function uncertainSheet(){
 function threeMovesCard(){
   if(!sessions.length && !entries.length) return '';
   const rows=[];
-  /* 1 — hotspot */
-  const grid={}; const add=(sub,err)=>{ if(!sub||!ERR_MAP[err])return; const k=sub+'|'+err; grid[k]=(grid[k]||0)+1; };
-  entries.forEach(e=>add(e.subject,e.error));
-  sessions.forEach(sn=>sn.items.forEach(it=>{ if(!it.uncertain) add(it.subj,it.error); }));
-  const hot=Object.entries(grid).sort((a,b)=>b[1]-a[1])[0];
-  if(hot && hot[1]>=2){
-    const [sub,err]=hot[0].split('|'); const e=ERR_MAP[err];
+  /* 1 — hotspot, from the signal engine: a rate out of line with baseline on enough data,
+     not just the biggest subject and not a 2-question fluke */
+  const sigs=subjectSignals();
+  if(sigs.length){
+    const g=sigs[0];
     let when='';
-    const nx=subjectNextTouch(sub);
-    if(nx) when=` ${esc(sub)}'s next ${nx.kind==='revisit'?'revisit is due':'read is scheduled'} ${nx.d<=todayISO()?'today':fmtShort(nx.d)} — do it there.`;
-    rows.push(`<div class="row"><span class="n">1</span><span><b style="color:${e.c}">${e.code}</b> in <b>${esc(sub)}</b> (${hot[1]}). ${esc(FIXACT[err])}${when}</span></div>`);
-  } else rows.push(`<div class="row"><span class="n">1</span><span>No hotspot yet — tag subjects while you triage to find one.</span></div>`);
+    const nx=subjectNextTouch(g.sub);
+    if(nx) when=` ${esc(g.sub)}'s next ${nx.kind==='revisit'?'revisit is due':'read is scheduled'} ${nx.d<=todayISO()?'today':fmtShort(nx.d)} — do it there.`;
+    if(g.kind==='blind'){
+      rows.push(`<div class="row"><span class="n">1</span><span><b class="bl">Blind spots cluster in ${esc(g.sub)}</b> — ${Math.round(g.rate*100)}% of its ${g.n} wrongs vs ${Math.round(g.base*100)}% everywhere else. A real cluster, not volume. ${esc(FIXACT.reasoning)}${when}</span></div>`);
+    } else {
+      const e=ERR_MAP[g.kind];
+      rows.push(`<div class="row"><span class="n">1</span><span><b style="color:${e.c}">${e.code}</b> clusters in <b>${esc(g.sub)}</b> — ${Math.round(g.rate*100)}% of its ${g.n} wrongs vs ${Math.round(g.base*100)}% baseline. ${esc(FIXACT[g.kind])}${when}</span></div>`);
+    }
+  } else {
+    const anyTagged=sessions.some(sn=>sn.items.some(it=>it.subj)) || entries.some(e=>e.subject);
+    rows.push(`<div class="row"><span class="n">1</span><span>${anyTagged?'No abnormal cluster — your mistakes are spread evenly across subjects right now. That means the plan, not one subject, is the lever.':'No hotspot yet — tag subjects while you triage to find one.'}</span></div>`);
+  }
   /* 2 — discipline */
   const last3=sessions.slice(0,3).slice().reverse().map(x=>triageCounts(x.items).blindAttempt);
   if(sessions.length<3) rows.push(`<div class="row"><span class="n">2</span><span>Blind-attempt trend: not enough tests yet — triage 3 reads to see it.</span></div>`);
@@ -2789,7 +2861,7 @@ function threeMovesCard(){
 }
 /* marks · accuracy · W:C across scored reads */
 function scoreTrendCard(){
-  const scored=sessions.filter(x=>scoreStats(x)).slice(0,10).reverse();
+  const scored=scopedSessions().filter(x=>scoreStats(x)).slice(0,10).reverse();
   if(!scored.length) return '';
   const st=scored.map(scoreStats);
   if(scored.length===1){
@@ -2823,8 +2895,8 @@ const FIXNEAR="Down to two and lost it. These are the closest marks you have. Re
 function heatmapCard(){
   const grid={}, subTot={};
   const add=(sub,err)=>{ if(!sub||!ERR_MAP[err])return; (grid[sub]=grid[sub]||{})[err]=(grid[sub][err]||0)+1; subTot[sub]=(subTot[sub]||0)+1; };
-  entries.forEach(e=>add(e.subject,e.error));
-  sessions.forEach(s=>s.items.forEach(it=>add(it.subj,it.error)));
+  scopedEntries().forEach(e=>add(e.subject,e.error));
+  scopedSessions().forEach(s=>s.items.forEach(it=>add(it.subj,it.error)));
   const subs=Object.keys(subTot).sort((a,b)=>subTot[b]-subTot[a]);
   const total=subs.reduce((a,s)=>a+subTot[s],0);
   if(subs.length<2 || total<4) return '';
@@ -2833,33 +2905,40 @@ function heatmapCard(){
   const head=`<div class="hm-row hm-head"><span class="hm-sub"></span>${ERRORS.map(e=>`<span class="hm-c" style="color:${e.c}">${e.code}</span>`).join('')}<span class="hm-tot">all</span></div>`;
   const rows=top.map((su,ri)=>{
     const cells=ERRORS.map(e=>{ const n=grid[su][e.id]||0, a=n/max;
-      const bg=n?`color-mix(in srgb, ${e.c} ${Math.round(16+70*a)}%, transparent)`:'var(--surface2)';
-      return n?`<button class="hm-c tapc${a>0.6?' lt':''}" data-sub="${esc(su)}" data-e="${e.id}" data-n="${n}" title="${esc(e.t+' in '+su+' — tap for the fix')}" style="background:${bg}">${n}</button>`
+      const shown=hmPct?(n?Math.round(n/subTot[su]*100)+'':''):(n||'');
+      const inten=hmPct?(n/subTot[su]):a;
+      const bg=n?`color-mix(in srgb, ${e.c} ${Math.round(16+70*inten)}%, transparent)`:'var(--surface2)';
+      return n?`<button class="hm-c tapc${inten>0.6?' lt':''}" data-sub="${esc(su)}" data-e="${e.id}" data-n="${n}" title="${esc(e.t+' in '+su+' — tap for the fix')}" style="background:${bg}">${shown}</button>`
              :`<span class="hm-c" style="background:${bg}"></span>`; }).join('');
     return `<div class="hm-row hm-in" style="animation-delay:${ri*26}ms"><span class="hm-sub" title="${esc(su)}">${esc(su)}</span>${cells}<span class="hm-tot">${subTot[su]}</span></div>`;
   }).join('');
-  let hot=null; top.forEach(su=>ERRORS.forEach(e=>{const n=grid[su][e.id]||0; if(!hot||n>hot.n)hot={su,e,n};}));
-  const note=hot&&hot.n>=2?`<p class="tlab" style="margin-top:13px">Hotspot: <b style="color:${hot.e.c}">${hot.e.t.toLowerCase()}</b> in <b>${esc(hot.su)}</b> (${hot.n}). ${FIXTEXT[hot.e.id]}</p>`:'';
+  /* the note uses the signal engine — same maths as the three moves, so the map and the moves never disagree */
+  const sig=subjectSignals()[0];
+  const note=sig?`<p class="tlab" style="margin-top:13px">Signal: <b style="color:${sig.kind==='blind'?'var(--rose)':ERR_MAP[sig.kind].c}">${sig.kind==='blind'?'blind spots':ERR_MAP[sig.kind].t.toLowerCase()}</b> cluster in <b>${esc(sig.sub)}</b> — ${Math.round(sig.rate*100)}% of its ${sig.n} wrongs vs ${Math.round(sig.base*100)}% baseline.</p>`
+    :`<p class="tlab" style="margin-top:13px;color:var(--faint)">No abnormal cluster in this window — spread is even.</p>`;
   let untagged=0; sessions.forEach(s=>s.items.forEach(it=>{ if(!it.subj) untagged++; }));
   const tagNote=untagged?`<p class="tlab" style="margin-top:10px;color:var(--faint)">${untagged} triaged mistake${untagged>1?'s':''} ha${untagged>1?'ve':'s'} no subject — tap “+ subject” on the ticket to put them on this map.</p>`:'';
   const more=subs.length>8?`<button class="linkish" id="hmMore" style="margin-top:10px">${hmAll?'Show top 8 only ‹':'Show all '+subs.length+' subjects ›'}</button>`:'';
-  return `<div class="card"><h3><span class="accent"></span>Subject × mistake map <span class="h3-hint">tap a cell</span></h3>
+  return `<div class="card"><h3><span class="accent"></span>Subject × mistake map <span class="h3-hint">tap a cell</span><button class="hm-mode" id="hmMode">${hmPct?'%':'#'}</button></h3>
     <div class="heatmap">${head}${rows}</div>${more}${note}${tagNote}</div>`;
 }
 /* the raw numbers behind everything — one glance, in the deep-dive section */
 function numbersCard(){
-  let total=0, blind=0, img=0, parked=0;
-  sessions.forEach(s=>{ const q=triageCounts(s.items); total+=q.total; blind+=q.blind; img+=q.img; parked+=q.uncertain; });
-  const tests=sessions.length;
-  if(!tests && !entries.length) return '';
-  const written=entries.filter(e=>e.srcSession).length;
-  const scored=sessions.filter(x=>scoreStats(x));
+  const ss=scopedSessions(), ee=scopedEntries();
+  let total=0, blind=0, img=0, parked=0, noidea=0;
+  ss.forEach(s=>{ const q=triageCounts(s.items); total+=q.total; blind+=q.blind; img+=q.img; parked+=q.uncertain; noidea+=sessComp(s).noidea; });
+  const tests=ss.length;
+  if(!tests && !ee.length) return '';
+  const written=ee.filter(e=>e.srcSession).length;
+  const scored=ss.filter(x=>scoreStats(x));
   const best=scored.length?Math.max(...scored.map(x=>scoreStats(x).marks)):null;
-  const tile=(n,lab)=>`<div class="num"><b>${n}</b><span>${lab}</span></div>`;
+  const pct=(a,b)=>b?Math.round(a/b*100)+'%':'—';
+  const tile=(n,lab)=>`<div class="num"><b data-cu="${typeof n==='number'?n:''}">${n}</b><span>${lab}</span></div>`;
   return `<div class="card thin"><h3><span class="accent"></span>The raw numbers</h3><div class="num-grid">
     ${tile(total,'wrongs triaged')}${tile(tests,'tests read')}${tile(blind,'blind spots')}
-    ${tile(tests?(total/tests).toFixed(1):'—','avg wrongs / test')}${tile(img,'image-based')}${tile(parked,'parked')}
-    ${entries.length?tile(entries.length,'in the Book'):''}${written?tile(written,'fixes written'):''}${best!=null?tile(best,'best marks'):''}
+    ${tile(tests?(total/tests).toFixed(1):'—','avg wrongs / test')}${tile(pct(blind,total),'blind rate')}${tile(pct(noidea,total),'no-read share')}
+    ${tile(pct(img,total),'image share')}${parked?tile(parked,'parked'):''}${ee.length?tile(ee.length,'in the Book'):''}
+    ${written?tile(written,'fixes written'):''}${best!=null?tile(best,'best marks'):''}
   </div></div>`;
 }
 function renderInsights(){
@@ -2867,13 +2946,28 @@ function renderInsights(){
   if(entries.length===0 && !sessions.length){box.innerHTML=`<div class="empty"><svg class="ic" viewBox="0 0 24 24"><path d="M3 3v18h18M7 14l3-3 3 3 5-6"/></svg>
     <div class="big">Nothing to show yet</div>Triage a test or log a few mistakes and this fills in — it shows where your marks are leaking and what to do about it.</div>`;return}
   const map=recurrenceMap();
+  const sv=insScopeVal();
+  const scopeRow=sessions.length>2?`<div class="scope-row" role="tablist">
+    <button class="sc-chip ${sv==='3t'?'on':''}" data-sc="3t">Last 3 tests</button>
+    <button class="sc-chip ${sv==='14d'?'on':''}" data-sc="14d">14 days</button>
+    <button class="sc-chip ${sv==='all'?'on':''}" data-sc="all">All time</button>
+  </div>`:'';
   const detailed = entries.length ? (`<div class="ins-sec">From your detailed logs</div>`+nextCard(map)+masteryCard()+statStrip()+leakCard()+typeSplitCard()) : '';
   const deep = heatmapCard()+weakAreasCard()+numbersCard()+testListCard();
-  box.innerHTML = threeMovesCard() + scoreTrendCard() + triageInsightsCard()
+  box.innerHTML = scopeRow + threeMovesCard() + scoreTrendCard() + triageInsightsCard()
     + (deep?`<div class="ins-sec">The whole picture — every subject, every test</div>`+deep:'')
     + detailed;
+  box.querySelectorAll('.sc-chip').forEach(b=>b.onclick=()=>{ buzz(5); insScope=b.dataset.sc; renderInsights(); });
   const hm=document.getElementById('hmMore'); if(hm) hm.onclick=()=>{ buzz(5); hmAll=!hmAll; renderInsights(); };
+  const hmM=document.getElementById('hmMode'); if(hmM) hmM.onclick=()=>{ buzz(5); hmPct=!hmPct; renderInsights(); };
   const wk=document.getElementById('wkMore'); if(wk) wk.onclick=()=>{ buzz(5); wkAll=!wkAll; renderInsights(); };
+  /* satisfying count-up on the raw numbers, honest to reduced-motion */
+  if(!reducedMotion()) box.querySelectorAll('.num b[data-cu]').forEach(el=>{
+    const to=+el.dataset.cu; if(!to||to>9999) return;
+    const t0=performance.now(), d=450;
+    const tick=t=>{ const p=Math.min(1,(t-t0)/d); el.textContent=Math.round(to*(1-Math.pow(1-p,3))); if(p<1) requestAnimationFrame(tick); };
+    requestAnimationFrame(tick);
+  });
   const tm=document.getElementById('tmUnfin'); if(tm) tm.onclick=()=>{
     let off=null; sessions.forEach(sn=>{ const q=triageCounts(sn.items); if(!off && q.blind>writtenCount(sn.id)) off=sn; });
     if(off) writeFixComposer(off.id); else uncertainSheet();
@@ -3535,6 +3629,10 @@ async function initSync(){
   if(!ok){ fbStatus='error'; fbError='Could not load the sync library — check your connection.'; renderCloudSync(); return; }
   try{ if(!fbApp) fbApp=firebase.initializeApp(cfg); }
   catch(e){ if(!/already exists/i.test(e&&e.message||'')){ fbStatus='error'; fbError='Config problem: '+(e.message||e); renderCloudSync(); return; } }
+  /* offline-first: writes made without internet queue in IndexedDB and auto-flush when the
+     connection returns — a triage read finished on the metro still reaches the cloud */
+  try{ await firebase.firestore().enablePersistence({synchronizeTabs:true}); }
+  catch(_){ /* second tab or old browser — sync still works, just without the offline queue */ }
   try{ firebase.auth().onAuthStateChanged(u=>onAuth(u)); firebase.auth().getRedirectResult&&firebase.auth().getRedirectResult().catch(()=>{}); }
   catch(e){ fbStatus='error'; fbError=(e&&e.message)||(''+e); renderCloudSync(); }
 }
@@ -3623,7 +3721,10 @@ async function pushNow(){
   fbPushPending=false;
   try{
     /* JSON round-trip drops every explicit undefined (Firestore set() hard-rejects them) */
-    const payload=JSON.parse(JSON.stringify({ entries, settings, tombstones, sessions, plan, by:deviceId(), updatedAt:Date.now() }));
+    const raw=JSON.stringify({ entries, settings, tombstones, sessions, plan, by:deviceId(), updatedAt:Date.now() });
+    /* Firestore caps a document at ~1 MB — warn early instead of failing silently later */
+    if(raw.length>900000 && !pushNow._warned){ pushNow._warned=true; toast('Your ledger is growing close to the cloud limit — export a backup from Data, then clear very old triage reads.'); }
+    const payload=JSON.parse(raw);
     await docRef().set(payload); fbLastSync=Date.now(); fbLastPush=Date.now(); fbRemoteCount=entries.length; fbError=''; renderCloudSync(); }
   catch(e){ if(e&&e.code==='unavailable') return; fbError=fsHint(e); renderCloudSync(); toast('Could not save to cloud — see Data screen'); }
 }
