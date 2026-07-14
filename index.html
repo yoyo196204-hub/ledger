@@ -19,8 +19,9 @@
   :root{
     --bg:#F4EDE1; --bg2:#EFE6D6; --surface:#FDFAF4; --surface2:#F1E9DB; --surface3:#E9DFCC;
     --border:#E7DCC9; --border2:#DCCFB8;
-    --ink:#2C2620; --ink2:#6B5E50; --muted:#978978; --faint:#BAAD99;
+    --ink:#2C2620; --ink2:#63564A; --muted:#877A69; --faint:#A2937E;
     --accent:#C1502D; --accent2:#DB8A54; --accent-ink:#A9431F; --accent-soft:#F6E6D7;
+    --spring:cubic-bezier(.34,1.56,.64,1); --ease:cubic-bezier(.22,1,.36,1); --ease-io:cubic-bezier(.4,0,.2,1);
     --sage:#6E8663; --sage-ink:#546B4A; --sage-soft:#E6ECDD;
     --rose:#C24634; --amber:#C8811A; --emerald:#5E7A54; --violet:#9E5CA8; --teal:#1F9E82; --pink:#B0688A; --indigo:#C1502D;
     --grad:linear-gradient(135deg,#DB8A54,#C1502D);
@@ -41,7 +42,7 @@
   :root[data-theme="dark"]{
     --bg:#17130F; --bg2:#1E1813; --surface:#241D17; --surface2:#2C241C; --surface3:#372C22;
     --border:#33291F; --border2:#43362A;
-    --ink:#F3EADD; --ink2:#C6B7A5; --muted:#9C8B78; --faint:#6E6153;
+    --ink:#F3EADD; --ink2:#CDBFAD; --muted:#B0A08C; --faint:#8A7A66;
     --accent:#E27A4C; --accent2:#F0A06A; --accent-ink:#F0A16C; --accent-soft:#3A281D;
     --sage:#8FA982; --sage-ink:#A9C09C; --sage-soft:#26301F;
     --rose:#E86A55; --amber:#E0A23C; --emerald:#8AAE7C; --violet:#C481CE; --teal:#3FBFA0; --pink:#D08AAC; --indigo:#E27A4C;
@@ -58,7 +59,7 @@
     :root:not([data-theme="light"]){
       --bg:#17130F; --bg2:#1E1813; --surface:#241D17; --surface2:#2C241C; --surface3:#372C22;
       --border:#33291F; --border2:#43362A;
-      --ink:#F3EADD; --ink2:#C6B7A5; --muted:#9C8B78; --faint:#6E6153;
+      --ink:#F3EADD; --ink2:#CDBFAD; --muted:#B0A08C; --faint:#8A7A66;
       --accent:#E27A4C; --accent2:#F0A06A; --accent-ink:#F0A16C; --accent-soft:#3A281D;
       --sage:#8FA982; --sage-ink:#A9C09C; --sage-soft:#26301F;
       --rose:#E86A55; --amber:#E0A23C; --emerald:#8AAE7C; --violet:#C481CE; --teal:#3FBFA0; --pink:#D08AAC; --indigo:#E27A4C;
@@ -678,12 +679,15 @@
   .sub-ok{color:var(--sage-ink);font-weight:750;font-size:11px}
   /* satisfying presses everywhere, hovers where a pointer exists */
   .linkish:active,.wk-row:active,.gtrow.tap:active,.ses-row.tap:active{transform:scale(.985)}
-  #insightsBody>.card{animation:cardin .4s cubic-bezier(.3,1,.4,1) both}
+  #insightsBody>.card{animation:cardin .52s var(--spring) both}
   #insightsBody>.card:nth-child(2){animation-delay:.05s}
   #insightsBody>.card:nth-child(3){animation-delay:.1s}
   #insightsBody>.card:nth-child(4){animation-delay:.15s}
   #insightsBody>.card:nth-child(5){animation-delay:.2s}
-  @keyframes cardin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  @keyframes cardin{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+  /* physical press: a quick scale-down, then a springy settle back — transform-only, GPU-cheap */
+  .rec-chip,.cardq,.sc-chip,.hm-c.tapc,.spark-row,.wk-row,.ses-row.tap,.gtrow.tap,.chip{transition:transform .28s var(--spring),background .15s var(--ease),color .15s var(--ease),border-color .15s,box-shadow .18s var(--ease),filter .15s}
+  .hm-c.tapc:active,.spark-row:active,.gtrow.tap:active,.cardq:active,.wk-row:active,.ses-row.tap:active,.rec-chip:active{transform:scale(.94)}
   @media (hover:hover){
     .gtrow.tap:hover,.wk-row:hover,.spark-row:hover,.ses-row.tap:hover{background:var(--surface2)}
     .pl-row:hover{border-color:var(--accent)}
@@ -757,13 +761,15 @@
   .leak-sub{font-family:var(--serif);font-style:italic;letter-spacing:0;text-transform:none;font-size:16px;color:var(--ink2)}
   /* ============ the signature "ember" hero card: a dark, glowing spotlight that floats on the warm page.
      Works by locally overriding the colour vars, so every descendant adapts with no per-element edits. ============ */
-  .ember{position:relative;overflow:hidden;color:#f6ead8;border-radius:24px;
-    --ink:#f6ead8;--ink2:#d8bfa4;--muted:#a98a6c;--faint:#8a7256;
-    --surface:#241a12;--surface2:#2c2018;--surface3:#39291d;--border:#3a2c20;--border2:#4a3626;
-    --accent:#e0955f;--accent2:#f0a05a;--accent-ink:#f0a05a;--accent-soft:#3a281d;
-    --rose:#e88a72;--amber:#e0a23c;--sage-ink:#a9c09c;--bl:#f0a05a;
-    background:linear-gradient(165deg,#241a12,#160f0a);border:1px solid #3a2c20;
-    box-shadow:0 24px 48px -22px rgba(80,40,15,.6),inset 0 1px 0 rgba(255,210,160,.1)}
+  .ember{position:relative;overflow:hidden;color:#f7ecdc;border-radius:24px;
+    --ink:#f7ecdc;--ink2:#e6cfb2;--muted:#c6ac8c;--faint:#a68d70;
+    --surface:#241a12;--surface2:#31261c;--surface3:#3f3123;--border:#4a3a2b;--border2:#57452f;
+    --accent:#e0955f;--accent2:#f0a05a;--accent-ink:#f4a468;--accent-soft:#3a281d;
+    --rose:#ec9077;--amber:#e6ab4a;--sage-ink:#b3cba3;--bl:#f4a468;
+    background:linear-gradient(165deg,#251b12,#150e08);border:1px solid #43331f;
+    box-shadow:0 24px 48px -22px rgba(80,40,15,.6),inset 0 1px 0 rgba(255,210,160,.12)}
+  .ember .h3-hint{color:var(--muted)}
+  .ember .cardq{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.14);color:var(--ink2)}
   :root[data-theme="dark"] .ember,:root:not([data-theme="light"]) .ember{box-shadow:0 24px 48px -22px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,210,160,.08)}
   .ember::before{content:"";position:absolute;top:-45px;right:-35px;width:200px;height:200px;border-radius:50%;
     background:radial-gradient(circle,rgba(224,149,95,.32),transparent 70%);animation:glowpulse 5s ease-in-out infinite;pointer-events:none}
@@ -894,7 +900,7 @@
   .hm-c.tapc:active{transform:scale(.92)}
   .mx-seg,.mx-key{cursor:pointer}
   .mixbar .mx-seg:active{filter:brightness(1.12)}
-  .h3-hint{margin-left:auto;font-size:10px;font-weight:650;letter-spacing:.04em;color:var(--faint);text-transform:none}
+  .h3-hint{margin-left:auto;font-size:10.5px;font-weight:700;letter-spacing:.04em;color:var(--muted);text-transform:none}
   .faintlab{opacity:.55}
 
   /* spaced-repetition "due" + sync card accent */
@@ -1268,7 +1274,7 @@ const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.st
 async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } try{return localStorage.getItem(k)}catch(_){return null} }
 async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v);return true}catch(e){return false} } try{localStorage.setItem(k,v);return true}catch(_){return false} }
 const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
-const APP_VERSION='v32'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
+const APP_VERSION='v33'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
 
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 
@@ -1860,6 +1866,25 @@ function applyTheme(){
 function setTheme(t){ if(t==='system') delete settings.theme; else settings.theme=t; persistSettings(); applyTheme(); render(); buzz(5); }
 if(window.matchMedia){ try{ matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{ if(!settings.theme) applyTheme(); }); }catch(_){} }
 function buzz(p){ try{ if(navigator.vibrate) navigator.vibrate(p); }catch(_){} }
+/* ============ physics: a critically-damped spring integrator. rAF-driven, writes only textContent
+   or a transform, so it stays GPU-cheap. Honours reduced-motion by jumping to the target. ============ */
+function spring(from,to,onUpdate,opts){
+  opts=opts||{};
+  if(reducedMotion()){ onUpdate(to,true); return function(){}; }
+  const stiff=opts.stiffness||150, damp=opts.damping||18, mass=opts.mass||1,
+        prec=opts.precision||(Math.abs(to-from)<20?0.25:1);
+  let x=from, v=opts.v0||0, last=performance.now(), raf;
+  const tick=now=>{ let dt=Math.min(0.032,(now-last)/1000); last=now;
+    const a=(-stiff*(x-to)-damp*v)/mass; v+=a*dt; x+=v*dt;
+    if(Math.abs(to-x)<prec && Math.abs(v)<prec){ onUpdate(to,true); return; }
+    onUpdate(x,false); raf=requestAnimationFrame(tick); };
+  raf=requestAnimationFrame(tick);
+  return function(){ cancelAnimationFrame(raf); };
+}
+/* spring a number up to its target with a soft, slightly-overshooting settle */
+function countUp(el,to,fmt){ fmt=fmt||(v=>Math.round(v)); if(!el)return;
+  if(reducedMotion()||typeof to!=='number'||!isFinite(to)){ el.textContent=fmt(to); return; }
+  spring(0,to,v=>{ el.textContent=fmt(Math.max(0,v)); },{stiffness:110,damping:20}); }
 
 /* the app's front door: start a sort, glance at the damage, revisit reads */
 function renderTriHome(box){
@@ -2234,9 +2259,7 @@ function renderTriage(){
     const fc=document.getElementById('fixCta'); if(fc) fc.onclick=()=>writeFixComposer(triage.sessionId);
     const sl=document.getElementById('sumLog'); if(sl) sl.onclick=()=>{ triage.active=false; switchView('log'); };
     const big=document.querySelector('.sm-big');
-    if(big && !reducedMotion()){ const to=+big.textContent; const t0=performance.now();
-      const step=t=>{ const p=Math.min(1,(t-t0)/450); big.textContent=Math.round(to*(1-Math.pow(1-p,3))); if(p<1)requestAnimationFrame(step); };
-      big.textContent='0'; requestAnimationFrame(step); }
+    if(big){ const to=+big.textContent; countUp(big,to); }
     return;
   }
   if(!settings.triCoached && !triage.items.length){ renderTriIntro(box); return; }
@@ -3212,7 +3235,7 @@ function forecastCard(){
     : dir==='down'?`slipping about <b>${pw}%/week</b> — the trend is the wrong way`
     : `holding flat`;
   return `<div class="card fc-card ember"><h3><span class="accent"></span>Projected exam score<span class="h3-hint">GT-only · tap for how</span><button class="cardq" data-help="forecast">?</button></h3>
-    <div class="fc-big"><b>${f.mid}</b><span class="fc-of">/ ${f.max}</span><span class="fc-band">${f.midPc}% · range ${f.lo}–${f.hi}</span></div>
+    <div class="fc-big"><b data-cu="${f.mid}">${f.mid}</b><span class="fc-of">/ ${f.max}</span><span class="fc-band">${f.midPc}% · range ${f.lo}–${f.hi}</span></div>
     <div class="chartwrap"><svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Projected exam score, normalised">
       <path d="M ${last.x.toFixed(1)} ${last.y.toFixed(1)} L ${proj.x.toFixed(1)} ${bandTop.toFixed(1)} L ${proj.x.toFixed(1)} ${bandBot.toFixed(1)} Z" fill="var(--accent)" opacity=".13"/>
       <path class="fc-line" d="${histLine}" fill="none" stroke="var(--accent-ink)" stroke-width="2.4" stroke-linecap="round"/>
@@ -3414,13 +3437,9 @@ function renderInsights(){
   const hmM=document.getElementById('hmMode'); if(hmM) hmM.onclick=()=>{ buzz(5); hmPct=!hmPct; renderInsights(); };
   box.querySelectorAll('#stSeg button').forEach(b=>b.onclick=e=>{ e.stopPropagation(); buzz(5); stType=b.dataset.t; renderInsights(); });
   const wk=document.getElementById('wkMore'); if(wk) wk.onclick=()=>{ buzz(5); wkAll=!wkAll; renderInsights(); };
-  /* satisfying count-up on the raw numbers, honest to reduced-motion */
-  if(!reducedMotion()) box.querySelectorAll('.num b[data-cu]').forEach(el=>{
-    const to=+el.dataset.cu; if(!to||to>9999) return;
-    const t0=performance.now(), d=450;
-    const tick=t=>{ const p=Math.min(1,(t-t0)/d); el.textContent=Math.round(to*(1-Math.pow(1-p,3))); if(p<1) requestAnimationFrame(tick); };
-    requestAnimationFrame(tick);
-  });
+  /* physical spring count-ups on the display numbers (raw-numbers grid + projected score) */
+  box.querySelectorAll('.num b[data-cu]').forEach(el=>{ const to=+el.dataset.cu; if(to&&to<=9999) countUp(el,to); });
+  const fcb=box.querySelector('.fc-big b[data-cu]'); if(fcb){ const to=+fcb.dataset.cu; if(isFinite(to)) countUp(fcb,to,v=>Math.round(v)); }
   const tm=document.getElementById('tmUnfin'); if(tm) tm.onclick=()=>{
     let off=null; sessions.forEach(sn=>{ const q=triageCounts(sn.items); if(!off && q.blind>writtenCount(sn.id)) off=sn; });
     if(off) writeFixComposer(off.id); else uncertainSheet();
