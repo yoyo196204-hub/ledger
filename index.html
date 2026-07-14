@@ -645,6 +645,7 @@
   .cal-bar{position:relative;height:9px;border-radius:5px;background:var(--surface3);margin-top:9px;overflow:hidden}
   .cal-fill{position:absolute;left:0;top:0;height:100%;border-radius:5px;transition:width .6s cubic-bezier(.4,0,.2,1)}
   .cal-be{position:absolute;top:-2px;width:2px;height:13px;background:var(--ink);opacity:.55}
+  .cal-ci{position:absolute;top:2px;height:5px;border-radius:3px;background:color-mix(in srgb,var(--ink) 22%,transparent)}
   .fc-lock-row{display:flex;gap:12px;align-items:flex-start}
   .fc-lock-ic{font-size:26px;flex:none;line-height:1.1}
   .fc-lock-t{font-size:14px;font-weight:800;color:var(--ink)}
@@ -1274,7 +1275,7 @@ const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.st
 async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } try{return localStorage.getItem(k)}catch(_){return null} }
 async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v);return true}catch(e){return false} } try{localStorage.setItem(k,v);return true}catch(_){return false} }
 const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
-const APP_VERSION='v33'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
+const APP_VERSION='v34'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
 
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 
@@ -2526,26 +2527,43 @@ function linReg(pts){
   const se=n>2?Math.sqrt(ss/wsum*n/(n-2)):Math.sqrt(ss/wsum||0);
   return {m,b,xbar,Sxx,se,n};
 }
-/* projected exam-day score from your FULL GTs only (the exam is a full paper, not a daily module),
-   on a normalised %-of-max scale, recency-weighted, with an ~80% prediction band. */
+/* ---- statistics toolkit ---- */
+function logit(p){ p=Math.min(0.985,Math.max(0.015,p)); return Math.log(p/(1-p)); }
+function invlogit(z){ return 1/(1+Math.exp(-z)); }
+/* one-sided 90th-percentile Student-t (= 80% central band). Wide for tiny n, →1.282 as n grows.
+   This is what makes "3 tests" honestly uncertain instead of falsely precise. */
+const T90=[3.078,3.078,1.886,1.638,1.533,1.476,1.440,1.415,1.397,1.383,1.372,1.363,1.356,1.350,1.345,1.341];
+function tCrit(df){ df=Math.round(df); return df<=0?3.078 : df<T90.length?T90[df] : 1.282; }
+/* Wilson score interval for a binomial proportion — trustworthy at small n, unlike the naïve ±1.96·SE. */
+function wilson(k,n,z){ z=z||1.96; if(!n) return [0,0,0]; const p=k/n, z2=z*z, d=1+z2/n,
+  c=(p+z2/(2*n))/d, h=(z*Math.sqrt(p*(1-p)/n+z2/(4*n*n)))/d; return [Math.max(0,c-h),p,Math.min(1,c+h)]; }
+/* exponential recency weight — a smooth half-life instead of a step function (default 21-day half-life) */
+function expWeight(ts,half){ const d=(Date.now()-(ts||0))/864e5; return Math.pow(0.5, d/(half||21)); }
+
+/* projected exam-day score from your FULL GTs only, on a LOGISTIC (bounded) growth model:
+   we fit % on the logit scale so the projection saturates near 100% instead of shooting past it,
+   weight recent GTs more (exponential half-life), and put a Student-t prediction band around it. */
 function examMarkForecast(){
   const scored=scopedSessions().filter(x=>x.testType==='gt' && scoreStats(x)).slice().sort((a,b)=>(a.ts||0)-(b.ts||0));
   if(scored.length<3) return null;
   const t0=scored[0].ts, now=Date.now();
-  /* y = % of max (comparable across GT sizes); weight recent GTs more */
-  const pts=scored.map(s=>{ const st=scoreStats(s); return {x:(s.ts-t0)/864e5, y:st.pct100, w:recencyW(s.ts), set:s.set, marks:st.marks, total:st.total}; });
-  const fit=linReg(pts); if(!fit) return null;
+  const disp=scored.map(s=>{ const st=scoreStats(s); return {x:(s.ts-t0)/864e5, y:st.pct100, set:s.set, marks:st.marks, total:st.total}; });
+  /* fit logit(p) vs time, recency-weighted */
+  const fitPts=scored.map(s=>{ const st=scoreStats(s); return {x:(s.ts-t0)/864e5, y:logit(st.pct), w:expWeight(s.ts)}; });
+  const fit=linReg(fitPts); if(!fit) return null;
   const d2e=daysToExam(); if(d2e==null || d2e<0) return null;
-  const x0=(now-t0)/864e5 + d2e;
-  const yhat=fit.m*x0+fit.b;
+  const xNow=(now-t0)/864e5, x0=xNow+d2e;
+  const yhat=fit.m*x0+fit.b; /* logit space */
   const pi=fit.Sxx>0 ? fit.se*Math.sqrt(1+1/fit.n+Math.pow(x0-fit.xbar,2)/fit.Sxx) : fit.se;
-  const band=1.28*pi; /* ~80% */
-  const capPc=v=>Math.max(-25,Math.min(100,v));
-  const toMarks=pc=>Math.round(pc/100*EXAM_MAX);
-  const midPc=capPc(yhat), loPc=capPc(yhat-band), hiPc=capPc(yhat+band);
-  return { pts, fit, x0, d2e, examQ:EXAM_Q, max:EXAM_MAX,
-    midPc, loPc, hiPc, mid:toMarks(midPc), lo:toMarks(loPc), hi:toMarks(hiPc),
-    perDayPc:fit.m*7, /* %/week */ lastPc:pts[pts.length-1].y, n:scored.length };
+  const band=tCrit(fit.n-2)*pi; /* logit space */
+  const midP=invlogit(yhat), loP=invlogit(yhat-band), hiP=invlogit(yhat+band);
+  const toMarks=p=>Math.round(p*EXAM_MAX), pc=p=>Math.round(p*100);
+  /* weekly gain in % space (accounts for the curve flattening near the ceiling) */
+  const perWeekPc=Math.round((invlogit(fit.m*xNow+fit.b)-invlogit(fit.m*(xNow-7)+fit.b))*1000)/10;
+  return { pts:disp, fit, x0, d2e, examQ:EXAM_Q, max:EXAM_MAX, model:'logistic',
+    midPc:pc(midP), loPc:pc(loP), hiPc:pc(hiP), mid:toMarks(midP), lo:toMarks(loP), hi:toMarks(hiP),
+    perWeekPc, perDayPc:perWeekPc/7, lastPc:disp[disp.length-1].y, n:scored.length,
+    conf:Math.round((1-Math.min(1,(hiP-loP)))*100) /* rough confidence: tighter band = higher */ };
 }
 function saveSession(score){
   if(triage.saved) return;
@@ -2983,29 +3001,38 @@ function buildSubjects(ss,ee){
    never just the biggest subject (volume), never a 2-question fluke (sample). Shrinkage pulls small
    samples toward the baseline so they must earn their flag. ============ */
 function subjectSignals(){ return _memo('sig:'+insScopeVal(), _subjectSignals); }
+/* Beta-Binomial posterior for a subject's rate x/n against a baseline prior.
+   Prior = Beta(κ·p0, κ·(1-p0)) (κ = prior strength in pseudo-observations); posterior adds the data.
+   We flag only when the ~90% LOWER credible bound clears the baseline by a margin — i.e. we're
+   confident the subject truly clusters, not that it got lucky. This is the rigorous form of the old
+   shrinkage: the point estimate was its posterior mean; this adds the uncertainty it was missing. */
+function betaFlag(x,n,p0,margin){
+  const kappa=6, a=kappa*p0+x, b=kappa*(1-p0)+(n-x);
+  const mean=a/(a+b), sd=Math.sqrt(a*b/((a+b)*(a+b)*(a+b+1)));
+  const lower=mean-1.2816*sd; /* ~90% one-sided lower credible bound (normal approx to Beta) */
+  return { pass: lower>p0+ (margin||0) && mean>p0+0.05, mean, lower, excess:lower-p0 };
+}
 function _subjectSignals(){
   const m=buildSubjects(scopedSessions(), scopedEntries());
   const subs=Object.keys(m); if(!subs.length) return [];
   let N=0, B=0; const Q={knowledge:0,retrieval:0,reasoning:0,execution:0};
   subs.forEach(s=>{ N+=m[s].n; B+=m[s].sure; ERRORS.forEach(e=>Q[e.id]+=m[s].errs[e.id]); });
   if(N<8) return []; /* not enough data to call anything abnormal yet */
-  const p0=B/N, k=4;
-  const shrunk=(x,n,base)=>(x+k*base)/(n+k);
+  const p0=B/N;
   const out=[];
   subs.forEach(s=>{
     const t=m[s]; if(t.n<5) return; /* below this, "100% blind" is a fluke, not a finding */
-    /* signal 1: blind-spot rate above baseline */
-    const bp=shrunk(t.sure,t.n,p0)-p0;
-    if(bp>0.06) out.push({sub:s, kind:'blind', n:t.n, x:t.sure, rate:t.sure/t.n, base:p0, score:bp*Math.sqrt(t.n)});
+    /* signal 1: blind-spot rate posterior clears baseline */
+    const bf=betaFlag(t.sure,t.n,p0,0.02);
+    if(bf.pass) out.push({sub:s, kind:'blind', n:t.n, x:t.sure, rate:t.sure/t.n, base:p0, lower:bf.lower, score:bf.excess});
     /* signal 2: one bucket clustering above its overall share */
     ERRORS.forEach(e=>{
-      const q0=Q[e.id]/N;
-      const qp=shrunk(t.errs[e.id],t.n,q0)-q0;
-      if(qp>0.10) out.push({sub:s, kind:e.id, n:t.n, x:t.errs[e.id], rate:t.errs[e.id]/t.n, base:q0, score:qp*Math.sqrt(t.n)});
+      const q0=Q[e.id]/N, qf=betaFlag(t.errs[e.id],t.n,q0,0.04);
+      if(qf.pass) out.push({sub:s, kind:e.id, n:t.n, x:t.errs[e.id], rate:t.errs[e.id]/t.n, base:q0, lower:qf.lower, score:qf.excess});
     });
   });
+  /* rank by how confidently the rate beats baseline (credible-bound excess), strongest per subject */
   out.sort((a,b)=>b.score-a.score);
-  /* one signal per subject — the strongest */
   const seen={}; return out.filter(s=>seen[s.sub]?false:(seen[s.sub]=1));
 }
 /* the wrongs ↔ plan bridge: when is this subject next touched? */
@@ -3229,22 +3256,27 @@ function forecastCard(){
   const last=ppts[ppts.length-1], proj={x:X(f.x0),y:Y(f.midPc)};
   const bandTop=Y(f.hiPc), bandBot=Y(f.loPc);
   const dots=ppts.map((p,i)=>`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="2.6" fill="var(--accent-ink)"><title>${esc(f.pts[i].set)}: ${f.pts[i].marks}/${4*f.pts[i].total} (${f.pts[i].y}%)</title></circle>`).join('');
-  const dir=f.perDayPc>0.4?'up':f.perDayPc<-0.4?'down':'flat';
-  const pw=Math.round(f.perDayPc*10)/10;
-  const trendTxt = dir==='up'?`climbing about <b>+${pw}%/week</b> (${Math.round(f.perDayPc/100*f.max)} marks)`
+  const dir=f.perWeekPc>0.3?'up':f.perWeekPc<-0.3?'down':'flat';
+  const pw=Math.abs(f.perWeekPc);
+  const nearCap = f.midPc>=85 && dir!=='down';
+  const trendTxt = dir==='up'?`climbing about <b>+${pw}%/week</b>`
     : dir==='down'?`slipping about <b>${pw}%/week</b> — the trend is the wrong way`
-    : `holding flat`;
+    : `holding steady`;
+  /* curved projection: sample the fitted logistic so the line visibly bends toward its ceiling */
+  const lastX=f.pts[f.pts.length-1].x, projPts=[];
+  for(let i=0;i<=12;i++){ const xi=lastX+(f.x0-lastX)*i/12; projPts.push({x:X(xi),y:Y(invlogit(f.fit.m*xi+f.fit.b)*100)}); }
+  const projPath=smoothPath(projPts);
   return `<div class="card fc-card ember"><h3><span class="accent"></span>Projected exam score<span class="h3-hint">GT-only · tap for how</span><button class="cardq" data-help="forecast">?</button></h3>
     <div class="fc-big"><b data-cu="${f.mid}">${f.mid}</b><span class="fc-of">/ ${f.max}</span><span class="fc-band">${f.midPc}% · range ${f.lo}–${f.hi}</span></div>
     <div class="chartwrap"><svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Projected exam score, normalised">
       <path d="M ${last.x.toFixed(1)} ${last.y.toFixed(1)} L ${proj.x.toFixed(1)} ${bandTop.toFixed(1)} L ${proj.x.toFixed(1)} ${bandBot.toFixed(1)} Z" fill="var(--accent)" opacity=".13"/>
       <path class="fc-line" d="${histLine}" fill="none" stroke="var(--accent-ink)" stroke-width="2.4" stroke-linecap="round"/>
-      <path d="M ${last.x.toFixed(1)} ${last.y.toFixed(1)} L ${proj.x.toFixed(1)} ${proj.y.toFixed(1)}" fill="none" stroke="var(--accent-ink)" stroke-width="2" stroke-dasharray="4 4" opacity=".8"/>
+      <path d="${projPath}" fill="none" stroke="var(--accent-ink)" stroke-width="2" stroke-dasharray="4 4" opacity=".8"/>
       ${dots}
       <circle class="fc-proj" cx="${proj.x.toFixed(1)}" cy="${proj.y.toFixed(1)}" r="4.5" fill="#fff" stroke="var(--accent-ink)" stroke-width="2"/>
       <text x="${proj.x.toFixed(1)}" y="${(proj.y-9).toFixed(1)}" text-anchor="end" class="xlab" style="fill:var(--accent-ink);font-weight:800">EXAM</text>
     </svg></div>
-    <p class="tlab" style="margin-top:6px">Across your last ${f.n} full GTs (sizes evened out to %) you're ${trendTxt}. Hold that and you land near <b>${f.mid}/${f.max}</b> on a 200-Q paper (${f.d2e} days out) — realistically <b>${f.lo}–${f.hi}</b>. Recent GTs count more, and the band is wide because ${f.n} tests can't say more honestly.</p></div>`;
+    <p class="tlab" style="margin-top:6px">Across your last ${f.n} full GTs (sizes evened out to %) you're ${trendTxt}. Hold that and you land near <b>${f.mid}/${f.max}</b> on a 200-Q paper (${f.d2e} days out) — realistically <b>${f.lo}–${f.hi}</b>.${nearCap?' The curve bends as you near the ceiling — gains up here come slower and cost more.':''} Recent GTs count more (21-day half-life), and the band widens with fewer tests — it can't honestly be tighter on ${f.n}.</p></div>`;
 }
 /* metacognition, zero extra taps: read from your mistakes how well you know when you're wrong,
    and whether your blind guessing is paying off on +4/-1 */
@@ -3265,11 +3297,17 @@ function calibrationCard(){
   let evBlock='';
   if(haveB && B>=4){
     const hits=Math.max(0,B-Bmiss), hr=hits/B, ev=5*hr-1;
+    /* Wilson 95% interval on the hit-rate — the verdict is only "clear" when the whole interval
+       sits on one side of the 20% break-even; otherwise the sample is too thin to call. */
+    const [wlo,,whi]=wilson(hits,B), clears=wlo>=0.2, loses=whi<=0.2;
     const good=hr>=0.2;
-    evBlock=`<div class="cal-ev ${good?'good':'bad'}">
+    const verdict = clears?'The whole confidence range clears break-even — keep taking the guess, skipping these loses you marks.'
+      : loses?'The whole range sits below break-even — skip the pure no-reads instead of guessing.'
+      : `Your range (${Math.round(wlo*100)}–${Math.round(whi*100)}%) straddles the 20% line — too few blind attempts to call it yet. Keep logging them.`;
+    evBlock=`<div class="cal-ev ${clears?'good':loses?'bad':''}">
       <div class="cal-ev-row"><span>Blind guesses that paid off</span><b>${hits}/${B} · ${Math.round(hr*100)}%</b></div>
-      <div class="cal-bar"><span class="cal-fill" style="width:${Math.min(100,hr*100)}%;background:${good?'var(--sage-ink)':'var(--rose)'}"></span><span class="cal-be" style="left:20%" title="break-even 20%"></span></div>
-      <p class="tlab" style="margin-top:8px">On +4/−1 you need <b>20%</b> to break even. You're at <b>${Math.round(hr*100)}%</b> → each blind guess is worth <b>${ev>=0?'+':''}${ev.toFixed(2)}</b> marks. ${good?'Keep taking the guess — skipping these would cost you marks.':'Below break-even — skip the pure no-reads instead of guessing.'}</p></div>`;
+      <div class="cal-bar"><span class="cal-ci" style="left:${Math.round(wlo*100)}%;right:${Math.round((1-whi)*100)}%"></span><span class="cal-fill" style="width:${Math.min(100,hr*100)}%;background:${good?'var(--sage-ink)':'var(--rose)'}"></span><span class="cal-be" style="left:20%" title="break-even 20%"></span></div>
+      <p class="tlab" style="margin-top:8px">On +4/−1 you need <b>20%</b> to break even. You're at <b>${Math.round(hr*100)}%</b> (95% CI ${Math.round(wlo*100)}–${Math.round(whi*100)}%) → each blind guess is worth <b>${ev>=0?'+':''}${ev.toFixed(2)}</b> marks. ${verdict}</p></div>`;
   }
   return `<div class="card"><h3><span class="accent"></span>How well you read yourself<button class="cardq" data-help="calibration">?</button></h3>
     <div class="cal-bar-wrap"><div class="cal-mix">${seg}</div><div class="mx-keys" style="margin-top:10px">${keys}</div></div>
@@ -3388,8 +3426,8 @@ function numbersCard(){
 }
 /* every metric explains itself in two lines — what it is, what to do. Tight on purpose. */
 const METRIC_HELP={
-  forecast:{t:'Projected exam score',is:'A recency-weighted line through your full GTs — sizes evened out to % of max, then scaled to a 200-Q / 800-mark paper. GT-only, because the exam is a full paper; modules aren\'t comparable.',
-    do:'Watch the slope, not one GT. Flat this close to exams means change what you study, not how long. The band is wide on purpose — few tests can\'t say more honestly.'},
+  forecast:{t:'Projected exam score',is:'A recency-weighted curve through your full GTs (sizes evened to %, scaled to a 200-Q / 800 paper). It follows an S-curve that bends toward a ceiling — real scores saturate, they don\'t climb forever — and the band uses a small-sample rule that stays honestly wide on few tests. GT-only; the exam is a full paper.',
+    do:'Watch the slope, not one GT. Flat this close to exams means change what you study, not how long. If the curve is bending flat near the top, further gains cost more — protect what you have.'},
   calibration:{t:'How well you read yourself',is:'Of your wrongs, how sure you felt — felt-sure, down-to-two, no-read. A big felt-sure slice is the dangerous kind: you can\'t feel it coming.',
     do:'Shrink the felt-sure slice by writing the contrast for each (believed vs true). Read from your mistakes only — no extra taps.'},
   ev:{t:'Blind-guess value (+4/−1)',is:'How often your pure guesses pay off. A guess is worth 5 × hit-rate − 1 marks; break-even is 20%.',
