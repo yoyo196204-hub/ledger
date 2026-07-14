@@ -32,6 +32,43 @@
     --edge:#D6C4A6; --edge-dk:#8E3819; --edge-sage:#4B5C40;
     --cardborder:1.5px solid #E4D7C1;
     --r:22px;
+    color-scheme:light;
+  }
+  /* dark mode — same warm identity after dusk, not a cold grey slab. Applied when the user
+     picks it, or follows the OS when they haven't chosen. One source of colour truth: only vars change. */
+  :root[data-theme="dark"]{
+    --bg:#17130F; --bg2:#1E1813; --surface:#241D17; --surface2:#2C241C; --surface3:#372C22;
+    --border:#33291F; --border2:#43362A;
+    --ink:#F3EADD; --ink2:#C6B7A5; --muted:#9C8B78; --faint:#6E6153;
+    --accent:#E27A4C; --accent2:#F0A06A; --accent-ink:#F0A16C; --accent-soft:#3A281D;
+    --sage:#8FA982; --sage-ink:#A9C09C; --sage-soft:#26301F;
+    --rose:#E86A55; --amber:#E0A23C; --emerald:#8AAE7C; --violet:#C481CE; --teal:#3FBFA0; --pink:#D08AAC; --indigo:#E27A4C;
+    --grad:linear-gradient(135deg,#E89A63,#D0602F);
+    --grad-soft:linear-gradient(135deg,#31241A,#291E16);
+    --shadow:0 1px 2px rgba(0,0,0,.30),0 8px 20px -10px rgba(0,0,0,.55);
+    --shadow2:0 20px 44px -16px rgba(0,0,0,.65),0 4px 12px -4px rgba(0,0,0,.45);
+    --ring:0 0 0 3px rgba(226,122,76,.26);
+    --edge:#3A2E22; --edge-dk:#C86038; --edge-sage:#6E8A60;
+    --cardborder:1.5px solid #33291F;
+    color-scheme:dark;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#17130F; --bg2:#1E1813; --surface:#241D17; --surface2:#2C241C; --surface3:#372C22;
+      --border:#33291F; --border2:#43362A;
+      --ink:#F3EADD; --ink2:#C6B7A5; --muted:#9C8B78; --faint:#6E6153;
+      --accent:#E27A4C; --accent2:#F0A06A; --accent-ink:#F0A16C; --accent-soft:#3A281D;
+      --sage:#8FA982; --sage-ink:#A9C09C; --sage-soft:#26301F;
+      --rose:#E86A55; --amber:#E0A23C; --emerald:#8AAE7C; --violet:#C481CE; --teal:#3FBFA0; --pink:#D08AAC; --indigo:#E27A4C;
+      --grad:linear-gradient(135deg,#E89A63,#D0602F);
+      --grad-soft:linear-gradient(135deg,#31241A,#291E16);
+      --shadow:0 1px 2px rgba(0,0,0,.30),0 8px 20px -10px rgba(0,0,0,.55);
+      --shadow2:0 20px 44px -16px rgba(0,0,0,.65),0 4px 12px -4px rgba(0,0,0,.45);
+      --ring:0 0 0 3px rgba(226,122,76,.26);
+      --edge:#3A2E22; --edge-dk:#C86038; --edge-sage:#6E8A60;
+      --cardborder:1.5px solid #33291F;
+      color-scheme:dark;
+    }
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{margin:0;padding:0}
@@ -577,6 +614,36 @@
   .hm-in{animation:hmin .34s cubic-bezier(.3,1.2,.5,1) both}
   @keyframes hmin{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
   .st-tap{cursor:pointer}
+  .theme-seg{margin-bottom:6px}
+  /* v27: metric help, forecast, calibration */
+  .cardq{margin-left:auto;width:20px;height:20px;border-radius:50%;font-size:11px;font-weight:800;color:var(--muted);background:var(--surface2);border:1px solid var(--border2);flex:none;line-height:1;transition:all .15s}
+  .cardq:active{transform:scale(.9)}
+  .h3-hint + .cardq{margin-left:8px}
+  .mh-row{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--border)}
+  .mh-row:last-of-type{border:none}
+  .mh-k{flex:none;width:104px;font-size:12px;font-weight:800;color:var(--ink);letter-spacing:.01em}
+  .mh-v{flex:1;font-size:13px;line-height:1.5;color:var(--ink2)}
+  .fc-card{background:linear-gradient(160deg,color-mix(in srgb,var(--accent) 7%,var(--surface)),var(--surface))}
+  .fc-big{display:flex;align-items:baseline;gap:8px;margin:2px 0 8px}
+  .fc-big b{font-size:40px;font-weight:850;letter-spacing:-.02em;color:var(--ink);line-height:1}
+  .fc-of{font-size:14px;font-weight:750;color:var(--muted)}
+  .fc-band{margin-left:auto;font-size:11.5px;font-weight:750;color:var(--accent-ink);background:color-mix(in srgb,var(--accent) 11%,transparent);padding:4px 9px;border-radius:9px}
+  .cal-bar-wrap .cal-mix{display:flex;height:16px;border-radius:8px;overflow:hidden;background:var(--surface2)}
+  .cal-seg{min-width:2px;transition:flex-grow .5s cubic-bezier(.4,0,.2,1)}
+  .cal-seg:not(:last-child){border-right:1.5px solid var(--surface)}
+  .cal-ev{margin-top:14px;padding:12px;border-radius:13px;background:var(--surface2)}
+  .cal-ev.good{background:color-mix(in srgb,var(--sage) 12%,var(--surface2))}
+  .cal-ev.bad{background:color-mix(in srgb,var(--rose) 9%,var(--surface2))}
+  .cal-ev-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:700;color:var(--ink2)}
+  .cal-ev-row b{color:var(--ink);font-variant-numeric:tabular-nums}
+  .cal-bar{position:relative;height:9px;border-radius:5px;background:var(--surface3);margin-top:9px;overflow:hidden}
+  .cal-fill{position:absolute;left:0;top:0;height:100%;border-radius:5px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+  .cal-be{position:absolute;top:-2px;width:2px;height:13px;background:var(--ink);opacity:.55}
+  .fc-line{stroke-dasharray:600;stroke-dashoffset:600;animation:dashin 1s .2s cubic-bezier(.4,0,.2,1) forwards}
+  .fc-big b{animation:cardin .5s cubic-bezier(.3,1,.4,1) both}
+  .pl-bar i{animation:growx .7s cubic-bezier(.3,1,.4,1) both}
+  @keyframes growx{from{transform:scaleX(0);transform-origin:left}to{transform:scaleX(1)}}
+  .pl-chip{animation:hmin .3s cubic-bezier(.3,1.2,.5,1) both}
   /* v26: scope chips, heatmap mode, continuation badges */
   .scope-row{display:flex;gap:7px;margin:0 0 14px}
   .sc-chip{flex:1;padding:8px 4px;border-radius:11px;font-size:12px;font-weight:750;color:var(--muted);background:var(--surface);border:1.5px solid var(--border2);transition:all .16s}
@@ -677,7 +744,7 @@
   .pl-hrow b{font-size:16px;color:var(--ink)}
   .pl-hrow span:last-child{margin-left:auto}
   .pl-bar{height:10px;border-radius:6px;background:var(--surface2);overflow:hidden;margin:10px 0 7px}
-  .pl-bar i{display:block;height:100%;background:var(--grad);border-radius:6px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+  .pl-bar i{display:block;height:100%;background:var(--grad);border-radius:6px;transition:width .5s cubic-bezier(.4,0,.2,1);transform-origin:left}
   .pl-hsub{font-size:12px;color:var(--muted)}
   .pl-cov{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}
   .pl-chip{font-size:9.5px;font-weight:750;letter-spacing:.02em;padding:3px 7px;border-radius:7px;border:1.5px solid var(--border2);color:var(--muted);background:var(--surface2)}
@@ -704,7 +771,7 @@
   .pl-tag{flex:none;font-size:9.5px;font-weight:800;padding:2.5px 7px;border-radius:7px}
   .pl-tag.weak{color:var(--amber);background:color-mix(in srgb,var(--amber) 15%,transparent)}
   .pl-tag.x2{color:var(--violet);background:color-mix(in srgb,var(--violet) 13%,transparent)}
-  .pl-tag.nr{color:var(--ink2);background:rgba(255,255,255,.6)}
+  .pl-tag.nr{color:var(--ink2);background:color-mix(in srgb,var(--surface2) 70%,transparent)}
   .pl-tag.slipped{color:var(--amber);background:color-mix(in srgb,var(--amber) 15%,transparent)}
   .pl-check{flex:none;color:var(--sage-ink);font-weight:800}
   .pl-more{flex:none;width:26px;height:26px;border-radius:8px;color:var(--accent);font-weight:800;font-size:15px;background:var(--surface2)}
@@ -900,6 +967,10 @@
 </style>
 </head>
 <body>
+<script>
+/* apply the saved theme before first paint — no flash of the wrong mode */
+try{ var _s=JSON.parse(localStorage.getItem('ml_settings_v2')||'{}'); if(_s&&(_s.theme==='dark'||_s.theme==='light')) document.documentElement.setAttribute('data-theme',_s.theme); }catch(_e){}
+</script>
 <header>
   <div class="wrap head">
     <span class="logo"><svg viewBox="0 0 24 24"><path d="M4 6h13M4 12h13M4 18h8"/><path d="M20 5l-2.2 2.4L16.7 6.3"/></svg></span>
@@ -1038,6 +1109,12 @@
   <section class="view" id="v-data">
     <div class="sec-title"><h2>Data &amp; app</h2><div class="hint">it lives on this device — keep a backup</div></div>
     <div id="installWrap"></div>
+    <div class="datahead">Appearance</div>
+    <div class="seg c3 theme-seg" id="themeSeg">
+      <button class="opt center" data-theme="light"><div class="t">☀︎ Light</div></button>
+      <button class="opt center" data-theme="system"><div class="t">◐ Auto</div></button>
+      <button class="opt center" data-theme="dark"><div class="t">☾ Dark</div></button>
+    </div>
     <div class="datahead">Cloud sync</div>
     <div id="cloudSync"></div>
     <div class="datahead">Manage</div>
@@ -1205,6 +1282,7 @@ async function boot(){
   loadPlan();
   migrate();
   if(settings.lastSubject && SUBJECTS.includes(settings.lastSubject)) form.subject=settings.lastSubject;
+  applyTheme();
   const resumed=restoreLiveTriage();
   buildForm(); bindTabs(); bindActions(); bindKeyboard(); render(); switchView('triage');
   if(resumed) toast('Resumed your '+triage.set+' read — '+triage.items.length+' already sorted');
@@ -1454,6 +1532,7 @@ function render(){
   if(badge){ if(dc>0 && !review.active){ badge.textContent=dc>99?'99+':dc; badge.hidden=false; } else badge.hidden=true; }
   const res=document.getElementById('revEntrySub'); if(res) res.textContent=dc?`${dc} due for recall today — quiz yourself.`:'Nothing due. Quiz yourself on your logged fixes.';
   renderCtx(); paintTypeSwitch();
+  { const cur=settings.theme||'system'; document.querySelectorAll('#themeSeg .opt').forEach(b=>b.classList.toggle('on',b.dataset.theme===cur)); }
   /* only rebuild the view on screen — the rest re-render lazily when switched to (big win on older phones) */
   Object.keys(_dirty).forEach(k=>_dirty[k]=true);
   renderActiveView();
@@ -1682,6 +1761,19 @@ function restoreLiveTriage(){
   }catch(_){ try{localStorage.removeItem(K_LIVETRI)}catch(__){} return false; }
 }
 function reducedMotion(){ return !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches); }
+/* theme: 'light' | 'dark' | undefined(=follow the OS). One setter keeps the <html> flag,
+   the status-bar colour, and the live CSS vars in agreement. */
+function systemDark(){ return !!(window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches); }
+function effectiveDark(){ return settings.theme==='dark' || (!settings.theme && systemDark()); }
+function applyTheme(){
+  const t=settings.theme;
+  if(t==='dark'||t==='light') document.documentElement.setAttribute('data-theme',t);
+  else document.documentElement.removeAttribute('data-theme');
+  const m=document.querySelector('meta[name="theme-color"]');
+  if(m) m.setAttribute('content', effectiveDark()?'#17130F':'#F5EEE3');
+}
+function setTheme(t){ if(t==='system') delete settings.theme; else settings.theme=t; persistSettings(); applyTheme(); render(); buzz(5); }
+if(window.matchMedia){ try{ matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{ if(!settings.theme) applyTheme(); }); }catch(_){} }
 function buzz(p){ try{ if(navigator.vibrate) navigator.vibrate(p); }catch(_){} }
 
 /* the app's front door: start a sort, glance at the damage, revisit reads */
@@ -2275,6 +2367,35 @@ function scoreStats(sn){
   const att=k.c+k.w;
   return { marks:4*k.c-k.w, attemptRate:k.total?att/k.total:null, accuracy:att?k.c/att:0, wc:k.c?k.w/k.c:null };
 }
+/* ============ EBM engine: least-squares fit + honest prediction band ============ */
+function linReg(pts){
+  const n=pts.length; if(n<2) return null;
+  let sx=0,sy=0,sxx=0,sxy=0; pts.forEach(p=>{sx+=p.x;sy+=p.y;sxx+=p.x*p.x;sxy+=p.x*p.y;});
+  const xbar=sx/n, ybar=sy/n, Sxx=sxx-sx*sx/n;
+  if(Sxx<=0) return {m:0,b:ybar,xbar,Sxx:0,se:0,n};
+  const m=(sxy-sx*sy/n)/Sxx, b=ybar-m*xbar;
+  let ss=0; pts.forEach(p=>{const e=p.y-(m*p.x+b); ss+=e*e;});
+  const se=n>2?Math.sqrt(ss/(n-2)):Math.sqrt(ss/n||0);
+  return {m,b,xbar,Sxx,se,n};
+}
+/* projected exam-day marks from the scored reads in scope, with an ~80% prediction band —
+   deliberately wide, because the honest answer with a handful of tests IS wide */
+function examMarkForecast(){
+  const scored=scopedSessions().filter(x=>scoreStats(x)).slice().sort((a,b)=>(a.ts||0)-(b.ts||0));
+  if(scored.length<3) return null;
+  const t0=scored[0].ts;
+  const pts=scored.map(s=>({x:(s.ts-t0)/864e5, y:scoreStats(s).marks, set:s.set}));
+  const fit=linReg(pts); if(!fit) return null;
+  const d2e=daysToExam(); if(d2e==null || d2e<0) return null;
+  const x0=(Date.now()-t0)/864e5 + d2e;
+  const yhat=fit.m*x0+fit.b;
+  const pi=fit.Sxx>0 ? fit.se*Math.sqrt(1+1/fit.n+Math.pow(x0-fit.xbar,2)/fit.Sxx) : fit.se;
+  const band=1.28*pi; /* ~80% */
+  const total=(scored[scored.length-1].score.total)||200;
+  const cap=v=>Math.max(-total,Math.min(4*total,Math.round(v)));
+  return { pts, fit, x0, mid:cap(yhat), lo:cap(yhat-band), hi:cap(yhat+band),
+    perDay:fit.m, d2e, max:4*total, last:pts[pts.length-1].y };
+}
 function saveSession(score){
   if(triage.saved) return;
   const items=triage.items.map(it=>{ const o={error:it.error, conf:it.conf||null, subj:it.subj||null}; if(it.img)o.img=true; if(it.uncertain)o.uncertain=true; return o; });
@@ -2598,10 +2719,10 @@ function streamChart(sess){
     const lower=cum.slice(); cum=cum.map((v,i)=>v+fr[i][bi]); const upper=cum.slice();
     const topPts=upper.map((v,i)=>({x:X(i),y:Y(v)}));
     const botRev=lower.map((v,i)=>({x:X(i),y:Y(v)})).reverse();
-    return `<path d="${areaBand(topPts,botRev)}" fill="${e.c}" opacity="0.9" stroke="#FDFAF4" stroke-width="1.1" stroke-linejoin="round"/>`;
+    return `<path d="${areaBand(topPts,botRev)}" fill="${e.c}" opacity="0.9" stroke="var(--surface)" stroke-width="1.1" stroke-linejoin="round"/>`;
   }).join('');
   const dots=sess.map((s,i)=>`<circle cx="${X(i).toFixed(1)}" cy="${y1}" r="2" fill="var(--faint)"/>`).join('');
-  const grid=[0.25,0.5,0.75].map(f=>`<line x1="${x0}" x2="${x1}" y1="${Y(f).toFixed(1)}" y2="${Y(f).toFixed(1)}" stroke="#FDFAF4" stroke-width="1" stroke-dasharray="2 5" opacity=".55"/>`).join('');
+  const grid=[0.25,0.5,0.75].map(f=>`<line x1="${x0}" x2="${x1}" y1="${Y(f).toFixed(1)}" y2="${Y(f).toFixed(1)}" stroke="var(--surface)" stroke-width="1" stroke-dasharray="2 5" opacity=".55"/>`).join('');
   const labs=sess.map((s,i)=>`<text class="xlab" x="${X(i).toFixed(1)}" y="${H-17}" text-anchor="middle">${esc(String(s.set).replace(/^GT[\s-]*/i,'').slice(0,4))}</text>
     <text class="xlab faintlab" x="${X(i).toFixed(1)}" y="${H-5}" text-anchor="middle">${triageCounts(s.items).total}</text>`).join('');
   /* invisible full-height hit areas: tap any test column → that test's deep dive */
@@ -2704,7 +2825,7 @@ function weakAreasCard(){
       <div class="wk-d">${x.n} mark${x.n>1?'s':''} lost${x.sure?` · <b class="bl">${x.sure} blind</b>`:''} · mostly ${dom.t.toLowerCase()}</div></div>
       <span class="th-go">›</span></button>`;}).join('');
   const more=subs.length>5?`<button class="linkish" id="wkMore" style="margin-top:10px">${wkAll?'Show top 5 only ‹':'Show all '+subs.length+' subjects ›'}</button>`:'';
-  return `<div class="card"><h3><span class="accent"></span>Weak areas — study these first <span class="h3-hint">recent tests count more</span></h3>${rows}${more}</div>`;
+  return `<div class="card"><h3><span class="accent"></span>Weak areas — study these first <span class="h3-hint">recent tests count more</span><button class="cardq" data-help="signal">?</button></h3>${rows}${more}</div>`;
 }
 function subjectSheet(sub){
   const x=buildSubjects()[sub]; if(!x)return;
@@ -2798,7 +2919,7 @@ function triageInsightsCard(){
       ${sparkRow('Blind rate %','var(--violet)',recent.map(s=>{const q=triageCounts(s.items);return q.total?Math.round(q.blind/q.total*100):0;}),{labels:labs,goodDown:true,disp:recent.map(s=>{const q=triageCounts(s.items);return (q.total?Math.round(q.blind/q.total*100):0)+'%';})})}
       ${sparkRow('No-read misses','var(--ink2)',recent.map(s=>sessComp(s).noidea),{labels:labs,goodDown:true})}</div>`;
   }
-  return `<div class="card"><h3><span class="accent"></span>Triage — long-term read</h3>
+  return `<div class="card"><h3><span class="accent"></span>Triage — long-term read<button class="cardq" data-help="buckets">?</button></h3>
     <div class="tlab" style="margin:-6px 0 14px">${total} mistake${total>1?'s':''} across ${ss.length} test${ss.length>1?'s':''}${blind?` · <b class="bl">${blind} blind spot${blind>1?'s':''}</b>`:''}.</div>
     ${mixBar(agg,total)}
     ${recent.length>=2?`<div class="leak-sub" style="margin-top:20px">How the mix flows, test by test <span class="h3-hint">tap a test</span></div><div class="chartwrap" style="margin-top:2px">${streamChart(recent)}</div>`:''}
@@ -2857,9 +2978,71 @@ function threeMovesCard(){
   if(unWritten||parked){
     rows.push(`<button class="row rowtap" id="tmUnfin"><span class="n">3</span><span>${unWritten?`<b class="bl">${unWritten} blind spot${unWritten>1?'s':''}</b>${offender?` from ${esc(offender.set)}`:''} never got a fix written`:''}${unWritten&&parked?' · ':''}${parked?`<b>${parked}</b> parked unsorted`:''}. Write them now.</span></button>`);
   } else rows.push(`<div class="row"><span class="n">3</span><span>Nothing unfinished — every blind spot has a written fix. Keep it that way.</span></div>`);
-  return `<div class="card next"><h3><span class="accent"></span>This week's three moves</h3>${rows.join('')}</div>`;
+  return `<div class="card next"><h3><span class="accent"></span>This week's three moves<button class="cardq" data-help="signal">?</button></h3>${rows.join('')}</div>`;
 }
 /* marks · accuracy · W:C across scored reads */
+/* the motivating one: where today's trend lands you on exam day, with an honest band.
+   A line chart: real points, a dashed projection, a shaded uncertainty band. */
+function forecastCard(){
+  const f=examMarkForecast(); if(!f) return '';
+  const W=336,H=150,x0=8,x1=W-40,y0=14,y1=H-26;
+  const xs=f.pts.map(p=>p.x).concat([f.x0]), ys=[f.lo,f.hi,f.mid].concat(f.pts.map(p=>p.y));
+  const xmin=Math.min(...xs), xmax=Math.max(...xs)||1;
+  const ymin=Math.min(...ys), ymax=Math.max(...ys), yr=(ymax-ymin)||1;
+  const X=x=>x0+(x-xmin)/((xmax-xmin)||1)*(x1-x0);
+  const Y=y=>y1-(y-ymin)/yr*(y1-y0);
+  const ppts=f.pts.map(p=>({x:X(p.x),y:Y(p.y)}));
+  const histLine=smoothPath(ppts);
+  const last=ppts[ppts.length-1], proj={x:X(f.x0),y:Y(f.mid)};
+  const bandTop=Y(f.hi), bandBot=Y(f.lo);
+  const dots=ppts.map(p=>`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="2.6" fill="var(--accent-ink)"/>`).join('');
+  const dir=f.perDay>0.05?'up':f.perDay<-0.05?'down':'flat';
+  const perWeek=Math.round(f.perDay*7);
+  const trendTxt = dir==='up'?`climbing about <b>${perWeek>0?'+':''}${perWeek} marks a week</b>`
+    : dir==='down'?`slipping about <b>${perWeek} marks a week</b> — the trend is the wrong way`
+    : `holding flat`;
+  return `<div class="card fc-card"><h3><span class="accent"></span>Projected exam score<span class="h3-hint">tap for how</span><button class="cardq" data-help="forecast">?</button></h3>
+    <div class="fc-big"><b>${f.mid}</b><span class="fc-of">/ ${f.max}</span><span class="fc-band">range ${f.lo}–${f.hi}</span></div>
+    <div class="chartwrap"><svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Projected exam marks">
+      <path d="M ${last.x.toFixed(1)} ${last.y.toFixed(1)} L ${proj.x.toFixed(1)} ${bandTop.toFixed(1)} L ${proj.x.toFixed(1)} ${bandBot.toFixed(1)} Z" fill="var(--accent)" opacity=".13"/>
+      <path class="fc-line" d="${histLine}" fill="none" stroke="var(--accent-ink)" stroke-width="2.4" stroke-linecap="round"/>
+      <path d="M ${last.x.toFixed(1)} ${last.y.toFixed(1)} L ${proj.x.toFixed(1)} ${proj.y.toFixed(1)}" fill="none" stroke="var(--accent-ink)" stroke-width="2" stroke-dasharray="4 4" opacity=".8"/>
+      ${dots}
+      <circle cx="${proj.x.toFixed(1)}" cy="${proj.y.toFixed(1)}" r="4" fill="var(--accent)" stroke="var(--surface)" stroke-width="1.5"/>
+      <text x="${proj.x.toFixed(1)}" y="${(proj.y-8).toFixed(1)}" text-anchor="end" class="xlab" style="fill:var(--accent-ink);font-weight:800">exam</text>
+    </svg></div>
+    <p class="tlab" style="margin-top:6px">On your last ${f.pts.length} scored reads you're ${trendTxt}. If that holds, you land near <b>${f.mid}</b> on exam day (${f.d2e} days out) — realistically <b>${f.lo}–${f.hi}</b>. The range is wide because ${f.pts.length} tests can't say more honestly.</p></div>`;
+}
+/* metacognition, zero extra taps: read from your mistakes how well you know when you're wrong,
+   and whether your blind guessing is paying off on +4/-1 */
+function calibrationCard(){
+  const ss=scopedSessions(); if(!ss.length) return '';
+  let sure=0,twoish=0,noidea=0, B=0,Bmiss=0, haveB=false;
+  ss.forEach(s=>{ const cp=sessComp(s); sure+=cp.sure; twoish+=cp.twoish; noidea+=cp.noidea;
+    if(s.score && s.score.blindTried!=null){ haveB=true; B+=s.score.blindTried; Bmiss+=Math.min(cp.noidea,s.score.blindTried); } });
+  const totW=sure+twoish+noidea; if(totW<5) return '';
+  const blindRate=sure/totW;
+  const seg=[['sure',sure,'var(--rose)','felt sure'],['twoish',twoish,'var(--amber)','down to 2'],['noidea',noidea,'var(--ink2)','no read']]
+    .filter(s=>s[1]>0).map(s=>`<span class="cal-seg" style="flex:${s[1]};background:${s[2]}" title="${s[3]}"></span>`).join('');
+  const keys=[['felt sure',sure,'var(--rose)'],['down to 2',twoish,'var(--amber)'],['no read',noidea,'var(--ink2)']]
+    .map(k=>`<span class="mx-key"><i style="background:${k[2]}"></i>${k[0]}<b>${k[1]}</b></span>`).join('');
+  const calVerdict = blindRate>=0.4?`<b class="bl">${Math.round(blindRate*100)}% of your mistakes were ones you felt sure about.</b> That's the danger zone — you can't feel these coming, so they'll repeat in the exam unless the concept itself is fixed.`
+    : blindRate>=0.2?`<b>${Math.round(blindRate*100)}% of your mistakes felt sure.</b> Middling calibration — most of your errors you at least sensed. Keep converting the sure-but-wrong ones into written fixes.`
+    : `Only <b>${Math.round(blindRate*100)}% of your mistakes felt sure</b> — good self-awareness. You mostly know when you're shaky; the leak is knowledge and nerve, not blind confidence.`;
+  let evBlock='';
+  if(haveB && B>=4){
+    const hits=Math.max(0,B-Bmiss), hr=hits/B, ev=5*hr-1;
+    const good=hr>=0.2;
+    evBlock=`<div class="cal-ev ${good?'good':'bad'}">
+      <div class="cal-ev-row"><span>Blind guesses that paid off</span><b>${hits}/${B} · ${Math.round(hr*100)}%</b></div>
+      <div class="cal-bar"><span class="cal-fill" style="width:${Math.min(100,hr*100)}%;background:${good?'var(--sage-ink)':'var(--rose)'}"></span><span class="cal-be" style="left:20%" title="break-even 20%"></span></div>
+      <p class="tlab" style="margin-top:8px">On +4/−1 you need <b>20%</b> to break even. You're at <b>${Math.round(hr*100)}%</b> → each blind guess is worth <b>${ev>=0?'+':''}${ev.toFixed(2)}</b> marks. ${good?'Keep taking the guess — skipping these would cost you marks.':'Below break-even — skip the pure no-reads instead of guessing.'}</p></div>`;
+  }
+  return `<div class="card"><h3><span class="accent"></span>How well you read yourself<button class="cardq" data-help="calibration">?</button></h3>
+    <div class="cal-bar-wrap"><div class="cal-mix">${seg}</div><div class="mx-keys" style="margin-top:10px">${keys}</div></div>
+    <p class="tlab" style="margin-top:12px">${calVerdict}</p>
+    ${evBlock}</div>`;
+}
 function scoreTrendCard(){
   const scored=scopedSessions().filter(x=>scoreStats(x)).slice(0,10).reverse();
   if(!scored.length) return '';
@@ -2876,7 +3059,7 @@ function scoreTrendCard(){
       cap=`<p class="tlab" style="margin-top:12px">W:C is trending <b>${dir}</b> — ${l.toFixed(2)} vs ${f.toFixed(2)}. ${dir==='down'?'Down is good.':dir==='up'?'Up is the wrong way — check attempt discipline.':'Holding.'}</p>`; }
   }
   const labs=scored.map(x=>x.set);
-  return `<div class="card thin"><h3><span class="accent"></span>Score trend <span class="h3-hint">tap a line</span></h3><div class="sparks">
+  return `<div class="card thin"><h3><span class="accent"></span>Score trend <span class="h3-hint">tap a line</span><button class="cardq" data-help="scoretrend">?</button></h3><div class="sparks">
     ${sparkRow('Marks','var(--accent-ink)',st.map(k=>k.marks),{labels:labs,goodDown:false})}
     ${sparkRow('Accuracy %','var(--sage-ink)',st.map(k=>Math.round(k.accuracy*100)),{labels:labs,goodDown:false,disp:st.map(k=>Math.round(k.accuracy*100)+'%')})}
     ${sparkRow('Wrong : correct','var(--rose)',st.map(k=>k.wc!=null?Math.round(k.wc*100):0),{labels:labs,goodDown:true,dscale:100,disp:st.map(k=>k.wc!=null?k.wc.toFixed(2):'—')})}
@@ -2919,7 +3102,7 @@ function heatmapCard(){
   let untagged=0; sessions.forEach(s=>s.items.forEach(it=>{ if(!it.subj) untagged++; }));
   const tagNote=untagged?`<p class="tlab" style="margin-top:10px;color:var(--faint)">${untagged} triaged mistake${untagged>1?'s':''} ha${untagged>1?'ve':'s'} no subject — tap “+ subject” on the ticket to put them on this map.</p>`:'';
   const more=subs.length>8?`<button class="linkish" id="hmMore" style="margin-top:10px">${hmAll?'Show top 8 only ‹':'Show all '+subs.length+' subjects ›'}</button>`:'';
-  return `<div class="card"><h3><span class="accent"></span>Subject × mistake map <span class="h3-hint">tap a cell</span><button class="hm-mode" id="hmMode">${hmPct?'%':'#'}</button></h3>
+  return `<div class="card"><h3><span class="accent"></span>Subject × mistake map <span class="h3-hint">tap a cell</span><button class="cardq" data-help="buckets">?</button><button class="hm-mode" id="hmMode">${hmPct?'%':'#'}</button></h3>
     <div class="heatmap">${head}${rows}</div>${more}${note}${tagNote}</div>`;
 }
 /* the raw numbers behind everything — one glance, in the deep-dive section */
@@ -2941,6 +3124,52 @@ function numbersCard(){
     ${written?tile(written,'fixes written'):''}${best!=null?tile(best,'best marks'):''}
   </div></div>`;
 }
+/* every metric can explain itself — what it measures, why it matters, what to do. Plain English. */
+const METRIC_HELP={
+  forecast:{t:'Projected exam score',b:[
+    ['What it is','A straight line drawn through your scored reads, carried forward to exam day. The dot is the most-likely landing; the shaded band is the honest range.'],
+    ['Why it matters','It turns "am I improving fast enough?" into a number. Slope = marks gained per week. If the line is flat with weeks to go, effort needs to change, not just continue.'],
+    ['The maths','Least-squares fit of marks over time, extended to your exam date, with an ~80% prediction band that widens the fewer tests you have. Three tests give a wide band — that width is the truth, not a flaw.'],
+    ['What to do','Watch the slope, not one test. A rising line means keep the method. A flat or falling line this close to the exam means switch what you study (your weak areas), not how long.']]},
+  calibration:{t:'How well you read yourself',b:[
+    ['What it is','Of the questions you got wrong, how sure you felt at the time — split into felt-sure, down-to-two, and no-read.'],
+    ['Why it matters','This is calibration: the gap between confidence and correctness. A high "felt sure" share is the most dangerous kind of wrong — you can\'t feel it coming, so it repeats in the real exam.'],
+    ['Zero extra taps','True calibration would also need your confidence on the questions you got right. We keep it effortless by reading only your mistakes — slightly less precise, but no extra logging.'],
+    ['What to do','Drive the "felt sure" slice down by writing the contrast for each one (what you believed vs what\'s true). Those are concept fixes, not review.']]},
+  ev:{t:'Blind-guess value (+4/−1)',b:[
+    ['What it is','When you attempt a pure guess, how often it pays off, against the break-even line.'],
+    ['The maths','On +4 correct / −1 wrong with 4 options, a guess is worth 5 × (your hit-rate) − 1 marks. Break-even is 20%. Above that, guessing earns marks on average; below it, guessing loses them.'],
+    ['Why it matters','Most students either guess everything or skip everything. The right answer is a number, and it\'s personal — your distractor-trap rate decides it.'],
+    ['What to do','Above 20%: take the guess, never leave it blank. Below 20%: your guesses are getting trapped — skip the true no-reads instead.']]},
+  signal:{t:'Hotspot signal',b:[
+    ['What it is','The one subject whose mistake-rate is genuinely out of line with your own baseline — not just the subject with the most wrongs.'],
+    ['Why it matters','At 50 wrongs a day, the biggest subject always "leads" by volume alone. That\'s a false alarm. A real hotspot is a rate that beats your average even after accounting for how few questions it\'s based on.'],
+    ['The maths','Each subject\'s blind-rate and bucket-rates are shrunk toward your overall baseline (empirical-Bayes, so small samples must earn their flag), then compared. Needs at least 5 wrongs in the subject and 8 overall.'],
+    ['What to do','Fix the flagged subject at its next scheduled read or revisit — the card tells you when. If nothing is flagged, your spread is even and the plan is the lever, not one subject.']]},
+  buckets:{t:'The four buckets',b:[
+    ['KG · Didn\'t know it','The fact wasn\'t in your head. Fix: read it once, one card, move on.'],
+    ['RF · Knew it, didn\'t fire','You knew it but it didn\'t surface in time. Fix: don\'t re-study — reword the card\'s front to sound like the question.'],
+    ['CC · Confidently wrong','You were sure and the belief was false. This is a blind spot. Fix: write "I believed X — it\'s actually Y, because Z."'],
+    ['TE · Misread it','You knew it but misread the stem (EXCEPT, units, "not"). Fix: name the trap out loud, read the last line first.']]},
+  scoretrend:{t:'Score trend',b:[
+    ['Marks','Your total: 4 × correct − wrong. The single number that matters on exam day.'],
+    ['Accuracy when attempted','Of the questions you actually answered, how many were right. Separates knowing from skipping.'],
+    ['Wrong : correct','Wrong answers per correct answer. Lower is better — it\'s the cleanest measure of whether your attempts are earning or bleeding marks.'],
+    ['What to do','Tap any line for the per-test numbers. Rising accuracy with falling W:C is the shape you want.']]},
+  blindrate:{t:'Blind-spot rate',b:[
+    ['What it is','The share of your wrongs where you felt sure in the exam — a blind spot.'],
+    ['Why it matters','These don\'t feel wrong, so re-reading won\'t catch them. They\'re the errors most likely to repeat on the real paper.'],
+    ['What to do','Every blind spot needs a written contrast, not a re-read. The summary after each test lets you write them in two minutes.']]},
+  scope:{t:'Time scope',b:[
+    ['What it is','The window every card on this page is computed over.'],
+    ['Why it matters','As your data grows, "all time" becomes noise — an old weak subject you\'ve since fixed still shows up. Recent windows keep the picture honest.'],
+    ['What to do','Use "14 days" for what to study next, "all time" to see long-run progress. It auto-picks 14 days once you have enough tests.']]}
+};
+function metricHelp(key){
+  const h=METRIC_HELP[key]; if(!h) return;
+  openSheet(`<h3>${esc(h.t)}</h3>${h.b.map(r=>`<div class="mh-row"><div class="mh-k">${esc(r[0])}</div><div class="mh-v">${esc(r[1])}</div></div>`).join('')}
+    <div class="actions" style="margin-top:16px"><button class="btn primary" onclick="closeSheet()">Got it</button></div>`);
+}
 function renderInsights(){
   const box=document.getElementById('insightsBody');
   if(entries.length===0 && !sessions.length){box.innerHTML=`<div class="empty"><svg class="ic" viewBox="0 0 24 24"><path d="M3 3v18h18M7 14l3-3 3 3 5-6"/></svg>
@@ -2954,9 +3183,10 @@ function renderInsights(){
   </div>`:'';
   const detailed = entries.length ? (`<div class="ins-sec">From your detailed logs</div>`+nextCard(map)+masteryCard()+statStrip()+leakCard()+typeSplitCard()) : '';
   const deep = heatmapCard()+weakAreasCard()+numbersCard()+testListCard();
-  box.innerHTML = scopeRow + threeMovesCard() + scoreTrendCard() + triageInsightsCard()
+  box.innerHTML = scopeRow + forecastCard() + threeMovesCard() + calibrationCard() + scoreTrendCard() + triageInsightsCard()
     + (deep?`<div class="ins-sec">The whole picture — every subject, every test</div>`+deep:'')
     + detailed;
+  box.querySelectorAll('.cardq[data-help]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); buzz(5); metricHelp(b.dataset.help); });
   box.querySelectorAll('.sc-chip').forEach(b=>b.onclick=()=>{ buzz(5); insScope=b.dataset.sc; renderInsights(); });
   const hm=document.getElementById('hmMore'); if(hm) hm.onclick=()=>{ buzz(5); hmAll=!hmAll; renderInsights(); };
   const hmM=document.getElementById('hmMode'); if(hmM) hmM.onclick=()=>{ buzz(5); hmPct=!hmPct; renderInsights(); };
@@ -3026,6 +3256,7 @@ function bindActions(){
   document.getElementById('pasteBtn').onclick=pasteBackup;
   document.getElementById('bulkBtn').onclick=bulkImportSheet;
   document.getElementById('manageTriBtn').onclick=manageTriage;
+  document.querySelectorAll('#themeSeg .opt').forEach(b=>b.onclick=()=>setTheme(b.dataset.theme));
   document.getElementById('addDetailBtn').onclick=()=>switchView('log');
   document.getElementById('revEntry').onclick=()=>switchView('review');
   document.getElementById('wipeBtn').onclick=wipe;
