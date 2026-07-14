@@ -26,6 +26,8 @@
     --grad:linear-gradient(135deg,#DB8A54,#C1502D);
     --grad-soft:linear-gradient(135deg,#F7E9D9,#F3E0D0);
     --sans:ui-rounded,"SF Pro Rounded","Hiragino Maru Gothic ProN",system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    /* editorial serif for eyebrows + big numbers — New York on Apple, Georgia elsewhere. No network, instant, offline-safe. */
+    --serif:ui-serif,"New York",Georgia,"Iowan Old Style","Palatino Linotype",serif;
     --shadow:0 1px 2px rgba(90,60,35,.05),0 6px 16px -8px rgba(120,80,45,.18);
     --shadow2:0 16px 38px -14px rgba(150,85,45,.30),0 3px 10px -4px rgba(90,60,35,.12);
     --ring:0 0 0 3px rgba(193,80,45,.15);
@@ -123,9 +125,9 @@
   #insightsBody > *{animation:rise .36s cubic-bezier(.22,1,.36,1) both}
   #insightsBody > :nth-child(2){animation-delay:.05s} #insightsBody > :nth-child(3){animation-delay:.1s}
   #insightsBody > :nth-child(4){animation-delay:.14s} #insightsBody > :nth-child(n+5){animation-delay:.17s}
-  .sec-title{margin:2px 0 18px}
-  .sec-title h2{font-size:28px;font-weight:790;letter-spacing:-.035em;line-height:1.1}
-  .sec-title .hint{font-size:13.5px;color:var(--muted);margin-top:5px}
+  .sec-title{margin:2px 0 20px}
+  .sec-title h2{font-family:var(--serif);font-size:40px;font-weight:500;letter-spacing:-.03em;line-height:.98}
+  .sec-title .hint{font-family:var(--serif);font-style:italic;font-size:14.5px;color:var(--accent-ink);margin-top:0}
 
   .segbar{display:flex;background:var(--surface2);border:1.5px solid var(--edge);border-radius:16px;padding:5px;gap:4px;margin-bottom:16px}
   .segbar button{flex:1;padding:9px 6px;border-radius:11px;font-weight:700;font-size:13.5px;color:var(--muted);border:1.5px solid transparent;
@@ -525,7 +527,7 @@
   }
   /* triage summary */
   .sm-hero{text-align:center;padding:6px 0 20px}
-  .sm-big{font-size:56px;font-weight:850;line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+  .sm-big{font-family:var(--serif);font-size:60px;font-weight:500;line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
   .sm-lab{font-size:13.5px;color:var(--muted);margin-top:5px}
   .sm-bars{display:flex;flex-direction:column;gap:13px}
   .sm-bar{display:grid;grid-template-columns:1fr auto;gap:8px 12px;align-items:center;animation:rise .3s cubic-bezier(.22,1,.36,1) both}
@@ -627,7 +629,8 @@
   .mh-v{flex:1;font-size:13px;line-height:1.5;color:var(--ink2)}
   .fc-card{background:linear-gradient(160deg,color-mix(in srgb,var(--accent) 7%,var(--surface)),var(--surface))}
   .fc-big{display:flex;align-items:baseline;gap:8px;margin:2px 0 8px}
-  .fc-big b{font-size:40px;font-weight:850;letter-spacing:-.02em;color:var(--ink);line-height:1}
+  .fc-big b{font-family:var(--serif);font-size:52px;font-weight:500;letter-spacing:-.02em;color:var(--ink);line-height:.9}
+  .fc-of{font-family:var(--serif)}
   .fc-of{font-size:14px;font-weight:750;color:var(--muted)}
   .fc-band{margin-left:auto;font-size:11.5px;font-weight:750;color:var(--accent-ink);background:color-mix(in srgb,var(--accent) 11%,transparent);padding:4px 9px;border-radius:9px}
   .cal-bar-wrap .cal-mix{display:flex;height:16px;border-radius:8px;overflow:hidden;background:var(--surface2)}
@@ -645,15 +648,16 @@
   .fc-lock-ic{font-size:26px;flex:none;line-height:1.1}
   .fc-lock-t{font-size:14px;font-weight:800;color:var(--ink)}
   .fc-lock{border:1.5px dashed var(--border2)}
-  .fc-line{stroke-dasharray:600;stroke-dashoffset:600;animation:dashin 1s .2s cubic-bezier(.4,0,.2,1) forwards}
+  .fc-line{stroke-dasharray:600;stroke-dashoffset:600;animation:dashin 1.2s .25s cubic-bezier(.4,0,.2,1) forwards;filter:drop-shadow(0 0 5px rgba(224,149,95,.5))}
+  .fc-proj{animation:floaty 3s ease-in-out infinite}
   .fc-big b{animation:cardin .5s cubic-bezier(.3,1,.4,1) both}
   .pl-bar i{animation:growx .7s cubic-bezier(.3,1,.4,1) both}
   @keyframes growx{from{transform:scaleX(0);transform-origin:left}to{transform:scaleX(1)}}
   .pl-chip{animation:hmin .3s cubic-bezier(.3,1.2,.5,1) both}
   /* v26: scope chips, heatmap mode, continuation badges */
   .scope-row{display:flex;gap:7px;margin:0 0 14px}
-  .sc-chip{flex:1;padding:8px 4px;border-radius:11px;font-size:12px;font-weight:750;color:var(--muted);background:var(--surface);border:1.5px solid var(--border2);transition:all .16s}
-  .sc-chip.on{color:var(--accent-ink);border-color:var(--accent);background:color-mix(in srgb,var(--accent) 9%,var(--surface))}
+  .sc-chip{flex:1;padding:9px 4px;border-radius:999px;font-size:12px;font-weight:750;color:var(--muted);background:var(--surface);border:1.5px solid var(--border2);transition:all .18s cubic-bezier(.22,1,.36,1)}
+  .sc-chip.on{color:#fff;border-color:transparent;background:var(--grad);box-shadow:0 5px 14px -5px rgba(193,80,45,.5)}
   .sc-chip:active{transform:scale(.97)}
   .hm-mode{margin-left:auto;width:30px;height:24px;border-radius:8px;font-size:12px;font-weight:800;color:var(--accent-ink);background:var(--surface2)}
   .tri-cont{display:block;font-size:10px;font-weight:700;color:var(--faint);letter-spacing:.02em}
@@ -663,7 +667,7 @@
   .ins-sec::after{content:'';flex:1;height:1px;background:var(--border)}
   .num-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
   .num{background:var(--surface2);border-radius:12px;padding:10px 8px;text-align:center}
-  .num b{display:block;font-size:19px;font-weight:850;letter-spacing:-.01em;color:var(--ink);font-variant-numeric:tabular-nums}
+  .num b{display:block;font-family:var(--serif);font-size:26px;font-weight:500;letter-spacing:-.01em;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1}
   .num span{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.02em}
   .wk-next{margin-left:7px;font-size:9.5px;font-weight:800;padding:2.5px 7px;border-radius:7px;color:var(--sage-ink);background:color-mix(in srgb,var(--sage) 16%,transparent);vertical-align:1px}
   .wk-next.now{color:var(--accent-ink);background:color-mix(in srgb,var(--accent) 14%,transparent)}
@@ -746,7 +750,27 @@
   .ses-row.tap:active{border-color:var(--accent)}
   /* ---- Plan (reading grid) ---- */
   .fab-log{margin-left:auto;width:36px;height:36px;border-radius:12px;background:var(--accent-soft);color:var(--accent-ink);font-size:22px;font-weight:700;line-height:1}
-  .sec-title{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .sec-title{display:flex;flex-direction:column-reverse;align-items:flex-start;gap:3px}
+  /* editorial section dividers: serif italic, warmer than the tracked-caps card labels */
+  .ins-sec{font-family:var(--serif)!important;font-style:italic;font-size:19px!important;font-weight:500!important;letter-spacing:0!important;text-transform:none!important;color:var(--ink)!important}
+  .ins-sec::after{background:var(--border)}
+  .leak-sub{font-family:var(--serif);font-style:italic;letter-spacing:0;text-transform:none;font-size:16px;color:var(--ink2)}
+  /* ============ the signature "ember" hero card: a dark, glowing spotlight that floats on the warm page.
+     Works by locally overriding the colour vars, so every descendant adapts with no per-element edits. ============ */
+  .ember{position:relative;overflow:hidden;color:#f6ead8;border-radius:24px;
+    --ink:#f6ead8;--ink2:#d8bfa4;--muted:#a98a6c;--faint:#8a7256;
+    --surface:#241a12;--surface2:#2c2018;--surface3:#39291d;--border:#3a2c20;--border2:#4a3626;
+    --accent:#e0955f;--accent2:#f0a05a;--accent-ink:#f0a05a;--accent-soft:#3a281d;
+    --rose:#e88a72;--amber:#e0a23c;--sage-ink:#a9c09c;--bl:#f0a05a;
+    background:linear-gradient(165deg,#241a12,#160f0a);border:1px solid #3a2c20;
+    box-shadow:0 24px 48px -22px rgba(80,40,15,.6),inset 0 1px 0 rgba(255,210,160,.1)}
+  :root[data-theme="dark"] .ember,:root:not([data-theme="light"]) .ember{box-shadow:0 24px 48px -22px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,210,160,.08)}
+  .ember::before{content:"";position:absolute;top:-45px;right:-35px;width:200px;height:200px;border-radius:50%;
+    background:radial-gradient(circle,rgba(224,149,95,.32),transparent 70%);animation:glowpulse 5s ease-in-out infinite;pointer-events:none}
+  .ember>*{position:relative;z-index:1}
+  .ember .bl{color:#f0a05a}
+  @keyframes glowpulse{0%,100%{opacity:.5}50%{opacity:1}}
+  @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
   .pl-head{margin-bottom:14px}
   .pl-hrow{display:flex;align-items:baseline;gap:14px;font-size:13px;color:var(--muted)}
   .pl-hrow b{font-size:16px;color:var(--ink)}
@@ -1244,7 +1268,7 @@ const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.st
 async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } try{return localStorage.getItem(k)}catch(_){return null} }
 async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v);return true}catch(e){return false} } try{localStorage.setItem(k,v);return true}catch(_){return false} }
 const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
-const APP_VERSION='v31'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
+const APP_VERSION='v32'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
 
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 
@@ -1863,7 +1887,7 @@ function renderTriHome(box){
     return `<button class="ses-row tap" data-ses="${esc(s.id)}"><div><div class="sr-t">${esc(s.set)}</div><div class="sr-d">${cc.total} sorted${cc.blind?` · ${cc.blind} blind`:''} · ${relTime(s.ts)}</div></div><span class="th-go">›</span></button>`;}).join('');
   box.innerHTML=`<div class="tri-home">
     <div class="sec-title"><h2>Triage</h2><div class="hint">after a test — sort every wrong question, ~2 min</div></div>
-    <div class="th-card">
+    <div class="th-card ember">
       <div class="segbar mini" id="thType">
         <button data-type="gt" class="${t==='gt'?'on':''}"><span class="lab">Weekly GT</span></button>
         <button data-type="module" class="${t==='module'?'on':''}"><span class="lab">Daily module</span></button>
@@ -3187,15 +3211,15 @@ function forecastCard(){
   const trendTxt = dir==='up'?`climbing about <b>+${pw}%/week</b> (${Math.round(f.perDayPc/100*f.max)} marks)`
     : dir==='down'?`slipping about <b>${pw}%/week</b> — the trend is the wrong way`
     : `holding flat`;
-  return `<div class="card fc-card"><h3><span class="accent"></span>Projected exam score<span class="h3-hint">GT-only · tap for how</span><button class="cardq" data-help="forecast">?</button></h3>
+  return `<div class="card fc-card ember"><h3><span class="accent"></span>Projected exam score<span class="h3-hint">GT-only · tap for how</span><button class="cardq" data-help="forecast">?</button></h3>
     <div class="fc-big"><b>${f.mid}</b><span class="fc-of">/ ${f.max}</span><span class="fc-band">${f.midPc}% · range ${f.lo}–${f.hi}</span></div>
     <div class="chartwrap"><svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Projected exam score, normalised">
       <path d="M ${last.x.toFixed(1)} ${last.y.toFixed(1)} L ${proj.x.toFixed(1)} ${bandTop.toFixed(1)} L ${proj.x.toFixed(1)} ${bandBot.toFixed(1)} Z" fill="var(--accent)" opacity=".13"/>
       <path class="fc-line" d="${histLine}" fill="none" stroke="var(--accent-ink)" stroke-width="2.4" stroke-linecap="round"/>
       <path d="M ${last.x.toFixed(1)} ${last.y.toFixed(1)} L ${proj.x.toFixed(1)} ${proj.y.toFixed(1)}" fill="none" stroke="var(--accent-ink)" stroke-width="2" stroke-dasharray="4 4" opacity=".8"/>
       ${dots}
-      <circle cx="${proj.x.toFixed(1)}" cy="${proj.y.toFixed(1)}" r="4" fill="var(--accent)" stroke="var(--surface)" stroke-width="1.5"/>
-      <text x="${proj.x.toFixed(1)}" y="${(proj.y-8).toFixed(1)}" text-anchor="end" class="xlab" style="fill:var(--accent-ink);font-weight:800">exam</text>
+      <circle class="fc-proj" cx="${proj.x.toFixed(1)}" cy="${proj.y.toFixed(1)}" r="4.5" fill="#fff" stroke="var(--accent-ink)" stroke-width="2"/>
+      <text x="${proj.x.toFixed(1)}" y="${(proj.y-9).toFixed(1)}" text-anchor="end" class="xlab" style="fill:var(--accent-ink);font-weight:800">EXAM</text>
     </svg></div>
     <p class="tlab" style="margin-top:6px">Across your last ${f.n} full GTs (sizes evened out to %) you're ${trendTxt}. Hold that and you land near <b>${f.mid}/${f.max}</b> on a 200-Q paper (${f.d2e} days out) — realistically <b>${f.lo}–${f.hi}</b>. Recent GTs count more, and the band is wide because ${f.n} tests can't say more honestly.</p></div>`;
 }
