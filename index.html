@@ -661,6 +661,8 @@
   .sc-chip{flex:1;padding:9px 4px;border-radius:999px;font-size:12px;font-weight:750;color:var(--muted);background:var(--surface);border:1.5px solid var(--border2);transition:all .18s cubic-bezier(.22,1,.36,1)}
   .sc-chip.on{color:#fff;border-color:transparent;background:var(--grad);box-shadow:0 5px 14px -5px rgba(193,80,45,.5)}
   .sc-chip:active{transform:scale(.97)}
+  .type-row{margin-top:-8px}
+  .type-note{margin:-8px 2px 14px;font-size:11.5px;line-height:1.45;color:var(--muted)}
   .hm-mode{margin-left:auto;width:30px;height:24px;border-radius:8px;font-size:12px;font-weight:800;color:var(--accent-ink);background:var(--surface2)}
   .tri-cont{display:block;font-size:10px;font-weight:700;color:var(--faint);letter-spacing:.02em}
   .th-cont{font-weight:650;opacity:.75}
@@ -1275,7 +1277,7 @@ const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.st
 async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } try{return localStorage.getItem(k)}catch(_){return null} }
 async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v);return true}catch(e){return false} } try{localStorage.setItem(k,v);return true}catch(_){return false} }
 const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
-const APP_VERSION='v34'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
+const APP_VERSION='v35'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
 
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 
@@ -2544,7 +2546,7 @@ function expWeight(ts,half){ const d=(Date.now()-(ts||0))/864e5; return Math.pow
    we fit % on the logit scale so the projection saturates near 100% instead of shooting past it,
    weight recent GTs more (exponential half-life), and put a Student-t prediction band around it. */
 function examMarkForecast(){
-  const scored=scopedSessions().filter(x=>x.testType==='gt' && scoreStats(x)).slice().sort((a,b)=>(a.ts||0)-(b.ts||0));
+  const scored=timeScopedSessions().filter(x=>x.testType==='gt' && scoreStats(x)).slice().sort((a,b)=>(a.ts||0)-(b.ts||0));
   if(scored.length<3) return null;
   const t0=scored[0].ts, now=Date.now();
   const disp=scored.map(s=>{ const st=scoreStats(s); return {x:(s.ts-t0)/864e5, y:st.pct100, set:s.set, marks:st.marks, total:st.total}; });
@@ -2969,6 +2971,9 @@ function bucketFixSheet(errId, sub, n){
 function recencyW(ts){ const d=(Date.now()-(ts||0))/864e5; return d<=14?1 : d<=28?0.6 : 0.3; }
 /* ============ insights scope: at 50 wrongs a day, "all time" stops being a view and becomes noise ============ */
 let insScope=null; /* null = auto: 14 days once there's enough data, everything while it's still small */
+let insType='all'; /* 'all' | 'gt' | 'module' — run every metric on one test type or both.
+   modules are topic drills, so blending them into the GT subject-map can distort it; this untangles them. */
+function insTypeFilter(arr,key){ return insType==='all'?arr : arr.filter(x=>(x[key||'testType']||'gt')===insType); }
 /* per-render memo: a full Insights paint recomputes the same aggregations across a dozen cards.
    These are pure over the saved sessions (immutable once filed), so caching them for one render
    turns O(cards × sessions × items) back into O(sessions × items). Cleared at every render start. */
@@ -2977,17 +2982,18 @@ function bumpData(){ _dataVer++; } /* any mutation invalidates the cache — no 
 function memoClear(){ _im={}; }
 function _memo(k,f){ k=_dataVer+'|'+k; return Object.prototype.hasOwnProperty.call(_im,k) ? _im[k] : (_im[k]=f()); }
 function insScopeVal(){ return insScope || (sessions.length>6 ? '14d' : 'all'); }
-function scopedSessions(){ return _memo('ss:'+insScopeVal(), function(){
+/* time-only session window (used by the forecast, which is always GT regardless of the type toggle) */
+function timeScopedSessions(){ return _memo('tss:'+insScopeVal(), function(){
   const v=insScopeVal();
   if(v==='3t') return sessions.slice(0,3);
   if(v==='14d'){ const cut=Date.now()-14*864e5; return sessions.filter(s=>(s.ts||0)>=cut); }
   return sessions;
 }); }
-function scopedEntries(){ return _memo('se:'+insScopeVal(), function(){
+function scopedSessions(){ return _memo('ss:'+insScopeVal()+':'+insType, function(){ return insTypeFilter(timeScopedSessions()); }); }
+function scopedEntries(){ return _memo('se:'+insScopeVal()+':'+insType, function(){
   const v=insScopeVal();
-  if(v==='all') return entries;
-  if(v==='3t'){ const sets=new Set(scopedSessions().map(s=>s.set)); return entries.filter(e=>sets.has(e.set)); }
-  const cut=Date.now()-14*864e5; return entries.filter(e=>(e.ts||0)>=cut);
+  let base = v==='all'?entries : v==='3t'?entries.filter(e=>new Set(timeScopedSessions().map(s=>s.set)).has(e.set)) : entries.filter(e=>(e.ts||0)>=Date.now()-14*864e5);
+  return insTypeFilter(base);
 }); }
 function buildSubjects(ss,ee){
   ss=ss||sessions; ee=ee||entries;
@@ -3000,7 +3006,7 @@ function buildSubjects(ss,ee){
 /* ============ the signal engine: a hotspot is a RATE out of line with your baseline, on enough data —
    never just the biggest subject (volume), never a 2-question fluke (sample). Shrinkage pulls small
    samples toward the baseline so they must earn their flag. ============ */
-function subjectSignals(){ return _memo('sig:'+insScopeVal(), _subjectSignals); }
+function subjectSignals(){ return _memo('sig:'+insScopeVal()+':'+insType, _subjectSignals); }
 /* Beta-Binomial posterior for a subject's rate x/n against a baseline prior.
    Prior = Beta(κ·p0, κ·(1-p0)) (κ = prior strength in pseudo-observations); posterior adds the data.
    We flag only when the ~90% LOWER credible bound clears the baseline by a margin — i.e. we're
@@ -3191,6 +3197,7 @@ function uncertainSheet(){
 /* the week's argument in three moves — each row ends in a verb */
 function threeMovesCard(){
   if(!sessions.length && !entries.length) return '';
+  const ss=scopedSessions(), ee=scopedEntries(); /* all three moves follow the active type scope */
   const rows=[];
   /* 1 — hotspot, from the signal engine: a rate out of line with baseline on enough data,
      not just the biggest subject and not a 2-question fluke */
@@ -3207,12 +3214,12 @@ function threeMovesCard(){
       rows.push(`<div class="row"><span class="n">1</span><span><b style="color:${e.c}">${e.code}</b> clusters in <b>${esc(g.sub)}</b> — ${Math.round(g.rate*100)}% of its ${g.n} wrongs vs ${Math.round(g.base*100)}% baseline. ${esc(FIXACT[g.kind])}${when}</span></div>`);
     }
   } else {
-    const anyTagged=sessions.some(sn=>sn.items.some(it=>it.subj)) || entries.some(e=>e.subject);
+    const anyTagged=ss.some(sn=>sn.items.some(it=>it.subj)) || ee.some(e=>e.subject);
     rows.push(`<div class="row"><span class="n">1</span><span>${anyTagged?'No abnormal cluster — your mistakes are spread evenly across subjects right now. That means the plan, not one subject, is the lever.':'No hotspot yet — tag subjects while you triage to find one.'}</span></div>`);
   }
   /* 2 — discipline */
-  const last3=sessions.slice(0,3).slice().reverse().map(x=>triageCounts(x.items).blindAttempt);
-  if(sessions.length<3) rows.push(`<div class="row"><span class="n">2</span><span>Blind-attempt trend: not enough tests yet — triage 3 reads to see it.</span></div>`);
+  const last3=ss.slice(0,3).slice().reverse().map(x=>triageCounts(x.items).blindAttempt);
+  if(ss.length<3) rows.push(`<div class="row"><span class="n">2</span><span>Blind-attempt trend: not enough tests yet — triage 3 reads to see it.</span></div>`);
   else{
     const [a,b2,c2]=last3, lost=a+b2+c2;
     if(c2>a) rows.push(`<div class="row"><span class="n">2</span><span>Your blind attempts went <b>${a} → ${b2} → ${c2}</b>. That's −${lost} marks across three tests. Skip anything you can't reduce to two options.</span></div>`);
@@ -3221,7 +3228,7 @@ function threeMovesCard(){
   }
   /* 3 — unfinished */
   let unWritten=0, offender=null, parked=0;
-  sessions.forEach(sn=>{ const q=triageCounts(sn.items); parked+=q.uncertain;
+  ss.forEach(sn=>{ const q=triageCounts(sn.items); parked+=q.uncertain;
     if(q.blind>0 && (Date.now()-sn.ts)>48*3600e3){ const miss=Math.max(0,q.blind-writtenCount(sn.id)); if(miss>0){ unWritten+=miss; if(!offender) offender=sn; } } });
   if(unWritten||parked){
     rows.push(`<button class="row rowtap" id="tmUnfin"><span class="n">3</span><span>${unWritten?`<b class="bl">${unWritten} blind spot${unWritten>1?'s':''}</b>${offender?` from ${esc(offender.set)}`:''} never got a fix written`:''}${unWritten&&parked?' · ':''}${parked?`<b>${parked}</b> parked unsorted`:''}. Write them now.</span></button>`);
@@ -3232,10 +3239,14 @@ function threeMovesCard(){
 /* the motivating one: where today's trend lands you on exam day, with an honest band.
    A line chart: real points, a dashed projection, a shaded uncertainty band. */
 function forecastCard(){
+  /* the forecast is exam-day = full paper, so it's always GTs. In a Modules-only view, say so plainly. */
+  if(insType==='module') return `<div class="card fc-lock"><h3><span class="accent"></span>Projected exam score<button class="cardq" data-help="forecast">?</button></h3>
+    <div class="fc-lock-row"><span class="fc-lock-ic">🎯</span><div><div class="fc-lock-t">Tracks full GTs</div>
+    <div class="tlab" style="margin-top:3px">The exam is a full 200-Q paper, so the projection is built from your GTs — a 50-Q topic module can't stand in for it. Switch to <b>All</b> or <b>GTs</b> to see it.</div></div></div></div>`;
   const f=examMarkForecast();
   if(!f){
     /* don't vanish — show WHY it's locked and exactly how to unlock it, so the feature is visible */
-    const ss=scopedSessions(); if(!ss.length) return '';
+    const ss=timeScopedSessions(); if(!ss.length) return '';
     const gtScored=ss.filter(x=>x.testType==='gt' && scoreStats(x)).length;
     const need=Math.max(0,3-gtScored);
     return `<div class="card fc-lock"><h3><span class="accent"></span>Projected exam score<button class="cardq" data-help="forecast">?</button></h3>
@@ -3464,13 +3475,22 @@ function renderInsights(){
     <button class="sc-chip ${sv==='14d'?'on':''}" data-sc="14d">14 days</button>
     <button class="sc-chip ${sv==='all'?'on':''}" data-sc="all">All time</button>
   </div>`:'';
+  /* type scope — only worth showing once you actually run both GTs and modules */
+  const hasGT=sessions.some(s=>(s.testType||'gt')==='gt')||entries.some(e=>(e.testType||'gt')==='gt');
+  const hasMod=sessions.some(s=>s.testType==='module')||entries.some(e=>e.testType==='module');
+  const typeRow=(hasGT&&hasMod)?`<div class="scope-row type-row" role="tablist">
+    <button class="sc-chip ${insType==='all'?'on':''}" data-it="all">All tests</button>
+    <button class="sc-chip ${insType==='gt'?'on':''}" data-it="gt">GTs</button>
+    <button class="sc-chip ${insType==='module'?'on':''}" data-it="module">Modules</button>
+  </div>${insType==='module'?'<p class="type-note">Daily modules are topic drills — this view keeps them out of your GT picture so one heavy topic can\'t skew it.</p>':''}`:'';
   const detailed = entries.length ? (`<div class="ins-sec">From your detailed logs</div>`+nextCard(map)+masteryCard()+statStrip()+leakCard()+typeSplitCard()) : '';
   const deep = heatmapCard()+weakAreasCard()+numbersCard()+testListCard();
-  box.innerHTML = scopeRow + forecastCard() + threeMovesCard() + recoverableCard() + calibrationCard() + scoreTrendCard() + triageInsightsCard()
+  box.innerHTML = scopeRow + typeRow + forecastCard() + threeMovesCard() + recoverableCard() + calibrationCard() + scoreTrendCard() + triageInsightsCard()
     + (deep?`<div class="ins-sec">The whole picture — every subject, every test</div>`+deep:'')
     + detailed;
   box.querySelectorAll('.cardq[data-help]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); buzz(5); metricHelp(b.dataset.help); });
-  box.querySelectorAll('.sc-chip').forEach(b=>b.onclick=()=>{ buzz(5); insScope=b.dataset.sc; renderInsights(); });
+  box.querySelectorAll('.sc-chip[data-sc]').forEach(b=>b.onclick=()=>{ buzz(5); insScope=b.dataset.sc; renderInsights(); });
+  box.querySelectorAll('.sc-chip[data-it]').forEach(b=>b.onclick=()=>{ buzz(5); insType=b.dataset.it; renderInsights(); });
   const hm=document.getElementById('hmMore'); if(hm) hm.onclick=()=>{ buzz(5); hmAll=!hmAll; renderInsights(); };
   const hmM=document.getElementById('hmMode'); if(hmM) hmM.onclick=()=>{ buzz(5); hmPct=!hmPct; renderInsights(); };
   box.querySelectorAll('#stSeg button').forEach(b=>b.onclick=e=>{ e.stopPropagation(); buzz(5); stType=b.dataset.t; renderInsights(); });
