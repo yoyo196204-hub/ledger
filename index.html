@@ -639,6 +639,10 @@
   .cal-bar{position:relative;height:9px;border-radius:5px;background:var(--surface3);margin-top:9px;overflow:hidden}
   .cal-fill{position:absolute;left:0;top:0;height:100%;border-radius:5px;transition:width .6s cubic-bezier(.4,0,.2,1)}
   .cal-be{position:absolute;top:-2px;width:2px;height:13px;background:var(--ink);opacity:.55}
+  .fc-lock-row{display:flex;gap:12px;align-items:flex-start}
+  .fc-lock-ic{font-size:26px;flex:none;line-height:1.1}
+  .fc-lock-t{font-size:14px;font-weight:800;color:var(--ink)}
+  .fc-lock{border:1.5px dashed var(--border2)}
   .fc-line{stroke-dasharray:600;stroke-dashoffset:600;animation:dashin 1s .2s cubic-bezier(.4,0,.2,1) forwards}
   .fc-big b{animation:cardin .5s cubic-bezier(.3,1,.4,1) both}
   .pl-bar i{animation:growx .7s cubic-bezier(.3,1,.4,1) both}
@@ -1163,6 +1167,7 @@ try{ var _s=JSON.parse(localStorage.getItem('ml_settings_v2')||'{}'); if(_s&&(_s
       <div><div class="tt">Delete everything</div><div class="dd">Mistakes + triage reads, on every synced device. Can't be undone.</div></div>
     </button>
     <p class="faint" id="storeNote" style="font-size:12px;margin-top:18px;text-align:center;line-height:1.6"></p>
+    <p class="faint" id="verStamp" style="font-size:11px;margin-top:10px;text-align:center;letter-spacing:.04em"></p>
   </section>
 </main>
 
@@ -1195,6 +1200,7 @@ const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.st
 async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } try{return localStorage.getItem(k)}catch(_){return null} }
 async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v);return true}catch(e){return false} } try{localStorage.setItem(k,v);return true}catch(_){return false} }
 const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
+const APP_VERSION='v28'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
 
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 
@@ -1287,7 +1293,17 @@ async function boot(){
   buildForm(); bindTabs(); bindActions(); bindKeyboard(); render(); switchView('triage');
   if(resumed) toast('Resumed your '+triage.set+' read — '+triage.items.length+' already sorted');
   requestPersistence();
-  if('serviceWorker' in navigator && location.protocol!=='file:'){ try{navigator.serviceWorker.register('./sw.js').catch(()=>{})}catch(_){}}
+  if('serviceWorker' in navigator && location.protocol!=='file:'){ try{
+    navigator.serviceWorker.register('./sw.js').then(reg=>{
+      /* an installed app can keep running old code — when a newer worker is ready, offer a one-tap reload */
+      reg.addEventListener('updatefound',()=>{ const w=reg.installing; if(!w) return;
+        w.addEventListener('statechange',()=>{ if(w.state==='installed' && navigator.serviceWorker.controller){
+          toast('New version ready',{label:'Reload',fn:()=>{ try{w.postMessage&&w.postMessage('skip')}catch(_){}; location.reload(); }});
+        }});
+      });
+      setInterval(()=>{ reg.update().catch(()=>{}); }, 60*60*1000); /* check hourly while open */
+    }).catch(()=>{});
+  }catch(_){}}
   loadPhotos().then(()=>render());
   maybeBackupReminder();
   initSync();
@@ -2984,7 +3000,18 @@ function threeMovesCard(){
 /* the motivating one: where today's trend lands you on exam day, with an honest band.
    A line chart: real points, a dashed projection, a shaded uncertainty band. */
 function forecastCard(){
-  const f=examMarkForecast(); if(!f) return '';
+  const f=examMarkForecast();
+  if(!f){
+    /* don't vanish — show WHY it's locked and exactly how to unlock it, so the feature is visible */
+    const ss=scopedSessions(); if(!ss.length) return '';
+    const scored=ss.filter(x=>scoreStats(x)).length;
+    const need=Math.max(0,3-scored);
+    return `<div class="card fc-lock"><h3><span class="accent"></span>Projected exam score<button class="cardq" data-help="forecast">?</button></h3>
+      <div class="fc-lock-row"><span class="fc-lock-ic">📈</span><div>
+      <div class="fc-lock-t">Locked — ${scored} of 3 scored reads</div>
+      <div class="tlab" style="margin-top:3px">After a read, tap <b>Save the read</b> on the score screen (not Skip) and enter your correct / wrong count. ${need} more and this projects your exam-day marks with an honest range — plus it unlocks your score trend and blind-guess value.</div>
+      </div></div></div>`;
+  }
   const W=336,H=150,x0=8,x1=W-40,y0=14,y1=H-26;
   const xs=f.pts.map(p=>p.x).concat([f.x0]), ys=[f.lo,f.hi,f.mid].concat(f.pts.map(p=>p.y));
   const xmin=Math.min(...xs), xmax=Math.max(...xs)||1;
@@ -3717,6 +3744,7 @@ function renderStoreNote(){
   el.textContent=s;
   const sub=document.getElementById('syncSub');
   if(sub){ sub.textContent = (days===null?'Never backed up yet. ':days<=0?'Backed up today. ':`Last backup ${days} day${days>1?'s':''} ago. `)+'iPad ↔ phone in ~10s, photos included — tap for steps.'; }
+  const vs=document.getElementById('verStamp'); if(vs) vs.textContent='Mistake Ledger · '+APP_VERSION;
 }
 
 function syncSheet(){
