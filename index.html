@@ -843,6 +843,18 @@
   .fg-steps li::before{content:counter(fg);position:absolute;left:0;top:8px;width:23px;height:23px;border-radius:50%;background:var(--grad);color:#fff;font-size:12px;font-weight:800;display:grid;place-items:center}
   .fg-why{margin-top:12px;padding:12px 14px;border-radius:13px;background:var(--surface2);font-size:12.5px;line-height:1.55;color:var(--ink2)}
   .fg-why b{color:var(--ink);display:block;margin-bottom:3px;font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+  .rec-bar{display:flex;height:22px;border-radius:9px;overflow:hidden;background:var(--surface2);margin-bottom:14px}
+  .rec-seg{display:grid;place-items:center;transition:flex-grow .5s cubic-bezier(.4,0,.2,1)}
+  .rec-seg.q{background:var(--sage-ink)} .rec-seg.s{background:var(--accent)}
+  .rec-pc{font-size:10.5px;font-weight:800;color:#fff;text-shadow:0 1px 1px rgba(0,0,0,.18)}
+  .rec-row{padding:11px 0;border-top:1px solid var(--border)}
+  .rec-row:first-of-type{border-top:none}
+  .rec-lab{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:4px}
+  .rec-lab b{font-size:14.5px;font-weight:800}
+  .rec-q{color:var(--sage-ink)} .rec-s{color:var(--accent-ink)}
+  .rec-lab>span{margin-left:auto;display:inline-flex;gap:6px}
+  .rec-chip{font-size:11px;font-weight:800;padding:3px 9px;border-radius:8px;color:var(--bc);background:color-mix(in srgb,var(--bc) 13%,transparent);font-variant-numeric:tabular-nums}
+  .rec-chip:active{transform:scale(.94)}
   .fixbox{background:var(--surface2);border-radius:14px;padding:13px 14px;margin-top:8px}
   .fixbox .fx-h{font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:6px}
   .fixbox .fx-b{font-size:14px;font-weight:700;line-height:1.45}
@@ -1226,7 +1238,7 @@ const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.st
 async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } try{return localStorage.getItem(k)}catch(_){return null} }
 async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v);return true}catch(e){return false} } try{localStorage.setItem(k,v);return true}catch(_){return false} }
 const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
-const APP_VERSION='v29'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
+const APP_VERSION='v30'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
 
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 
@@ -1365,7 +1377,7 @@ function migrate(){
 }
 let _saveWarned=false;
 async function persist(cloud){
-  _grpCache=null; /* entries changed — drop the memoised recurrence groups */
+  _grpCache=null; bumpData(); /* entries changed — drop the memoised recurrence groups + per-render cache */
   const ok=await sset(K_ENTRIES,JSON.stringify(entries));
   if(!ok && !_saveWarned){ _saveWarned=true; toast('⚠ Couldn\'t save — storage may be full. Export a backup now.'); }
   else if(ok) _saveWarned=false;
@@ -1563,6 +1575,7 @@ function recurrenceMap(){ const m={}; buildGroups().forEach(arr=>arr.forEach(e=>
 function isRecurring(e,map){return (map[e.id]||0)>=2}
 
 function render(){
+  memoClear();
   document.getElementById('totalTag').textContent=entries.length+' logged · '+entries.filter(e=>e.status==='open').length+' to fix';
   const mts=document.getElementById('manageTriSub'); if(mts) mts.textContent=sessions.length?`${sessions.length} read${sessions.length===1?'':'s'} saved · tap to review or delete`:'No triage reads yet.';
   const d=daysToExam();
@@ -2499,6 +2512,9 @@ function triageSummaryHTML(){
     return `<div class="sm-bar"><span class="sm-k"><b style="color:${e.c}">${e.code}</b> ${e.t}</span><div class="sm-track"><div class="sm-fill" style="width:${Math.max(2,n/max*100)}%;background:${e.c}"></div></div><span class="sm-v">${n}</span></div>`;}).join('');
   const dom=ERRORS.slice().sort((a,b)=>c[b.id]-c[a.id])[0];
   const synth=`Mostly <b style="color:${dom.c}">${dom.t.toLowerCase()}</b> (${c[dom.id]}). ${FIXTEXT[dom.id]}`;
+  /* the fastest-marks read on THIS test — RF+TE are points you already own */
+  const quick=c.retrieval+c.execution;
+  const quickLine=quick>=2?`<div class="line"><b class="rec-q">${quick} you already own — RF + TE.</b> You knew these; they were lost to a weak cue or a misread, not ignorance. Cheapest points back: reshape the card front, run a read-the-last-line-first check. No new studying.</div>`:'';
   /* plain-english read of this session's confidence mix — zero lines hidden */
   const confLines=[
     blind?`<div class="line"><b class="bl">Blind spots — ${blind}.</b> You were sure and wrong about the fact itself. These come back — they won't feel wrong in the exam either. Fix the concept, don't just move on.</div>`:'',
@@ -2519,7 +2535,7 @@ function triageSummaryHTML(){
     <div class="tri-top"><span style="width:34px"></span><div class="tri-set">${esc(triage.set)} · read</div><span style="width:34px"></span></div>
     <div class="sm-hero"><div class="sm-big">${total}</div><div class="sm-lab">mistake${total>1?'s':''} triaged${blind?` · <b class="bl">${blind} blind</b>`:''}</div>${scoreLine}</div>
     <div class="card"><h3><span class="accent"></span>What went wrong</h3><div class="sm-bars">${bars}</div>
-      ${confLines||evLine?`<div class="sm-conf">${confLines}${evLine}</div>`:''}
+      ${confLines||evLine||quickLine?`<div class="sm-conf">${quickLine}${confLines}${evLine}</div>`:''}
       <p class="tlab" style="margin-top:16px">${synth}</p></div>
     ${cta}
     <div class="actions" style="margin-top:10px"><button class="btn primary" id="triFinish">Done</button><button class="btn ghost" id="triAgain">Triage another</button></div>
@@ -2761,7 +2777,8 @@ function leakCard(){
     <p class="tlab" style="margin-top:15px">${synth}</p></div>`;
 }
 /* one integrated map of every test — detailed logs AND triage reads folded together */
-function buildTests(){
+function buildTests(){ return _memo('bt', _buildTests); }
+function _buildTests(){
   const tests={};
   const touch=(k,set,type)=>tests[k]=tests[k]||{set,type,logged:0,tri:0,blind:0,comp:{sure:0,twoish:0,noidea:0},errs:{knowledge:0,retrieval:0,reasoning:0,execution:0},subs:{},ts:0};
   entries.forEach(e=>{ const k=e.testType+'|'+e.set, t=touch(k,e.set,e.testType);
@@ -2864,19 +2881,26 @@ function bucketFixSheet(errId, sub, n){
 function recencyW(ts){ const d=(Date.now()-(ts||0))/864e5; return d<=14?1 : d<=28?0.6 : 0.3; }
 /* ============ insights scope: at 50 wrongs a day, "all time" stops being a view and becomes noise ============ */
 let insScope=null; /* null = auto: 14 days once there's enough data, everything while it's still small */
+/* per-render memo: a full Insights paint recomputes the same aggregations across a dozen cards.
+   These are pure over the saved sessions (immutable once filed), so caching them for one render
+   turns O(cards × sessions × items) back into O(sessions × items). Cleared at every render start. */
+let _im={}, _dataVer=0;
+function bumpData(){ _dataVer++; } /* any mutation invalidates the cache — no reliance on render timing */
+function memoClear(){ _im={}; }
+function _memo(k,f){ k=_dataVer+'|'+k; return Object.prototype.hasOwnProperty.call(_im,k) ? _im[k] : (_im[k]=f()); }
 function insScopeVal(){ return insScope || (sessions.length>6 ? '14d' : 'all'); }
-function scopedSessions(){
+function scopedSessions(){ return _memo('ss:'+insScopeVal(), function(){
   const v=insScopeVal();
   if(v==='3t') return sessions.slice(0,3);
   if(v==='14d'){ const cut=Date.now()-14*864e5; return sessions.filter(s=>(s.ts||0)>=cut); }
   return sessions;
-}
-function scopedEntries(){
+}); }
+function scopedEntries(){ return _memo('se:'+insScopeVal(), function(){
   const v=insScopeVal();
   if(v==='all') return entries;
   if(v==='3t'){ const sets=new Set(scopedSessions().map(s=>s.set)); return entries.filter(e=>sets.has(e.set)); }
   const cut=Date.now()-14*864e5; return entries.filter(e=>(e.ts||0)>=cut);
-}
+}); }
 function buildSubjects(ss,ee){
   ss=ss||sessions; ee=ee||entries;
   const m={};
@@ -2888,7 +2912,8 @@ function buildSubjects(ss,ee){
 /* ============ the signal engine: a hotspot is a RATE out of line with your baseline, on enough data —
    never just the biggest subject (volume), never a 2-question fluke (sample). Shrinkage pulls small
    samples toward the baseline so they must earn their flag. ============ */
-function subjectSignals(){
+function subjectSignals(){ return _memo('sig:'+insScopeVal(), _subjectSignals); }
+function _subjectSignals(){
   const m=buildSubjects(scopedSessions(), scopedEntries());
   const subs=Object.keys(m); if(!subs.length) return [];
   let N=0, B=0; const Q={knowledge:0,retrieval:0,reasoning:0,execution:0};
@@ -3167,6 +3192,29 @@ function calibrationCard(){
     <p class="tlab" style="margin-top:12px">${calVerdict}</p>
     ${evBlock}</div>`;
 }
+/* EBM triage of your own errors: not every wrong costs the same to fix.
+   RF + TE = marks you already own (a cue/process fix). KG + CC = real learning.
+   Telling them apart is where the fastest points hide. */
+function recoverableCard(){
+  const ss=scopedSessions(), ee=scopedEntries();
+  const c={knowledge:0,retrieval:0,reasoning:0,execution:0};
+  ss.forEach(s=>s.items.forEach(it=>{ if(c[it.error]!=null && !it.uncertain) c[it.error]++; }));
+  ee.forEach(e=>{ if(c[e.error]!=null) c[e.error]++; });
+  const quick=c.retrieval+c.execution, study=c.knowledge+c.reasoning, tot=quick+study;
+  if(tot<4) return '';
+  const qpc=Math.round(quick/tot*100);
+  const bar=`<div class="rec-bar">
+    <span class="rec-seg q" style="flex:${quick||0.001}">${qpc>=14?`<span class="rec-pc">${qpc}%</span>`:''}</span>
+    <span class="rec-seg s" style="flex:${study||0.001}">${100-qpc>=14?`<span class="rec-pc">${100-qpc}%</span>`:''}</span></div>`;
+  const chip=(id)=>`<button class="rec-chip" data-e="${id}" style="--bc:${ERR_MAP[id].c}">${ERR_MAP[id].code} ${c[id]}</button>`;
+  return `<div class="card"><h3><span class="accent"></span>Where the fastest marks are<button class="cardq" data-help="recover">?</button></h3>
+    ${bar}
+    <div class="rec-row"><div class="rec-lab"><b class="rec-q">${quick} you already own</b><span>${chip('retrieval')}${chip('execution')}</span></div>
+      <p class="tlab">Knew it, didn't fire · misread it. No new studying — reshape the cue, run a reading checklist. ${quick>=study?'This is your biggest, cheapest pile of marks — start here.':'Cheap points: clear these first.'}</p></div>
+    <div class="rec-row"><div class="rec-lab"><b class="rec-s">${study} need real study</b><span>${chip('knowledge')}${chip('reasoning')}</span></div>
+      <p class="tlab">Didn't know it · confidently wrong. New learning or a corrected belief — slower, but the confidently-wrong ones stick best once you re-test them.</p></div>
+  </div>`;
+}
 function scoreTrendCard(){
   const scored=scopedSessions().filter(x=>scoreStats(x)).slice(0,10).reverse();
   if(!scored.length) return '';
@@ -3265,7 +3313,9 @@ const METRIC_HELP={
   blindrate:{t:'Blind-spot rate',is:'Share of wrongs you felt sure about. Re-reading won\'t catch these — they don\'t feel wrong.',
     do:'Each needs a written contrast, not a re-read. Do it in the two-minute summary after a test.'},
   scope:{t:'Time scope',is:'The window every card is computed over. Old data becomes noise as you log more.',
-    do:'"14 days" for what to study next; "All time" for long-run progress. Auto-picks 14 days once you have enough tests.'}
+    do:'"14 days" for what to study next; "All time" for long-run progress. Auto-picks 14 days once you have enough tests.'},
+  recover:{t:'Where the fastest marks are',is:'Not every wrong costs the same to fix. RF (knew it, didn\'t fire) + TE (misread) are marks you already own; KG + CC need real learning.',
+    do:'Clear the "already own" pile first — cue tweaks and a reading checklist are the cheapest points on the board. Tap any bucket for its protocol.'}
 };
 function metricHelp(key){
   const h=METRIC_HELP[key]; if(!h) return;
@@ -3275,6 +3325,7 @@ function metricHelp(key){
     <div class="actions" style="margin-top:16px"><button class="btn primary" onclick="closeSheet()">Got it</button></div>`);
 }
 function renderInsights(){
+  memoClear();
   const box=document.getElementById('insightsBody');
   if(entries.length===0 && !sessions.length){box.innerHTML=`<div class="empty"><svg class="ic" viewBox="0 0 24 24"><path d="M3 3v18h18M7 14l3-3 3 3 5-6"/></svg>
     <div class="big">Nothing to show yet</div>Triage a test or log a few mistakes and this fills in — it shows where your marks are leaking and what to do about it.</div>`;return}
@@ -3287,7 +3338,7 @@ function renderInsights(){
   </div>`:'';
   const detailed = entries.length ? (`<div class="ins-sec">From your detailed logs</div>`+nextCard(map)+masteryCard()+statStrip()+leakCard()+typeSplitCard()) : '';
   const deep = heatmapCard()+weakAreasCard()+numbersCard()+testListCard();
-  box.innerHTML = scopeRow + forecastCard() + threeMovesCard() + calibrationCard() + scoreTrendCard() + triageInsightsCard()
+  box.innerHTML = scopeRow + forecastCard() + threeMovesCard() + recoverableCard() + calibrationCard() + scoreTrendCard() + triageInsightsCard()
     + (deep?`<div class="ins-sec">The whole picture — every subject, every test</div>`+deep:'')
     + detailed;
   box.querySelectorAll('.cardq[data-help]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); buzz(5); metricHelp(b.dataset.help); });
@@ -3310,7 +3361,7 @@ function renderInsights(){
   box.querySelectorAll('[data-test]').forEach(b=>b.onclick=()=>{buzz(6);testDetailSheet(b.dataset.test)});
   box.querySelectorAll('[data-sub]:not([data-e])').forEach(b=>b.onclick=()=>{buzz(6);subjectSheet(b.dataset.sub)});
   box.querySelectorAll('.hm-c.tapc').forEach(b=>b.onclick=()=>{buzz(6);bucketFixSheet(b.dataset.e, b.dataset.sub, +b.dataset.n)});
-  box.querySelectorAll('.mixbar .mx-seg, .mx-keys .mx-key').forEach(b=>b.onclick=()=>{buzz(6);bucketFixSheet(b.dataset.e)});
+  box.querySelectorAll('.mixbar .mx-seg, .mx-keys .mx-key, .rec-chip').forEach(b=>b.onclick=()=>{buzz(6);bucketFixSheet(b.dataset.e)});
   box.querySelectorAll('.st-tap').forEach(r=>r.onclick=()=>{buzz(6);testDetailSheet(r.dataset.stest)});
   box.querySelectorAll('.spark-row[data-sp]').forEach(b=>b.onclick=()=>{ try{ buzz(6); sparkSheet(JSON.parse(b.dataset.sp)); }catch(_){} });
 }
@@ -3852,8 +3903,8 @@ function maybeBackupReminder(){
 function deviceId(){ let d=null; try{d=localStorage.getItem(K_DEV)}catch(_){}; if(!d){ d='d'+Math.random().toString(36).slice(2)+Date.now().toString(36); try{localStorage.setItem(K_DEV,d)}catch(_){}} return d; }
 function persistTombstones(){ try{localStorage.setItem(K_TOMB,JSON.stringify(tombstones))}catch(_){} }
 function loadTombstones(){ try{const t=JSON.parse(localStorage.getItem(K_TOMB)||'{}'); if(t&&typeof t==='object'&&!Array.isArray(t)) tombstones=t;}catch(_){} }
-function persistSessions(cloud){ try{localStorage.setItem(K_SESS,JSON.stringify(sessions))}catch(_){}; if(cloud!==false) scheduleCloudPush(); }
-function persistPlan(cloud){ plan._upd=Date.now(); try{localStorage.setItem(K_PLAN,JSON.stringify(plan))}catch(_){}; if(cloud!==false) scheduleCloudPush(); }
+function persistSessions(cloud){ bumpData(); try{localStorage.setItem(K_SESS,JSON.stringify(sessions))}catch(_){}; if(cloud!==false) scheduleCloudPush(); }
+function persistPlan(cloud){ bumpData(); plan._upd=Date.now(); try{localStorage.setItem(K_PLAN,JSON.stringify(plan))}catch(_){}; if(cloud!==false) scheduleCloudPush(); }
 function sanitizePlan(obj){
   const p={rows:[], done:{}, skims:{}, _upd:0};
   if(!obj||typeof obj!=='object') return p;
