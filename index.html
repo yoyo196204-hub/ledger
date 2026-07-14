@@ -552,8 +552,10 @@
   .subgrid{display:flex;flex-wrap:wrap;gap:8px}
   .subgrid .chip{flex:none}
   /* mistake-mix DNA bar */
-  .mixbar{display:flex;height:16px;border-radius:9px;overflow:hidden;background:var(--surface2);box-shadow:inset 0 1px 2px rgba(90,60,35,.06)}
-  .mx-seg{min-width:3px;transition:flex-grow .5s cubic-bezier(.4,0,.2,1)}
+  .mixbar{display:flex;height:22px;border-radius:9px;overflow:hidden;background:var(--surface2);box-shadow:inset 0 1px 2px rgba(90,60,35,.06)}
+  .mx-seg{min-width:3px;display:grid;place-items:center;transition:flex-grow .5s cubic-bezier(.4,0,.2,1)}
+  .mx-pc{font-size:10.5px;font-weight:800;color:#fff;letter-spacing:.02em;text-shadow:0 1px 1px rgba(0,0,0,.18)}
+  .mx-kp{color:var(--muted);font-weight:700;font-variant-numeric:tabular-nums;margin-left:1px}
   .mx-seg:not(:last-child){border-right:1.5px solid var(--surface)}
   .mx-keys{display:flex;flex-wrap:wrap;gap:6px 15px;margin-top:11px}
   .mx-key{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:650;color:var(--muted)}
@@ -757,6 +759,21 @@
   .pl-missing{display:block;width:100%;text-align:left;font-size:12px;color:var(--ink2);background:color-mix(in srgb,var(--amber) 9%,transparent);
     border:1px dashed color-mix(in srgb,var(--amber) 40%,transparent);border-radius:11px;padding:9px 12px;margin-top:11px;line-height:1.5}
   .pl-today .pl-trow{font-size:17px;font-weight:800;letter-spacing:-.01em}
+  .pl-covkey{display:flex;gap:14px;margin-top:9px;font-size:10.5px;font-weight:650;color:var(--muted)}
+  .pl-covkey span{display:inline-flex;align-items:center;gap:5px}
+  .pl-covkey i{width:9px;height:9px;border-radius:3px;flex:none}
+  .pl-covkey .k-on{background:var(--sage-soft);border:1.5px solid color-mix(in srgb,var(--sage) 45%,transparent)}
+  .pl-covkey .k-sch{background:var(--surface2);border:1.5px solid var(--border2)}
+  .pl-covkey .k-off{border:1.5px dashed var(--faint)}
+  .pl-next{margin-bottom:14px;background:linear-gradient(155deg,color-mix(in srgb,var(--accent) 8%,var(--surface)),var(--surface));border:1.5px solid color-mix(in srgb,var(--accent) 22%,transparent)}
+  .pl-next.done-all{background:linear-gradient(155deg,var(--sage-soft),var(--surface));border-color:color-mix(in srgb,var(--sage) 30%,transparent)}
+  .pl-next-eye{font-size:10.5px;font-weight:850;letter-spacing:.1em;color:var(--accent-ink);margin-bottom:6px}
+  .pl-next.done-all .pl-next-eye{color:var(--sage-ink)}
+  .pl-next-t{font-size:20px;font-weight:850;letter-spacing:-.02em;line-height:1.15}
+  .pl-next-stat{font-size:13px;line-height:1.55;color:var(--ink2);margin-top:7px}
+  .pl-next-res{margin-top:11px;padding-top:11px;border-top:1px solid var(--border);font-size:12px;color:var(--muted)}
+  .pl-tag.marks{color:var(--accent-ink);background:color-mix(in srgb,var(--accent) 13%,transparent);font-variant-numeric:tabular-nums}
+  .rv-btn.rec{outline:2px solid color-mix(in srgb,var(--accent) 55%,transparent);outline-offset:1px}
   .pl-wk{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin:18px 0 8px 3px}
   .pl-row{display:flex;align-items:center;gap:9px;width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:13px;
     padding:11px 12px;margin-bottom:7px;cursor:pointer;transition:transform .08s,border-color .12s;position:relative}
@@ -817,6 +834,15 @@
   .wk-t{font-weight:750;font-size:14.5px}
   .wk-d{font-size:11.5px;color:var(--muted);font-weight:600}
   /* fix box inside the bucket sheet */
+  .fg-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+  .fg-tech{font-size:12px;font-weight:800;color:var(--accent-ink);background:var(--accent-soft);padding:5px 11px;border-radius:9px}
+  .fg-time{font-size:11.5px;font-weight:700;color:var(--muted)}
+  .fg-steps{margin:0 0 4px;padding:0;list-style:none;counter-reset:fg}
+  .fg-steps li{counter-increment:fg;position:relative;padding:9px 0 9px 34px;font-size:13.5px;line-height:1.5;color:var(--ink);border-bottom:1px solid var(--border)}
+  .fg-steps li:last-child{border:none}
+  .fg-steps li::before{content:counter(fg);position:absolute;left:0;top:8px;width:23px;height:23px;border-radius:50%;background:var(--grad);color:#fff;font-size:12px;font-weight:800;display:grid;place-items:center}
+  .fg-why{margin-top:12px;padding:12px 14px;border-radius:13px;background:var(--surface2);font-size:12.5px;line-height:1.55;color:var(--ink2)}
+  .fg-why b{color:var(--ink);display:block;margin-bottom:3px;font-size:11px;letter-spacing:.06em;text-transform:uppercase}
   .fixbox{background:var(--surface2);border-radius:14px;padding:13px 14px;margin-top:8px}
   .fixbox .fx-h{font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:6px}
   .fixbox .fx-b{font-size:14px;font-weight:700;line-height:1.45}
@@ -1200,7 +1226,7 @@ const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.st
 async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } try{return localStorage.getItem(k)}catch(_){return null} }
 async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v);return true}catch(e){return false} } try{localStorage.setItem(k,v);return true}catch(_){return false} }
 const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
-const APP_VERSION='v28'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
+const APP_VERSION='v29'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
 
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 
@@ -1874,6 +1900,15 @@ function planWeeks(){ /* group rows into blocks that each end at a test row (mat
   if(cur.length) weeks.push(cur);
   return weeks;
 }
+/* pull the real result onto a test day — the plan should show what actually happened, not just a checkbox */
+function planTestStat(row){
+  const gt=gtFromTitle(row.t); if(!gt) return null;
+  const s=sessions.find(x=>x.testType==='gt' && x.set===gt); if(!s) return null;
+  const st=scoreStats(s), cc=triageCounts(s.items);
+  return { marks: st?st.marks:null, wrong: (s.score&&s.score.w!=null)?s.score.w:null, triaged:cc.total, blind:cc.blind, id:s.id };
+}
+/* the recommended depth for a revisit: early looks are quick recall skims, the last is a fuller read */
+function revisitDepth(passes){ return passes>=2 ? 'full' : 'skim'; }
 function renderPlan(){
   const box=document.getElementById('planBody'); if(!box) return;
   const today=todayISO();
@@ -1893,36 +1928,48 @@ function renderPlan(){
   }
   /* header */
   const pct=total?Math.round(doneN/total*100):0;
-  let html=`<div class="sec-title"><h2>Plan</h2><div class="hint">Pass 3 — tap a day when it's done</div></div>
+  let html=`<div class="sec-title"><h2>Plan</h2><div class="hint">Pass 3 · tap a day when it's done</div></div>
     <div class="pl-head card thin">
-      <div class="pl-hrow"><b>Pass 3</b><span>${doneN} / ${total} sessions</span><span>${d2e!=null?d2e+' days to exam':''}</span></div>
+      <div class="pl-hrow"><b>Pass 3</b><span><b>${doneN}</b> done · <b>${total-doneN}</b> left</span><span>${d2e!=null?'<b>'+d2e+'</b> days to exam':''}</span></div>
       <div class="pl-bar"><i style="width:${pct}%"></i></div>
-      <div class="pl-hsub">${slipped?`<b class="bl">${slipped} slipped</b> · `:''}${buffers} buffer left</div>
-      <div class="pl-cov">${SUBJECTS.map(x=>{
+      <div class="pl-hsub">${pct}% through${slipped?` · <b class="bl">${slipped} slipped</b>`:''}${buffers?` · ${buffers} buffer left`:''}</div>
+      <div class="pl-cov" id="plCov">${SUBJECTS.map(x=>{
         const cls=doneSubs.has(x)?'on':schedSubs.has(x)?'':'off';
         return `<span class="pl-chip ${cls}" title="${esc(x)}">${esc(x.split(' ')[0].slice(0,5))}</span>`;}).join('')}</div>
+      <div class="pl-covkey"><span><i class="k-on"></i>read</span><span><i class="k-sch"></i>planned</span><span><i class="k-off"></i>not in cycle</span></div>
       ${missing.length?`<button class="pl-missing" id="planMissing">Not scheduled this cycle: <b>${missing.map(esc).join(' · ')}</b> — add a day ›</button>`:''}
     </div>`;
-  /* today card */
-  const trow=plan.rows.find(r=>r.d===today);
-  if(trow){
+  /* NEXT UP — the single clear next action: today's undone day, else the nearest one ahead, else the oldest slip */
+  const undone=plan.rows.filter(r=>!plan.done[r.id]);
+  const nextRow = plan.rows.find(r=>r.d===today && !plan.done[r.id])
+    || undone.filter(r=>r.d>today).sort((a,b)=>a.d<b.d?-1:1)[0]
+    || planSlipped().sort((a,b)=>a.d<b.d?-1:1)[0];
+  if(nextRow){
+    const isTest=nextRow.k==='test';
+    const when = nextRow.d===today?'Today' : nextRow.d<today?('Overdue · was '+fmtShort(nextRow.d)) : fmtShort(nextRow.d);
     const subs=buildSubjects();
-    const stat=(trow.s||[]).map(x=>{ const t=subs[x]; return t?`${esc(x)} · ${t.n} marks lost${t.sure?` · ${t.sure} blind`:''}`:esc(x); }).join('  ·  ');
-    html+=`<div class="pl-today card"><h3><span class="accent"></span>Today — ${fmtShort(today)}</h3>
-      <div class="pl-trow">${esc(trow.t)}</div>
-      ${stat?`<div class="tlab" style="margin-top:4px">${stat}</div>`:''}
-      <div class="actions" style="margin-top:12px">${trow.k==='test'
-        ? `<button class="btn primary" data-plango="${esc(trow.id)}">Start ${esc(gtFromTitle(trow.t)||'triage')} ▶</button>`
-        : `<button class="btn primary" data-plandone="${esc(trow.id)}">${plan.done[trow.id]?'✓ Done':'Mark done'}</button>`}
-      </div></div>`;
+    const stat=(nextRow.s||[]).map(x=>{ const t=subs[x]; return t&&t.n?`${esc(x)} · <b>${t.n}</b> mark${t.n>1?'s':''} lost${t.sure?` · <b class="bl">${t.sure} blind</b>`:''}`:esc(x); }).join('<br>');
+    const ts=isTest?planTestStat(nextRow):null;
+    html+=`<div class="pl-next card"><div class="pl-next-eye">NEXT UP · ${when}${nextRow.d<today?'':''}</div>
+      <div class="pl-next-t">${esc(nextRow.t)}</div>
+      ${stat?`<div class="pl-next-stat">${stat}</div>`:''}
+      <div class="actions" style="margin-top:13px">${isTest
+        ? `<button class="btn primary" data-plango="${esc(nextRow.id)}">Start ${esc(gtFromTitle(nextRow.t)||'triage')} ▶</button>`
+        : `<button class="btn primary" data-plandone="${esc(nextRow.id)}">Mark done ✓</button>`}
+        <button class="btn ghost" data-more="${esc(nextRow.id)}">Edit</button></div>
+      ${ts&&ts.marks!=null?`<div class="pl-next-res">Last time: <b>${ts.marks}</b> marks · ${ts.triaged} wrongs triaged${ts.blind?` · <b class="bl">${ts.blind} blind</b>`:''}</div>`:''}
+    </div>`;
+  } else {
+    html+=`<div class="pl-next card done-all"><div class="pl-next-eye">ALL DONE</div><div class="pl-next-t">Pass 3 complete 🎉</div><div class="pl-next-stat">Every scheduled day is ticked. Keep the revisits ticking over below.</div></div>`;
   }
-  /* revisit queue */
+  /* revisit queue — explicit: skim or full read, and the date */
   const q=revisitQueue();
-  html+=`<div class="card thin"><h3><span class="accent"></span>Suggested revisits <span class="h3-hint">expanding, not personalised</span></h3>
-    ${q.length? q.map(x=>`<div class="rv-row${x.stale?' stale':''}"><div><div class="rv-t">${x.stale?'<span class="rv-dot"></span>':''}${esc(x.row.t)}</div>
-      <div class="rv-d">read ${fmtShort(x.row.d)} · ${x.passes? x.passes+' pass'+(x.passes>1?'es':'')+' · ':''}${x.overdue?'<b class="bl">due now</b>':'due '+fmtShort(x.due)}</div></div>
-      <button class="rv-btn" data-skim="${esc(x.row.id)}">skim</button><button class="rv-btn full" data-full="${esc(x.row.id)}">full</button></div>`).join('')
-    : `<div class="tlab">Nothing due. Read something first.</div>`}</div>`;
+  html+=`<div class="card thin"><h3><span class="accent"></span>Revisit when due <span class="h3-hint">recall beats re-reading</span></h3>
+    ${q.length? q.map(x=>{ const rec=revisitDepth(x.passes);
+      return `<div class="rv-row${x.stale?' stale':''}"><div class="rv-mid"><div class="rv-t">${x.stale?'<span class="rv-dot"></span>':''}${esc(x.row.t)}</div>
+      <div class="rv-d">${x.overdue?'<b class="bl">due now</b>':'due '+fmtShort(x.due)} · ${x.passes?x.passes+' done · ':''}do a <b>${rec==='full'?'full read':'quick skim'}</b></div></div>
+      <button class="rv-btn${rec==='skim'?' rec':''}" data-skim="${esc(x.row.id)}">skim</button><button class="rv-btn full${rec==='full'?' rec':''}" data-full="${esc(x.row.id)}">full</button></div>`;}).join('')
+    : `<div class="tlab">Nothing due yet. Finish a reading day and its first revisit lands in 3 days.</div>`}</div>`;
   /* weeks */
   planWeeks().forEach(week=>{
     const a=week[0].d, b=week[week.length-1].d;
@@ -1930,14 +1977,19 @@ function renderPlan(){
     html+=week.map(r=>{
       const dn=plan.done[r.id], slip=(!dn && r.d<today);
       const isToday=r.d===today;
+      const ts=r.k==='test'?planTestStat(r):null;
+      /* one tag slot, priority order: real marks > slipped > weak/×2 > test placeholder */
+      let tag='';
+      if(ts&&ts.marks!=null) tag=`<span class="pl-tag marks">${ts.marks} marks · ${ts.triaged} wrong</span>`;
+      else if(slip) tag='<span class="pl-tag slipped">slipped</span>';
+      else if(r.k==='test') tag='<span class="pl-tag nr">test</span>';
+      else if(r.weak) tag='<span class="pl-tag weak">weak</span>';
+      else if(r.x2) tag='<span class="pl-tag x2">×2</span>';
       return `<div class="pl-row ${r.k} ${dn?'done':''} ${slip?'slip':''} ${isToday?'today':''}" data-row="${esc(r.id)}">
         <span class="pl-date">${fmtDay(r.d)}</span>
         <span class="pl-t">${esc(r.t)}${dn&&dn.mode==='partial'?' <i class="pl-part">partial</i>':''}</span>
-        ${r.weak?'<span class="pl-tag weak">weak</span>':''}
-        ${r.x2?'<span class="pl-tag x2">×2</span>':''}
-        ${r.k==='test'?'<span class="pl-tag nr">no reading</span>':''}
-        ${slip?'<span class="pl-tag slipped">slipped</span>':''}
-        ${dn?'<span class="pl-check">✓</span>':''}
+        ${tag}
+        ${dn&&!(ts&&ts.marks!=null)?'<span class="pl-check">✓</span>':''}
         <button class="pl-more" data-more="${esc(r.id)}">›</button>
       </div>`;}).join('');
   });
@@ -1957,7 +2009,7 @@ function renderPlan(){
   box.querySelectorAll('[data-plango]').forEach(b=>b.onclick=()=>planGoTest(b.dataset.plango));
   box.querySelectorAll('[data-skim]').forEach(b=>b.onclick=e=>{e.stopPropagation();logRevisit(b.dataset.skim,'skim');});
   box.querySelectorAll('[data-full]').forEach(b=>b.onclick=e=>{e.stopPropagation();logRevisit(b.dataset.full,'full');});
-  box.querySelectorAll('.pl-more').forEach(b=>b.onclick=e=>{e.stopPropagation();planRowSheet(b.dataset.more);});
+  box.querySelectorAll('[data-more]').forEach(b=>b.onclick=e=>{e.stopPropagation();planRowSheet(b.dataset.more);});
   box.querySelectorAll('.pl-row').forEach(el=>el.onclick=()=>{
     const r=plan.rows.find(x=>x.id===el.dataset.row); if(!r)return;
     if(r.k==='test') planGoTest(r.id); else togglePlanDone(r.id);
@@ -2247,11 +2299,12 @@ function renderTriIntro(box){
   document.getElementById('triStart').onclick=()=>{ settings.triCoached=true; persistSettings(); renderTriage(); };
 }
 function triGuideSheet(){
-  openSheet(`<h3>The four buckets</h3>
-    ${ERRORS.map(e=>`<div class="coach-row" style="animation:none"><span class="coach-code" style="background:${e.c}">${e.code}</span>
-      <div><div class="t">${e.t}</div><div class="d">${esc(e.d)}.<br><b>Test:</b> ${esc(e.test)}<br><b>Fix:</b> ${esc(FIXTEXT[e.id])}</div></div></div>`).join('')}
+  openSheet(`<h3>The four buckets <span class="h3-hint" style="text-transform:none;letter-spacing:0">tap one for how to fix it</span></h3>
+    ${ERRORS.map(e=>`<button class="coach-row tapc" style="animation:none;width:100%;text-align:left;background:none;border:none" data-fix="${e.id}"><span class="coach-code" style="background:${e.c}">${e.code}</span>
+      <div style="flex:1"><div class="t">${e.t} <span class="th-go" style="float:right">›</span></div><div class="d">${esc(e.d)}.<br><b>Test:</b> ${esc(e.test)}</div></div></button>`).join('')}
     <p style="margin-top:14px"><b style="color:var(--rose)">Sure + Knowledge gap</b> is impossible — you weren't blank, you were wrong. It auto-files as a CC blind spot. “Sure” always means how it felt <b>in the exam</b>, not now.</p>
     <div class="actions"><button class="btn primary" onclick="closeSheet()">Got it</button></div>`);
+  document.querySelectorAll('#sheet [data-fix]').forEach(b=>b.onclick=()=>{ buzz(6); howToFixSheet(b.dataset.fix); });
 }
 function triFootHTML(){
   const last=triage.items[triage.items.length-1];
@@ -2551,6 +2604,45 @@ const FIXTEXT={
   reasoning:"The expensive bucket. A false belief you would have bet on. It will feel right again in the exam unless you write down what you believed next to what is true.",
   execution:"Not a knowledge problem. Name the exact trap — EXCEPT, NOT, least-likely, changed answer — and drill reading the stem's final line before the options."
 };
+/* how to ACTUALLY fix each bucket — short protocols grounded in learning science, not vibes.
+   Each: the steps, the named technique, why it works, and the honest time cost. */
+const FIXGUIDE={
+  knowledge:{ tech:'Encode once → retrieval + spacing', time:'~3 min now, 20s per review',
+    steps:['Read the fact once, in its clinical context — not the whole chapter.',
+           'Make ONE card: a question on the front, the fact on the back.',
+           'Test yourself tomorrow, then +3 days, then +9. Recall it, don\'t re-read it.'],
+    why:'Retrieval practice and spacing are the two most-proven techniques there are. Re-reading feels productive but barely sticks; being tested is what moves it into exam-day memory.' },
+  retrieval:{ tech:'Cue-matched recall + interleaving', time:'~2 min',
+    steps:['Do not re-study — you already know this. Re-reading wastes the time.',
+           'Rewrite the card\'s front to sound like the exam stem: the clinical trigger, not the textbook heading.',
+           'Shuffle it in with its look-alikes and drill telling them apart.'],
+    why:'The memory exists — the cue failed to reach it. Practising recall from an exam-shaped cue, and interleaving look-alikes, fixes firing far better than more reading.' },
+  reasoning:{ tech:'Hypercorrection: confront → contrast → re-test', time:'~2 min now, one re-test later',
+    steps:['Write it as a contrast: "I believed X — it\'s actually Y, because Z."',
+           'Say out loud why your wrong option was tempting — name the trap in the reasoning.',
+           'Re-test yourself on it in a few days. These are the ones that come back.'],
+    why:'Counter-intuitive but proven: errors you were SURE about get corrected better than hesitant ones once you confront them (the hypercorrection effect). The catch — they return if you never re-test. Confront + re-test locks them out.' },
+  execution:{ tech:'Pre-commit checklist (process, not memory)', time:'~1 min',
+    steps:['Don\'t study the topic — you knew it. This was a reading slip.',
+           'Name the exact trap: EXCEPT / NOT / least-likely / units / "changed my answer".',
+           'Add it to a fixed pre-answer routine: read the last line first, underline the trap word, then look at the options.'],
+    why:'This is a process error, not a knowledge gap. A short, always-run checklist cuts careless losses more than any amount of revision — you already had the marks.' }
+};
+const FIXGUIDE_NEAR={ tech:'Discriminator drill + interleaving', time:'~2 min',
+  steps:['Find the ONE feature that separates your option from the key.',
+         'Learn only that discriminator — not the whole topic. You were one detail away.',
+         'Make one card contrasting the two look-alikes and drill them together.'],
+  why:'Down-to-two misses are the closest marks you have. Training the single discrimination that decides them — by interleaving the pair — is far higher-yield than re-reading either topic.' };
+function howToFixSheet(errId){
+  const g = errId==='near' ? FIXGUIDE_NEAR : FIXGUIDE[errId];
+  if(!g) return;
+  const e = errId==='near' ? {code:'≈',t:'Near-miss — down to two',c:'var(--amber)'} : ERR_MAP[errId];
+  openSheet(`<h3><span style="color:${e.c}">${e.code}</span> · How to fix: ${esc(e.t)}</h3>
+    <div class="fg-meta"><span class="fg-tech">${esc(g.tech)}</span><span class="fg-time">${esc(g.time)}</span></div>
+    <ol class="fg-steps">${g.steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol>
+    <div class="fg-why"><b>Why this works</b> ${esc(g.why)}</div>
+    <div class="actions" style="margin-top:16px"><button class="btn primary" onclick="closeSheet()">Got it</button></div>`);
+}
 
 function nextCard(map){
   const rows=[]; let i=1;
@@ -2748,17 +2840,22 @@ function streamChart(sess){
 }
 /* one segmented bar = your mistake DNA, no four-bar clutter. Segments are tappable → the fix. */
 function mixBar(agg,total){
-  const segs=ERRORS.map(e=> agg[e.id]>0?`<span class="mx-seg" data-e="${e.id}" title="${esc(e.t+' — tap for the fix')}" style="flex:${agg[e.id]};background:${e.c}"></span>`:'').join('');
-  const keys=ERRORS.map(e=>`<span class="mx-key" data-e="${e.id}"><i style="background:${e.c}"></i>${e.code}<b>${agg[e.id]}</b></span>`).join('');
+  const tot=total||ERRORS.reduce((a,e)=>a+(agg[e.id]||0),0)||1;
+  /* glanceable: a wide-enough segment shows its % right on the bar; the legend carries counts + % */
+  const segs=ERRORS.map(e=>{ const n=agg[e.id]||0; if(!n) return ''; const pc=Math.round(n/tot*100);
+    return `<span class="mx-seg" data-e="${e.id}" title="${esc(e.t+' — '+pc+'%, tap for the fix')}" style="flex:${n};background:${e.c}">${pc>=12?`<span class="mx-pc">${pc}%</span>`:''}</span>`;}).join('');
+  const keys=ERRORS.map(e=>{ const n=agg[e.id]||0; return `<span class="mx-key" data-e="${e.id}"><i style="background:${e.c}"></i>${e.code}<b>${n}</b><span class="mx-kp">${Math.round(n/tot*100)}%</span></span>`;}).join('');
   return `<div class="mixbar">${segs}</div><div class="mx-keys">${keys}</div>`;
 }
 /* tap any mark → what it means and exactly what to do about it */
 function bucketFixSheet(errId, sub, n){
   const e=ERR_MAP[errId]; if(!e)return;
+  const g=FIXGUIDE[errId];
   openSheet(`<h3><span style="color:${e.c}">${e.code}</span> · ${e.t}${sub?` in ${esc(sub)}`:''}</h3>
-    <p style="margin-bottom:6px">${n!=null?`<b>${n}</b> mistake${n===1?'':'s'}${sub?` here`:''} · `:''}${esc(e.d)}.</p>
-    <div class="fixbox"><div class="fx-h">The fix</div><div class="fx-b">${esc(FIXACT[errId])}</div>
-      <div class="fx-b2">${esc(FIXTEXT[errId])}</div></div>
+    <p style="margin-bottom:10px">${n!=null?`<b>${n}</b> mistake${n===1?'':'s'}${sub?` here`:''} · `:''}${esc(e.d)}.</p>
+    ${g?`<div class="fg-meta"><span class="fg-tech">${esc(g.tech)}</span><span class="fg-time">${esc(g.time)}</span></div>
+    <ol class="fg-steps">${g.steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol>
+    <div class="fg-why"><b>Why this works</b> ${esc(g.why)}</div>`:''}
     <div class="actions" style="margin-top:16px"><button class="btn primary" onclick="closeSheet()">Got it</button></div>`);
 }
 /* subject → everything the data says about it, and what to do */
@@ -3151,50 +3248,30 @@ function numbersCard(){
     ${written?tile(written,'fixes written'):''}${best!=null?tile(best,'best marks'):''}
   </div></div>`;
 }
-/* every metric can explain itself — what it measures, why it matters, what to do. Plain English. */
+/* every metric explains itself in two lines — what it is, what to do. Tight on purpose. */
 const METRIC_HELP={
-  forecast:{t:'Projected exam score',b:[
-    ['What it is','A straight line drawn through your scored reads, carried forward to exam day. The dot is the most-likely landing; the shaded band is the honest range.'],
-    ['Why it matters','It turns "am I improving fast enough?" into a number. Slope = marks gained per week. If the line is flat with weeks to go, effort needs to change, not just continue.'],
-    ['The maths','Least-squares fit of marks over time, extended to your exam date, with an ~80% prediction band that widens the fewer tests you have. Three tests give a wide band — that width is the truth, not a flaw.'],
-    ['What to do','Watch the slope, not one test. A rising line means keep the method. A flat or falling line this close to the exam means switch what you study (your weak areas), not how long.']]},
-  calibration:{t:'How well you read yourself',b:[
-    ['What it is','Of the questions you got wrong, how sure you felt at the time — split into felt-sure, down-to-two, and no-read.'],
-    ['Why it matters','This is calibration: the gap between confidence and correctness. A high "felt sure" share is the most dangerous kind of wrong — you can\'t feel it coming, so it repeats in the real exam.'],
-    ['Zero extra taps','True calibration would also need your confidence on the questions you got right. We keep it effortless by reading only your mistakes — slightly less precise, but no extra logging.'],
-    ['What to do','Drive the "felt sure" slice down by writing the contrast for each one (what you believed vs what\'s true). Those are concept fixes, not review.']]},
-  ev:{t:'Blind-guess value (+4/−1)',b:[
-    ['What it is','When you attempt a pure guess, how often it pays off, against the break-even line.'],
-    ['The maths','On +4 correct / −1 wrong with 4 options, a guess is worth 5 × (your hit-rate) − 1 marks. Break-even is 20%. Above that, guessing earns marks on average; below it, guessing loses them.'],
-    ['Why it matters','Most students either guess everything or skip everything. The right answer is a number, and it\'s personal — your distractor-trap rate decides it.'],
-    ['What to do','Above 20%: take the guess, never leave it blank. Below 20%: your guesses are getting trapped — skip the true no-reads instead.']]},
-  signal:{t:'Hotspot signal',b:[
-    ['What it is','The one subject whose mistake-rate is genuinely out of line with your own baseline — not just the subject with the most wrongs.'],
-    ['Why it matters','At 50 wrongs a day, the biggest subject always "leads" by volume alone. That\'s a false alarm. A real hotspot is a rate that beats your average even after accounting for how few questions it\'s based on.'],
-    ['The maths','Each subject\'s blind-rate and bucket-rates are shrunk toward your overall baseline (empirical-Bayes, so small samples must earn their flag), then compared. Needs at least 5 wrongs in the subject and 8 overall.'],
-    ['What to do','Fix the flagged subject at its next scheduled read or revisit — the card tells you when. If nothing is flagged, your spread is even and the plan is the lever, not one subject.']]},
-  buckets:{t:'The four buckets',b:[
-    ['KG · Didn\'t know it','The fact wasn\'t in your head. Fix: read it once, one card, move on.'],
-    ['RF · Knew it, didn\'t fire','You knew it but it didn\'t surface in time. Fix: don\'t re-study — reword the card\'s front to sound like the question.'],
-    ['CC · Confidently wrong','You were sure and the belief was false. This is a blind spot. Fix: write "I believed X — it\'s actually Y, because Z."'],
-    ['TE · Misread it','You knew it but misread the stem (EXCEPT, units, "not"). Fix: name the trap out loud, read the last line first.']]},
-  scoretrend:{t:'Score trend',b:[
-    ['Marks','Your total: 4 × correct − wrong. The single number that matters on exam day.'],
-    ['Accuracy when attempted','Of the questions you actually answered, how many were right. Separates knowing from skipping.'],
-    ['Wrong : correct','Wrong answers per correct answer. Lower is better — it\'s the cleanest measure of whether your attempts are earning or bleeding marks.'],
-    ['What to do','Tap any line for the per-test numbers. Rising accuracy with falling W:C is the shape you want.']]},
-  blindrate:{t:'Blind-spot rate',b:[
-    ['What it is','The share of your wrongs where you felt sure in the exam — a blind spot.'],
-    ['Why it matters','These don\'t feel wrong, so re-reading won\'t catch them. They\'re the errors most likely to repeat on the real paper.'],
-    ['What to do','Every blind spot needs a written contrast, not a re-read. The summary after each test lets you write them in two minutes.']]},
-  scope:{t:'Time scope',b:[
-    ['What it is','The window every card on this page is computed over.'],
-    ['Why it matters','As your data grows, "all time" becomes noise — an old weak subject you\'ve since fixed still shows up. Recent windows keep the picture honest.'],
-    ['What to do','Use "14 days" for what to study next, "all time" to see long-run progress. It auto-picks 14 days once you have enough tests.']]}
+  forecast:{t:'Projected exam score',is:'A line through your scored reads, carried to exam day. Dot = likely landing, band = honest range (wider when you have fewer tests).',
+    do:'Watch the slope, not one test. Flat this close to exams means change what you study, not how long.'},
+  calibration:{t:'How well you read yourself',is:'Of your wrongs, how sure you felt — felt-sure, down-to-two, no-read. A big felt-sure slice is the dangerous kind: you can\'t feel it coming.',
+    do:'Shrink the felt-sure slice by writing the contrast for each (believed vs true). Read from your mistakes only — no extra taps.'},
+  ev:{t:'Blind-guess value (+4/−1)',is:'How often your pure guesses pay off. A guess is worth 5 × hit-rate − 1 marks; break-even is 20%.',
+    do:'Above 20% — always take the guess. Below 20% — your guesses get trapped, so skip the true no-reads.'},
+  signal:{t:'Hotspot signal',is:'The subject whose mistake-rate is truly out of line with your baseline — not just the one with the most wrongs (that\'s volume, a false alarm).',
+    do:'Fix it at its next scheduled read/revisit — the card says when. Nothing flagged = even spread, so the plan is the lever.'},
+  buckets:{t:'The four buckets',is:'KG didn\'t know it · RF knew it, didn\'t fire · CC confidently wrong (blind spot) · TE misread it.',
+    do:'Tap any bucket on a card for its evidence-based fix protocol — each needs a different fix.'},
+  scoretrend:{t:'Score trend',is:'Marks (4×correct−wrong) · accuracy when attempted · wrong:correct. Lower W:C is better.',
+    do:'Tap any line for per-test numbers. Rising accuracy with falling W:C is the shape you want.'},
+  blindrate:{t:'Blind-spot rate',is:'Share of wrongs you felt sure about. Re-reading won\'t catch these — they don\'t feel wrong.',
+    do:'Each needs a written contrast, not a re-read. Do it in the two-minute summary after a test.'},
+  scope:{t:'Time scope',is:'The window every card is computed over. Old data becomes noise as you log more.',
+    do:'"14 days" for what to study next; "All time" for long-run progress. Auto-picks 14 days once you have enough tests.'}
 };
 function metricHelp(key){
   const h=METRIC_HELP[key]; if(!h) return;
-  openSheet(`<h3>${esc(h.t)}</h3>${h.b.map(r=>`<div class="mh-row"><div class="mh-k">${esc(r[0])}</div><div class="mh-v">${esc(r[1])}</div></div>`).join('')}
+  openSheet(`<h3>${esc(h.t)}</h3>
+    <div class="mh-row"><div class="mh-k">What it is</div><div class="mh-v">${esc(h.is)}</div></div>
+    <div class="mh-row"><div class="mh-k">What to do</div><div class="mh-v">${esc(h.do)}</div></div>
     <div class="actions" style="margin-top:16px"><button class="btn primary" onclick="closeSheet()">Got it</button></div>`);
 }
 function renderInsights(){
