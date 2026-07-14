@@ -667,6 +667,8 @@
   .num span{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.02em}
   .wk-next{margin-left:7px;font-size:9.5px;font-weight:800;padding:2.5px 7px;border-radius:7px;color:var(--sage-ink);background:color-mix(in srgb,var(--sage) 16%,transparent);vertical-align:1px}
   .wk-next.now{color:var(--accent-ink);background:color-mix(in srgb,var(--accent) 14%,transparent)}
+  .wk-tr{margin-left:7px;font-size:9.5px;font-weight:800;vertical-align:1px}
+  .wk-tr.up{color:var(--rose)} .wk-tr.down{color:var(--sage-ink)}
   .sub-fix{font-size:12.5px;color:var(--ink2);padding:6px 0;border-bottom:1px solid var(--border)}
   .sub-fix:last-of-type{border:none}
   .sub-ok{color:var(--sage-ink);font-weight:750;font-size:11px}
@@ -855,6 +857,10 @@
   .rec-lab>span{margin-left:auto;display:inline-flex;gap:6px}
   .rec-chip{font-size:11px;font-weight:800;padding:3px 9px;border-radius:8px;color:var(--bc);background:color-mix(in srgb,var(--bc) 13%,transparent);font-variant-numeric:tabular-nums}
   .rec-chip:active{transform:scale(.94)}
+  .st-seg{display:inline-flex;margin-left:auto;background:var(--surface2);border-radius:9px;padding:2px}
+  .st-seg button{font-size:10.5px;font-weight:800;padding:4px 10px;border-radius:7px;color:var(--muted);letter-spacing:.02em}
+  .st-seg button.on{background:var(--surface);color:var(--accent-ink);box-shadow:var(--shadow)}
+  .st-seg + .cardq{margin-left:8px}
   .fixbox{background:var(--surface2);border-radius:14px;padding:13px 14px;margin-top:8px}
   .fixbox .fx-h{font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:6px}
   .fixbox .fx-b{font-size:14px;font-weight:700;line-height:1.45}
@@ -1238,7 +1244,7 @@ const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.st
 async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } try{return localStorage.getItem(k)}catch(_){return null} }
 async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v);return true}catch(e){return false} } try{localStorage.setItem(k,v);return true}catch(_){return false} }
 const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
-const APP_VERSION='v30'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
+const APP_VERSION='v31'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
 
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 
@@ -1283,7 +1289,7 @@ let settings={activeType:'gt', gtSet:'GT-18', moduleSet:'Module 1', examDate:'20
 let form={subject:SUBJECTS[8], error:null, conf:null, image:false, photo:null};
 let triage={active:false, set:'', testType:'gt', conf:null, items:[], saved:false, done:false};
 let bookFilter={sub:'ALL', type:'ALL', bt:'ALL', q:'', src:''};
-let hmAll=false, wkAll=false, hmPct=false; /* insights "whole picture" toggles — session-only, not stored */
+let hmAll=false, wkAll=false, hmPct=false, stType='gt'; /* insights "whole picture" toggles — session-only, not stored */
 let expandedNotes={};
 let editingId=null;
 let review={active:false, queue:[], i:0, revealed:false, known:0, shaky:0, noteOpen:false};
@@ -2444,39 +2450,55 @@ function scoreSheet(){
   };
   g('scSkip').onclick=()=>{ closeSheet(); saveSession(null); triage.done=true; renderTriage(); };
 }
+/* the exam basis: NEET-PG is a 200-question, +4/-1 paper → 800 marks. Everything projects to this
+   so a 50-Q module and a 180-Q GT become comparable. */
+const EXAM_Q=200, EXAM_MAX=EXAM_Q*4;
 function scoreStats(sn){
   const k=sn&&sn.score; if(!k || k.c==null || k.w==null) return null;
-  const att=k.c+k.w;
-  return { marks:4*k.c-k.w, attemptRate:k.total?att/k.total:null, accuracy:att?k.c/att:0, wc:k.c?k.w/k.c:null };
+  const c=Math.max(0,+k.c||0), w=Math.max(0,+k.w||0), att=c+w;
+  const total=(k.total&&k.total>0)?k.total : (att + (k.s>0?+k.s:0)) || att || 1;
+  const marks=4*c-w, maxMarks=4*total;
+  /* pct of the maximum — the one number comparable across a 50-Q module and a 200-Q GT */
+  const pct = maxMarks>0 ? marks/maxMarks : 0;
+  return { marks, maxMarks, total, type:sn.testType||'gt',
+    pct, pct100:Math.round(pct*100),
+    examMarks:Math.round(pct*EXAM_MAX), /* what this % would score on the full 200-Q paper */
+    attemptRate:total?att/total:null, accuracy:att?c/att:0, wc:c?w/c:null };
 }
-/* ============ EBM engine: least-squares fit + honest prediction band ============ */
+/* ============ EBM engine: (optionally weighted) least-squares fit + honest prediction band ============
+   weights let recent tests count more — a student's ability drifts, so recent form is the better guide. */
 function linReg(pts){
   const n=pts.length; if(n<2) return null;
-  let sx=0,sy=0,sxx=0,sxy=0; pts.forEach(p=>{sx+=p.x;sy+=p.y;sxx+=p.x*p.x;sxy+=p.x*p.y;});
-  const xbar=sx/n, ybar=sy/n, Sxx=sxx-sx*sx/n;
+  let Sw=0,Swx=0,Swy=0,Swxx=0,Swxy=0;
+  pts.forEach(p=>{ const w=p.w!=null?p.w:1; Sw+=w; Swx+=w*p.x; Swy+=w*p.y; Swxx+=w*p.x*p.x; Swxy+=w*p.x*p.y; });
+  if(Sw<=0) return null;
+  const xbar=Swx/Sw, ybar=Swy/Sw, Sxx=Swxx-Swx*Swx/Sw;
   if(Sxx<=0) return {m:0,b:ybar,xbar,Sxx:0,se:0,n};
-  const m=(sxy-sx*sy/n)/Sxx, b=ybar-m*xbar;
-  let ss=0; pts.forEach(p=>{const e=p.y-(m*p.x+b); ss+=e*e;});
-  const se=n>2?Math.sqrt(ss/(n-2)):Math.sqrt(ss/n||0);
+  const m=(Swxy-Swx*Swy/Sw)/Sxx, b=ybar-m*xbar;
+  let ss=0,wsum=0; pts.forEach(p=>{ const w=p.w!=null?p.w:1; const e=p.y-(m*p.x+b); ss+=w*e*e; wsum+=w; });
+  const se=n>2?Math.sqrt(ss/wsum*n/(n-2)):Math.sqrt(ss/wsum||0);
   return {m,b,xbar,Sxx,se,n};
 }
-/* projected exam-day marks from the scored reads in scope, with an ~80% prediction band —
-   deliberately wide, because the honest answer with a handful of tests IS wide */
+/* projected exam-day score from your FULL GTs only (the exam is a full paper, not a daily module),
+   on a normalised %-of-max scale, recency-weighted, with an ~80% prediction band. */
 function examMarkForecast(){
-  const scored=scopedSessions().filter(x=>scoreStats(x)).slice().sort((a,b)=>(a.ts||0)-(b.ts||0));
+  const scored=scopedSessions().filter(x=>x.testType==='gt' && scoreStats(x)).slice().sort((a,b)=>(a.ts||0)-(b.ts||0));
   if(scored.length<3) return null;
-  const t0=scored[0].ts;
-  const pts=scored.map(s=>({x:(s.ts-t0)/864e5, y:scoreStats(s).marks, set:s.set}));
+  const t0=scored[0].ts, now=Date.now();
+  /* y = % of max (comparable across GT sizes); weight recent GTs more */
+  const pts=scored.map(s=>{ const st=scoreStats(s); return {x:(s.ts-t0)/864e5, y:st.pct100, w:recencyW(s.ts), set:s.set, marks:st.marks, total:st.total}; });
   const fit=linReg(pts); if(!fit) return null;
   const d2e=daysToExam(); if(d2e==null || d2e<0) return null;
-  const x0=(Date.now()-t0)/864e5 + d2e;
+  const x0=(now-t0)/864e5 + d2e;
   const yhat=fit.m*x0+fit.b;
   const pi=fit.Sxx>0 ? fit.se*Math.sqrt(1+1/fit.n+Math.pow(x0-fit.xbar,2)/fit.Sxx) : fit.se;
   const band=1.28*pi; /* ~80% */
-  const total=(scored[scored.length-1].score.total)||200;
-  const cap=v=>Math.max(-total,Math.min(4*total,Math.round(v)));
-  return { pts, fit, x0, mid:cap(yhat), lo:cap(yhat-band), hi:cap(yhat+band),
-    perDay:fit.m, d2e, max:4*total, last:pts[pts.length-1].y };
+  const capPc=v=>Math.max(-25,Math.min(100,v));
+  const toMarks=pc=>Math.round(pc/100*EXAM_MAX);
+  const midPc=capPc(yhat), loPc=capPc(yhat-band), hiPc=capPc(yhat+band);
+  return { pts, fit, x0, d2e, examQ:EXAM_Q, max:EXAM_MAX,
+    midPc, loPc, hiPc, mid:toMarks(midPc), lo:toMarks(loPc), hi:toMarks(hiPc),
+    perDayPc:fit.m*7, /* %/week */ lastPc:pts[pts.length-1].y, n:scored.length };
 }
 function saveSession(score){
   if(triage.saved) return;
@@ -2523,7 +2545,7 @@ function triageSummaryHTML(){
   ].join('');
   const sess=sessions.find(x=>x.id===triage.sessionId);
   const st=sess?scoreStats(sess):null;
-  const scoreLine=st?`<div class="sm-score">${st.marks} marks · ${Math.round(st.accuracy*100)}% when attempted${st.wc!=null?` · W:C ${st.wc.toFixed(2)}`:''}</div>`:'';
+  const scoreLine=st?`<div class="sm-score">${st.marks}/${st.maxMarks} · <b>${st.pct100}%</b> · ${Math.round(st.accuracy*100)}% when attempted${st.wc!=null?` · W:C ${st.wc.toFixed(2)}`:''}</div>`:'';
   let evLine='';
   if(sess && sess.score && sess.score.blindTried!=null){
     const B=sess.score.blindTried, N=Math.min(noidea,B), hits=Math.max(0,B-N), net=4*hits-N;
@@ -2794,12 +2816,13 @@ function testListCard(){
   const inScope=new Set(scopedSessions().map(s=>s.testType+'|'+s.set).concat(scopedEntries().map(e=>e.testType+'|'+e.set)));
   const keys=Object.keys(tests).filter(k=>inScope.has(k)).sort((a,b)=>tests[b].ts-tests[a].ts).slice(0,15);
   if(!keys.length) return '';
-  const marksBySet={}; sessions.forEach(sn=>{ const k2=sn.testType+'|'+sn.set; const st=scoreStats(sn); if(st&&marksBySet[k2]==null) marksBySet[k2]=st.marks; });
+  /* % score, not raw marks — the column has to compare a 50-Q module and a 200-Q GT fairly */
+  const pcBySet={}; sessions.forEach(sn=>{ const k2=sn.testType+'|'+sn.set; const st=scoreStats(sn); if(st&&pcBySet[k2]==null) pcBySet[k2]=st.pct100; });
   const rows=keys.map(k=>{ const t=tests[k], tot=t.logged+t.tri;
     const mini=ERRORS.map(e=>t.errs[e.id]?`<span style="flex:${t.errs[e.id]};background:${e.c}"></span>`:'').join('');
     return `<button class="gtrow tap" data-test="${esc(k)}"><span class="gtn ${t.type==='module'?'mod':''}">${esc(t.set)}</span>
-      <span class="gtmini">${mini}</span><span class="gtsc">${marksBySet[k]!=null?marksBySet[k]:'—'}</span><span class="gtc">${tot}</span><span class="gtgo">›</span></button>`;}).join('');
-  return `<div class="card gtlist"><h3><span class="accent"></span>Every test — tap one to open it</h3>${rows}</div>`;
+      <span class="gtmini">${mini}</span><span class="gtsc">${pcBySet[k]!=null?pcBySet[k]+'%':'—'}</span><span class="gtc">${tot}</span><span class="gtgo">›</span></button>`;}).join('');
+  return `<div class="card gtlist"><h3><span class="accent"></span>Every test — tap one to open it <span class="h3-hint">% score</span></h3>${rows}</div>`;
 }
 /* the per-test deep dive: its own mix, confidence trio, and subject hits */
 function testDetailSheet(key){
@@ -2948,18 +2971,31 @@ function subjectNextTouch(sub){
   if(due) return {kind:'revisit', d:due};
   return null;
 }
+/* is a subject getting better or worse? compare wrongs-per-test in the newer half of its tests
+   vs the older half. Down = fewer recent mistakes = improving. Needs ≥2 tests to be honest. */
+function subjectTrend(sub){
+  const ss=scopedSessions().filter(s=>s.items.some(it=>it.subj===sub)).slice().sort((a,b)=>(a.ts||0)-(b.ts||0));
+  if(ss.length<2) return null;
+  const mid=Math.floor(ss.length/2), older=ss.slice(0,mid), newer=ss.slice(mid);
+  if(!older.length||!newer.length) return null;
+  const rate=arr=>arr.reduce((n,s)=>n+s.items.filter(it=>it.subj===sub).length,0)/arr.length;
+  const d=rate(newer)-rate(older);
+  return d<-0.4?'down':d>0.4?'up':'flat';
+}
 function weakAreasCard(){
   const m=buildSubjects(scopedSessions(), scopedEntries());
   const subs=Object.keys(m).map(s=>({s,...m[s]})).sort((a,b)=>b.wgt-a.wgt);
   if(subs.length<2 || subs.reduce((a,x)=>a+x.n,0)<4) return '';
   const today=todayISO();
   const shown=wkAll?subs:subs.slice(0,5);
+  const trArrow={up:'<span class="wk-tr up" title="more mistakes recently — worsening">▲ worsening</span>',down:'<span class="wk-tr down" title="fewer mistakes recently — improving">▼ improving</span>',flat:''};
   const rows=shown.map((x,i)=>{ const dom=ERRORS.slice().sort((a,b)=>x.errs[b.id]-x.errs[a.id])[0];
     const mini=ERRORS.map(e=>x.errs[e.id]?`<span style="flex:${x.errs[e.id]};background:${e.c}"></span>`:'').join('');
     const nx=subjectNextTouch(x.s);
     const nxChip=nx?`<span class="wk-next${nx.d<=today?' now':''}">${nx.kind==='revisit'?'revisit':'read'} ${nx.d<=today?'today':fmtShort(nx.d)}</span>`:'';
+    const tr=trArrow[subjectTrend(x.s)]||'';
     return `<button class="wk-row" data-sub="${esc(x.s)}"><span class="wk-rank${i===0?' worst':''}">${i+1}</span>
-      <div class="wk-mid"><div class="wk-t">${esc(x.s)}${nxChip}</div><div class="gtmini">${mini}</div>
+      <div class="wk-mid"><div class="wk-t">${esc(x.s)}${nxChip}${tr}</div><div class="gtmini">${mini}</div>
       <div class="wk-d">${x.n} mark${x.n>1?'s':''} lost${x.sure?` · <b class="bl">${x.sure} blind</b>`:''} · mostly ${dom.t.toLowerCase()}</div></div>
       <span class="th-go">›</span></button>`;}).join('');
   const more=subs.length>5?`<button class="linkish" id="wkMore" style="margin-top:10px">${wkAll?'Show top 5 only ‹':'Show all '+subs.length+' subjects ›'}</button>`:'';
@@ -3126,33 +3162,34 @@ function forecastCard(){
   if(!f){
     /* don't vanish — show WHY it's locked and exactly how to unlock it, so the feature is visible */
     const ss=scopedSessions(); if(!ss.length) return '';
-    const scored=ss.filter(x=>scoreStats(x)).length;
-    const need=Math.max(0,3-scored);
+    const gtScored=ss.filter(x=>x.testType==='gt' && scoreStats(x)).length;
+    const need=Math.max(0,3-gtScored);
     return `<div class="card fc-lock"><h3><span class="accent"></span>Projected exam score<button class="cardq" data-help="forecast">?</button></h3>
       <div class="fc-lock-row"><span class="fc-lock-ic">📈</span><div>
-      <div class="fc-lock-t">Locked — ${scored} of 3 scored reads</div>
-      <div class="tlab" style="margin-top:3px">After a read, tap <b>Save the read</b> on the score screen (not Skip) and enter your correct / wrong count. ${need} more and this projects your exam-day marks with an honest range — plus it unlocks your score trend and blind-guess value.</div>
+      <div class="fc-lock-t">Locked — ${gtScored} of 3 scored full GTs</div>
+      <div class="tlab" style="margin-top:3px">After a <b>GT</b>, tap <b>Save the read</b> (not Skip) and enter correct / wrong. ${need} more full GT${need===1?'':'s'} and this projects your exam-day score. The exam is a full paper, so only GTs count here — daily modules feed the score trend instead.</div>
       </div></div></div>`;
   }
-  const W=336,H=150,x0=8,x1=W-40,y0=14,y1=H-26;
-  const xs=f.pts.map(p=>p.x).concat([f.x0]), ys=[f.lo,f.hi,f.mid].concat(f.pts.map(p=>p.y));
+  const W=336,H=152,x0=8,x1=W-40,y0=14,y1=H-26;
+  /* plot on the normalised %-of-max axis, but label the reader in exam marks */
+  const xs=f.pts.map(p=>p.x).concat([f.x0]), ys=[f.loPc,f.hiPc,f.midPc].concat(f.pts.map(p=>p.y));
   const xmin=Math.min(...xs), xmax=Math.max(...xs)||1;
   const ymin=Math.min(...ys), ymax=Math.max(...ys), yr=(ymax-ymin)||1;
   const X=x=>x0+(x-xmin)/((xmax-xmin)||1)*(x1-x0);
   const Y=y=>y1-(y-ymin)/yr*(y1-y0);
   const ppts=f.pts.map(p=>({x:X(p.x),y:Y(p.y)}));
   const histLine=smoothPath(ppts);
-  const last=ppts[ppts.length-1], proj={x:X(f.x0),y:Y(f.mid)};
-  const bandTop=Y(f.hi), bandBot=Y(f.lo);
-  const dots=ppts.map(p=>`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="2.6" fill="var(--accent-ink)"/>`).join('');
-  const dir=f.perDay>0.05?'up':f.perDay<-0.05?'down':'flat';
-  const perWeek=Math.round(f.perDay*7);
-  const trendTxt = dir==='up'?`climbing about <b>${perWeek>0?'+':''}${perWeek} marks a week</b>`
-    : dir==='down'?`slipping about <b>${perWeek} marks a week</b> — the trend is the wrong way`
+  const last=ppts[ppts.length-1], proj={x:X(f.x0),y:Y(f.midPc)};
+  const bandTop=Y(f.hiPc), bandBot=Y(f.loPc);
+  const dots=ppts.map((p,i)=>`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="2.6" fill="var(--accent-ink)"><title>${esc(f.pts[i].set)}: ${f.pts[i].marks}/${4*f.pts[i].total} (${f.pts[i].y}%)</title></circle>`).join('');
+  const dir=f.perDayPc>0.4?'up':f.perDayPc<-0.4?'down':'flat';
+  const pw=Math.round(f.perDayPc*10)/10;
+  const trendTxt = dir==='up'?`climbing about <b>+${pw}%/week</b> (${Math.round(f.perDayPc/100*f.max)} marks)`
+    : dir==='down'?`slipping about <b>${pw}%/week</b> — the trend is the wrong way`
     : `holding flat`;
-  return `<div class="card fc-card"><h3><span class="accent"></span>Projected exam score<span class="h3-hint">tap for how</span><button class="cardq" data-help="forecast">?</button></h3>
-    <div class="fc-big"><b>${f.mid}</b><span class="fc-of">/ ${f.max}</span><span class="fc-band">range ${f.lo}–${f.hi}</span></div>
-    <div class="chartwrap"><svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Projected exam marks">
+  return `<div class="card fc-card"><h3><span class="accent"></span>Projected exam score<span class="h3-hint">GT-only · tap for how</span><button class="cardq" data-help="forecast">?</button></h3>
+    <div class="fc-big"><b>${f.mid}</b><span class="fc-of">/ ${f.max}</span><span class="fc-band">${f.midPc}% · range ${f.lo}–${f.hi}</span></div>
+    <div class="chartwrap"><svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Projected exam score, normalised">
       <path d="M ${last.x.toFixed(1)} ${last.y.toFixed(1)} L ${proj.x.toFixed(1)} ${bandTop.toFixed(1)} L ${proj.x.toFixed(1)} ${bandBot.toFixed(1)} Z" fill="var(--accent)" opacity=".13"/>
       <path class="fc-line" d="${histLine}" fill="none" stroke="var(--accent-ink)" stroke-width="2.4" stroke-linecap="round"/>
       <path d="M ${last.x.toFixed(1)} ${last.y.toFixed(1)} L ${proj.x.toFixed(1)} ${proj.y.toFixed(1)}" fill="none" stroke="var(--accent-ink)" stroke-width="2" stroke-dasharray="4 4" opacity=".8"/>
@@ -3160,7 +3197,7 @@ function forecastCard(){
       <circle cx="${proj.x.toFixed(1)}" cy="${proj.y.toFixed(1)}" r="4" fill="var(--accent)" stroke="var(--surface)" stroke-width="1.5"/>
       <text x="${proj.x.toFixed(1)}" y="${(proj.y-8).toFixed(1)}" text-anchor="end" class="xlab" style="fill:var(--accent-ink);font-weight:800">exam</text>
     </svg></div>
-    <p class="tlab" style="margin-top:6px">On your last ${f.pts.length} scored reads you're ${trendTxt}. If that holds, you land near <b>${f.mid}</b> on exam day (${f.d2e} days out) — realistically <b>${f.lo}–${f.hi}</b>. The range is wide because ${f.pts.length} tests can't say more honestly.</p></div>`;
+    <p class="tlab" style="margin-top:6px">Across your last ${f.n} full GTs (sizes evened out to %) you're ${trendTxt}. Hold that and you land near <b>${f.mid}/${f.max}</b> on a 200-Q paper (${f.d2e} days out) — realistically <b>${f.lo}–${f.hi}</b>. Recent GTs count more, and the band is wide because ${f.n} tests can't say more honestly.</p></div>`;
 }
 /* metacognition, zero extra taps: read from your mistakes how well you know when you're wrong,
    and whether your blind guessing is paying off on +4/-1 */
@@ -3216,23 +3253,29 @@ function recoverableCard(){
   </div>`;
 }
 function scoreTrendCard(){
-  const scored=scopedSessions().filter(x=>scoreStats(x)).slice(0,10).reverse();
+  const all=scopedSessions().filter(x=>scoreStats(x));
+  if(!all.length) return '';
+  const haveGT=all.some(x=>(x.testType||'gt')==='gt'), haveMod=all.some(x=>x.testType==='module');
+  const type=(stType==='module'&&haveMod)?'module':(haveGT?'gt':'module');
+  const scored=all.filter(x=>(x.testType||'gt')===type).slice(0,10).reverse();
   if(!scored.length) return '';
   const st=scored.map(scoreStats);
+  /* GT and modules never share a line — different papers. Toggle only if both exist. */
+  const toggle=(haveGT&&haveMod)?`<div class="st-seg" id="stSeg"><button data-t="gt" class="${type==='gt'?'on':''}">GTs</button><button data-t="module" class="${type==='module'?'on':''}">Modules</button></div>`:'';
+  const tlab=type==='gt'?'full GTs':'daily modules';
   if(scored.length===1){
     const k=st[0];
-    return `<div class="card thin"><h3><span class="accent"></span>Score</h3>
-      <div class="tlab"><b>${k.marks}</b> marks · <b>${Math.round(k.accuracy*100)}%</b> when attempted${k.wc!=null?` · W:C <b>${k.wc.toFixed(2)}</b>`:''} — one scored read so far.</div></div>`;
+    return `<div class="card thin"><h3><span class="accent"></span>Score ${toggle}<button class="cardq" data-help="scoretrend">?</button></h3>
+      <div class="tlab"><b>${k.marks}/${k.maxMarks}</b> (<b>${k.pct100}%</b>) · <b>${Math.round(k.accuracy*100)}%</b> when attempted${k.wc!=null?` · W:C <b>${k.wc.toFixed(2)}</b>`:''} — one scored ${type==='gt'?'GT':'module'} (${k.total} Q) so far.</div></div>`;
   }
   let cap='';
   if(scored.length>=3){
-    const f=st[0].wc, l=st[st.length-1].wc;
-    if(f!=null&&l!=null){ const dir=l<f?'down':l>f?'up':'flat';
-      cap=`<p class="tlab" style="margin-top:12px">W:C is trending <b>${dir}</b> — ${l.toFixed(2)} vs ${f.toFixed(2)}. ${dir==='down'?'Down is good.':dir==='up'?'Up is the wrong way — check attempt discipline.':'Holding.'}</p>`; }
+    const f=st[0].pct100, l=st[st.length-1].pct100, d=l-f, dir=d>1?'up':d<-1?'down':'flat';
+    cap=`<p class="tlab" style="margin-top:12px">Your % score is trending <b>${dir}</b> — <b>${l}%</b> now vs ${f}% a few ${type==='gt'?'GTs':'modules'} back${dir==='up'?'. Keep it.':dir==='down'?'. Dig into the buckets below.':', holding.'} Sizes are evened out to %, so a ${type==='gt'?'180-Q and a 200-Q GT':'50-Q and a 100-Q module'} compare fairly.</p>`;
   }
   const labs=scored.map(x=>x.set);
-  return `<div class="card thin"><h3><span class="accent"></span>Score trend <span class="h3-hint">tap a line</span><button class="cardq" data-help="scoretrend">?</button></h3><div class="sparks">
-    ${sparkRow('Marks','var(--accent-ink)',st.map(k=>k.marks),{labels:labs,goodDown:false})}
+  return `<div class="card thin"><h3><span class="accent"></span>Score trend <span class="h3-hint">${tlab} · tap a line</span>${toggle}<button class="cardq" data-help="scoretrend">?</button></h3><div class="sparks">
+    ${sparkRow('% score','var(--accent-ink)',st.map(k=>k.pct100),{labels:labs,goodDown:false,disp:st.map(k=>k.pct100+'%')})}
     ${sparkRow('Accuracy %','var(--sage-ink)',st.map(k=>Math.round(k.accuracy*100)),{labels:labs,goodDown:false,disp:st.map(k=>Math.round(k.accuracy*100)+'%')})}
     ${sparkRow('Wrong : correct','var(--rose)',st.map(k=>k.wc!=null?Math.round(k.wc*100):0),{labels:labs,goodDown:true,dscale:100,disp:st.map(k=>k.wc!=null?k.wc.toFixed(2):'—')})}
   </div>${cap}</div>`;
@@ -3286,20 +3329,20 @@ function numbersCard(){
   if(!tests && !ee.length) return '';
   const written=ee.filter(e=>e.srcSession).length;
   const scored=ss.filter(x=>scoreStats(x));
-  const best=scored.length?Math.max(...scored.map(x=>scoreStats(x).marks)):null;
+  const bestPc=scored.length?Math.max(...scored.map(x=>scoreStats(x).pct100)):null; /* % — comparable across GT/module sizes */
   const pct=(a,b)=>b?Math.round(a/b*100)+'%':'—';
   const tile=(n,lab)=>`<div class="num"><b data-cu="${typeof n==='number'?n:''}">${n}</b><span>${lab}</span></div>`;
   return `<div class="card thin"><h3><span class="accent"></span>The raw numbers</h3><div class="num-grid">
     ${tile(total,'wrongs triaged')}${tile(tests,'tests read')}${tile(blind,'blind spots')}
     ${tile(tests?(total/tests).toFixed(1):'—','avg wrongs / test')}${tile(pct(blind,total),'blind rate')}${tile(pct(noidea,total),'no-read share')}
     ${tile(pct(img,total),'image share')}${parked?tile(parked,'parked'):''}${ee.length?tile(ee.length,'in the Book'):''}
-    ${written?tile(written,'fixes written'):''}${best!=null?tile(best,'best marks'):''}
+    ${written?tile(written,'fixes written'):''}${bestPc!=null?tile(bestPc+'%','best % score'):''}
   </div></div>`;
 }
 /* every metric explains itself in two lines — what it is, what to do. Tight on purpose. */
 const METRIC_HELP={
-  forecast:{t:'Projected exam score',is:'A line through your scored reads, carried to exam day. Dot = likely landing, band = honest range (wider when you have fewer tests).',
-    do:'Watch the slope, not one test. Flat this close to exams means change what you study, not how long.'},
+  forecast:{t:'Projected exam score',is:'A recency-weighted line through your full GTs — sizes evened out to % of max, then scaled to a 200-Q / 800-mark paper. GT-only, because the exam is a full paper; modules aren\'t comparable.',
+    do:'Watch the slope, not one GT. Flat this close to exams means change what you study, not how long. The band is wide on purpose — few tests can\'t say more honestly.'},
   calibration:{t:'How well you read yourself',is:'Of your wrongs, how sure you felt — felt-sure, down-to-two, no-read. A big felt-sure slice is the dangerous kind: you can\'t feel it coming.',
     do:'Shrink the felt-sure slice by writing the contrast for each (believed vs true). Read from your mistakes only — no extra taps.'},
   ev:{t:'Blind-guess value (+4/−1)',is:'How often your pure guesses pay off. A guess is worth 5 × hit-rate − 1 marks; break-even is 20%.',
@@ -3308,8 +3351,8 @@ const METRIC_HELP={
     do:'Fix it at its next scheduled read/revisit — the card says when. Nothing flagged = even spread, so the plan is the lever.'},
   buckets:{t:'The four buckets',is:'KG didn\'t know it · RF knew it, didn\'t fire · CC confidently wrong (blind spot) · TE misread it.',
     do:'Tap any bucket on a card for its evidence-based fix protocol — each needs a different fix.'},
-  scoretrend:{t:'Score trend',is:'Marks (4×correct−wrong) · accuracy when attempted · wrong:correct. Lower W:C is better.',
-    do:'Tap any line for per-test numbers. Rising accuracy with falling W:C is the shape you want.'},
+  scoretrend:{t:'Score trend',is:'% score (marks as a share of that test\'s max — so a 50-Q module and a 200-Q GT compare fairly) · accuracy when attempted · wrong:correct. GTs and modules never share a line.',
+    do:'Toggle GTs / Modules — they\'re different papers. Tap any line for per-test numbers. Rising % with falling W:C is the shape you want.'},
   blindrate:{t:'Blind-spot rate',is:'Share of wrongs you felt sure about. Re-reading won\'t catch these — they don\'t feel wrong.',
     do:'Each needs a written contrast, not a re-read. Do it in the two-minute summary after a test.'},
   scope:{t:'Time scope',is:'The window every card is computed over. Old data becomes noise as you log more.',
@@ -3345,6 +3388,7 @@ function renderInsights(){
   box.querySelectorAll('.sc-chip').forEach(b=>b.onclick=()=>{ buzz(5); insScope=b.dataset.sc; renderInsights(); });
   const hm=document.getElementById('hmMore'); if(hm) hm.onclick=()=>{ buzz(5); hmAll=!hmAll; renderInsights(); };
   const hmM=document.getElementById('hmMode'); if(hmM) hmM.onclick=()=>{ buzz(5); hmPct=!hmPct; renderInsights(); };
+  box.querySelectorAll('#stSeg button').forEach(b=>b.onclick=e=>{ e.stopPropagation(); buzz(5); stType=b.dataset.t; renderInsights(); });
   const wk=document.getElementById('wkMore'); if(wk) wk.onclick=()=>{ buzz(5); wkAll=!wkAll; renderInsights(); };
   /* satisfying count-up on the raw numbers, honest to reduced-motion */
   if(!reducedMotion()) box.querySelectorAll('.num b[data-cu]').forEach(el=>{
