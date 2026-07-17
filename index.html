@@ -841,6 +841,19 @@
   .pl-tag.x2{color:var(--violet);background:color-mix(in srgb,var(--violet) 13%,transparent)}
   .pl-tag.nr{color:var(--ink2);background:color-mix(in srgb,var(--surface2) 70%,transparent)}
   .pl-tag.slipped{color:var(--amber);background:color-mix(in srgb,var(--amber) 15%,transparent)}
+  .pl-tag.hot{color:var(--accent-ink);background:color-mix(in srgb,var(--accent) 16%,transparent);animation:hotpulse 2.8s ease infinite}
+  @keyframes hotpulse{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 30%,transparent)}55%{box-shadow:0 0 0 4px transparent}}
+  .pl-tag.eff.good{color:var(--sage-ink);background:color-mix(in srgb,var(--sage-ink) 14%,transparent)}
+  .pl-tag.eff.bad{color:var(--rose);background:color-mix(in srgb,var(--rose) 13%,transparent)}
+  .hotword{color:var(--accent-ink)}
+  /* the before → after readout in a plan row's sheet */
+  .eff-bars{display:flex;flex-direction:column;gap:7px;margin-top:2px}
+  .eff-row{display:flex;align-items:center;gap:9px;font-size:11.5px;color:var(--muted)}
+  .eff-row>span{width:42px;text-align:right;font-weight:700}
+  .eff-row>b{width:58px;font-size:12px;color:var(--ink);font-variant-numeric:tabular-nums}
+  .eff-track{flex:1;height:10px;border-radius:6px;background:var(--surface2);overflow:hidden}
+  .eff-track i{display:block;height:100%;width:0;border-radius:6px;background:var(--rose);transition:width .7s cubic-bezier(.22,1,.36,1)}
+  .eff-row.aft .eff-track i{background:var(--sage-ink)}
   .pl-check{flex:none;color:var(--sage-ink);font-weight:800}
   .pl-more{flex:none;width:26px;height:26px;border-radius:8px;color:var(--accent);font-weight:800;font-size:15px;background:var(--surface2)}
   .pl-unplanned{display:flex;align-items:center;gap:8px;width:100%;text-align:left;border:1.5px dashed var(--border2);border-radius:14px;
@@ -1289,7 +1302,7 @@ const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.st
 async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } try{return localStorage.getItem(k)}catch(_){return null} }
 async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v);return true}catch(e){return false} } try{localStorage.setItem(k,v);return true}catch(_){return false} }
 const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
-const APP_VERSION='v36'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
+const APP_VERSION='v37'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
 
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 
@@ -2032,6 +2045,23 @@ function planTestStat(row){
 }
 /* the recommended depth for a revisit: early looks are quick recall skims, the last is a fuller read */
 function revisitDepth(passes){ return passes>=2 ? 'full' : 'skim'; }
+/* did a reading day actually work? Wrongs-per-GT in its subjects, before vs after the tick.
+   Two Gamma-Poisson posteriors (weak Gamma(0.8, 0.6) prior) compared exactly:
+   p = P(rate_after < rate_before). Honest at small n — the posteriors just stay wide,
+   so p sits near 0.5 until there's real evidence either way. */
+function readEffect(rowId){ return _memo('reff:'+rowId, function(){
+  const r=plan.rows.find(x=>x.id===rowId), dn=plan.done[rowId];
+  if(!r || r.k!=='read' || !dn || !(r.s&&r.s.length)) return null;
+  const gts=sessions.filter(s=>(s.testType||'gt')==='gt');
+  const pre=gts.filter(s=>(s.ts||0)<dn.ts), post=gts.filter(s=>(s.ts||0)>=dn.ts);
+  if(pre.length<2 || post.length<2) return null; /* one test either side proves nothing */
+  const k=arr=>arr.reduce((n,s)=>n+s.items.filter(it=>it.subj&&r.s.includes(it.subj)).length,0);
+  const kb=k(pre), ka=k(post);
+  if(kb+ka<3) return null; /* barely any tagged wrongs in these subjects — nothing to compare */
+  const a0=0.8, b0=0.6;
+  const p=pGammaLess(a0+ka, b0+post.length, a0+kb, b0+pre.length);
+  return { before:kb/pre.length, after:ka/post.length, p, nb:pre.length, na:post.length, kb, ka };
+}); }
 function renderPlan(){
   const box=document.getElementById('planBody'); if(!box) return;
   const today=todayISO();
@@ -2067,11 +2097,16 @@ function renderPlan(){
   const nextRow = plan.rows.find(r=>r.d===today && !plan.done[r.id])
     || undone.filter(r=>r.d>today).sort((a,b)=>a.d<b.d?-1:1)[0]
     || planSlipped().sort((a,b)=>a.d<b.d?-1:1)[0];
+  /* live hotspots from the Bayesian signal engine — these outrank the static seed flags */
+  const hot={}; planSignals().forEach(s=>{ if(!hot[s.sub]) hot[s.sub]=s; });
   if(nextRow){
     const isTest=nextRow.k==='test';
     const when = nextRow.d===today?'Today' : nextRow.d<today?('Overdue · was '+fmtShort(nextRow.d)) : fmtShort(nextRow.d);
     const subs=buildSubjects();
-    const stat=(nextRow.s||[]).map(x=>{ const t=subs[x]; return t&&t.n?`${esc(x)} · <b>${t.n}</b> mark${t.n>1?'s':''} lost${t.sure?` · <b class="bl">${t.sure} blind</b>`:''}`:esc(x); }).join('<br>');
+    const stat=(nextRow.s||[]).map(x=>{ const t=subs[x], sg=hot[x];
+      const base=t&&t.n?`${esc(x)} · <b>${t.n}</b> mark${t.n>1?'s':''} lost${t.sure?` · <b class="bl">${t.sure} blind</b>`:''}`:esc(x);
+      return sg?base+` · <b class="hotword">${sg.kind==='blind'?'blind cluster':ERR_MAP[sg.kind].code+' cluster'} ${Math.round(sg.rate*100)}%</b>`:base;
+    }).join('<br>');
     const ts=isTest?planTestStat(nextRow):null;
     html+=`<div class="pl-next card"><div class="pl-next-eye">NEXT UP · ${when}${nextRow.d<today?'':''}</div>
       <div class="pl-next-t">${esc(nextRow.t)}</div>
@@ -2101,11 +2136,15 @@ function renderPlan(){
       const dn=plan.done[r.id], slip=(!dn && r.d<today);
       const isToday=r.d===today;
       const ts=r.k==='test'?planTestStat(r):null;
-      /* one tag slot, priority order: real marks > slipped > weak/×2 > test placeholder */
+      /* one tag slot, priority: real marks > slipped > read-effect verdict > live hotspot > static weak/×2 */
       let tag='';
       if(ts&&ts.marks!=null) tag=`<span class="pl-tag marks">${ts.marks} marks · ${ts.triaged} wrong</span>`;
       else if(slip) tag='<span class="pl-tag slipped">slipped</span>';
       else if(r.k==='test') tag='<span class="pl-tag nr">test</span>';
+      else if(dn && r.k==='read'){ const ef=readEffect(r.id);
+        if(ef&&ef.p>=0.9) tag='<span class="pl-tag eff good">working ✓</span>';
+        else if(ef&&ef.p<=0.15) tag='<span class="pl-tag eff bad">not landing</span>'; }
+      else if((r.s||[]).some(x=>hot[x])) tag='<span class="pl-tag hot">hotspot</span>';
       else if(r.weak) tag='<span class="pl-tag weak">weak</span>';
       else if(r.x2) tag='<span class="pl-tag x2">×2</span>';
       return `<div class="pl-row ${r.k} ${dn?'done':''} ${slip?'slip':''} ${isToday?'today':''}" data-row="${esc(r.id)}">
@@ -2171,6 +2210,22 @@ function planRowSheet(id){
   const r=plan.rows.find(x=>x.id===id); if(!r)return;
   const dn=plan.done[id];
   const passes=plan.skims[id]||[];
+  /* the closed loop: did this reading day actually cut wrongs in its subjects? */
+  const ef=r.k==='read'?readEffect(id):null;
+  let effBlock='';
+  if(ef){
+    const mx=Math.max(ef.before,ef.after,0.001), pc=Math.min(99,Math.round(ef.p*100)); /* never claim certainty */
+    const verdict = ef.p>=0.9?`<b style="color:var(--sage-ink)">${pc}% likely a real drop</b> — this read landed. The revisit rungs will hold it.`
+      : ef.p>=0.7?`<b style="color:var(--sage-ink)">probably helping</b> (${pc}% likely) — keep the revisits coming.`
+      : ef.p>0.3?`too soon to tell (${pc}%) — ${ef.na} test${ef.na>1?'s':''} since; the picture sharpens with each GT.`
+      : `<b style="color:var(--rose)">not landing</b> (only ${pc}% likely improved) — change the format: fewer pages, more retrieval.`;
+    effBlock=`<div class="sp-lab" style="margin-top:14px">is it working?</div>
+      <div class="eff-bars">
+        <div class="eff-row"><span>before</span><div class="eff-track"><i data-w="${Math.round(ef.before/mx*100)}"></i></div><b>${ef.before.toFixed(1)}/GT</b></div>
+        <div class="eff-row aft"><span>after</span><div class="eff-track"><i data-w="${Math.round(ef.after/mx*100)}"></i></div><b>${ef.after.toFixed(1)}/GT</b></div>
+      </div>
+      <p class="tlab" style="margin-top:8px">Wrongs per GT in ${(r.s||[]).map(esc).join(', ')} — ${ef.nb} test${ef.nb>1?'s':''} before vs ${ef.na} after. ${verdict}</p>`;
+  }
   openSheet(`<h3>${esc(r.t)}</h3><p>${fmtDay(r.d)} · ${r.k}${r.weak?' · weak':''}${r.x2?' · ×2':''}</p>
     <div class="sp-lab">status</div>
     <div class="actions">
@@ -2181,9 +2236,12 @@ function planRowSheet(id){
       <div class="sp-custom"><input type="number" id="prMins" inputmode="numeric" placeholder="minutes spent" value="${dn.mins||''}"><button class="btn primary" id="prMinsSave">Save</button></div>
       <div class="sp-lab" style="margin-top:14px">revisits (${passes.length})</div>
       <div class="actions"><button class="btn ghost" id="prSkim">+ log a skim</button><button class="btn ghost" id="prFull">+ log a full pass</button></div>`:''}
+    ${effBlock}
     <div class="sp-lab" style="margin-top:14px">edit</div>
     <div class="actions"><button class="btn ghost" id="prEdit">Edit this day</button><button class="btn ghost" style="color:var(--rose)" id="prDel">Delete</button></div>
     <div class="actions" style="margin-top:10px"><button class="btn primary" onclick="closeSheet()">Close</button></div>`);
+  /* bars grow to their targets after paint — the before/after drop reads at a glance */
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{ document.querySelectorAll('#sheet .eff-track i').forEach(el=>{ el.style.width=el.dataset.w+'%'; }); }));
   document.getElementById('prDone').onclick=()=>{ closeSheet(); togglePlanDone(id); };
   const pp=document.getElementById('prPartial'); if(pp) pp.onclick=()=>{ dn.mode=dn.mode==='partial'?'full':'partial'; persistPlan(); closeSheet(); renderPlan(); };
   const pm=document.getElementById('prMinsSave'); if(pm) pm.onclick=()=>{ const m=+document.getElementById('prMins').value; if(m>0) dn.mins=m; else delete dn.mins; persistPlan(); toast('Saved'); };
@@ -2313,6 +2371,7 @@ function renderTriage(){
     document.getElementById('triFinish').onclick=exitTriage; document.getElementById('triAgain').onclick=startTriage;
     const fc=document.getElementById('fixCta'); if(fc) fc.onclick=()=>writeFixComposer(triage.sessionId);
     const sl=document.getElementById('sumLog'); if(sl) sl.onclick=()=>{ triage.active=false; switchView('log'); };
+    const sp=document.getElementById('sumPlan'); if(sp) sp.onclick=()=>{ triage.active=false; persistLiveTriage(); switchView('plan'); };
     const big=document.querySelector('.sm-big');
     if(big){ const to=+big.textContent; countUp(big,to); }
     return;
@@ -2596,6 +2655,30 @@ function wilson(k,n,z){ z=z||1.96; if(!n) return [0,0,0]; const p=k/n, z2=z*z, d
   c=(p+z2/(2*n))/d, h=(z*Math.sqrt(p*(1-p)/n+z2/(4*n*n)))/d; return [Math.max(0,c-h),p,Math.min(1,c+h)]; }
 /* exponential recency weight — a smooth half-life instead of a step function (default 21-day half-life) */
 function expWeight(ts,half){ const d=(Date.now()-(ts||0))/864e5; return Math.pow(0.5, d/(half||21)); }
+/* ---- exact Gamma machinery (Lanczos log-Γ, regularised incomplete Γ) ----
+   powers the read-effect model: wrongs-per-GT before vs after a reading day as two
+   Gamma-Poisson posteriors, compared by numerical integration — deterministic, no sampling. */
+function lgamma(x){ const g=[76.18009172947146,-86.50532032941677,24.01409824083091,-1.231739572450155,0.1208650973866179e-2,-0.5395239384953e-5];
+  let y=x, tmp=x+5.5; tmp-=(x+0.5)*Math.log(tmp); let ser=1.000000000190015;
+  for(let j=0;j<6;j++) ser+=g[j]/++y; return -tmp+Math.log(2.5066282746310005*ser/x); }
+function gammp(a,x){ if(x<=0) return 0;
+  if(x < a+1){ let ap=a, sum=1/a, del=sum;
+    for(let n=0;n<300;n++){ ap++; del*=x/ap; sum+=del; if(Math.abs(del)<Math.abs(sum)*1e-10) break; }
+    return Math.min(1, sum*Math.exp(-x+a*Math.log(x)-lgamma(a))); }
+  let b=x+1-a, c=1e30, d=1/b, h=d;
+  for(let i=1;i<300;i++){ const an=-i*(i-a); b+=2; d=an*d+b; if(Math.abs(d)<1e-30)d=1e-30;
+    c=b+an/c; if(Math.abs(c)<1e-30)c=1e-30; d=1/d; const del=d*c; h*=del; if(Math.abs(del-1)<1e-10) break; }
+  return Math.max(0, 1-Math.exp(-x+a*Math.log(x)-lgamma(a))*h);
+}
+/* P(A < B) for A~Gamma(aA,bA), B~Gamma(aB,bB): ∫ pdfA(x)·(1−cdfB(x)) dx, trapezoid grid */
+function pGammaLess(aA,bA,aB,bB){
+  const mA=aA/bA, mB=aB/bB, sd=Math.sqrt(aA)/bA+Math.sqrt(aB)/bB;
+  const hi=Math.max(mA,mB)+4*sd+1e-6, n=240, dx=hi/n; let p=0;
+  for(let i=1;i<=n;i++){ const x=i*dx;
+    const pdfA=Math.exp((aA-1)*Math.log(x)-bA*x+aA*Math.log(bA)-lgamma(aA));
+    p+=pdfA*(1-gammp(aB,bB*x))*dx; }
+  return Math.min(1,Math.max(0,p));
+}
 
 /* projected exam-day score from your FULL GTs only, on a LOGISTIC (bounded) growth model:
    we fit % on the logit scale so the projection saturates near 100% instead of shooting past it,
@@ -2675,11 +2758,21 @@ function triageSummaryHTML(){
   }
   const {blind:bl2, nearMiss:nm2}=triageCounts(triage.items);
   const cta=(bl2>0||nm2>0)?`<button class="btn primary fixcta" id="fixCta">Write the fix for your ${bl2||nm2} ${bl2?'blind spot'+(bl2>1?'s':''):'near-miss'+(nm2>1?'es':'')} — 2 min now, or they come back next test</button>`:'';
+  /* the handoff: today's hardest-hit subject, and exactly when the plan touches it next */
+  let bridge='';
+  const bySub={}; triage.items.forEach(it=>{ if(it.subj) bySub[it.subj]=(bySub[it.subj]||0)+1; });
+  const topSub=Object.entries(bySub).sort((a,b)=>b[1]-a[1])[0];
+  if(topSub && topSub[1]>=3){
+    const nx=subjectNextTouch(topSub[0]);
+    bridge = nx
+      ? `<div class="line">📌 <b>${esc(topSub[0])}</b> took today's biggest hit — ${topSub[1]} wrongs. Your plan touches it <b>${nx.d<=todayISO()?'today':fmtShort(nx.d)}</b> (${nx.kind==='revisit'?'revisit':'read'}) — take these questions into it.</div>`
+      : `<div class="line">📌 <b>${esc(topSub[0])}</b> took today's biggest hit — ${topSub[1]} wrongs — and has <b>no planned touch ahead</b>. Worth stealing a day. <button class="linkish" id="sumPlan">Open plan ›</button></div>`;
+  }
   return `
     <div class="tri-top"><span style="width:34px"></span><div class="tri-set">${esc(triage.set)} · read</div><span style="width:34px"></span></div>
     <div class="sm-hero"><div class="sm-big">${total}</div><div class="sm-lab">mistake${total>1?'s':''} triaged${blind?` · <b class="bl">${blind} blind</b>`:''}</div>${scoreLine}</div>
     <div class="card"><h3><span class="accent"></span>What went wrong</h3><div class="sm-bars">${bars}</div>
-      ${confLines||evLine||quickLine?`<div class="sm-conf">${quickLine}${confLines}${evLine}</div>`:''}
+      ${confLines||evLine||quickLine||bridge?`<div class="sm-conf">${quickLine}${confLines}${evLine}${bridge}</div>`:''}
       <p class="tlab" style="margin-top:16px">${synth}</p></div>
     ${cta}
     <div class="actions" style="margin-top:10px"><button class="btn primary" id="triFinish">Done</button><button class="btn ghost" id="triAgain">Triage another</button></div>
@@ -3061,7 +3154,10 @@ function buildSubjects(ss,ee){
 /* ============ the signal engine: a hotspot is a RATE out of line with your baseline, on enough data —
    never just the biggest subject (volume), never a 2-question fluke (sample). Shrinkage pulls small
    samples toward the baseline so they must earn their flag. ============ */
-function subjectSignals(){ return _memo('sig:'+insScopeVal()+':'+insType, _subjectSignals); }
+function subjectSignals(){ return _memo('sig:'+insScopeVal()+':'+insType, function(){ return _signalsFor(scopedSessions(), scopedEntries()); }); }
+/* the Plan reacts to the whole ledger, not the Insights viewing window —
+   a hotspot doesn't stop being a hotspot because you're looking at "last 3 tests" */
+function planSignals(){ return _memo('psig', function(){ return _signalsFor(sessions, entries); }); }
 /* Beta-Binomial posterior for a subject's rate x/n against a baseline prior.
    Prior = Beta(κ·p0, κ·(1-p0)) (κ = prior strength in pseudo-observations); posterior adds the data.
    We flag only when the ~90% LOWER credible bound clears the baseline by a margin — i.e. we're
@@ -3073,8 +3169,8 @@ function betaFlag(x,n,p0,margin){
   const lower=mean-1.2816*sd; /* ~90% one-sided lower credible bound (normal approx to Beta) */
   return { pass: lower>p0+ (margin||0) && mean>p0+0.05, mean, lower, excess:lower-p0 };
 }
-function _subjectSignals(){
-  const m=buildSubjects(scopedSessions(), scopedEntries());
+function _signalsFor(ss,ee){
+  const m=buildSubjects(ss,ee);
   const subs=Object.keys(m); if(!subs.length) return [];
   let N=0, B=0; const Q={knowledge:0,retrieval:0,reasoning:0,execution:0};
   subs.forEach(s=>{ N+=m[s].n; B+=m[s].sure; ERRORS.forEach(e=>Q[e.id]+=m[s].errs[e.id]); });
