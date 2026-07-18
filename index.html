@@ -1257,6 +1257,10 @@ try{ var _s=JSON.parse(localStorage.getItem('ml_settings_v2')||'{}'); if(_s&&(_s
       <svg class="ic" viewBox="0 0 24 24"><path d="M9 4h6a1 1 0 0 1 1 1v1H8V5a1 1 0 0 1 1-1zM8 6H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-2"/></svg>
       <div><div class="tt">Paste a backup</div><div class="dd">Restore from copied text.</div></div>
     </button>
+    <button class="databtn" id="snapBtn">
+      <svg class="ic" viewBox="0 0 24 24"><path d="M12 8v4l3 3M21 12a9 9 0 1 1-9-9 9 9 0 0 1 9 9z"/></svg>
+      <div><div class="tt">Auto-backups on this device</div><div class="dd">A quiet daily snapshot, last 3 kept. Restoring merges — it never deletes.</div></div>
+    </button>
     <div class="datahead">Bring in old mistakes</div>
     <button class="databtn bring" id="bulkBtn">
       <svg class="ic" viewBox="0 0 24 24"><path d="M16 3h5v5M21 3l-9 9M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3"/></svg>
@@ -1302,7 +1306,7 @@ const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.st
 async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } try{return localStorage.getItem(k)}catch(_){return null} }
 async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v);return true}catch(e){return false} } try{localStorage.setItem(k,v);return true}catch(_){return false} }
 const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
-const APP_VERSION='v37'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
+const APP_VERSION='v38'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
 
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 
@@ -1415,6 +1419,7 @@ async function boot(){
     }).catch(()=>{});
   }catch(_){}}
   loadPhotos().then(()=>render());
+  maybeSnapshot(); /* fire-and-forget: today's ledger copy into IndexedDB */
   maybeBackupReminder();
   initSync();
 }
@@ -1460,11 +1465,50 @@ async function persistSettings(cloud){ settings._upd=Date.now(); await sset(K_SE
 async function requestPersistence(){ try{ if(navigator.storage && navigator.storage.persist){ const p=await navigator.storage.persisted(); if(!p) await navigator.storage.persist(); } }catch(_){} }
 
 /* ---------- photos in IndexedDB ---------- */
-function idbOpen(){return new Promise((res,rej)=>{try{const r=indexedDB.open('ml_media',1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains('photos'))r.result.createObjectStore('photos')};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}})}
+function idbOpen(){return new Promise((res,rej)=>{try{const r=indexedDB.open('ml_media',2);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains('photos'))r.result.createObjectStore('photos');if(!r.result.objectStoreNames.contains('snaps'))r.result.createObjectStore('snaps')};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}})}
 function req(r){return new Promise((res,rej)=>{r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
 async function idbSet(k,v){try{const d=await idbOpen();const t=d.transaction('photos','readwrite');t.objectStore('photos').put(v,k);return new Promise(r=>{t.oncomplete=r;t.onerror=r})}catch(_){}}
 async function idbDel(k){try{const d=await idbOpen();const t=d.transaction('photos','readwrite');t.objectStore('photos').delete(k);return new Promise(r=>{t.oncomplete=r;t.onerror=r})}catch(_){}}
 async function loadPhotos(){try{const d=await idbOpen();const t=d.transaction('photos','readonly');const s=t.objectStore('photos');const keys=await req(s.getAllKeys());const vals=await req(s.getAll());keys.forEach((k,i)=>{const v=vals[i];if(typeof v==='string'&&v.startsWith('data:image/'))photos[k]=v})}catch(_){}}
+/* ---------- daily auto-snapshots in IndexedDB ----------
+   localStorage is one bad write away from gone; IndexedDB is a separate store with far more
+   room. Once a day the whole ledger is copied there, last 3 kept. Restore MERGES (union by id,
+   tombstones honoured) so it can never delete anything — the last-ditch fail-safe. */
+async function idbSnapPut(k,v){try{const d=await idbOpen();const t=d.transaction('snaps','readwrite');t.objectStore('snaps').put(v,k);return new Promise(r=>{t.oncomplete=r;t.onerror=r})}catch(_){}}
+async function idbSnapDel(k){try{const d=await idbOpen();const t=d.transaction('snaps','readwrite');t.objectStore('snaps').delete(k);return new Promise(r=>{t.oncomplete=r;t.onerror=r})}catch(_){}}
+async function idbSnapAll(){try{const d=await idbOpen();const t=d.transaction('snaps','readonly');const s=t.objectStore('snaps');const keys=await req(s.getAllKeys());const vals=await req(s.getAll());return keys.map((k,i)=>({k:String(k),v:vals[i]}))}catch(_){return []}}
+async function maybeSnapshot(){
+  try{
+    if(!entries.length && !sessions.length) return;
+    const snaps=await idbSnapAll();
+    const newest=snaps.reduce((m,s)=>Math.max(m,+s.k||0),0);
+    if(Date.now()-newest < 20*3600e3) return; /* one per day is plenty */
+    await idbSnapPut(String(Date.now()), JSON.stringify({ts:Date.now(), entries, sessions, plan, tombstones}));
+    const all=(await idbSnapAll()).sort((a,b)=>+b.k-+a.k);
+    for(const s of all.slice(3)) await idbSnapDel(s.k);
+  }catch(_){}
+}
+async function snapSheet(){
+  const snaps=(await idbSnapAll()).sort((a,b)=>+b.k-+a.k);
+  const rows=snaps.map(s=>{ let d=null; try{d=JSON.parse(s.v)}catch(_){}; if(!d) return '';
+    return `<div class="ses-row"><div><div class="sr-t">${relTime(d.ts)}</div><div class="sr-d">${(d.entries||[]).length} fixes · ${(d.sessions||[]).length} reads · ${((d.plan||{}).rows||[]).length} plan days</div></div><button class="btn ghost" data-snap="${esc(s.k)}">Merge in</button></div>`; }).join('');
+  openSheet(`<h3>Auto-backups</h3><p>Taken quietly once a day on this device, last 3 kept. Restoring <b>merges</b> — it only adds what's missing, it never deletes.</p>
+    <div class="ses-list">${rows||'<div class="tlab">None yet — one is taken each day you open the app with data in it.</div>'}</div>
+    <div class="actions" style="margin-top:14px"><button class="btn primary" onclick="closeSheet()">Close</button></div>`);
+  document.querySelectorAll('#sheet [data-snap]').forEach(b=>b.onclick=async()=>{
+    const s=snaps.find(x=>x.k===b.dataset.snap); if(!s) return;
+    let d=null; try{d=JSON.parse(s.v)}catch(_){}
+    if(!d){ toast('That snapshot is unreadable'); return; }
+    const merged=mergeLedger(
+      {entries, settings, tombstones, sessions, plan},
+      {entries:sanitizeEntries(d.entries||[]), settings, tombstones:(d.tombstones&&typeof d.tombstones==='object')?d.tombstones:{}, sessions:sanitizeSessions(d.sessions||[]), plan:sanitizePlan(d.plan)});
+    entries=sanitizeEntries(merged.entries); tombstones=merged.tombstones;
+    sessions=sanitizeSessions(merged.sessions); plan=sanitizePlan(merged.plan);
+    persistTombstones(); await persist(); persistSessions(); persistPlan();
+    render(); closeSheet(); buzz(9);
+    toast('Merged — '+entries.length+' fixes, '+sessions.length+' reads now in the ledger');
+  });
+}
 function compressImage(file,max=1100,q=0.62){return new Promise((res,rej)=>{const rd=new FileReader();rd.onload=()=>{const img=new Image();img.onload=()=>{let w=img.width,h=img.height;if(w>h&&w>max){h=Math.round(h*max/w);w=max}else if(h>=w&&h>max){w=Math.round(w*max/h);h=max}const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);try{res(c.toDataURL('image/jpeg',q))}catch(e){rej(e)}};img.onerror=rej;img.src=rd.result};rd.onerror=rej;rd.readAsDataURL(file)})}
 
 function buildForm(){
@@ -1898,7 +1942,7 @@ function persistLiveTriage(){
   try{
     if(triage.active && !triage.done && !triage.saved)
       localStorage.setItem(K_LIVETRI, JSON.stringify({ set:triage.set, testType:triage.testType,
-        conf:triage.conf||null, subj:triage.subj||null, img:!!triage.img, items:triage.items, ts:Date.now() }));
+        conf:triage.conf||null, subj:triage.subj||null, img:!!triage.img, items:triage.items, base:triage.base||0, ts:Date.now() }));
     else localStorage.removeItem(K_LIVETRI);
   }catch(_){}
 }
@@ -1913,9 +1957,12 @@ function restoreLiveTriage(){
       if(it.img) o.img=true; if(it.uncertain) o.uncertain=true; return o;
     });
     if(!items.length) { localStorage.removeItem(K_LIVETRI); return false; }
-    triage={ active:true, set:s.set, testType:s.testType==='module'?'module':'gt',
+    const type=s.testType==='module'?'module':'gt';
+    /* ticket numbers keep counting across a kill: recompute from the merged read, else the saved base */
+    const prev=mergeTarget(s.set, type);
+    triage={ active:true, set:s.set, testType:type,
       conf:['high','twoish','noidea'].includes(s.conf)?s.conf:null, subj:(s.subj&&SUBJECTS.includes(s.subj))?s.subj:null,
-      img:!!s.img, items, saved:false, done:false, decide:null };
+      img:!!s.img, items, saved:false, done:false, decide:null, base:prev?prev.items.length:(+s.base||0) };
     return true;
   }catch(_){ try{localStorage.removeItem(K_LIVETRI)}catch(__){} return false; }
 }
@@ -1953,6 +2000,9 @@ function spring(from,to,onUpdate,opts){
 function countUp(el,to,fmt){ fmt=fmt||(v=>Math.round(v)); if(!el)return;
   if(reducedMotion()||typeof to!=='number'||!isFinite(to)){ el.textContent=fmt(to); return; }
   spring(0,to,v=>{ el.textContent=fmt(Math.max(0,v)); },{stiffness:110,damping:20}); }
+/* grow any [data-gw] bar to its width after paint — data bars sweep in instead of appearing.
+   (reduced-motion is honoured by the global transition kill-switch in CSS) */
+function growBars(root){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ (root||document).querySelectorAll('[data-gw]').forEach(el=>{ el.style.width=el.dataset.gw+'%'; }); })); }
 
 /* the app's front door: start a sort, glance at the damage, revisit reads */
 function renderTriHome(box){
@@ -2084,7 +2134,7 @@ function renderPlan(){
   let html=`<div class="sec-title"><h2>Plan</h2><div class="hint">Pass 3 · tap a day when it's done</div></div>
     <div class="pl-head card thin">
       <div class="pl-hrow"><b>Pass 3</b><span><b>${doneN}</b> done · <b>${total-doneN}</b> left</span><span>${d2e!=null?'<b>'+d2e+'</b> days to exam':''}</span></div>
-      <div class="pl-bar"><i style="width:${pct}%"></i></div>
+      <div class="pl-bar"><i style="width:0" data-gw="${pct}"></i></div>
       <div class="pl-hsub">${pct}% through${slipped?` · <b class="bl">${slipped} slipped</b>`:''}${buffers?` · ${buffers} buffer left`:''}</div>
       <div class="pl-cov" id="plCov">${SUBJECTS.map(x=>{
         const cls=doneSubs.has(x)?'on':schedSubs.has(x)?'':'off';
@@ -2176,6 +2226,7 @@ function renderPlan(){
     const r=plan.rows.find(x=>x.id===el.dataset.row); if(!r)return;
     if(r.k==='test') planGoTest(r.id); else togglePlanDone(r.id);
   });
+  growBars(box);
   updatePlanBadge();
 }
 function updatePlanBadge(){
@@ -2221,8 +2272,8 @@ function planRowSheet(id){
       : `<b style="color:var(--rose)">not landing</b> (only ${pc}% likely improved) — change the format: fewer pages, more retrieval.`;
     effBlock=`<div class="sp-lab" style="margin-top:14px">is it working?</div>
       <div class="eff-bars">
-        <div class="eff-row"><span>before</span><div class="eff-track"><i data-w="${Math.round(ef.before/mx*100)}"></i></div><b>${ef.before.toFixed(1)}/GT</b></div>
-        <div class="eff-row aft"><span>after</span><div class="eff-track"><i data-w="${Math.round(ef.after/mx*100)}"></i></div><b>${ef.after.toFixed(1)}/GT</b></div>
+        <div class="eff-row"><span>before</span><div class="eff-track"><i data-gw="${Math.round(ef.before/mx*100)}"></i></div><b>${ef.before.toFixed(1)}/GT</b></div>
+        <div class="eff-row aft"><span>after</span><div class="eff-track"><i data-gw="${Math.round(ef.after/mx*100)}"></i></div><b>${ef.after.toFixed(1)}/GT</b></div>
       </div>
       <p class="tlab" style="margin-top:8px">Wrongs per GT in ${(r.s||[]).map(esc).join(', ')} — ${ef.nb} test${ef.nb>1?'s':''} before vs ${ef.na} after. ${verdict}</p>`;
   }
@@ -2240,8 +2291,7 @@ function planRowSheet(id){
     <div class="sp-lab" style="margin-top:14px">edit</div>
     <div class="actions"><button class="btn ghost" id="prEdit">Edit this day</button><button class="btn ghost" style="color:var(--rose)" id="prDel">Delete</button></div>
     <div class="actions" style="margin-top:10px"><button class="btn primary" onclick="closeSheet()">Close</button></div>`);
-  /* bars grow to their targets after paint — the before/after drop reads at a glance */
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{ document.querySelectorAll('#sheet .eff-track i').forEach(el=>{ el.style.width=el.dataset.w+'%'; }); }));
+  growBars(document.getElementById('sheet'));
   document.getElementById('prDone').onclick=()=>{ closeSheet(); togglePlanDone(id); };
   const pp=document.getElementById('prPartial'); if(pp) pp.onclick=()=>{ dn.mode=dn.mode==='partial'?'full':'partial'; persistPlan(); closeSheet(); renderPlan(); };
   const pm=document.getElementById('prMinsSave'); if(pm) pm.onclick=()=>{ const m=+document.getElementById('prMins').value; if(m>0) dn.mins=m; else delete dn.mins; persistPlan(); toast('Saved'); };
@@ -2331,7 +2381,7 @@ function sessionSheet(id){
   const s=sessions.find(x=>x.id===id); if(!s)return;
   const cc=triageCounts(s.items), cp=sessComp(s), tot=cc.total||1;
   const max=Math.max(1,...ERRORS.map(e=>cc.c[e.id]));
-  const bars=ERRORS.map(e=>`<div class="sm-bar"><span class="sm-k"><b style="color:${e.c}">${e.code}</b> ${e.t}</span><div class="sm-track"><div class="sm-fill" style="width:${Math.max(2,cc.c[e.id]/max*100)}%;background:${e.c}"></div></div><span class="sm-v">${cc.c[e.id]}</span></div>`).join('');
+  const bars=ERRORS.map(e=>`<div class="sm-bar"><span class="sm-k"><b style="color:${e.c}">${e.code}</b> ${e.t}</span><div class="sm-track"><div class="sm-fill" style="width:0;background:${e.c}" data-gw="${Math.max(2,cc.c[e.id]/max*100)}"></div></div><span class="sm-v">${cc.c[e.id]}</span></div>`).join('');
   openSheet(`<h3>${esc(s.set)}</h3><p style="margin-bottom:14px">${cc.total} sorted · ${relTime(s.ts)}</p>
     <div class="sm-bars">${bars}</div>
     <div class="trio"><div class="trio-c"><b class="bl">${cp.sure}</b><span>sure</span></div>
@@ -2340,6 +2390,7 @@ function sessionSheet(id){
     ${cc.blind?`<button class="linkish" id="sesWr" style="margin-top:12px">${Math.min(writtenCount(id),cc.blind)} of ${cc.blind} blind spot${cc.blind>1?'s':''} written up ›</button>`:''}
     <div class="actions" style="margin-top:16px"><button class="btn primary" onclick="closeSheet()">Done</button>
       <button class="btn ghost" style="color:var(--rose)" id="sesDel">Delete read</button></div>`);
+  growBars(document.getElementById('sheet'));
   const wr=document.getElementById('sesWr'); if(wr) wr.onclick=()=>{ closeSheet(); if(writtenCount(id)>0){ bookFilter.src=id; bookFilter.q=''; switchView('book'); renderBook(); } else writeFixComposer(id); };
   document.getElementById('sesDel').onclick=()=>{ deleteSession(id); closeSheet(); toast('Read deleted'); };
 }
@@ -2368,6 +2419,7 @@ function renderTriage(){
   if(!triage.active){ renderTriHome(box); return; }
   if(triage.done){
     box.innerHTML=triageSummaryHTML();
+    growBars(box);
     document.getElementById('triFinish').onclick=exitTriage; document.getElementById('triAgain').onclick=startTriage;
     const fc=document.getElementById('fixCta'); if(fc) fc.onclick=()=>writeFixComposer(triage.sessionId);
     const sl=document.getElementById('sumLog'); if(sl) sl.onclick=()=>{ triage.active=false; switchView('log'); };
@@ -2736,7 +2788,7 @@ function triageSummaryHTML(){
   const {c,blind,total,sure,twoish,noidea}=triageCounts(triage.items);
   const max=Math.max(1,...ERRORS.map(e=>c[e.id]));
   const bars=ERRORS.map(e=>{const n=c[e.id];
-    return `<div class="sm-bar"><span class="sm-k"><b style="color:${e.c}">${e.code}</b> ${e.t}</span><div class="sm-track"><div class="sm-fill" style="width:${Math.max(2,n/max*100)}%;background:${e.c}"></div></div><span class="sm-v">${n}</span></div>`;}).join('');
+    return `<div class="sm-bar"><span class="sm-k"><b style="color:${e.c}">${e.code}</b> ${e.t}</span><div class="sm-track"><div class="sm-fill" style="width:0;background:${e.c}" data-gw="${Math.max(2,n/max*100)}"></div></div><span class="sm-v">${n}</span></div>`;}).join('');
   const dom=ERRORS.slice().sort((a,b)=>c[b.id]-c[a.id])[0];
   const synth=`Mostly <b style="color:${dom.c}">${dom.t.toLowerCase()}</b> (${c[dom.id]}). ${FIXTEXT[dom.id]}`;
   /* the fastest-marks read on THIS test — RF+TE are points you already own */
@@ -3705,6 +3757,7 @@ function bindActions(){
   document.getElementById('importBtn').onclick=()=>document.getElementById('fileIn').click();
   document.getElementById('fileIn').onchange=importData;
   document.getElementById('pasteBtn').onclick=pasteBackup;
+  document.getElementById('snapBtn').onclick=()=>{ buzz(5); snapSheet(); };
   document.getElementById('bulkBtn').onclick=bulkImportSheet;
   document.getElementById('manageTriBtn').onclick=manageTriage;
   document.querySelectorAll('#themeSeg .opt').forEach(b=>b.onclick=()=>setTheme(b.dataset.theme));
@@ -4408,8 +4461,15 @@ async function pushNow(){
     /* Firestore caps a document at ~1 MB — warn early instead of failing silently later */
     if(raw.length>900000 && !pushNow._warned){ pushNow._warned=true; toast('Your ledger is growing close to the cloud limit — export a backup from Data, then clear very old triage reads.'); }
     const payload=JSON.parse(raw);
-    await docRef().set(payload); fbLastSync=Date.now(); fbLastPush=Date.now(); fbRemoteCount=entries.length; fbError=''; renderCloudSync(); }
-  catch(e){ if(e&&e.code==='unavailable') return; fbError=fsHint(e); renderCloudSync(); toast('Could not save to cloud — see Data screen'); }
+    await docRef().set(payload); fbLastSync=Date.now(); fbLastPush=Date.now(); fbRemoteCount=entries.length; fbError=''; pushNow._retry=0; renderCloudSync(); }
+  catch(e){
+    fbPushPending=true; /* the write is still owed — a failure must never silently drop it */
+    if(e&&e.code==='unavailable') return; /* offline: the persistence queue + online listener carry it */
+    if(!pushNow._retry) toast('Could not save to cloud — retrying in the background');
+    fbError=fsHint(e); renderCloudSync();
+    pushNow._retry=Math.min(60000,(pushNow._retry||1000)*2); /* 2s → 4s → … → 60s cap */
+    clearTimeout(fbPushT); fbPushT=setTimeout(pushNow, pushNow._retry);
+  }
 }
 /* manual, one-shot full reconcile the user can trigger from the Data screen */
 async function syncNow(){
@@ -4431,7 +4491,9 @@ async function syncNow(){
 if(typeof window!=='undefined'){
   window.addEventListener('online', ()=>{ if(getFbCfg()){ if(!fbUser) initSync(); else syncNow(); } });
   /* backgrounding (home screen, floating window, app switch) snapshots the live board AND flushes any pending cloud write */
-  document.addEventListener('visibilitychange', ()=>{ if(document.hidden){ try{persistLiveTriage()}catch(_){} try{flushCloudPush()}catch(_){} return; } if(fbUser && fbStatus==='on' && !fbSyncing) syncNow(); });
+  document.addEventListener('visibilitychange', ()=>{ if(document.hidden){ try{persistLiveTriage()}catch(_){} try{flushCloudPush()}catch(_){} return; }
+    /* foregrounding re-syncs, but throttled — rapid app-switching must not fire a full reconcile each time */
+    if(fbUser && fbStatus==='on' && !fbSyncing && Date.now()-fbLastPull>4000) syncNow(); });
   window.addEventListener('pagehide', ()=>{ try{persistLiveTriage()}catch(_){} try{flushCloudPush()}catch(_){} });
   /* Page Lifecycle: Chrome/Android can freeze a backgrounded tab without pagehide ever firing */
   document.addEventListener('freeze', ()=>{ try{persistLiveTriage()}catch(_){} try{flushCloudPush()}catch(_){} });
