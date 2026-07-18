@@ -493,6 +493,10 @@
   .bucket.locked{opacity:.45;pointer-events:none}
   .chip-help.locked{opacity:.45;pointer-events:none}
   .bucket:active{transform:scale(.96)}
+  /* confidence picked → buckets lift and warm up, pointing at the next tap */
+  #triBuckets .bucket{transition:transform .28s var(--spring),box-shadow .28s var(--ease),border-color .2s var(--ease)}
+  #triBuckets.armed .bucket{transform:translateY(-3px);border-color:color-mix(in srgb,var(--bc) 48%,var(--border2));box-shadow:0 7px 18px -8px color-mix(in srgb,var(--bc) 45%,transparent)}
+  #triBuckets.armed .bucket:active{transform:translateY(-1px) scale(.96)}
   .bucket.pulse{animation:bpulse .36s cubic-bezier(.3,1.4,.5,1)}
   @keyframes bpulse{40%{transform:scale(1.05);box-shadow:0 0 0 5px color-mix(in srgb,var(--bc) 22%,transparent)}}
   .bucket .b-top{position:relative;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
@@ -641,6 +645,15 @@
   .mh-k{flex:none;width:104px;font-size:12px;font-weight:800;color:var(--ink);letter-spacing:.01em}
   .mh-v{flex:1;font-size:13px;line-height:1.5;color:var(--ink2)}
   .fc-card{background:linear-gradient(160deg,color-mix(in srgb,var(--accent) 7%,var(--surface)),var(--surface))}
+  /* the projection's deep-dive rows: set · when · % · pull-on-the-line */
+  .fcs-rows{display:flex;flex-direction:column;gap:7px;margin-top:2px}
+  .fcs-row{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+  .fcs-set{width:52px;font-weight:750;color:var(--ink);flex:none}
+  .fcs-when{width:64px;font-size:11px;color:var(--faint);flex:none}
+  .fcs-pc{width:38px;text-align:right;font-weight:750;color:var(--ink);font-variant-numeric:tabular-nums;flex:none}
+  .fcs-track{flex:1;height:7px;border-radius:5px;background:var(--surface2);overflow:hidden}
+  .fcs-track i{display:block;height:100%;border-radius:5px;background:var(--grad);transition:width .7s cubic-bezier(.22,1,.36,1)}
+  .fcs-w{width:34px;font-size:11px;color:var(--faint);font-variant-numeric:tabular-nums;flex:none}
   .fc-big{display:flex;align-items:baseline;gap:8px;margin:2px 0 8px}
   .fc-big b{font-family:var(--serif);font-size:52px;font-weight:500;letter-spacing:-.02em;color:var(--ink);line-height:.9}
   .fc-of{font-family:var(--serif)}
@@ -821,7 +834,11 @@
   .pl-next-res{margin-top:11px;padding-top:11px;border-top:1px solid var(--border);font-size:12px;color:var(--muted)}
   .pl-tag.marks{color:var(--accent-ink);background:color-mix(in srgb,var(--accent) 13%,transparent);font-variant-numeric:tabular-nums}
   .rv-btn.rec{outline:2px solid color-mix(in srgb,var(--accent) 55%,transparent);outline-offset:1px}
-  .pl-wk{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin:18px 0 8px 3px}
+  .pl-wk{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin:18px 0 8px 3px;
+    display:flex;align-items:center;gap:9px}
+  .pl-wk .wkq{flex:none;width:52px;height:4px;border-radius:3px;background:var(--surface2);overflow:hidden;margin-left:auto}
+  .pl-wk .wkq i{display:block;height:100%;border-radius:3px;background:var(--grad);transition:width .7s cubic-bezier(.22,1,.36,1)}
+  .pl-wk .wkn{font-size:10.5px;color:var(--muted);letter-spacing:0;font-variant-numeric:tabular-nums}
   .pl-row{display:flex;align-items:center;gap:9px;width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:13px;
     padding:11px 12px;margin-bottom:7px;cursor:pointer;transition:transform .08s,border-color .12s;position:relative}
   .pl-row:active{transform:scale(.99)}
@@ -1306,7 +1323,7 @@ const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.st
 async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } try{return localStorage.getItem(k)}catch(_){return null} }
 async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v);return true}catch(e){return false} } try{localStorage.setItem(k,v);return true}catch(_){return false} }
 const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
-const APP_VERSION='v38'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
+const APP_VERSION='v39'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
 
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 
@@ -2135,7 +2152,12 @@ function renderPlan(){
     <div class="pl-head card thin">
       <div class="pl-hrow"><b>Pass 3</b><span><b>${doneN}</b> done · <b>${total-doneN}</b> left</span><span>${d2e!=null?'<b>'+d2e+'</b> days to exam':''}</span></div>
       <div class="pl-bar"><i style="width:0" data-gw="${pct}"></i></div>
-      <div class="pl-hsub">${pct}% through${slipped?` · <b class="bl">${slipped} slipped</b>`:''}${buffers?` · ${buffers} buffer left`:''}</div>
+      <div class="pl-hsub">${pct}% through${slipped?` · <b class="bl">${slipped} slipped</b>`:''}${buffers?` · ${buffers} buffer left`:''}${(()=>{
+        /* the honest pace read: what you actually ticked this week vs what finishing on time needs */
+        const left=total-doneN; if(!left||d2e==null||d2e<=0) return '';
+        const t7=Object.values(plan.done).filter(x=>x&&Date.now()-x.ts<7*864e5).length;
+        const need=left/d2e;
+        return ` · <b>${t7}</b> ticked in 7d · need <b>${need<0.95?need.toFixed(1):Math.ceil(need)}/day</b> to finish`;})()}</div>
       <div class="pl-cov" id="plCov">${SUBJECTS.map(x=>{
         const cls=doneSubs.has(x)?'on':schedSubs.has(x)?'':'off';
         return `<span class="pl-chip ${cls}" title="${esc(x)}">${esc(x.split(' ')[0].slice(0,5))}</span>`;}).join('')}</div>
@@ -2181,7 +2203,9 @@ function renderPlan(){
   /* weeks */
   planWeeks().forEach(week=>{
     const a=week[0].d, b=week[week.length-1].d;
-    html+=`<div class="pl-wk">${fmtShort(a)}${a!==b?' – '+fmtShort(b).replace(/ .*/,'')+' '+fmtShort(b).split(' ')[1]:''}</div>`;
+    const dnW=week.filter(r=>plan.done[r.id]).length;
+    html+=`<div class="pl-wk"><span>${fmtShort(a)}${a!==b?' – '+fmtShort(b).replace(/ .*/,'')+' '+fmtShort(b).split(' ')[1]:''}</span>
+      <span class="wkq"><i style="width:0" data-gw="${Math.round(dnW/week.length*100)}"></i></span><b class="wkn">${dnW}/${week.length}</b></div>`;
     html+=week.map(r=>{
       const dn=plan.done[r.id], slip=(!dn && r.d<today);
       const isToday=r.d===today;
@@ -2424,6 +2448,7 @@ function renderTriage(){
     const fc=document.getElementById('fixCta'); if(fc) fc.onclick=()=>writeFixComposer(triage.sessionId);
     const sl=document.getElementById('sumLog'); if(sl) sl.onclick=()=>{ triage.active=false; switchView('log'); };
     const sp=document.getElementById('sumPlan'); if(sp) sp.onclick=()=>{ triage.active=false; persistLiveTriage(); switchView('plan'); };
+    const si=document.getElementById('sumIns'); if(si) si.onclick=()=>{ triage.active=false; persistLiveTriage(); switchView('insights'); };
     const big=document.querySelector('.sm-big');
     if(big){ const to=+big.textContent; countUp(big,to); }
     return;
@@ -2550,6 +2575,8 @@ function bindTriUndo(){ const u=document.getElementById('triUndo'); if(u) u.oncl
 function paintTriConf(){
   document.querySelectorAll('#triConf .tc').forEach(x=>x.classList.toggle('on',!!triage.conf && x.dataset.c===triage.conf));
   const chip=document.getElementById('triChip'); if(chip) chip.classList.toggle('sure',triage.conf==='high');
+  /* confidence picked → the buckets lift to invite the second tap; the flow explains itself */
+  const bk=document.getElementById('triBuckets'); if(bk) bk.classList.toggle('armed', !!triage.conf);
   persistLiveTriageSoon();
 }
 function triageAdd(bucket, btnEl){
@@ -2583,6 +2610,9 @@ function updateTriageUI(){
   if(total && total%10===0){ const ty=document.getElementById('triTally'); if(ty){ ty.classList.remove('milestone'); void ty.offsetWidth; ty.classList.add('milestone'); } }
   persistLiveTriageSoon();
 }
+/* a spring-driven scale "catch" when a token lands in a bucket */
+function squish(el){ if(!el||reducedMotion())return;
+  spring(0.86,1,(v,done)=>{ el.style.transform=done?'':'scale('+v.toFixed(3)+')'; },{stiffness:330,damping:13}); }
 function flyToken(btnEl, error, blind){
   if(!btnEl) return;
   const em=ERR_MAP[error];
@@ -2591,17 +2621,28 @@ function flyToken(btnEl, error, blind){
     const s=chip?chip.getBoundingClientRect():{left:innerWidth/2-20,top:innerHeight*.35,width:40,height:40};
     const r=btnEl.getBoundingClientRect();
     const sx=s.left+s.width/2, sy=s.top+s.height/2, ex=r.left+r.width/2, ey=r.top+r.height/2;
-    /* two-layer flight: X linear, Y ease-in + spin = a thrown arc */
     const fx=document.createElement('div'); fx.className='fly';
     const fy=document.createElement('div'); fy.className='fly-in'; fy.textContent=em.code; fy.style.setProperty('--bc',em.c);
     fx.appendChild(fy); fx.style.left=sx+'px'; fx.style.top=sy+'px';
+    fx.style.transition='none'; fy.style.transition='none';
     document.body.appendChild(fx);
-    requestAnimationFrame(()=>{ requestAnimationFrame(()=>{
-      fx.style.transform=`translateX(${(ex-sx).toFixed(0)}px)`;
-      fy.style.transform=`translateY(${(ey-sy).toFixed(0)}px) rotate(230deg) scale(.3)`; fy.style.opacity='0';
-    });});
-    setTimeout(()=>fx.remove(),480);
-    btnEl.classList.remove('pulse'); void btnEl.offsetWidth; btnEl.classList.add('pulse');
+    /* real physics: an underdamped 2-D spring pulls the token to the bucket while an upward
+       launch kick gives it a thrown arc — semi-implicit Euler, ends on landing, squishes the catch */
+    const tx=ex-sx, ty=ey-sy, dist0=Math.max(1,Math.hypot(tx,ty));
+    let x=0, y=0, vx=tx*2.0, vy=-Math.max(240, Math.abs(ty)*0.8), last=performance.now(), alive=true;
+    const K=180, C=15.5;
+    const tick=now=>{
+      if(!alive) return;
+      const dt=Math.min(0.028,(now-last)/1000); last=now;
+      vx+=(-K*(x-tx)-C*vx)*dt; vy+=(-K*(y-ty)-C*vy)*dt; x+=vx*dt; y+=vy*dt;
+      const p=Math.max(0,Math.min(1,1-Math.hypot(x-tx,y-ty)/dist0));
+      fx.style.transform=`translate(${x.toFixed(1)}px,${y.toFixed(1)}px)`;
+      fy.style.transform=`rotate(${(210*p).toFixed(0)}deg) scale(${(1-0.62*p).toFixed(2)})`;
+      if(p>0.985 && Math.hypot(vx,vy)<95){ alive=false; fx.remove(); squish(btnEl); return; }
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+    setTimeout(()=>{ if(alive){ alive=false; fx.remove(); squish(btnEl); } }, 900); /* hard stop, never a stray token */
     const plus=document.createElement('span'); plus.className='b-plus'; plus.textContent='+1';
     btnEl.appendChild(plus); setTimeout(()=>plus.remove(),600);
     if(chip){ chip.classList.remove('respawn'); void chip.offsetWidth; chip.classList.add('respawn'); }
@@ -2828,7 +2869,7 @@ function triageSummaryHTML(){
       <p class="tlab" style="margin-top:16px">${synth}</p></div>
     ${cta}
     <div class="actions" style="margin-top:10px"><button class="btn primary" id="triFinish">Done</button><button class="btn ghost" id="triAgain">Triage another</button></div>
-    <p class="faint" style="font-size:12px;text-align:center;margin-top:12px">Saved — see the long-term breakdown in Insights. <button class="linkish" id="sumLog">Log in detail ›</button></p>`;
+    <p class="faint" style="font-size:12px;text-align:center;margin-top:12px">Saved. <button class="linkish" id="sumIns">See it in Insights ›</button> <button class="linkish" id="sumLog">Log in detail ›</button></p>`;
 }
 
 function renderReview(){
@@ -3439,6 +3480,29 @@ function threeMovesCard(){
   return `<div class="card next"><h3><span class="accent"></span>This week's three moves<button class="cardq" data-help="signal">?</button></h3>${rows.join('')}</div>`;
 }
 /* marks · accuracy · W:C across scored reads */
+/* the expanded read on the projection: every test, its pull on the line, and how the band is built —
+   the deep-analysis tab behind the hero card. Real numbers, no jargon. */
+function fcSheet(){
+  const f=examMarkForecast(); if(!f){ metricHelp('forecast'); return; }
+  const scored=timeScopedSessions().filter(x=>x.testType==='gt'&&scoreStats(x)).slice().sort((a,b)=>(a.ts||0)-(b.ts||0));
+  const ws=scored.map(s=>expWeight(s.ts)); const W=ws.reduce((a,b)=>a+b,0)||1;
+  const rows=scored.map((s,i)=>{ const st=scoreStats(s); const pull=Math.round(ws[i]/W*100);
+    return `<div class="fcs-row"><span class="fcs-set">${esc(s.set)}</span><span class="fcs-when">${relTime(s.ts)}</span>
+      <span class="fcs-pc">${st.pct100}%</span><div class="fcs-track"><i style="width:0" data-gw="${pull}"></i></div><span class="fcs-w">${pull}%</span></div>`; }).join('');
+  const bandW=Math.round((f.hi-f.lo)/2);
+  openSheet(`<h3>The projection, opened up</h3>
+    <p style="margin-bottom:8px"><b>${f.mid}/${f.max}</b> on exam day · honest range <b>${f.lo}–${f.hi}</b>.</p>
+    <div class="sp-lab">each test's pull on the line</div>
+    <div class="fcs-rows">${rows}</div>
+    <p class="tlab" style="margin-top:6px">Pull = recency weight (21-day half-life) — today's GT counts about ×2 one from three weeks ago.</p>
+    <div class="sp-lab" style="margin-top:14px">how it's built</div>
+    <div class="tlab" style="line-height:1.65">
+      · The trend is fitted on the <b>logit</b> scale, so it bends near the ceiling instead of promising 800/800.<br>
+      · You're moving about <b>${f.perWeekPc>=0?'+':''}${(+f.perWeekPc).toFixed(1)}%/week</b> right now.<br>
+      · The band is Student-t on <b>${f.n}</b> tests (t = ${tCrit(f.n-2).toFixed(2)}) → about <b>±${bandW} marks</b>. Every extra GT tightens it.</div>
+    <div class="actions" style="margin-top:14px"><button class="btn primary" onclick="closeSheet()">Close</button></div>`);
+  growBars(document.getElementById('sheet'));
+}
 /* the motivating one: where today's trend lands you on exam day, with an honest band.
    A line chart: real points, a dashed projection, a shaded uncertainty band. */
 function forecastCard(){
@@ -3692,6 +3756,7 @@ function renderInsights(){
     + (deep?`<div class="ins-sec">The whole picture — every subject, every test</div>`+deep:'')
     + detailed;
   box.querySelectorAll('.cardq[data-help]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); buzz(5); metricHelp(b.dataset.help); });
+  const fcc=box.querySelector('.fc-card'); if(fcc) fcc.onclick=()=>{ buzz(6); fcSheet(); };
   box.querySelectorAll('.sc-chip[data-sc]').forEach(b=>b.onclick=()=>{ buzz(5); insScope=b.dataset.sc; renderInsights(); });
   box.querySelectorAll('.sc-chip[data-it]').forEach(b=>b.onclick=()=>{ buzz(5); insType=b.dataset.it; renderInsights(); });
   const hm=document.getElementById('hmMore'); if(hm) hm.onclick=()=>{ buzz(5); hmAll=!hmAll; renderInsights(); };
@@ -3714,7 +3779,7 @@ function renderInsights(){
   box.querySelectorAll('.spark-row[data-sp]').forEach(b=>b.onclick=()=>{ try{ buzz(6); sparkSheet(JSON.parse(b.dataset.sp)); }catch(_){} });
 }
 
-function esc(s){return (s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 let toastT;
 function toast(msg,action){
   const t=document.getElementById('toast');
