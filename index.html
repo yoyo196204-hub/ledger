@@ -693,6 +693,14 @@
   .th-cont{font-weight:650;opacity:.75}
   /* v24: whole-picture section + numbers + wrongs↔plan chips */
   .ins-sec{margin:24px 3px 12px;font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);display:flex;align-items:center;gap:10px}
+  /* fold-out deep sections: a full-width header row, chevron spins, body grows 0fr → 1fr */
+  .ins-sec.tgl{width:100%;background:none;border:none;cursor:pointer;justify-content:space-between;padding:0;text-align:left}
+  .sec-meta{font-size:10.5px;font-weight:750;color:var(--faint);display:flex;align-items:center;gap:6px;font-family:var(--sans,inherit);font-style:normal;letter-spacing:0;text-transform:none}
+  .tgl .chev{display:inline-block;font-style:normal;transition:transform .34s var(--spring)}
+  .tgl.open .chev{transform:rotate(180deg)}
+  .sec-body{display:grid;grid-template-rows:0fr;transition:grid-template-rows .5s cubic-bezier(.22,1,.36,1)}
+  .sec-body.open{grid-template-rows:1fr}
+  .sec-inner{overflow:hidden;min-height:0}
   .ins-sec::after{content:'';flex:1;height:1px;background:var(--border)}
   .num-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
   .num{background:var(--surface2);border-radius:12px;padding:10px 8px;text-align:center}
@@ -1323,7 +1331,7 @@ const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.st
 async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } try{return localStorage.getItem(k)}catch(_){return null} }
 async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v);return true}catch(e){return false} } try{localStorage.setItem(k,v);return true}catch(_){return false} }
 const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
-const APP_VERSION='v39'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
+const APP_VERSION='v40'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
 
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 
@@ -1709,7 +1717,9 @@ function isRecurring(e,map){return (map[e.id]||0)>=2}
 
 function render(){
   memoClear();
-  document.getElementById('totalTag').textContent=entries.length+' logged · '+entries.filter(e=>e.status==='open').length+' to fix';
+  /* the header must agree with what you actually did: sorted wrongs count even before a fix is written */
+  const sorted=sessions.reduce((n,s)=>n+((s.items&&s.items.length)||0),0);
+  document.getElementById('totalTag').textContent=(sorted?sorted+' sorted · ':'')+entries.length+' logged · '+entries.filter(e=>e.status==='open').length+' to fix';
   const mts=document.getElementById('manageTriSub'); if(mts) mts.textContent=sessions.length?`${sessions.length} read${sessions.length===1?'':'s'} saved · tap to review or delete`:'No triage reads yet.';
   const d=daysToExam();
   const num=document.getElementById('examNum'), lbl=document.getElementById('examLbl'), chip=document.getElementById('examChip');
@@ -1940,7 +1950,10 @@ function sessComp(s){ if(s&&s.comp&&typeof s.comp==='object') return {sure:+s.co
   const cc=triageCounts((s&&s.items)||[]); return {sure:cc.sure, twoish:cc.twoish, noidea:cc.noidea}; }
 /* the same set finished within ~20 h is one test read in sittings — this finds the sitting to continue */
 function mergeTarget(set,type){
-  const cut=Date.now()-20*3600e3;
+  /* multiple sittings of the same paper fold back into one read. GTs are weekly and uniquely
+     named (GT-19 is only ever one paper), so a 72h window is safe — review it over three days
+     and it stays one read. Module names recur week to week, so they keep a tight window. */
+  const cut=Date.now()-(type==='gt'?72:20)*3600e3;
   return sessions.find(s=>s && s.set===set && s.testType===type && (s.ts||0)>=cut)||null;
 }
 function startTriage(){
@@ -2129,6 +2142,70 @@ function readEffect(rowId){ return _memo('reff:'+rowId, function(){
   const p=pGammaLess(a0+ka, b0+post.length, a0+kb, b0+pre.length);
   return { before:kb/pre.length, after:ka/post.length, p, nb:pre.length, na:post.length, kb, ka };
 }); }
+/* ---------- Pass 4: a schedule proposal built from the ledger, saved ONLY if accepted ----------
+   Ranking = marks lost (recency-weighted) + Bayesian cluster excess + a bump for subjects whose
+   Pass-3 read measurably didn't land. Weakest lead go-through 1; everything repeats in
+   go-through 2; the last 10 days alternate GTs with full autopsy days. */
+function pass4Rank(){
+  const m=buildSubjects(sessions,entries), sig={}; planSignals().forEach(x=>{ if(!sig[x.sub]) sig[x.sub]=x; });
+  const notLanding={}; plan.rows.forEach(r=>{ if(r.k!=='read')return; const ef=readEffect(r.id); if(ef&&ef.p<=0.3)(r.s||[]).forEach(x=>notLanding[x]=1); });
+  return SUBJECTS.map(s=>({ s, marks:(m[s]&&m[s].n)||0,
+    w:((m[s]&&(m[s].wgt||m[s].n))||0) + (sig[s]?(sig[s].score||0)*40:0) + (notLanding[s]?4:0),
+    hot:!!sig[s], relapse:!!notLanding[s] }))
+    .sort((a,b)=>b.w-a.w);
+}
+function pass4Rows(){
+  const ranked=pass4Rank(), order=ranked.map(x=>x.s);
+  const rows=[]; let gtN=22; const D='2026-';
+  const push=(d,t,k,s,extra)=>rows.push(Object.assign({id:'p4'+d.replace(/-/g,''), d, t, k, s:s||[]},extra||{}));
+  const tag=s=>{ const r=ranked.find(x=>x.s===s); return (r&&r.hot)?{weak:1}:{}; };
+  /* go-through 1 — one weak subject a day, weakest first; GTs keep the weekly rhythm */
+  ['07-28','07-29','07-30','07-31','08-01','08-03','08-04','08-05','08-06','08-07','08-08']
+    .forEach((d,i)=>{ const s=order[i]; if(s) push(D+d, s, 'read', [s], tag(s)); });
+  push(D+'08-02','GT-'+(gtN++)+' + analysis','test');
+  push(D+'08-09','GT-'+(gtN++)+' + analysis','test');
+  /* go-through 2 — everything again, paired, weakest still leading */
+  const r2=['08-10','08-11','08-12','08-13','08-15','08-16','08-17','08-18','08-19'];
+  r2.forEach((d,i)=>{ const pair=order.slice(i*2, i*2+2);
+    if(i===r2.length-1) pair.push(...order.slice(r2.length*2));
+    if(!pair.length) return;
+    push(D+d, pair.map(s=>s.split(' ')[0]).join(' + '), 'read', pair, pair.some(s=>tag(s).weak)?{weak:1}:{x2:1}); });
+  push(D+'08-14','GT-'+(gtN++)+' + analysis','test');
+  push(D+'08-20','GT-'+(gtN++)+' + analysis','test');
+  /* final 10 — tests and their autopsies, then the ledger itself, then rest */
+  const top3=order.slice(0,3);
+  push(D+'08-21','GT-'+(gtN++)+' + analysis','test');
+  push(D+'08-22','Autopsy + '+top3[0],'read',[top3[0]],{weak:1});
+  push(D+'08-23','Blind-spot re-test — CC list from Insights','read',top3.slice(0,2),{weak:1});
+  push(D+'08-24','GT-'+(gtN++)+' + analysis','test');
+  push(D+'08-25','Autopsy + '+top3[1],'read',[top3[1]],{weak:1});
+  push(D+'08-26',top3.map(s=>s.split(' ')[0]).join(' + ')+' — recall only','read',top3,{x2:1});
+  push(D+'08-27','GT-'+(gtN++)+' + analysis (last)','test');
+  push(D+'08-28','Autopsy + parked mistakes','buffer');
+  push(D+'08-29','Full ledger skim — every written fix','buffer');
+  push(D+'08-30','Light: images + formulas, sleep early','buffer');
+  rows.sort((a,b)=>a.d<b.d?-1:1);
+  return rows;
+}
+function pass4Sheet(){
+  const ranked=pass4Rank().slice(0,6), rows=pass4Rows();
+  const phase=(t,d)=>`<div class="sp-lab" style="margin-top:12px">${t}</div><div class="tlab" style="line-height:1.55">${d}</div>`;
+  openSheet(`<h3>Pass 4 — built from your data</h3>
+    <p>Nothing is saved unless you add it. Weakest subjects lead, everything is covered twice, and the last 10 days alternate tests with their autopsies.</p>
+    <div class="sp-lab">your current weak order (drives the schedule)</div>
+    <div class="tlab" style="line-height:1.6">${ranked.map((x,i)=>`${i+1}. <b>${esc(x.s)}</b>${x.hot?' <span style="color:var(--accent-ink)">· cluster</span>':''}${x.relapse?' <span style="color:var(--rose)">· read not landing</span>':''}`).join('<br>')}</div>
+    ${phase('28 Jul – 9 Aug · go-through 1','One weak subject a day, weakest first. GTs on 2 & 9 Aug.')}
+    ${phase('10 – 20 Aug · go-through 2','Everything again, two subjects a day. GTs on 14 & 20 Aug.')}
+    ${phase('21 – 30 Aug · final 10','A GT every ~3 days with a full autopsy day after each, a blind-spot re-test, then the whole ledger, then rest.')}
+    <div class="actions" style="margin-top:14px"><button class="btn primary" id="p4Add">Add all ${rows.length} days to the plan</button><button class="btn ghost" onclick="closeSheet()">Not now</button></div>`);
+  document.getElementById('p4Add').onclick=()=>{
+    const have=new Set(plan.rows.map(r=>r.id)); let n=0;
+    rows.forEach(r=>{ if(!have.has(r.id)){ plan.rows.push(r); n++; } });
+    plan.rows.sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:0);
+    persistPlan(); closeSheet(); renderPlan(); buzz(9);
+    toast('Pass 4 added — '+n+' days. Edit any day as usual.');
+  };
+}
 function renderPlan(){
   const box=document.getElementById('planBody'); if(!box) return;
   const today=todayISO();
@@ -2231,6 +2308,10 @@ function renderPlan(){
   });
   /* unplanned tail */
   const lastD=plan.rows[plan.rows.length-1].d;
+  const hasP4=plan.rows.some(r=>/^p4/.test(r.id));
+  if(!hasP4 && lastD<'2026-08-20'){
+    html+=`<button class="pl-unplanned" id="p4Btn" style="border-color:color-mix(in srgb,var(--accent) 40%,transparent)">Pass 4 proposal — <b>two go-throughs + final 10</b>, built from your results<span class="chg">Preview ›</span></button>`;
+  }
   if(lastD<'2026-08-30'){
     const days=Math.round((new Date('2026-08-30T12:00:00')-new Date(lastD+'T12:00:00'))/864e5);
     html+=`<button class="pl-unplanned" id="planAdd">${fmtShort(addDays(lastD,1))} → 30 Aug · <b>${days} days unplanned</b><span class="chg">+ Add days</span></button>`;
@@ -2241,6 +2322,7 @@ function renderPlan(){
   /* bindings */
   const mBtn=document.getElementById('planMissing'); if(mBtn) mBtn.onclick=()=>planEditSheet(null, planMissingSubjects());
   const aBtn=document.getElementById('planAdd'); if(aBtn) aBtn.onclick=()=>planEditSheet(null);
+  const p4B=document.getElementById('p4Btn'); if(p4B) p4B.onclick=()=>{ buzz(6); pass4Sheet(); };
   box.querySelectorAll('[data-plandone]').forEach(b=>b.onclick=()=>togglePlanDone(b.dataset.plandone));
   box.querySelectorAll('[data-plango]').forEach(b=>b.onclick=()=>planGoTest(b.dataset.plango));
   box.querySelectorAll('[data-skim]').forEach(b=>b.onclick=e=>{e.stopPropagation();logRevisit(b.dataset.skim,'skim');});
@@ -2820,7 +2902,7 @@ function saveSession(score){
     if(score && score.c!=null && score.w!=null) sess.score=score;
     triage.sessionId=sess.id;
     sessions.unshift(sess);
-    sessions=sessions.slice(0,100); /* keep the doc well under Firestore's 1 MB cap */
+    sessions=sessions.slice(0,300); /* months of reads; the 900 KB payload warning guards the real Firestore limit */
   }
   persistSessions(); triage.saved=true; persistLiveTriage();
   flushCloudPush(); /* a finished read is the highest-value write — don't sit on it */
@@ -3212,6 +3294,7 @@ function bucketFixSheet(errId, sub, n){
 function recencyW(ts){ const d=(Date.now()-(ts||0))/864e5; return d<=14?1 : d<=28?0.6 : 0.3; }
 /* ============ insights scope: at 50 wrongs a day, "all time" stops being a view and becomes noise ============ */
 let insScope=null; /* null = auto: 14 days once there's enough data, everything while it's still small */
+let insOpen={deep:false, logs:false}; /* fold-out sections — session-only, glance stays clean */
 let insType='all'; /* 'all' | 'gt' | 'module' — run every metric on one test type or both.
    modules are topic drills, so blending them into the GT subject-map can distort it; this untangles them. */
 function insTypeFilter(arr,key){ return insType==='all'?arr : arr.filter(x=>(x[key||'testType']||'gt')===insType); }
@@ -3295,16 +3378,21 @@ function subjectNextTouch(sub){
   if(due) return {kind:'revisit', d:due};
   return null;
 }
-/* is a subject getting better or worse? compare wrongs-per-test in the newer half of its tests
-   vs the older half. Down = fewer recent mistakes = improving. Needs ≥2 tests to be honest. */
+/* is a subject getting better or worse? Bayesian, not a raw threshold: wrongs-per-test in the
+   newer half vs the older half as two Gamma-Poisson posteriors, arrow only when
+   P(direction) ≥ 80%. Two fixes over the old version: GT sessions with ZERO wrongs in this
+   subject now count as evidence of improvement (the old filter silently dropped them —
+   survivorship bias), and thin data shows no arrow instead of a noisy one. */
 function subjectTrend(sub){
-  const ss=scopedSessions().filter(s=>s.items.some(it=>it.subj===sub)).slice().sort((a,b)=>(a.ts||0)-(b.ts||0));
-  if(ss.length<2) return null;
+  const ss=scopedSessions().filter(s=>(s.testType||'gt')==='gt' || s.items.some(it=>it.subj===sub))
+    .slice().sort((a,b)=>(a.ts||0)-(b.ts||0));
+  if(ss.length<4) return null; /* halves of <2 tests flag noise, not direction */
   const mid=Math.floor(ss.length/2), older=ss.slice(0,mid), newer=ss.slice(mid);
-  if(!older.length||!newer.length) return null;
-  const rate=arr=>arr.reduce((n,s)=>n+s.items.filter(it=>it.subj===sub).length,0)/arr.length;
-  const d=rate(newer)-rate(older);
-  return d<-0.4?'down':d>0.4?'up':'flat';
+  const k=arr=>arr.reduce((n,s)=>n+s.items.filter(it=>it.subj===sub).length,0);
+  if(k(older)+k(newer)<2) return null;
+  const a0=0.8, b0=0.6;
+  const p=pGammaLess(a0+k(newer), b0+newer.length, a0+k(older), b0+older.length); /* P(newer < older) */
+  return p>=0.8?'down':p<=0.2?'up':'flat';
 }
 function weakAreasCard(){
   const m=buildSubjects(scopedSessions(), scopedEntries());
@@ -3750,12 +3838,21 @@ function renderInsights(){
     <button class="sc-chip ${insType==='gt'?'on':''}" data-it="gt">GTs</button>
     <button class="sc-chip ${insType==='module'?'on':''}" data-it="module">Modules</button>
   </div>${insType==='module'?'<p class="type-note">Daily modules are topic drills — this view keeps them out of your GT picture so one heavy topic can\'t skew it.</p>':''}`:'';
-  const detailed = entries.length ? (`<div class="ins-sec">From your detailed logs</div>`+nextCard(map)+masteryCard()+statStrip()+leakCard()+typeSplitCard()) : '';
-  const deep = heatmapCard()+weakAreasCard()+numbersCard()+testListCard();
+  /* the deep dives live behind soft fold-out sections: glance stays clean, depth is one tap away */
+  const secWrap=(id,title,cards)=>{
+    const live=cards.filter(Boolean); if(!live.length) return '';
+    const open=!!insOpen[id];
+    return `<button class="ins-sec tgl ${open?'open':''}" data-tgl="${id}"><span>${title}</span><span class="sec-meta">${live.length} card${live.length>1?'s':''} <i class="chev">▾</i></span></button>
+      <div class="sec-body ${open?'open':''}"><div class="sec-inner">${live.join('')}</div></div>`;
+  };
+  const detailed = entries.length ? secWrap('logs','From your detailed logs',[nextCard(map),masteryCard(),statStrip(),leakCard(),typeSplitCard()]) : '';
+  const deep = secWrap('deep','The whole picture — every subject, every test',[heatmapCard(),weakAreasCard(),numbersCard(),testListCard()]);
   box.innerHTML = scopeRow + typeRow + forecastCard() + threeMovesCard() + recoverableCard() + calibrationCard() + scoreTrendCard() + triageInsightsCard()
-    + (deep?`<div class="ins-sec">The whole picture — every subject, every test</div>`+deep:'')
-    + detailed;
+    + deep + detailed;
   box.querySelectorAll('.cardq[data-help]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); buzz(5); metricHelp(b.dataset.help); });
+  /* fold-outs animate in place (grid-rows 0fr → 1fr) — no re-render, so the motion is real */
+  box.querySelectorAll('[data-tgl]').forEach(b=>b.onclick=()=>{ buzz(5); const id=b.dataset.tgl; insOpen[id]=!insOpen[id];
+    b.classList.toggle('open',insOpen[id]); const bd=b.nextElementSibling; if(bd) bd.classList.toggle('open',insOpen[id]); });
   const fcc=box.querySelector('.fc-card'); if(fcc) fcc.onclick=()=>{ buzz(6); fcSheet(); };
   box.querySelectorAll('.sc-chip[data-sc]').forEach(b=>b.onclick=()=>{ buzz(5); insScope=b.dataset.sc; renderInsights(); });
   box.querySelectorAll('.sc-chip[data-it]').forEach(b=>b.onclick=()=>{ buzz(5); insType=b.dataset.it; renderInsights(); });
@@ -3979,7 +4076,7 @@ function mergeIncoming(data){
   if(data && Array.isArray(data.sessions)){
     const have=new Set(sessions.map(s=>s.id));
     sanitizeSessions(data.sessions).forEach(s=>{ if(!have.has(s.id) && !(tombstones[s.id]&&tombstones[s.id]>=(s.ts||0))){ sessions.push(s); have.add(s.id); sesAdded++; } });
-    if(sesAdded){ sessions.sort((a,b)=>(b.ts||0)-(a.ts||0)); sessions=sessions.slice(0,150); persistSessions(); }
+    if(sesAdded){ sessions.sort((a,b)=>(b.ts||0)-(a.ts||0)); sessions=sessions.slice(0,300); persistSessions(); }
   }
   /* v6 backups carry the plan — apply only if newer; a v5 file leaves the plan untouched */
   let planApplied=false;
@@ -4407,7 +4504,7 @@ function mergeLedger(a,b){
      the old first-wins behaviour). Tombstones still veto, capped for doc-size safety */
   const sById={}; const su=x=>x.upd||x.ts||0;
   (a.sessions||[]).concat(b.sessions||[]).forEach(s=>{ if(!s||!s.id)return; const cur=sById[s.id]; if(!cur||su(s)>su(cur)) sById[s.id]=s; });
-  const sessions=Object.values(sById).filter(s=>!(tomb[s.id] && tomb[s.id]>=(s.ts||0))).sort((x,y)=>(y.ts||0)-(x.ts||0)).slice(0,150);
+  const sessions=Object.values(sById).filter(s=>!(tomb[s.id] && tomb[s.id]>=(s.ts||0))).sort((x,y)=>(y.ts||0)-(x.ts||0)).slice(0,300);
   /* plan: last-write-wins whole-object on _upd, like settings — row-by-row merging breeds zombie rows */
   const ap=(a.plan&&a.plan._upd)||0, bp=(b.plan&&b.plan._upd)||0;
   const plan = bp>ap ? (b.plan||a.plan) : (a.plan||b.plan);
