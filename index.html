@@ -690,6 +690,39 @@
   .lvb-top{display:flex;justify-content:space-between;font-size:13px;font-weight:700;color:var(--ink)}
   .lvb-track{height:9px;border-radius:6px;background:var(--surface2);overflow:hidden;margin-top:6px}
   .lvb-track i{display:block;height:100%;border-radius:6px;transition:width .7s cubic-bezier(.22,1,.36,1)}
+  /* blind-spot neutralisation card + gauge */
+  .bs-card{cursor:pointer}
+  .bs-body{display:flex;align-items:center;gap:6px;margin-top:2px}
+  .neg-wrap{position:relative;width:174px;flex:none}
+  .neg{width:100%;height:auto;display:block;overflow:visible}
+  .neg path[data-do]{transition:stroke-dashoffset 1s cubic-bezier(.22,1,.36,1)}
+  .neg-num{position:absolute;left:0;right:0;bottom:6px;text-align:center;line-height:1}
+  .neg-num b{font-size:38px;font-weight:850;letter-spacing:-.03em;font-variant-numeric:tabular-nums;display:block}
+  .neg-num span{font-size:10.5px;font-weight:750;letter-spacing:.04em;text-transform:uppercase;color:var(--faint)}
+  .neg-num.live b{color:var(--rose)}
+  .neg-num.done{font-size:34px;color:var(--sage-ink);font-weight:850}
+  .neg-num.done span{display:block;font-size:10.5px;color:var(--faint);margin-top:2px}
+  .bs-side{flex:1;min-width:0;display:flex;flex-direction:column;gap:7px}
+  .bs-line{font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:8px}
+  .bs-line b{color:var(--ink);font-variant-numeric:tabular-nums}
+  .bs-dot{width:10px;height:10px;border-radius:50%;flex:none}
+  .bs-dot.live{background:color-mix(in srgb,var(--rose) 60%,var(--surface2))}
+  .bs-dot.amber{background:var(--amber)}.bs-dot.green{background:var(--sage-ink)}
+  .bs-tr{font-size:10px;font-weight:800;margin-left:2px}.bs-tr.dn{color:var(--sage-ink)}.bs-tr.up{color:var(--rose)}.bs-tr.fl{color:var(--faint)}
+  .bs-pct{font-size:11px;color:var(--faint);margin-top:2px;font-weight:700}
+  .bs-why{margin-top:14px}.bs-why i{color:var(--muted)}
+  .bs-subs{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+  .bs-sub{font-size:12px;font-weight:700;color:var(--rose);background:color-mix(in srgb,var(--rose) 10%,transparent);border:1px solid color-mix(in srgb,var(--rose) 30%,transparent);border-radius:999px;padding:5px 11px}
+  .bs-sub b{color:var(--ink)}
+  .bs-act{width:100%;margin-top:14px;display:flex;align-items:center;justify-content:center;gap:8px}
+  .bs-min{font-size:11px;font-weight:700;opacity:.8}
+  /* the funnel in the deep sheet */
+  .bs-funnel{display:flex;gap:6px;margin:6px 0 4px;height:56px}
+  .bsf-seg{border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;min-width:44px;transition:flex .6s var(--spring)}
+  .bsf-seg b{font-size:19px;font-weight:850;line-height:1}.bsf-seg span{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;opacity:.9}
+  .bsf-seg.live{background:linear-gradient(160deg,#d8674a,var(--rose))}
+  .bsf-seg.amber{background:linear-gradient(160deg,#e0a24e,var(--amber))}
+  .bsf-seg.green{background:linear-gradient(160deg,#6fae7e,var(--sage-ink))}
   .fc-big{display:flex;align-items:baseline;gap:8px;margin:2px 0 8px}
   .fc-big b{font-family:var(--serif);font-size:52px;font-weight:500;letter-spacing:-.02em;color:var(--ink);line-height:.9}
   .fc-of{font-family:var(--serif)}
@@ -1367,7 +1400,7 @@ const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.st
 async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } try{return localStorage.getItem(k)}catch(_){return null} }
 async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v);return true}catch(e){return false} } try{localStorage.setItem(k,v);return true}catch(_){return false} }
 const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
-const APP_VERSION='v42'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
+const APP_VERSION='v43'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
 
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 
@@ -1948,9 +1981,11 @@ function startReview(scope){
   else if(scope==='set') list=list.filter(e=>e.set===curSet() && e.testType===curType());
   else if(scope==='gt') list=list.filter(e=>e.testType==='gt');
   else if(scope==='module') list=list.filter(e=>e.testType==='module');
-  if(!list.length){toast(scope==='due'?'All caught up — nothing due':'Nothing to review there');return}
+  else if(scope==='blind') list=list.filter(e=>isBlind(e) && e.status!=='fixed'); /* re-test the sure-but-wrong until they clear */
+  if(!list.length){toast(scope==='due'?'All caught up — nothing due':scope==='blind'?'No live blind spots to re-test — all clear':'Nothing to review there');return}
   list.sort((a,b)=>{const d=priorityScore(b,map)-priorityScore(a,map); if(d!==0)return d; const dd=dueTime(a)-dueTime(b); return dd!==0?dd:(a.lastReview||0)-(b.lastReview||0)});
   review={active:true, scope, queue:list, i:0, revealed:false, known:0, shaky:0, combo:0, noteOpen:false};
+  if(typeof switchView==='function' && !document.getElementById('v-review').classList.contains('on')) switchView('review');
   renderReview(); window.scrollTo({top:0});
 }
 async function markReview(knew){
@@ -2068,7 +2103,10 @@ function countUp(el,to,fmt){ fmt=fmt||(v=>Math.round(v)); if(!el)return;
   spring(0,to,v=>{ el.textContent=fmt(Math.max(0,v)); },{stiffness:110,damping:20}); }
 /* grow any [data-gw] bar to its width after paint — data bars sweep in instead of appearing.
    (reduced-motion is honoured by the global transition kill-switch in CSS) */
-function growBars(root){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ (root||document).querySelectorAll('[data-gw]').forEach(el=>{ el.style.width=el.dataset.gw+'%'; }); })); }
+function growBars(root){ requestAnimationFrame(()=>requestAnimationFrame(()=>{
+  (root||document).querySelectorAll('[data-gw]').forEach(el=>{ el.style.width=el.dataset.gw+'%'; });
+  (root||document).querySelectorAll('[data-do]').forEach(el=>{ el.style.strokeDashoffset=el.dataset.do; }); /* arcs draw the same way bars sweep */
+})); }
 
 /* the app's front door: start a sort, glance at the damage, revisit reads */
 function renderTriHome(box){
@@ -3027,6 +3065,93 @@ function leverSheet(){
     <div class="actions" style="margin-top:14px"><button class="btn primary" onclick="closeSheet()">Close</button></div>`);
   growBars(document.getElementById('sheet'));
 }
+/* ============ the blind-spot loop — the point of triage, finally closed ============
+   A blind spot is a wrong you felt SURE about: re-reading never catches it because it won't feel
+   wrong next time either. The ONLY fix is to write the contrast (believed X → actually Y, because Z)
+   and re-test it. So a blind spot has a life: spotted → contrast written → re-tested & cleared.
+   This tracks every one through that life and shows exactly how many are still armed. */
+function writtenBlindFor(sessId){ return entries.filter(e=>isBlind(e) && e.srcSession===sessId).length; }
+function firstUnwrittenBlind(){ return sessions.find(s=>{ const b=triageCounts(s.items).blind; return b>0 && writtenBlindFor(s.id)<b; })||null; }
+function blindSpotStats(){ return _memo('bss:'+insScopeVal()+':'+insType, function(){
+  const ss=scopedSessions(), ee=scopedEntries();
+  let identified=0; ss.forEach(s=>{ identified+=triageCounts(s.items).blind; });
+  const blindE=ee.filter(isBlind);
+  const written=blindE.length, clearedAll=blindE.filter(e=>e.status==='fixed').length;
+  let total=identified;
+  if(total===0 && written===0) return null;      /* nothing sure-and-wrong yet */
+  if(written>total) total=written;               /* old data logged straight to the Book, no session */
+  const neutralized=Math.min(total,written), cleared=Math.min(neutralized,clearedAll);
+  const live=Math.max(0,total-neutralized);
+  /* where they cluster — a blind spot in your weakest subject is the most dangerous */
+  const m=buildSubjects(ss,ee);
+  const subs=Object.keys(m).filter(k=>m[k].sure>0).sort((a,b)=>m[b].sure-m[a].sure).slice(0,3)
+    .map(k=>({s:k,n:m[k].sure}));
+  /* is the blind-spot RATE falling test to test? (share of attempts you got sure-wrong) */
+  const seq=ss.filter(s=>(s.testType||'gt')==='gt').slice().sort((a,b)=>(a.ts||0)-(b.ts||0))
+    .map(s=>{ const st=scoreStats(s); const b=triageCounts(s.items).blind; return st&&(st.total)? b/st.total*100 : null; }).filter(v=>v!=null);
+  let trend=null; if(seq.length>=3){ const f=linReg(seq.map((y,x)=>({x,y}))); if(f) trend=f.m; }
+  return { total, written, cleared, neutralized, live, subs, trend, seq };
+}); }
+/* a 180° neutralisation gauge: rose track = danger, amber = a contrast written, green = re-tested clear.
+   The rose still showing IS your live blind spots. Draws in on paint. */
+function neutGauge(cleared,written,total){
+  const L=257.6, arc='M 18 104 A 82 82 0 0 1 182 104', f=x=>Math.max(0,Math.min(1,total?x/total:0));
+  const seg=(frac,color)=>`<path d="${arc}" fill="none" stroke="${color}" stroke-width="14" stroke-linecap="round" stroke-dasharray="${L}" stroke-dashoffset="${L}" data-do="${(L*(1-f(frac))).toFixed(1)}"/>`;
+  return `<svg class="neg" viewBox="0 0 200 118" aria-hidden="true">
+    <path d="${arc}" fill="none" stroke="color-mix(in srgb,var(--rose) 24%,var(--surface2))" stroke-width="14" stroke-linecap="round"/>
+    ${written?seg(written,'var(--amber)'):''}
+    ${cleared?seg(cleared,'var(--sage-ink)'):''}</svg>`;
+}
+function blindSpotCard(){
+  const B=blindSpotStats(); if(!B) return '';
+  const pct=B.total?Math.round(B.neutralized/B.total*100):0;
+  const dir=B.trend==null?'':B.trend<-0.15?'<span class="bs-tr dn">▼ falling</span>':B.trend>0.15?'<span class="bs-tr up">▲ rising</span>':'<span class="bs-tr fl">→ flat</span>';
+  const centre = B.live>0
+    ? `<div class="neg-num live"><b data-cu="${B.live}">${B.live}</b><span>still live</span></div>`
+    : `<div class="neg-num done">✓<span>all neutralised</span></div>`;
+  const clusters = B.subs.length? `<div class="bs-subs">${B.subs.map(x=>`<button class="bs-sub" data-sub="${esc(x.s)}">${esc(x.s)} <b>${x.n}</b></button>`).join('')}</div>`:'';
+  const action = B.live>0
+    ? `<button class="btn primary bs-act" id="bsWrite">Neutralise ${B.live} — write the contrast${B.live>1?'s':''} <span class="bs-min">~${Math.max(1,Math.round(B.live*0.5))} min</span></button>`
+    : (B.written>B.cleared? `<button class="btn ghost bs-act" id="bsRetest">Re-test the ${B.written-B.cleared} written — clear them for good ›</button>`:'');
+  return `<div class="card bs-card ember"><h3><span class="accent"></span>Blind spots — neutralise them<span class="h3-hint">sure &amp; wrong · tap</span><button class="cardq" data-help="blind">?</button></h3>
+    <div class="bs-body">
+      <div class="neg-wrap">${neutGauge(B.cleared,B.written,B.total)}${centre}</div>
+      <div class="bs-side">
+        <div class="bs-line"><span class="bs-dot live"></span><b>${B.live}</b> live — will repeat ${dir}</div>
+        <div class="bs-line"><span class="bs-dot amber"></span><b>${B.neutralized-B.cleared}</b> contrast written</div>
+        <div class="bs-line"><span class="bs-dot green"></span><b>${B.cleared}</b> re-tested &amp; clear</div>
+        <div class="bs-pct">${pct}% neutralised of ${B.total}</div>
+      </div>
+    </div>
+    <p class="tlab bs-why">Sure and still wrong — a re-read won't catch these, they won't feel wrong next time. Write the contrast <i>(I believed X → it's Y, because Z)</i>, then re-test. That's the whole point of triage.</p>
+    ${clusters}
+    ${action}</div>`;
+}
+/* the deep view: the burndown per test + every read still carrying live blind spots, tap to write */
+function blindSpotSheet(){
+  const B=blindSpotStats(); if(!B){ metricHelp('blind'); return; }
+  const live=sessions.map(s=>{ const b=triageCounts(s.items).blind, w=writtenBlindFor(s.id); return {s, live:Math.max(0,b-w), b}; })
+    .filter(x=>x.live>0).sort((a,b)=>b.live-a.live);
+  const burn = B.seq.length>=2 ? `<div class="sp-lab">blind-spot rate, test by test</div>
+    <div class="sparks">${sparkRow('Sure & wrong %','var(--rose)',B.seq.map(v=>Math.round(v)),{goodDown:true,disp:B.seq.map(v=>Math.round(v)+'%')})}</div>`:'';
+  const rows = live.length? live.map(x=>`<button class="ses-row bs-open" data-ses="${esc(x.s.id)}"><div><div class="sr-t">${esc(x.s.set)}</div><div class="sr-d"><b class="bl">${x.live} live</b> of ${x.b} · ${relTime(x.s.ts)}</div></div><span class="th-go">write ›</span></button>`).join('')
+    : `<div class="tlab">Every blind spot has a written contrast. Re-test them to clear for good.</div>`;
+  openSheet(`<h3>Blind spots — the loop</h3>
+    <p>Sure and still wrong. The exam won't feel different — so a re-read can't save you. Each needs a written <b>contrast</b>, then a re-test. Here's where yours stand.</p>
+    <div class="bs-funnel">
+      <div class="bsf-seg live" style="flex:${Math.max(0.15,B.live)}"><b>${B.live}</b><span>live</span></div>
+      <div class="bsf-seg amber" style="flex:${Math.max(0.15,B.neutralized-B.cleared)}"><b>${B.neutralized-B.cleared}</b><span>written</span></div>
+      <div class="bsf-seg green" style="flex:${Math.max(0.15,B.cleared)}"><b>${B.cleared}</b><span>cleared</span></div>
+    </div>
+    ${burn}
+    <div class="sp-lab" style="margin-top:14px">${live.length?'reads with live blind spots':'status'}</div>
+    <div class="ses-list">${rows}</div>
+    <div class="actions" style="margin-top:14px">${B.live>0?`<button class="btn primary" id="bsWrite2">Write the next contrast ›</button>`:`<button class="btn primary" id="bsRetest2">Re-test the written ›</button>`}<button class="btn ghost" onclick="closeSheet()">Close</button></div>`);
+  growBars(document.getElementById('sheet'));
+  document.querySelectorAll('#sheet .bs-open').forEach(b=>b.onclick=()=>{ closeSheet(); writeFixComposer(b.dataset.ses); });
+  const w2=document.getElementById('bsWrite2'); if(w2) w2.onclick=()=>{ closeSheet(); const off=firstUnwrittenBlind(); if(off) writeFixComposer(off.id); };
+  const r2=document.getElementById('bsRetest2'); if(r2) r2.onclick=()=>{ closeSheet(); startReview('blind'); };
+}
 function saveSession(score){
   if(triage.saved) return;
   const items=triage.items.map(it=>{ const o={error:it.error, conf:it.conf||null, subj:it.subj||null}; if(it.img)o.img=true; if(it.uncertain)o.uncertain=true; return o; });
@@ -3958,7 +4083,9 @@ const METRIC_HELP={
   recover:{t:'Where the fastest marks are',is:'Not every wrong costs the same to fix. RF (knew it, didn\'t fire) + TE (misread) are marks you already own; KG + CC need real learning.',
     do:'Clear the "already own" pile first — cue tweaks and a reading checklist are the cheapest points on the board. Tap any bucket for its protocol.'},
   lever:{t:'What\'s moving your marks',is:'Every mark on a +4/−1 paper comes from two levers: how much you ATTEMPT and how ACCURATE you are on what you attempt (marks = attempts × (5·accuracy − 1)). This prices each in real exam marks from your GTs and names the one with the most room to grow.',
-    do:'Push the named lever. Accuracy → precision on the weak clusters below. Attempts → stop leaving safe eliminations blank (only once your logged guesses beat 20%). The band between the two lines is the marks you skip.'}
+    do:'Push the named lever. Accuracy → precision on the weak clusters below. Attempts → stop leaving safe eliminations blank (only once your logged guesses beat 20%). The band between the two lines is the marks you skip.'},
+  blind:{t:'Blind spots — neutralise them',is:'A blind spot is an answer you felt SURE about and still got wrong. It\'s the most dangerous error: a re-read never catches it, because it won\'t feel wrong next time either. The gauge tracks each one through its life — spotted → contrast written → re-tested & clear. Rose still showing = live and will repeat.',
+    do:'Write the contrast for each live one — “I believed X, it\'s actually Y, because Z” — in the 2-minute composer. Then re-test them in review until they clear. That closing loop is the entire point of triaging.'}
 };
 function metricHelp(key){
   const h=METRIC_HELP[key]; if(!h) return;
@@ -3996,7 +4123,7 @@ function renderInsights(){
   };
   const detailed = entries.length ? secWrap('logs','From your detailed logs',[nextCard(map),masteryCard(),statStrip(),leakCard(),typeSplitCard()]) : '';
   const deep = secWrap('deep','The whole picture — every subject, every test',[heatmapCard(),weakAreasCard(),numbersCard(),testListCard()]);
-  box.innerHTML = scopeRow + typeRow + forecastCard() + leverCard() + threeMovesCard() + recoverableCard() + calibrationCard() + scoreTrendCard() + triageInsightsCard()
+  box.innerHTML = scopeRow + typeRow + forecastCard() + blindSpotCard() + leverCard() + threeMovesCard() + recoverableCard() + calibrationCard() + scoreTrendCard() + triageInsightsCard()
     + deep + detailed;
   box.querySelectorAll('.cardq[data-help]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); buzz(5); metricHelp(b.dataset.help); });
   /* fold-outs animate in place (grid-rows 0fr → 1fr) — no re-render, so the motion is real */
@@ -4004,6 +4131,9 @@ function renderInsights(){
     b.classList.toggle('open',insOpen[id]); const bd=b.nextElementSibling; if(bd) bd.classList.toggle('open',insOpen[id]); });
   const fcc=box.querySelector('.fc-card'); if(fcc) fcc.onclick=()=>{ buzz(6); fcSheet(); };
   const lvc=box.querySelector('.lv-card'); if(lvc) lvc.onclick=e=>{ if(e.target.closest('.cardq'))return; buzz(6); leverSheet(); };
+  const bsW=document.getElementById('bsWrite'); if(bsW) bsW.onclick=e=>{ e.stopPropagation(); buzz(6); const off=firstUnwrittenBlind(); if(off) writeFixComposer(off.id); else toast('All written — re-test them in review.'); };
+  const bsR=document.getElementById('bsRetest'); if(bsR) bsR.onclick=e=>{ e.stopPropagation(); buzz(6); startReview('blind'); };
+  const bsc=box.querySelector('.bs-card'); if(bsc) bsc.onclick=e=>{ if(e.target.closest('.cardq')||e.target.closest('button'))return; buzz(6); blindSpotSheet(); };
   box.querySelectorAll('.sc-chip[data-sc]').forEach(b=>b.onclick=()=>{ buzz(5); insScope=b.dataset.sc; renderInsights(); });
   box.querySelectorAll('.sc-chip[data-it]').forEach(b=>b.onclick=()=>{ buzz(5); insType=b.dataset.it; renderInsights(); });
   const hm=document.getElementById('hmMore'); if(hm) hm.onclick=()=>{ buzz(5); hmAll=!hmAll; renderInsights(); };
@@ -4011,7 +4141,7 @@ function renderInsights(){
   box.querySelectorAll('#stSeg button').forEach(b=>b.onclick=e=>{ e.stopPropagation(); buzz(5); stType=b.dataset.t; renderInsights(); });
   const wk=document.getElementById('wkMore'); if(wk) wk.onclick=()=>{ buzz(5); wkAll=!wkAll; renderInsights(); };
   /* physical spring count-ups on the display numbers (raw-numbers grid + projected score) */
-  box.querySelectorAll('.num b[data-cu]').forEach(el=>{ const to=+el.dataset.cu; if(to&&to<=9999) countUp(el,to); });
+  box.querySelectorAll('.num b[data-cu], .neg-num b[data-cu]').forEach(el=>{ const to=+el.dataset.cu; if(to&&to<=9999) countUp(el,to); });
   const fcb=box.querySelector('.fc-big b[data-cu]'); if(fcb){ const to=+fcb.dataset.cu; if(isFinite(to)) countUp(fcb,to,v=>Math.round(v)); }
   const tm=document.getElementById('tmUnfin'); if(tm) tm.onclick=()=>{
     let off=null; sessions.forEach(sn=>{ const q=triageCounts(sn.items); if(!off && q.blind>writtenCount(sn.id)) off=sn; });
