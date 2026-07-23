@@ -508,6 +508,18 @@
   #cueStrip.blind .cue-tx b{color:var(--rose)}
   #cueStrip .cue-go{flex:none;color:var(--faint);font-weight:800;font-size:15px}
   #cueStrip:active{transform:translate(-50%,0) scale(.97)}
+  #cueStrip .cue-note{flex:none;font-size:12px;font-weight:800;color:#fff;background:var(--rose);border:none;border-radius:10px;padding:7px 12px;box-shadow:0 3px 10px -3px var(--rose);transition:transform .2s var(--spring)}
+  #cueStrip .cue-note:active{transform:scale(.9)}
+  #cueStrip.noted-done{border-color:color-mix(in srgb,var(--sage-ink) 55%,var(--border2));background:color-mix(in srgb,var(--sage-ink) 8%,var(--surface))}
+  #cueStrip.noted-done .cue-note{background:var(--sage-ink);box-shadow:none}
+  #cueStrip.noted-done .cue-code{background:var(--sage-ink)!important}
+  /* blind-spot deep-sheet rows: a read with its two one-tap actions */
+  .bs-row{align-items:center}
+  .bs-row-act{display:flex;gap:7px;flex:none}
+  .bs-mini{font-size:12px;font-weight:750;color:var(--muted);background:var(--surface2);border:1px solid var(--border2);border-radius:9px;padding:6px 10px;transition:transform .18s var(--spring)}
+  .bs-mini.note{color:var(--sage-ink);border-color:color-mix(in srgb,var(--sage-ink) 40%,transparent);background:color-mix(in srgb,var(--sage-ink) 8%,transparent)}
+  .bs-mini:active{transform:scale(.92)}
+  .bs-alt{display:block;text-align:center;width:100%;margin-top:8px;font-size:12px}
   /* every tap answers back: confidence chips press like real buttons */
   .tc{transition:transform .22s var(--spring),background .15s var(--ease),color .15s var(--ease)}
   .tc:active{transform:scale(.94)}
@@ -728,6 +740,14 @@
   .fc-of{font-family:var(--serif)}
   .fc-of{font-size:14px;font-weight:750;color:var(--muted)}
   .fc-band{margin-left:auto;font-size:11.5px;font-weight:750;color:var(--accent-ink);background:color-mix(in srgb,var(--accent) 11%,transparent);padding:4px 9px;border-radius:9px}
+  /* the form / momentum pill + line */
+  .fc-form{font-size:11px;font-weight:800;letter-spacing:.02em;padding:4px 9px;border-radius:9px;align-self:center;white-space:nowrap}
+  .fc-form.good{color:var(--sage-ink);background:color-mix(in srgb,var(--sage-ink) 15%,transparent)}
+  .fc-form.flat{color:var(--muted);background:var(--surface2)}
+  .fc-form.warn{color:var(--amber);background:color-mix(in srgb,var(--amber) 16%,transparent)}
+  .fc-form.bad{color:var(--rose);background:color-mix(in srgb,var(--rose) 14%,transparent)}
+  .fc-formline{margin-top:10px;padding-top:10px;border-top:1px solid color-mix(in srgb,var(--accent) 14%,transparent)}
+  .fc-formline b{color:var(--accent-ink)}
   .cal-bar-wrap .cal-mix{display:flex;height:16px;border-radius:8px;overflow:hidden;background:var(--surface2)}
   .cal-seg{min-width:2px;transition:flex-grow .5s cubic-bezier(.4,0,.2,1)}
   .cal-seg:not(:last-child){border-right:1.5px solid var(--surface)}
@@ -889,6 +909,10 @@
   .pl-bar{height:10px;border-radius:6px;background:var(--surface2);overflow:hidden;margin:10px 0 7px}
   .pl-bar i{display:block;height:100%;background:var(--grad);border-radius:6px;transition:width .5s cubic-bezier(.4,0,.2,1);transform-origin:left}
   .pl-hsub{font-size:12px;color:var(--muted)}
+  .pl-mom{margin-top:11px;font-size:12px;line-height:1.5;padding:9px 11px;border-radius:11px;border-left:3px solid}
+  .pl-mom.good{background:color-mix(in srgb,var(--sage-ink) 8%,transparent);border-color:var(--sage-ink)}
+  .pl-mom.warn{background:color-mix(in srgb,var(--amber) 10%,transparent);border-color:var(--amber)}
+  .pl-mom.bad{background:color-mix(in srgb,var(--rose) 9%,transparent);border-color:var(--rose)}
   .pl-cov{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}
   .pl-chip{font-size:9.5px;font-weight:750;letter-spacing:.02em;padding:3px 7px;border-radius:7px;border:1.5px solid var(--border2);color:var(--muted);background:var(--surface2)}
   .pl-chip.on{background:var(--sage-soft);border-color:color-mix(in srgb,var(--sage) 45%,transparent);color:var(--sage-ink)}
@@ -1400,7 +1424,7 @@ const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.st
 async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } try{return localStorage.getItem(k)}catch(_){return null} }
 async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v);return true}catch(e){return false} } try{localStorage.setItem(k,v);return true}catch(_){return false} }
 const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
-const APP_VERSION='v43'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
+const APP_VERSION='v44'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
 
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 
@@ -2055,7 +2079,7 @@ function restoreLiveTriage(){
     if(Date.now()-(+s.ts||0) > 36*3600*1000){ localStorage.removeItem(K_LIVETRI); return false; } /* stale board — don't resurrect last week's read */
     const items=s.items.filter(it=>it&&ERR_MAP[it.error]).map(it=>{
       const o={error:it.error, conf:['high','twoish','noidea'].includes(it.conf)?it.conf:null, subj:(it.subj&&SUBJECTS.includes(it.subj))?it.subj:null};
-      if(it.img) o.img=true; if(it.uncertain) o.uncertain=true; return o;
+      if(it.img) o.img=true; if(it.uncertain) o.uncertain=true; if(it.noted) o.noted=true; return o;
     });
     if(!items.length) { localStorage.removeItem(K_LIVETRI); return false; }
     const type=s.testType==='module'?'module':'gt';
@@ -2314,6 +2338,12 @@ function renderPlan(){
         return `<span class="pl-chip ${cls}" title="${esc(x)}">${esc(x.split(' ')[0].slice(0,5))}</span>`;}).join('')}</div>
       <div class="pl-covkey"><span><i class="k-on"></i>read</span><span><i class="k-sch"></i>planned</span><span><i class="k-off"></i>not in cycle</span></div>
       ${missing.length?`<button class="pl-missing" id="planMissing">Not scheduled this cycle: <b>${missing.map(esc).join(' · ')}</b> — add a day ›</button>`:''}
+      ${(()=>{ /* the plan reacts to your trajectory: a plateau/dip means change WHAT, not how much */
+        const mom=formMomentum(); if(!mom) return '';
+        if(mom.verdict==='plateau') return `<div class="pl-mom warn">Your GTs have plateaued — more reading of the same won't move it. This cycle, lead with your weak clusters &amp; blind spots (see Insights).</div>`;
+        if(mom.verdict==='declining') return `<div class="pl-mom bad">Scores are slipping beyond noise — check Insights for which error type is rising before adding more hours.</div>`;
+        if(mom.verdict==='accelerating'||mom.verdict==='surge') return `<div class="pl-mom good">You're accelerating — the current mix is working. Protect it: keep the cadence, don't cram new material late.</div>`;
+        return ''; })()}
     </div>`;
   /* NEXT UP — the single clear next action: today's undone day, else the nearest one ahead, else the oldest slip */
   const undone=plan.rows.filter(r=>!plan.done[r.id]);
@@ -2778,20 +2808,33 @@ function showCue(error, blind, reclassed){
   const em=ERR_MAP[error]; if(!em) return;
   let el=document.getElementById('cueStrip');
   if(!el){
-    el=document.createElement('button'); el.id='cueStrip'; document.body.appendChild(el);
-    el.onclick=()=>{ buzz(6); clearTimeout(cueT); el.classList.remove('show'); bucketFixSheet(el.dataset.e); };
+    el=document.createElement('div'); el.id='cueStrip'; el.setAttribute('role','button'); document.body.appendChild(el);
+    /* the ✓noted chip marks THIS blind spot handled (contrast kept in your own notes); the rest opens the protocol */
+    el.onclick=(ev)=>{ if(ev.target.closest('.cue-note')){ markLastNoted(); return; } buzz(6); clearTimeout(cueT); el.classList.remove('show'); bucketFixSheet(el.dataset.e); };
   }
   el.dataset.e=error;
   el.style.setProperty('--et', em.c);
   el.classList.toggle('blind', !!blind);
+  el.classList.remove('noted-done');
   const lead = reclassed ? 'Sure + didn’t-know = a wrong idea, not a blank — filed as CC.'
-    : blind ? 'Blind spot — these repeat in the exam.'
+    : blind ? 'Blind spot — this repeats unless you fix the belief.'
     : '';
-  const act = blind ? 'Write the fix while it stings (2 min).' : FIXACT[error];
+  const act = blind ? 'Note the contrast (I believed X → it\'s Y).' : FIXACT[error];
+  const tail = blind ? `<button class="cue-note">✓ noted</button>` : `<span class="cue-go">›</span>`;
   el.innerHTML=`<span class="cue-code" style="background:${em.c}">${em.code}</span>
-    <span class="cue-tx">${lead?`<b>${esc(lead)}</b> `:''}${esc(act)}</span><span class="cue-go">›</span>`;
+    <span class="cue-tx">${lead?`<b>${esc(lead)}</b> `:''}${esc(act)}</span>${tail}`;
   el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
-  clearTimeout(cueT); cueT=setTimeout(()=>el.classList.remove('show'), blind||reclassed?3600:2600);
+  clearTimeout(cueT); cueT=setTimeout(()=>el.classList.remove('show'), blind||reclassed?4200:2600);
+}
+/* one tap the moment you've jotted the contrast — flags the just-filed blind spot handled */
+function markLastNoted(){
+  const it=triage.items[triage.items.length-1]; if(!it || !isBlind(it)) return;
+  it.noted=true; buzz(12); persistLiveTriageSoon();
+  const el=document.getElementById('cueStrip'); if(!el) return;
+  el.classList.add('noted-done');
+  const tx=el.querySelector('.cue-tx'); if(tx) tx.innerHTML='<b>Handled ✓</b> Neutralised — it won\'t nag you in Insights.';
+  const note=el.querySelector('.cue-note'); if(note) note.textContent='✓';
+  clearTimeout(cueT); cueT=setTimeout(()=>el.classList.remove('show'), 1500);
 }
 function hideCue(){ const el=document.getElementById('cueStrip'); if(el){ clearTimeout(cueT); el.classList.remove('show'); } }
 function flyToken(btnEl, error, blind){
@@ -3071,18 +3114,27 @@ function leverSheet(){
    and re-test it. So a blind spot has a life: spotted → contrast written → re-tested & cleared.
    This tracks every one through that life and shows exactly how many are still armed. */
 function writtenBlindFor(sessId){ return entries.filter(e=>isBlind(e) && e.srcSession===sessId).length; }
-function firstUnwrittenBlind(){ return sessions.find(s=>{ const b=triageCounts(s.items).blind; return b>0 && writtenBlindFor(s.id)<b; })||null; }
+function firstUnwrittenBlind(){ return sessions.find(s=>{ const b=triageCounts(s.items).blind; return b>0 && (writtenBlindFor(s.id)+notedBlindFor(s))<b; })||null; }
+function notedBlindFor(s){ return (s.items||[]).filter(it=>isBlind(it)&&it.noted).length; }
+/* mark every still-live blind spot in a read as self-handled (contrast kept in your own notes) */
+function markReadNoted(sessId){
+  const s=sessions.find(x=>x.id===sessId); if(!s) return 0; let n=0;
+  (s.items||[]).forEach(it=>{ if(isBlind(it)&&!it.noted){ it.noted=true; n++; } });
+  if(n){ s.upd=Date.now(); persistSessions(); }
+  return n;
+}
 function blindSpotStats(){ return _memo('bss:'+insScopeVal()+':'+insType, function(){
   const ss=scopedSessions(), ee=scopedEntries();
-  let identified=0; ss.forEach(s=>{ identified+=triageCounts(s.items).blind; });
+  let identified=0, noted=0; ss.forEach(s=>{ identified+=triageCounts(s.items).blind; noted+=notedBlindFor(s); });
   const blindE=ee.filter(isBlind);
   const written=blindE.length, clearedAll=blindE.filter(e=>e.status==='fixed').length;
   let total=identified;
   if(total===0 && written===0) return null;      /* nothing sure-and-wrong yet */
   if(written>total) total=written;               /* old data logged straight to the Book, no session */
-  const neutralized=Math.min(total,written), cleared=Math.min(neutralized,clearedAll);
-  const live=Math.max(0,total-neutralized);
-  /* where they cluster — a blind spot in your weakest subject is the most dangerous */
+  /* HANDLED = a contrast exists, whether you noted it in your own notes (one tap) or wrote it here.
+     CLEARED = re-tested in review. LIVE = still unhandled and will repeat. */
+  const handled=Math.min(total, noted+written), cleared=Math.min(handled,clearedAll);
+  const live=Math.max(0,total-handled);
   const m=buildSubjects(ss,ee);
   const subs=Object.keys(m).filter(k=>m[k].sure>0).sort((a,b)=>m[b].sure-m[a].sure).slice(0,3)
     .map(k=>({s:k,n:m[k].sure}));
@@ -3090,7 +3142,7 @@ function blindSpotStats(){ return _memo('bss:'+insScopeVal()+':'+insType, functi
   const seq=ss.filter(s=>(s.testType||'gt')==='gt').slice().sort((a,b)=>(a.ts||0)-(b.ts||0))
     .map(s=>{ const st=scoreStats(s); const b=triageCounts(s.items).blind; return st&&(st.total)? b/st.total*100 : null; }).filter(v=>v!=null);
   let trend=null; if(seq.length>=3){ const f=linReg(seq.map((y,x)=>({x,y}))); if(f) trend=f.m; }
-  return { total, written, cleared, neutralized, live, subs, trend, seq };
+  return { total, written, noted, handled, cleared, neutralized:handled, live, subs, trend, seq, notesUser:noted>=written };
 }); }
 /* a 180° neutralisation gauge: rose track = danger, amber = a contrast written, green = re-tested clear.
    The rose still showing IS your live blind spots. Draws in on paint. */
@@ -3110,51 +3162,55 @@ function blindSpotCard(){
     ? `<div class="neg-num live"><b data-cu="${B.live}">${B.live}</b><span>still live</span></div>`
     : `<div class="neg-num done">✓<span>all neutralised</span></div>`;
   const clusters = B.subs.length? `<div class="bs-subs">${B.subs.map(x=>`<button class="bs-sub" data-sub="${esc(x.s)}">${esc(x.s)} <b>${x.n}</b></button>`).join('')}</div>`:'';
+  /* the workflow honours how you actually study: one tap says "I've noted the contrast" (in the app
+     or your own notes); "write here" is there if you want it. */
   const action = B.live>0
-    ? `<button class="btn primary bs-act" id="bsWrite">Neutralise ${B.live} — write the contrast${B.live>1?'s':''} <span class="bs-min">~${Math.max(1,Math.round(B.live*0.5))} min</span></button>`
-    : (B.written>B.cleared? `<button class="btn ghost bs-act" id="bsRetest">Re-test the ${B.written-B.cleared} written — clear them for good ›</button>`:'');
+    ? `<button class="btn primary bs-act" id="bsNote">✓ I've noted ${B.live>1?'these':'it'} in my notes — mark handled</button>
+       <button class="linkish bs-alt" id="bsWrite">or write ${B.live>1?'them':'it'} in the app ›</button>`
+    : (B.handled>B.cleared? `<button class="btn ghost bs-act" id="bsRetest">Re-test the ${B.handled-B.cleared} handled — lock them in ›</button>`:'');
   return `<div class="card bs-card ember"><h3><span class="accent"></span>Blind spots — neutralise them<span class="h3-hint">sure &amp; wrong · tap</span><button class="cardq" data-help="blind">?</button></h3>
     <div class="bs-body">
-      <div class="neg-wrap">${neutGauge(B.cleared,B.written,B.total)}${centre}</div>
+      <div class="neg-wrap">${neutGauge(B.cleared,B.handled,B.total)}${centre}</div>
       <div class="bs-side">
         <div class="bs-line"><span class="bs-dot live"></span><b>${B.live}</b> live — will repeat ${dir}</div>
-        <div class="bs-line"><span class="bs-dot amber"></span><b>${B.neutralized-B.cleared}</b> contrast written</div>
+        <div class="bs-line"><span class="bs-dot amber"></span><b>${B.handled-B.cleared}</b> handled (noted / written)</div>
         <div class="bs-line"><span class="bs-dot green"></span><b>${B.cleared}</b> re-tested &amp; clear</div>
-        <div class="bs-pct">${pct}% neutralised of ${B.total}</div>
+        <div class="bs-pct">${pct}% handled of ${B.total}</div>
       </div>
     </div>
-    <p class="tlab bs-why">Sure and still wrong — a re-read won't catch these, they won't feel wrong next time. Write the contrast <i>(I believed X → it's Y, because Z)</i>, then re-test. That's the whole point of triage.</p>
+    <p class="tlab bs-why">Sure and still wrong — a re-read won't catch these, they won't feel wrong next time. The cure is the contrast <i>(I believed X → it's Y, because Z)</i>. Keep it wherever you like — just mark it handled so this stops nagging.</p>
     ${clusters}
     ${action}</div>`;
 }
 /* the deep view: the burndown per test + every read still carrying live blind spots, tap to write */
 function blindSpotSheet(){
   const B=blindSpotStats(); if(!B){ metricHelp('blind'); return; }
-  const live=sessions.map(s=>{ const b=triageCounts(s.items).blind, w=writtenBlindFor(s.id); return {s, live:Math.max(0,b-w), b}; })
+  const live=sessions.map(s=>{ const b=triageCounts(s.items).blind, h=writtenBlindFor(s.id)+notedBlindFor(s); return {s, live:Math.max(0,b-h), b}; })
     .filter(x=>x.live>0).sort((a,b)=>b.live-a.live);
   const burn = B.seq.length>=2 ? `<div class="sp-lab">blind-spot rate, test by test</div>
     <div class="sparks">${sparkRow('Sure & wrong %','var(--rose)',B.seq.map(v=>Math.round(v)),{goodDown:true,disp:B.seq.map(v=>Math.round(v)+'%')})}</div>`:'';
-  const rows = live.length? live.map(x=>`<button class="ses-row bs-open" data-ses="${esc(x.s.id)}"><div><div class="sr-t">${esc(x.s.set)}</div><div class="sr-d"><b class="bl">${x.live} live</b> of ${x.b} · ${relTime(x.s.ts)}</div></div><span class="th-go">write ›</span></button>`).join('')
-    : `<div class="tlab">Every blind spot has a written contrast. Re-test them to clear for good.</div>`;
+  const rows = live.length? live.map(x=>`<div class="ses-row bs-row"><div><div class="sr-t">${esc(x.s.set)}</div><div class="sr-d"><b class="bl">${x.live} live</b> of ${x.b} · ${relTime(x.s.ts)}</div></div><div class="bs-row-act"><button class="bs-mini note" data-note="${esc(x.s.id)}">✓ noted</button><button class="bs-mini" data-write="${esc(x.s.id)}">write ›</button></div></div>`).join('')
+    : `<div class="tlab">Every blind spot is handled. Re-test them nearer the exam to lock them in.</div>`;
   openSheet(`<h3>Blind spots — the loop</h3>
-    <p>Sure and still wrong. The exam won't feel different — so a re-read can't save you. Each needs a written <b>contrast</b>, then a re-test. Here's where yours stand.</p>
+    <p>Sure and still wrong. The exam won't feel different — so a re-read can't save you. Each needs the <b>contrast</b>. Note it wherever you keep your notes, or write it here — then re-test.</p>
     <div class="bs-funnel">
       <div class="bsf-seg live" style="flex:${Math.max(0.15,B.live)}"><b>${B.live}</b><span>live</span></div>
-      <div class="bsf-seg amber" style="flex:${Math.max(0.15,B.neutralized-B.cleared)}"><b>${B.neutralized-B.cleared}</b><span>written</span></div>
+      <div class="bsf-seg amber" style="flex:${Math.max(0.15,B.handled-B.cleared)}"><b>${B.handled-B.cleared}</b><span>handled</span></div>
       <div class="bsf-seg green" style="flex:${Math.max(0.15,B.cleared)}"><b>${B.cleared}</b><span>cleared</span></div>
     </div>
     ${burn}
     <div class="sp-lab" style="margin-top:14px">${live.length?'reads with live blind spots':'status'}</div>
     <div class="ses-list">${rows}</div>
-    <div class="actions" style="margin-top:14px">${B.live>0?`<button class="btn primary" id="bsWrite2">Write the next contrast ›</button>`:`<button class="btn primary" id="bsRetest2">Re-test the written ›</button>`}<button class="btn ghost" onclick="closeSheet()">Close</button></div>`);
+    <div class="actions" style="margin-top:14px">${live.length?`<button class="btn primary" id="bsAllNoted">✓ Mark all handled — I keep my own notes</button>`:`<button class="btn primary" id="bsRetest2">Re-test the handled ›</button>`}<button class="btn ghost" onclick="closeSheet()">Close</button></div>`);
   growBars(document.getElementById('sheet'));
-  document.querySelectorAll('#sheet .bs-open').forEach(b=>b.onclick=()=>{ closeSheet(); writeFixComposer(b.dataset.ses); });
-  const w2=document.getElementById('bsWrite2'); if(w2) w2.onclick=()=>{ closeSheet(); const off=firstUnwrittenBlind(); if(off) writeFixComposer(off.id); };
+  document.querySelectorAll('#sheet [data-write]').forEach(b=>b.onclick=()=>{ closeSheet(); writeFixComposer(b.dataset.write); });
+  document.querySelectorAll('#sheet [data-note]').forEach(b=>b.onclick=()=>{ buzz(9); markReadNoted(b.dataset.note); memoClear(); renderInsights(); blindSpotSheet(); });
+  const an=document.getElementById('bsAllNoted'); if(an) an.onclick=()=>{ buzz(9); let n=0; sessions.forEach(s=>{ n+=markReadNoted(s.id); }); memoClear(); closeSheet(); renderInsights(); toast(n+' marked handled.'); };
   const r2=document.getElementById('bsRetest2'); if(r2) r2.onclick=()=>{ closeSheet(); startReview('blind'); };
 }
 function saveSession(score){
   if(triage.saved) return;
-  const items=triage.items.map(it=>{ const o={error:it.error, conf:it.conf||null, subj:it.subj||null}; if(it.img)o.img=true; if(it.uncertain)o.uncertain=true; return o; });
+  const items=triage.items.map(it=>{ const o={error:it.error, conf:it.conf||null, subj:it.subj||null}; if(it.img)o.img=true; if(it.uncertain)o.uncertain=true; if(it.noted)o.noted=true; return o; });
   /* batch reads: finishing the same set again within ~20 h continues THAT read instead of
      spawning a twin — you triage a GT in sittings, it is still one test */
   const prev=mergeTarget(triage.set, triage.testType);
@@ -3865,6 +3921,44 @@ function fcSheet(){
 }
 /* the motivating one: where today's trend lands you on exam day, with an honest band.
    A line chart: real points, a dashed projection, a shaded uncertainty band. */
+/* ============ form / momentum — how your trajectory is CHANGING as the data grows ============
+   Not a single slope: an EWMA control chart (is the latest GT inside your normal band, or a real
+   break?) plus an acceleration read (is the slope itself steepening or flattening?). This is what
+   turns "you're at 68%" into "you're accelerating / plateaued / had an off day". */
+function formMomentum(){ return _memo('mom:'+insScopeVal()+':'+insType, function(){
+  const gts=scopedSessions().filter(s=>(s.testType||'gt')==='gt' && scoreStats(s)).slice().sort((a,b)=>(a.ts||0)-(b.ts||0));
+  if(gts.length<4) return null;
+  const x=gts.map(s=>scoreStats(s).pct100);
+  const a=0.4; let e=x[0]; const ewma=[e]; for(let i=1;i<x.length;i++){ e=a*x[i]+(1-a)*e; ewma.push(e); } /* exponentially-weighted mean */
+  /* control limits are built from the HISTORY (residuals up to the previous test), then the latest
+     GT is judged against them — so an outlier can't widen its own band and hide itself */
+  let ss=0,cnt=0; for(let i=1;i<x.length-1;i++){ const r=x[i]-ewma[i-1]; ss+=r*r; cnt++; }
+  const sd=Math.sqrt(ss/Math.max(1,cnt))||2;                     /* one-step residual sd; floor avoids a zero band */
+  const base=ewma[ewma.length-2], last=x[x.length-1];
+  const upper=base+1.6*sd, lower=base-1.6*sd;                    /* ~90% control limits */
+  const n=x.length, mid=Math.floor(n/2);
+  const slope=arr=>{ const f=linReg(arr.map((y,i)=>({x:i,y}))); return f?f.m:0; };
+  const recentSlope=slope(x.slice(mid)), olderSlope=slope(x.slice(0,mid+1)), accel=recentSlope-olderSlope;
+  const r3=x.slice(-3), range=Math.max(...r3)-Math.min(...r3);
+  let verdict;
+  if(last<lower) verdict='dip';                                 /* below your own band — likely an off day */
+  else if(last>upper && recentSlope>0) verdict='surge';
+  else if(accel>0.5 && recentSlope>0.2) verdict='accelerating';
+  else if(range<=2.5 && Math.abs(recentSlope)<0.5) verdict='plateau';
+  else if(recentSlope>0.4) verdict='climbing';
+  else if(recentSlope<-0.4) verdict='declining';
+  else verdict='steady';
+  return { verdict, ewma, sd, x, last, base, upper, lower, recentSlope, olderSlope, accel, n };
+}); }
+const FORM_META={
+  accelerating:{lab:'Accelerating', ic:'▲▲', cls:'good', line:'Your gains are speeding up — the last stretch improved faster than the one before. Whatever changed recently, keep doing it.'},
+  surge:{lab:'Breakout', ic:'▲', cls:'good', line:'This GT jumped above your normal band — a genuine step up, not noise. Bank the method that got you here.'},
+  climbing:{lab:'Climbing', ic:'▲', cls:'good', line:'Steady upward trend, inside your normal spread. On track — hold the routine.'},
+  steady:{lab:'Holding', ic:'→', cls:'flat', line:'Flat but stable, inside your band. Fine for maintenance; if you want more, change WHAT you study, not how long.'},
+  plateau:{lab:'Plateau', ic:'→', cls:'warn', line:'Three GTs essentially flat. More of the same reading won\'t move it — attack the weak clusters and blind spots below instead.'},
+  dip:{lab:'Off day', ic:'▽', cls:'warn', line:'This GT fell below your own control band — statistically an outlier, not a collapse. Don\'t over-correct; check it was fatigue/timing before changing anything.'},
+  declining:{lab:'Slipping', ic:'▼', cls:'bad', line:'Recent trend is downward beyond noise. Something regressed — check the buckets below for which error type is rising.'}
+};
 function forecastCard(){
   /* the forecast is exam-day = full paper, so it's always GTs. In a Modules-only view, say so plainly. */
   if(insType==='module') return `<div class="card fc-lock"><h3><span class="accent"></span>Projected exam score<button class="cardq" data-help="forecast">?</button></h3>
@@ -3904,8 +3998,11 @@ function forecastCard(){
   const lastX=f.pts[f.pts.length-1].x, projPts=[];
   for(let i=0;i<=12;i++){ const xi=lastX+(f.x0-lastX)*i/12; projPts.push({x:X(xi),y:Y(invlogit(f.fit.m*xi+f.fit.b)*100)}); }
   const projPath=smoothPath(projPts);
+  const mom=formMomentum(), fm=mom?FORM_META[mom.verdict]:null;
+  const formPill=fm?`<span class="fc-form ${fm.cls}">${fm.ic} ${fm.lab}</span>`:'';
+  const formLine=fm?`<p class="tlab fc-formline"><b>Form:</b> ${fm.line}</p>`:'';
   return `<div class="card fc-card ember"><h3><span class="accent"></span>Projected exam score<span class="h3-hint">GT-only · tap to open</span><button class="cardq" data-help="forecast">?</button></h3>
-    <div class="fc-big"><b data-cu="${f.mid}">${f.mid}</b><span class="fc-of">/ ${f.max}</span><span class="fc-band">${f.midPc}% · range ${f.lo}–${f.hi}</span></div>
+    <div class="fc-big"><b data-cu="${f.mid}">${f.mid}</b><span class="fc-of">/ ${f.max}</span><span class="fc-band">${f.midPc}% · range ${f.lo}–${f.hi}</span>${formPill}</div>
     <div class="chartwrap"><svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Projected exam score, normalised">
       <path d="M ${last.x.toFixed(1)} ${last.y.toFixed(1)} L ${proj.x.toFixed(1)} ${bandTop.toFixed(1)} L ${proj.x.toFixed(1)} ${bandBot.toFixed(1)} Z" fill="var(--accent)" opacity=".13"/>
       <path class="fc-line" d="${histLine}" fill="none" stroke="var(--accent-ink)" stroke-width="2.4" stroke-linecap="round"/>
@@ -3914,7 +4011,7 @@ function forecastCard(){
       <circle class="fc-proj" cx="${proj.x.toFixed(1)}" cy="${proj.y.toFixed(1)}" r="4.5" fill="#fff" stroke="var(--accent-ink)" stroke-width="2"/>
       <text x="${proj.x.toFixed(1)}" y="${(proj.y-9).toFixed(1)}" text-anchor="end" class="xlab" style="fill:var(--accent-ink);font-weight:800">EXAM</text>
     </svg></div>
-    <p class="tlab" style="margin-top:6px">Across your last ${f.n} full GTs (sizes evened out to %) you're ${trendTxt}. Hold that and you land near <b>${f.mid}/${f.max}</b> on a 200-Q paper (${f.d2e} days out) — realistically <b>${f.lo}–${f.hi}</b>.${nearCap?' The curve bends as you near the ceiling — gains up here come slower and cost more.':''} Recent GTs count more (21-day half-life), and the band widens with fewer tests — it can't honestly be tighter on ${f.n}.</p></div>`;
+    <p class="tlab" style="margin-top:6px">Across your last ${f.n} full GTs (sizes evened out to %) you're ${trendTxt}. Hold that and you land near <b>${f.mid}/${f.max}</b> on a 200-Q paper (${f.d2e} days out) — realistically <b>${f.lo}–${f.hi}</b>.${nearCap?' The curve bends as you near the ceiling — gains up here come slower and cost more.':''} Recent GTs count more (21-day half-life), and the band widens with fewer tests — it can't honestly be tighter on ${f.n}.</p>${formLine}</div>`;
 }
 /* metacognition, zero extra taps: read from your mistakes how well you know when you're wrong,
    and whether your blind guessing is paying off on +4/-1 */
@@ -4064,8 +4161,8 @@ function numbersCard(){
 }
 /* every metric explains itself in two lines — what it is, what to do. Tight on purpose. */
 const METRIC_HELP={
-  forecast:{t:'Projected exam score',is:'A recency-weighted curve through your full GTs (sizes evened to %, scaled to a 200-Q / 800 paper). It follows an S-curve that bends toward a ceiling — real scores saturate, they don\'t climb forever — and the band uses a small-sample rule that stays honestly wide on few tests. GT-only; the exam is a full paper.',
-    do:'Watch the slope, not one GT. Flat this close to exams means change what you study, not how long. If the curve is bending flat near the top, further gains cost more — protect what you have.'},
+  forecast:{t:'Projected exam score',is:'A recency-weighted curve through your full GTs (sizes evened to %, scaled to a 200-Q / 800 paper). It follows an S-curve that bends toward a ceiling — real scores saturate, they don\'t climb forever — and the band uses a small-sample rule that stays honestly wide on few tests. The Form pill reads your TRAJECTORY: an EWMA control chart flags whether the latest GT is inside your normal band or a real break, and an acceleration term says if the slope itself is steepening or flattening. GT-only; the exam is a full paper.',
+    do:'Watch the Form, not one GT. Accelerating = your method is working, protect it. Plateau = change WHAT you study, not how long. Off day = a control-band outlier, don\'t over-correct. The plan header echoes this so the two stay in step.'},
   calibration:{t:'How well you read yourself',is:'Of your wrongs, how sure you felt — felt-sure, down-to-two, no-read. A big felt-sure slice is the dangerous kind: you can\'t feel it coming.',
     do:'Shrink the felt-sure slice by writing the contrast for each (believed vs true). Read from your mistakes only — no extra taps.'},
   ev:{t:'Blind-guess value (+4/−1)',is:'How often your pure guesses pay off. A guess is worth 5 × hit-rate − 1 marks; break-even is 20%.',
@@ -4084,8 +4181,8 @@ const METRIC_HELP={
     do:'Clear the "already own" pile first — cue tweaks and a reading checklist are the cheapest points on the board. Tap any bucket for its protocol.'},
   lever:{t:'What\'s moving your marks',is:'Every mark on a +4/−1 paper comes from two levers: how much you ATTEMPT and how ACCURATE you are on what you attempt (marks = attempts × (5·accuracy − 1)). This prices each in real exam marks from your GTs and names the one with the most room to grow.',
     do:'Push the named lever. Accuracy → precision on the weak clusters below. Attempts → stop leaving safe eliminations blank (only once your logged guesses beat 20%). The band between the two lines is the marks you skip.'},
-  blind:{t:'Blind spots — neutralise them',is:'A blind spot is an answer you felt SURE about and still got wrong. It\'s the most dangerous error: a re-read never catches it, because it won\'t feel wrong next time either. The gauge tracks each one through its life — spotted → contrast written → re-tested & clear. Rose still showing = live and will repeat.',
-    do:'Write the contrast for each live one — “I believed X, it\'s actually Y, because Z” — in the 2-minute composer. Then re-test them in review until they clear. That closing loop is the entire point of triaging.'}
+  blind:{t:'Blind spots — neutralise them',is:'A blind spot is an answer you felt SURE about and still got wrong — the most dangerous error, because a re-read never catches it (it won\'t feel wrong next time). The gauge tracks each through its life: live → handled → re-tested clear. Rose still showing = live and will repeat.',
+    do:'The cure is the contrast: “I believed X, it\'s actually Y, because Z.” Keep it wherever you already write — your own notes are fine — then tap ✓ noted (at triage or here) so it stops nagging. Re-test them nearer the exam to lock them in.'}
 };
 function metricHelp(key){
   const h=METRIC_HELP[key]; if(!h) return;
@@ -4131,7 +4228,8 @@ function renderInsights(){
     b.classList.toggle('open',insOpen[id]); const bd=b.nextElementSibling; if(bd) bd.classList.toggle('open',insOpen[id]); });
   const fcc=box.querySelector('.fc-card'); if(fcc) fcc.onclick=()=>{ buzz(6); fcSheet(); };
   const lvc=box.querySelector('.lv-card'); if(lvc) lvc.onclick=e=>{ if(e.target.closest('.cardq'))return; buzz(6); leverSheet(); };
-  const bsW=document.getElementById('bsWrite'); if(bsW) bsW.onclick=e=>{ e.stopPropagation(); buzz(6); const off=firstUnwrittenBlind(); if(off) writeFixComposer(off.id); else toast('All written — re-test them in review.'); };
+  const bsN=document.getElementById('bsNote'); if(bsN) bsN.onclick=e=>{ e.stopPropagation(); buzz(9); let n=0; sessions.forEach(s=>{ n+=markReadNoted(s.id); }); memoClear(); renderInsights(); toast(n?`${n} marked handled — nice. Re-test them nearer the exam.`:'Nothing left to mark.'); };
+  const bsW=document.getElementById('bsWrite'); if(bsW) bsW.onclick=e=>{ e.stopPropagation(); buzz(6); const off=firstUnwrittenBlind(); if(off) writeFixComposer(off.id); else toast('All handled — re-test them in review.'); };
   const bsR=document.getElementById('bsRetest'); if(bsR) bsR.onclick=e=>{ e.stopPropagation(); buzz(6); startReview('blind'); };
   const bsc=box.querySelector('.bs-card'); if(bsc) bsc.onclick=e=>{ if(e.target.closest('.cardq')||e.target.closest('button'))return; buzz(6); blindSpotSheet(); };
   box.querySelectorAll('.sc-chip[data-sc]').forEach(b=>b.onclick=()=>{ buzz(5); insScope=b.dataset.sc; renderInsights(); });
@@ -4754,6 +4852,7 @@ function sanitizeSessions(arr){
       const o={error:it.error, conf:conf(it.conf), subj:(it.subj&&SUBJECTS.includes(it.subj))?it.subj:null};
       if(it.img) o.img=true;            /* preserved — a rebuild that drops these erases them on every sync */
       if(it.uncertain) o.uncertain=true;
+      if(it.noted) o.noted=true;        /* self-handled blind spot (contrast written in your own notes) */
       return o;
     });
     const cc=triageCounts(items);
