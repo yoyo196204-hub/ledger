@@ -704,6 +704,37 @@
   .lvb-track i{display:block;height:100%;border-radius:6px;transition:width .7s cubic-bezier(.22,1,.36,1)}
   /* blind-spot neutralisation card + gauge */
   .bs-card{cursor:pointer}
+  /* compact blind-spot card */
+  .bs-slim .h3-hint{text-transform:none;letter-spacing:0}
+  .bsb-row{display:flex;align-items:center;gap:11px;margin:2px 0 9px}
+  .bsb-bar{flex:1;display:flex;gap:3px;height:13px;border-radius:7px;overflow:hidden;background:color-mix(in srgb,var(--rose) 20%,var(--surface2))}
+  .bsb-seg{display:block;border-radius:3px;transition:flex .6s var(--spring)}
+  .bsb-seg.green{background:var(--sage-ink)}.bsb-seg.amber{background:var(--amber)}.bsb-seg.live{background:var(--rose)}
+  .bsb-live{flex:none;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .bsb-live b{color:var(--rose);font-size:16px}.bsb-live.done{color:var(--sage-ink);font-weight:750}
+  .bsb-foot{display:flex;align-items:center;gap:10px}
+  .bsb-foot .tlab{flex:1;margin:0}
+  .neg-wrap.sheet{width:190px;margin:6px auto 2px}
+  /* module mastery — per-subject bars with Wilson confidence intervals */
+  .mm-drill{font-size:13px;line-height:1.5;margin:-2px 0 14px;padding:9px 11px;border-radius:11px;background:color-mix(in srgb,var(--accent) 9%,transparent);border-left:3px solid var(--accent)}
+  .mm-drill b{color:var(--accent-ink)}
+  .mm-row{display:block;width:100%;text-align:left;background:none;border:none;padding:9px 0;border-top:1px solid var(--edge)}
+  .mm-row:first-of-type{border-top:none}
+  .mm-head{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+  .mm-sub{font-size:14px;font-weight:750;color:var(--ink)}
+  .mm-state{font-size:10px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;padding:2px 7px;border-radius:6px}
+  .mm-gt{font-size:9.5px;font-weight:800;color:var(--rose);background:color-mix(in srgb,var(--rose) 12%,transparent);padding:2px 6px;border-radius:6px;letter-spacing:.02em}
+  .mm-tr{font-size:11px}.mm-tr.up{color:var(--sage-ink)}.mm-tr.dn{color:var(--rose)}
+  .mm-bar{position:relative;height:13px;border-radius:7px;background:var(--surface2);margin-bottom:5px}
+  .mm-fill{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:7px;opacity:.9;transition:width .7s cubic-bezier(.22,1,.36,1)}
+  /* the 95% Wilson range, drawn as an error-bar band over the fill — caps at each edge */
+  .mm-ci{position:absolute;top:-2px;bottom:-2px;border-left:2px solid var(--ink2);border-right:2px solid var(--ink2)}
+  .mm-ci::after{content:"";position:absolute;left:0;right:0;top:50%;height:2px;background:color-mix(in srgb,var(--ink2) 55%,transparent);transform:translateY(-1px)}
+  .mm-meta{font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .mm-meta b{color:var(--ink)}.mm-cip{color:var(--faint)}
+  .mm-foot{margin-top:12px;padding-top:10px;border-top:1px solid var(--edge);color:var(--faint)}
+  .mm-card.ember .mm-row{border-color:color-mix(in srgb,#fff 12%,transparent)}
+  .mm-card.ember .mm-foot{border-color:color-mix(in srgb,#fff 12%,transparent)}
   .bs-body{display:flex;align-items:center;gap:6px;margin-top:2px}
   .neg-wrap{position:relative;width:174px;flex:none}
   .neg{width:100%;height:auto;display:block;overflow:visible}
@@ -1424,7 +1455,7 @@ const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.st
 async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } try{return localStorage.getItem(k)}catch(_){return null} }
 async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v);return true}catch(e){return false} } try{localStorage.setItem(k,v);return true}catch(_){return false} }
 const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
-const APP_VERSION='v44'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
+const APP_VERSION='v45'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
 
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 
@@ -3154,33 +3185,24 @@ function neutGauge(cleared,written,total){
     ${written?seg(written,'var(--amber)'):''}
     ${cleared?seg(cleared,'var(--sage-ink)'):''}</svg>`;
 }
+/* compact: one slim neutralisation bar + the live count + a single action. The full gauge,
+   funnel, per-read list and burndown live one tap deeper (blindSpotSheet). */
 function blindSpotCard(){
   const B=blindSpotStats(); if(!B) return '';
-  const pct=B.total?Math.round(B.neutralized/B.total*100):0;
-  const dir=B.trend==null?'':B.trend<-0.15?'<span class="bs-tr dn">▼ falling</span>':B.trend>0.15?'<span class="bs-tr up">▲ rising</span>':'<span class="bs-tr fl">→ flat</span>';
-  const centre = B.live>0
-    ? `<div class="neg-num live"><b data-cu="${B.live}">${B.live}</b><span>still live</span></div>`
-    : `<div class="neg-num done">✓<span>all neutralised</span></div>`;
-  const clusters = B.subs.length? `<div class="bs-subs">${B.subs.map(x=>`<button class="bs-sub" data-sub="${esc(x.s)}">${esc(x.s)} <b>${x.n}</b></button>`).join('')}</div>`:'';
-  /* the workflow honours how you actually study: one tap says "I've noted the contrast" (in the app
-     or your own notes); "write here" is there if you want it. */
-  const action = B.live>0
-    ? `<button class="btn primary bs-act" id="bsNote">✓ I've noted ${B.live>1?'these':'it'} in my notes — mark handled</button>
-       <button class="linkish bs-alt" id="bsWrite">or write ${B.live>1?'them':'it'} in the app ›</button>`
-    : (B.handled>B.cleared? `<button class="btn ghost bs-act" id="bsRetest">Re-test the ${B.handled-B.cleared} handled — lock them in ›</button>`:'');
-  return `<div class="card bs-card ember"><h3><span class="accent"></span>Blind spots — neutralise them<span class="h3-hint">sure &amp; wrong · tap</span><button class="cardq" data-help="blind">?</button></h3>
-    <div class="bs-body">
-      <div class="neg-wrap">${neutGauge(B.cleared,B.handled,B.total)}${centre}</div>
-      <div class="bs-side">
-        <div class="bs-line"><span class="bs-dot live"></span><b>${B.live}</b> live — will repeat ${dir}</div>
-        <div class="bs-line"><span class="bs-dot amber"></span><b>${B.handled-B.cleared}</b> handled (noted / written)</div>
-        <div class="bs-line"><span class="bs-dot green"></span><b>${B.cleared}</b> re-tested &amp; clear</div>
-        <div class="bs-pct">${pct}% handled of ${B.total}</div>
-      </div>
-    </div>
-    <p class="tlab bs-why">Sure and still wrong — a re-read won't catch these, they won't feel wrong next time. The cure is the contrast <i>(I believed X → it's Y, because Z)</i>. Keep it wherever you like — just mark it handled so this stops nagging.</p>
-    ${clusters}
-    ${action}</div>`;
+  const pct=B.total?Math.round(B.handled/B.total*100):0;
+  const dir=B.trend==null?'':B.trend<-0.15?'<span class="bs-tr dn">▼ falling</span>':B.trend>0.15?'<span class="bs-tr up">▲ rising</span>':'';
+  const seg=(n,cls)=>n>0?`<span class="bsb-seg ${cls}" style="flex:${n}"></span>`:'';
+  const bar=`<div class="bsb-bar">${seg(B.cleared,'green')}${seg(B.handled-B.cleared,'amber')}${seg(B.live,'live')}</div>`;
+  const right = B.live>0 ? `<span class="bsb-live"><b>${B.live}</b> live</span>` : `<span class="bsb-live done">✓ clear</span>`;
+  const line = B.live>0
+    ? `<b class="bl">${B.live} sure-but-wrong</b> will repeat unless the belief's fixed ${dir} — note the contrast, then mark handled.`
+    : `Every blind spot handled — re-test nearer the exam to lock them in.`;
+  const act = B.live>0
+    ? `<button class="bs-mini note" id="bsNote">✓ mark handled</button>`
+    : (B.handled>B.cleared?`<button class="bs-mini" id="bsRetest">re-test ›</button>`:'');
+  return `<div class="card bs-card bs-slim"><h3><span class="accent"></span>Blind spots<span class="h3-hint">${pct}% handled of ${B.total} · tap</span><button class="cardq" data-help="blind">?</button></h3>
+    <div class="bsb-row">${bar}${right}</div>
+    <div class="bsb-foot"><span class="tlab">${line}</span>${act}</div></div>`;
 }
 /* the deep view: the burndown per test + every read still carrying live blind spots, tap to write */
 function blindSpotSheet(){
@@ -3191,13 +3213,17 @@ function blindSpotSheet(){
     <div class="sparks">${sparkRow('Sure & wrong %','var(--rose)',B.seq.map(v=>Math.round(v)),{goodDown:true,disp:B.seq.map(v=>Math.round(v)+'%')})}</div>`:'';
   const rows = live.length? live.map(x=>`<div class="ses-row bs-row"><div><div class="sr-t">${esc(x.s.set)}</div><div class="sr-d"><b class="bl">${x.live} live</b> of ${x.b} · ${relTime(x.s.ts)}</div></div><div class="bs-row-act"><button class="bs-mini note" data-note="${esc(x.s.id)}">✓ noted</button><button class="bs-mini" data-write="${esc(x.s.id)}">write ›</button></div></div>`).join('')
     : `<div class="tlab">Every blind spot is handled. Re-test them nearer the exam to lock them in.</div>`;
+  const centre = B.live>0 ? `<div class="neg-num live"><b>${B.live}</b><span>still live</span></div>` : `<div class="neg-num done">✓<span>all handled</span></div>`;
+  const clusters = B.subs.length? `<div class="bs-subs" style="justify-content:center;margin-top:2px">${B.subs.map(x=>`<button class="bs-sub" data-sub="${esc(x.s)}">${esc(x.s)} <b>${x.n}</b></button>`).join('')}</div>`:'';
   openSheet(`<h3>Blind spots — the loop</h3>
     <p>Sure and still wrong. The exam won't feel different — so a re-read can't save you. Each needs the <b>contrast</b>. Note it wherever you keep your notes, or write it here — then re-test.</p>
+    <div class="neg-wrap sheet">${neutGauge(B.cleared,B.handled,B.total)}${centre}</div>
     <div class="bs-funnel">
       <div class="bsf-seg live" style="flex:${Math.max(0.15,B.live)}"><b>${B.live}</b><span>live</span></div>
       <div class="bsf-seg amber" style="flex:${Math.max(0.15,B.handled-B.cleared)}"><b>${B.handled-B.cleared}</b><span>handled</span></div>
       <div class="bsf-seg green" style="flex:${Math.max(0.15,B.cleared)}"><b>${B.cleared}</b><span>cleared</span></div>
     </div>
+    ${clusters}
     ${burn}
     <div class="sp-lab" style="margin-top:14px">${live.length?'reads with live blind spots':'status'}</div>
     <div class="ses-list">${rows}</div>
@@ -3207,6 +3233,72 @@ function blindSpotSheet(){
   document.querySelectorAll('#sheet [data-note]').forEach(b=>b.onclick=()=>{ buzz(9); markReadNoted(b.dataset.note); memoClear(); renderInsights(); blindSpotSheet(); });
   const an=document.getElementById('bsAllNoted'); if(an) an.onclick=()=>{ buzz(9); let n=0; sessions.forEach(s=>{ n+=markReadNoted(s.id); }); memoClear(); closeSheet(); renderInsights(); toast(n+' marked handled.'); };
   const r2=document.getElementById('bsRetest2'); if(r2) r2.onclick=()=>{ closeSheet(); startReview('blind'); };
+}
+/* ============ module mastery — daily drills finally get real EBM analytics ============
+   For each subject you drill, your accuracy with a WILSON confidence interval (honest at small n),
+   its trend across drills, and days since you last touched it (decay). No score is misattributed:
+   a module only counts toward a subject when it's genuinely focused there (≥70% of its tagged wrongs,
+   or the drill's name matches). Consolidation state comes from the Wilson LOWER bound, so a lucky
+   short streak can't read as "mastered" (no false positives) and a truly solid topic isn't buried
+   by one bad day (no false negatives). */
+const MM_STATE={ building:{lab:'building', c:'var(--ink2)'}, shaky:{lab:'shaky', c:'var(--rose)'},
+  firming:{lab:'firming', c:'var(--amber)'}, solid:{lab:'solid', c:'var(--sage-ink)'}, mastered:{lab:'mastered', c:'var(--sage-ink)'} };
+function moduleMastery(){ return _memo('mm', function(){
+  /* decay is the whole point, so this reads the FULL module history — a topic going stale must not
+     vanish just because the Insights window is set to 14 days */
+  const mods=sessions.filter(s=>s.testType==='module' && scoreStats(s));
+  if(!mods.length) return null;
+  const bySub={};
+  mods.forEach(s=>{
+    const cnt={}; let tagged=0; (s.items||[]).forEach(it=>{ if(it.subj){ cnt[it.subj]=(cnt[it.subj]||0)+1; tagged++; } });
+    const top=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a])[0];
+    let sub=null;
+    if(top && cnt[top]>=0.7*tagged) sub=top;                 /* genuinely a single-topic drill */
+    else { const setL=(s.set||'').toLowerCase(); sub=SUBJECTS.find(x=>setL.includes(x.toLowerCase().split(/[ /]/)[0].slice(0,4)))||null; }
+    if(!sub) return;                                          /* mixed/untagged → not attributed (no false signal) */
+    const st=scoreStats(s), g=bySub[sub]||(bySub[sub]={c:0,att:0,last:0,n:0,seq:[]});
+    g.c+=(s.score.c||0); g.att+=(s.score.c||0)+(s.score.w||0); g.last=Math.max(g.last,s.ts||0); g.n++;
+    g.seq.push({ts:s.ts, acc:st.accuracy});
+  });
+  const now=Date.now();
+  const out=Object.keys(bySub).map(k=>{ const g=bySub[k]; const acc=g.att?g.c/g.att:0;
+    const [wlo,,whi]=wilson(g.c,g.att); const age=Math.round((now-g.last)/864e5);
+    let trend=null; if(g.seq.length>=3){ const f=linReg(g.seq.slice().sort((a,b)=>a.ts-b.ts).map((p,i)=>({x:i,y:p.acc*100}))); if(f) trend=f.m; }
+    const state = g.att<12?'building' : wlo>=0.82?'mastered' : wlo>=0.7?'solid' : wlo>=0.55?'firming' : 'shaky';
+    /* staleness scales with how solid it is: a shaky topic goes stale in 4 days, a mastered one in 12 */
+    const staleAt = state==='mastered'?12 : state==='solid'?9 : state==='firming'?6 : 4;
+    return { sub:k, acc, wlo, whi, att:g.att, n:g.n, age, trend, state, stale:age>staleAt, staleAt };
+  }).sort((a,b)=> (a.wlo-b.wlo) || (b.age-a.age));
+  return out.length?out:null;
+}); }
+function moduleMasteryCard(){
+  if(insType==='gt') return '';
+  const M=moduleMastery();
+  if(!M){
+    if(insType!=='module') return '';
+    const nMod=timeScopedSessions().filter(s=>s.testType==='module').length;
+    return `<div class="card mm-card"><h3><span class="accent"></span>Module mastery<button class="cardq" data-help="modmastery">?</button></h3>
+      <p class="tlab">Drill a couple of <b>topic-focused</b> modules (and tag the subject as you triage) — this fills with your per-subject mastery, confidence intervals and decay. ${nMod?`${nMod} module${nMod>1?'s':''} so far, but none are single-subject enough to score yet.`:''}</p></div>`;
+  }
+  /* which weak GT subjects are also going stale in your drills → that's what to drill next */
+  const gtWeak=new Set(Object.entries(buildSubjects(sessions.filter(s=>(s.testType||'gt')==='gt'),entries.filter(e=>(e.testType||'gt')==='gt')))
+    .sort((a,b)=>(b[1].wgt||0)-(a[1].wgt||0)).slice(0,4).map(e=>e[0]));
+  const drill = M.find(x=>x.stale && (x.state==='shaky'||x.state==='firming')) || M.find(x=>x.state==='shaky') || M[0];
+  const rows=M.slice(0,7).map(x=>{
+    const stM=MM_STATE[x.state], accPc=Math.round(x.acc*100), wloPc=Math.round(x.wlo*100), whiPc=Math.round(x.whi*100);
+    const tr=x.trend==null?'':x.trend>0.6?'<span class="mm-tr up">▲</span>':x.trend<-0.6?'<span class="mm-tr dn">▼</span>':'';
+    const fresh=x.age<=1?'today':x.stale?`<b class="bl">stale ${x.age}d</b>`:`${x.age}d ago`;
+    const gw=gtWeak.has(x.sub)?'<span class="mm-gt" title="also weak in your GTs">GT-weak</span>':'';
+    return `<button class="mm-row" data-sub="${esc(x.sub)}">
+      <div class="mm-head"><span class="mm-sub">${esc(x.sub)}</span><span class="mm-state" style="color:${stM.c};background:color-mix(in srgb,${stM.c} 13%,transparent)">${stM.lab}</span>${gw}${tr}</div>
+      <div class="mm-bar"><span class="mm-fill" style="width:0;background:${stM.c}" data-gw="${accPc}"></span><span class="mm-ci" style="left:${wloPc}%;right:${Math.max(0,100-whiPc)}%"></span></div>
+      <div class="mm-meta"><b>${accPc}%</b> <span class="mm-cip">(${wloPc}–${whiPc}%)</span> · ${x.att} Q over ${x.n} drill${x.n>1?'s':''} · ${fresh}</div>
+    </button>`;}).join('');
+  const head = drill ? `<div class="mm-drill">Drill next: <b>${esc(drill.sub)}</b> — ${drill.stale?`gone stale (${drill.age}d)`:drill.state==='shaky'?'least consolidated':'weakest confidence'}${gtWeak.has(drill.sub)?', and it bleeds in your GTs':''}.</div>` : '';
+  const hint = insType==='module'?'per subject · Wilson CI · tap':'daily drills · tap';
+  return `<div class="card mm-card ${insType==='module'?'ember':''}"><h3><span class="accent"></span>Module mastery<span class="h3-hint">${hint}</span><button class="cardq" data-help="modmastery">?</button></h3>
+    ${head}${rows}
+    <p class="tlab mm-foot">The pale band is the 95% confidence range — it tightens as you drill more. State is set by its LOWER edge, so nothing reads “solid” on a lucky short run.</p></div>`;
 }
 function saveSession(score){
   if(triage.saved) return;
@@ -3960,10 +4052,9 @@ const FORM_META={
   declining:{lab:'Slipping', ic:'▼', cls:'bad', line:'Recent trend is downward beyond noise. Something regressed — check the buckets below for which error type is rising.'}
 };
 function forecastCard(){
-  /* the forecast is exam-day = full paper, so it's always GTs. In a Modules-only view, say so plainly. */
-  if(insType==='module') return `<div class="card fc-lock"><h3><span class="accent"></span>Projected exam score<button class="cardq" data-help="forecast">?</button></h3>
-    <div class="fc-lock-row"><span class="fc-lock-ic">🎯</span><div><div class="fc-lock-t">Tracks full GTs</div>
-    <div class="tlab" style="margin-top:3px">The exam is a full 200-Q paper, so the projection is built from your GTs — a 50-Q topic module can't stand in for it. Switch to <b>All</b> or <b>GTs</b> to see it.</div></div></div></div>`;
+  /* in a Modules-only view the hero slot goes to Module Mastery instead — the forecast is GT-only
+     and the type toggle right above makes switching obvious, so no need for a "go away" lock card. */
+  if(insType==='module') return '';
   const f=examMarkForecast();
   if(!f){
     /* don't vanish — show WHY it's locked and exactly how to unlock it, so the feature is visible */
@@ -4181,6 +4272,8 @@ const METRIC_HELP={
     do:'Clear the "already own" pile first — cue tweaks and a reading checklist are the cheapest points on the board. Tap any bucket for its protocol.'},
   lever:{t:'What\'s moving your marks',is:'Every mark on a +4/−1 paper comes from two levers: how much you ATTEMPT and how ACCURATE you are on what you attempt (marks = attempts × (5·accuracy − 1)). This prices each in real exam marks from your GTs and names the one with the most room to grow.',
     do:'Push the named lever. Accuracy → precision on the weak clusters below. Attempts → stop leaving safe eliminations blank (only once your logged guesses beat 20%). The band between the two lines is the marks you skip.'},
+  modmastery:{t:'Module mastery',is:'For every subject you drill in daily modules: your accuracy with a Wilson 95% confidence interval (honest when you\'ve only done a few), the trend across drills, and how many days since you last touched it. A module only counts toward a subject when it\'s genuinely focused there — mixed drills aren\'t misattributed. The state (building → shaky → firming → solid → mastered) is read off the LOWER edge of the interval, so a lucky short streak never reads as mastered and one bad day never sinks a solid topic.',
+    do:'Work the "Drill next" line — it picks the least-consolidated or stalest topic, flagging any that also bleed in your GTs. Watch a subject\'s band tighten and its state climb as you drill it.'},
   blind:{t:'Blind spots — neutralise them',is:'A blind spot is an answer you felt SURE about and still got wrong — the most dangerous error, because a re-read never catches it (it won\'t feel wrong next time). The gauge tracks each through its life: live → handled → re-tested clear. Rose still showing = live and will repeat.',
     do:'The cure is the contrast: “I believed X, it\'s actually Y, because Z.” Keep it wherever you already write — your own notes are fine — then tap ✓ noted (at triage or here) so it stops nagging. Re-test them nearer the exam to lock them in.'}
 };
@@ -4220,7 +4313,7 @@ function renderInsights(){
   };
   const detailed = entries.length ? secWrap('logs','From your detailed logs',[nextCard(map),masteryCard(),statStrip(),leakCard(),typeSplitCard()]) : '';
   const deep = secWrap('deep','The whole picture — every subject, every test',[heatmapCard(),weakAreasCard(),numbersCard(),testListCard()]);
-  box.innerHTML = scopeRow + typeRow + forecastCard() + blindSpotCard() + leverCard() + threeMovesCard() + recoverableCard() + calibrationCard() + scoreTrendCard() + triageInsightsCard()
+  box.innerHTML = scopeRow + typeRow + forecastCard() + moduleMasteryCard() + blindSpotCard() + leverCard() + threeMovesCard() + recoverableCard() + calibrationCard() + scoreTrendCard() + triageInsightsCard()
     + deep + detailed;
   box.querySelectorAll('.cardq[data-help]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); buzz(5); metricHelp(b.dataset.help); });
   /* fold-outs animate in place (grid-rows 0fr → 1fr) — no re-render, so the motion is real */
