@@ -493,6 +493,24 @@
   .bucket.locked{opacity:.45;pointer-events:none}
   .chip-help.locked{opacity:.45;pointer-events:none}
   .bucket:active{transform:scale(.96)}
+  /* the after-landing action cue: springs up over the board in the bucket's colour */
+  #cueStrip{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom));z-index:55;
+    width:min(92vw,540px);display:flex;align-items:center;gap:10px;text-align:left;padding:11px 13px;
+    border-radius:16px;background:var(--surface);border:1.5px solid color-mix(in srgb,var(--et,var(--accent)) 42%,var(--border2));
+    box-shadow:0 14px 34px -12px color-mix(in srgb,var(--et,var(--accent)) 45%,rgba(0,0,0,.3));
+    opacity:0;pointer-events:none;transform:translate(-50%,16px) scale(.94);
+    transition:transform .44s cubic-bezier(.26,1.35,.42,1),opacity .22s ease}
+  #cueStrip.show{opacity:1;pointer-events:auto;transform:translate(-50%,0) scale(1)}
+  #cueStrip.blind{background:color-mix(in srgb,var(--rose) 7%,var(--surface));border-color:color-mix(in srgb,var(--rose) 55%,var(--border2))}
+  #cueStrip .cue-code{flex:none;width:30px;height:30px;border-radius:9px;color:#fff;font-size:12px;font-weight:850;display:grid;place-items:center}
+  #cueStrip .cue-tx{flex:1;font-size:12.5px;line-height:1.45;color:var(--ink)}
+  #cueStrip .cue-tx b{color:var(--et,var(--accent-ink))}
+  #cueStrip.blind .cue-tx b{color:var(--rose)}
+  #cueStrip .cue-go{flex:none;color:var(--faint);font-weight:800;font-size:15px}
+  #cueStrip:active{transform:translate(-50%,0) scale(.97)}
+  /* every tap answers back: confidence chips press like real buttons */
+  .tc{transition:transform .22s var(--spring),background .15s var(--ease),color .15s var(--ease)}
+  .tc:active{transform:scale(.94)}
   /* confidence picked → buckets lift and warm up, pointing at the next tap */
   #triBuckets .bucket{transition:transform .28s var(--spring),box-shadow .28s var(--ease),border-color .2s var(--ease)}
   #triBuckets.armed .bucket{transform:translateY(-3px);border-color:color-mix(in srgb,var(--bc) 48%,var(--border2));box-shadow:0 7px 18px -8px color-mix(in srgb,var(--bc) 45%,transparent)}
@@ -1331,7 +1349,7 @@ const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.st
 async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } try{return localStorage.getItem(k)}catch(_){return null} }
 async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v);return true}catch(e){return false} } try{localStorage.setItem(k,v);return true}catch(_){return false} }
 const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
-const APP_VERSION='v40'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
+const APP_VERSION='v41'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
 
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 
@@ -2673,7 +2691,8 @@ function triageAdd(bucket, btnEl){
   updateTriageUI();
   flyToken(btnEl, error, blind);
   buzz(blind?[14,45,14]:9);
-  if(reclassed) toast('Sure + didn’t-know → you were wrong, not blank. Filed as a CC blind spot.');
+  /* the action cue lands just after the token does — one surface, no toast pile-up */
+  setTimeout(()=>showCue(error, blind, reclassed), reducedMotion()?0:380);
 }
 function triageUndo(){ if(!triage.items.length)return; triage.items.pop(); updateTriageUI(); }
 function updateTriageUI(){
@@ -2695,6 +2714,30 @@ function updateTriageUI(){
 /* a spring-driven scale "catch" when a token lands in a bucket */
 function squish(el){ if(!el||reducedMotion())return;
   spring(0.86,1,(v,done)=>{ el.style.transform=done?'':'scale('+v.toFixed(3)+')'; },{stiffness:330,damping:13}); }
+/* the "so THIS is what I do now" strip: springs up right after the token lands, one
+   actionable line in the bucket's colour, tap for the full protocol. Auto-hides — it
+   guides the flow, it never blocks it. */
+let cueT=null;
+function showCue(error, blind, reclassed){
+  const em=ERR_MAP[error]; if(!em) return;
+  let el=document.getElementById('cueStrip');
+  if(!el){
+    el=document.createElement('button'); el.id='cueStrip'; document.body.appendChild(el);
+    el.onclick=()=>{ buzz(6); clearTimeout(cueT); el.classList.remove('show'); bucketFixSheet(el.dataset.e); };
+  }
+  el.dataset.e=error;
+  el.style.setProperty('--et', em.c);
+  el.classList.toggle('blind', !!blind);
+  const lead = reclassed ? 'Sure + didn’t-know = a wrong idea, not a blank — filed as CC.'
+    : blind ? 'Blind spot — these repeat in the exam.'
+    : '';
+  const act = blind ? 'Write the fix while it stings (2 min).' : FIXACT[error];
+  el.innerHTML=`<span class="cue-code" style="background:${em.c}">${em.code}</span>
+    <span class="cue-tx">${lead?`<b>${esc(lead)}</b> `:''}${esc(act)}</span><span class="cue-go">›</span>`;
+  el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
+  clearTimeout(cueT); cueT=setTimeout(()=>el.classList.remove('show'), blind||reclassed?3600:2600);
+}
+function hideCue(){ const el=document.getElementById('cueStrip'); if(el){ clearTimeout(cueT); el.classList.remove('show'); } }
 function flyToken(btnEl, error, blind){
   if(!btnEl) return;
   const em=ERR_MAP[error];
@@ -3632,7 +3675,7 @@ function forecastCard(){
   const lastX=f.pts[f.pts.length-1].x, projPts=[];
   for(let i=0;i<=12;i++){ const xi=lastX+(f.x0-lastX)*i/12; projPts.push({x:X(xi),y:Y(invlogit(f.fit.m*xi+f.fit.b)*100)}); }
   const projPath=smoothPath(projPts);
-  return `<div class="card fc-card ember"><h3><span class="accent"></span>Projected exam score<span class="h3-hint">GT-only · tap for how</span><button class="cardq" data-help="forecast">?</button></h3>
+  return `<div class="card fc-card ember"><h3><span class="accent"></span>Projected exam score<span class="h3-hint">GT-only · tap to open</span><button class="cardq" data-help="forecast">?</button></h3>
     <div class="fc-big"><b data-cu="${f.mid}">${f.mid}</b><span class="fc-of">/ ${f.max}</span><span class="fc-band">${f.midPc}% · range ${f.lo}–${f.hi}</span></div>
     <div class="chartwrap"><svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Projected exam score, normalised">
       <path d="M ${last.x.toFixed(1)} ${last.y.toFixed(1)} L ${proj.x.toFixed(1)} ${bandTop.toFixed(1)} L ${proj.x.toFixed(1)} ${bandBot.toFixed(1)} Z" fill="var(--accent)" opacity=".13"/>
@@ -3672,7 +3715,7 @@ function calibrationCard(){
       : `Your range (${Math.round(wlo*100)}–${Math.round(whi*100)}%) straddles the 20% line — too few blind attempts to call it yet. Keep logging them.`;
     evBlock=`<div class="cal-ev ${clears?'good':loses?'bad':''}">
       <div class="cal-ev-row"><span>Blind guesses that paid off</span><b>${hits}/${B} · ${Math.round(hr*100)}%</b></div>
-      <div class="cal-bar"><span class="cal-ci" style="left:${Math.round(wlo*100)}%;right:${Math.round((1-whi)*100)}%"></span><span class="cal-fill" style="width:${Math.min(100,hr*100)}%;background:${good?'var(--sage-ink)':'var(--rose)'}"></span><span class="cal-be" style="left:20%" title="break-even 20%"></span></div>
+      <div class="cal-bar"><span class="cal-ci" style="left:${Math.round(wlo*100)}%;right:${Math.round((1-whi)*100)}%"></span><span class="cal-fill" style="width:0;background:${good?'var(--sage-ink)':'var(--rose)'}" data-gw="${Math.round(Math.min(100,hr*100))}"></span><span class="cal-be" style="left:20%" title="break-even 20%"></span></div>
       <p class="tlab" style="margin-top:8px">On +4/−1 you need <b>20%</b> to break even. You're at <b>${Math.round(hr*100)}%</b> (95% CI ${Math.round(wlo*100)}–${Math.round(whi*100)}%) → each blind guess is worth <b>${ev>=0?'+':''}${ev.toFixed(2)}</b> marks. ${verdict}</p></div>`;
   }
   return `<div class="card"><h3><span class="accent"></span>How well you read yourself<button class="cardq" data-help="calibration">?</button></h3>
@@ -3874,6 +3917,7 @@ function renderInsights(){
   box.querySelectorAll('.mixbar .mx-seg, .mx-keys .mx-key, .rec-chip').forEach(b=>b.onclick=()=>{buzz(6);bucketFixSheet(b.dataset.e)});
   box.querySelectorAll('.st-tap').forEach(r=>r.onclick=()=>{buzz(6);testDetailSheet(r.dataset.stest)});
   box.querySelectorAll('.spark-row[data-sp]').forEach(b=>b.onclick=()=>{ try{ buzz(6); sparkSheet(JSON.parse(b.dataset.sp)); }catch(_){} });
+  growBars(box); /* every data bar on the page shares the same sweep-in */
 }
 
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
@@ -3895,6 +3939,7 @@ function toast(msg,action){
 function bindTabs(){document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{buzz(4);switchView(t.dataset.v)})}
 function switchView(v){
   if(typeof clearKbd==='function') clearKbd();
+  if(typeof hideCue==='function') hideCue(); /* the action cue belongs to the board, not the app */
   /* a live board is never abandoned by navigation — it stays (and is snapshotted) until saved or explicitly discarded */
   document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));
   if(_dirty[v]) renderViewByName(v); /* lazy re-render on first visit after a data change */
