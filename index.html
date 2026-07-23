@@ -672,6 +672,24 @@
   .fcs-track{flex:1;height:7px;border-radius:5px;background:var(--surface2);overflow:hidden}
   .fcs-track i{display:block;height:100%;border-radius:5px;background:var(--grad);transition:width .7s cubic-bezier(.22,1,.36,1)}
   .fcs-w{width:34px;font-size:11px;color:var(--faint);font-variant-numeric:tabular-nums;flex:none}
+  /* marks-lever card: dual trend + verdict */
+  .lv-card{cursor:pointer}
+  .lv-keys{display:flex;gap:16px;margin:-2px 0 6px}
+  .lv-k{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
+  .lv-k i{width:9px;height:9px;border-radius:3px;flex:none}
+  .lv-k b{color:var(--ink);font-variant-numeric:tabular-nums}
+  .lv-up{color:var(--sage-ink);font-size:10px}.lv-dn{color:var(--rose);font-size:10px}.lv-fl{color:var(--faint);font-size:11px}
+  .lv-chart{width:100%;height:94px}.lv-chart.big{height:112px;margin-top:2px}
+  .dual{width:100%;height:100%;overflow:visible}
+  .dual path[stroke]{stroke-dasharray:900;stroke-dashoffset:900;animation:draw 1.1s cubic-bezier(.4,0,.2,1) forwards}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  .lv-legend{display:flex;gap:14px;margin-top:8px;font-size:11px;color:var(--muted)}
+  .lv-legend span{display:flex;align-items:center;gap:6px}.lv-legend i{width:9px;height:9px;border-radius:3px}
+  .lv-legend .lv-gap{margin-left:auto;color:var(--faint)}
+  .lvb-row{margin-top:12px}
+  .lvb-top{display:flex;justify-content:space-between;font-size:13px;font-weight:700;color:var(--ink)}
+  .lvb-track{height:9px;border-radius:6px;background:var(--surface2);overflow:hidden;margin-top:6px}
+  .lvb-track i{display:block;height:100%;border-radius:6px;transition:width .7s cubic-bezier(.22,1,.36,1)}
   .fc-big{display:flex;align-items:baseline;gap:8px;margin:2px 0 8px}
   .fc-big b{font-family:var(--serif);font-size:52px;font-weight:500;letter-spacing:-.02em;color:var(--ink);line-height:.9}
   .fc-of{font-family:var(--serif)}
@@ -1349,7 +1367,7 @@ const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.st
 async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } try{return localStorage.getItem(k)}catch(_){return null} }
 async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v);return true}catch(e){return false} } try{localStorage.setItem(k,v);return true}catch(_){return false} }
 const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
-const APP_VERSION='v41'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
+const APP_VERSION='v42'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
 
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 
@@ -2923,6 +2941,92 @@ function examMarkForecast(){
     perWeekPc, perDayPc:perWeekPc/7, lastPc:disp[disp.length-1].y, n:scored.length,
     conf:Math.round((1-Math.min(1,(hiP-loP)))*100) /* rough confidence: tighter band = higher */ };
 }
+/* ============ marks-lever decomposition — the "what actually moves my score" engine ============
+   On a +4/−1 paper, marks = attempts × (5·accuracy − 1). So every mark you gain comes from exactly
+   two levers: ATTEMPT RATE (answer more) and ACCURACY (get more of what you answer right). This prices
+   each lever in real exam marks from your own scored GTs, and names the one with the most headroom —
+   the single most useful thing this much logging can tell you, and it was never surfaced. */
+function leverAnalysis(){ return _memo('lever:'+insScopeVal()+':'+insType, function(){
+  const gts=scopedSessions().filter(s=>(s.testType||'gt')==='gt' && scoreStats(s))
+    .slice().sort((a,b)=>(a.ts||0)-(b.ts||0));
+  if(gts.length<3) return null;
+  const rows=gts.map(s=>{ const st=scoreStats(s); return {ts:s.ts, set:s.set, A:st.attemptRate, Acc:st.accuracy, w:expWeight(s.ts)}; });
+  const W=rows.reduce((a,r)=>a+r.w,0)||1;
+  const A=rows.reduce((a,r)=>a+r.w*r.A,0)/W, Acc=rows.reduce((a,r)=>a+r.w*r.Acc,0)/W;
+  /* recency-weighted slope of each lever, in percentage-points per test */
+  const accFit=linReg(rows.map((r,i)=>({x:i, y:r.Acc*100, w:r.w})));
+  const attFit=linReg(rows.map((r,i)=>({x:i, y:r.A*100, w:r.w})));
+  const accTrendPp=accFit?accFit.m:0, attTrendPp=attFit?attFit.m:0;
+  /* marginal hit-rate on the questions you currently skip: from logged blind guesses if we have them */
+  let bTried=0, bHit=0;
+  gts.forEach(s=>{ if(s.score&&s.score.blindTried!=null){ const noidea=(s.comp&&s.comp.noidea)||sessComp(s).noidea; const t=+s.score.blindTried||0, miss=Math.min(noidea,t); bTried+=t; bHit+=Math.max(0,t-miss); } });
+  const haveBlind=bTried>=4, h=haveBlind?bHit/bTried:null;
+  /* marks per +1 percentage-point, on the full 200-Q / 800-mark paper */
+  const accVal=10*A;                                   /* ∂(exam marks)/∂accuracy */
+  const attVal=haveBlind?2*(5*h-1):null;               /* only priced once guessing is measured */
+  /* realistic headroom: accuracy target = your own best recent form; attempts → ~92% if +EV to try */
+  const bestAcc=Math.max(...rows.slice(-4).map(r=>r.Acc));
+  const accHeadPp=Math.max(0, Math.min(bestAcc*100, Acc*100+6) - Acc*100);
+  const attHeadPp=(attVal!=null&&attVal>0)?Math.max(0,92-A*100):0;
+  const accGain=Math.round(accVal*accHeadPp), attGain=attVal!=null?Math.round(attVal*attHeadPp):0;
+  let lever, leverGain;
+  if(accGain>=attGain && accGain>=8){ lever='accuracy'; leverGain=accGain; }
+  else if(attGain>accGain && attGain>=8){ lever='attempts'; leverGain=attGain; }
+  else { lever='knowledge'; leverGain=0; }
+  return { n:gts.length, A, Acc, accTrendPp, attTrendPp, h, haveBlind,
+    accVal, attVal, accHeadPp, attHeadPp, accGain, attGain, lever, leverGain,
+    accSeries:rows.map(r=>Math.round(r.Acc*100)), attSeries:rows.map(r=>Math.round(r.A*100)),
+    labels:rows.map(r=>r.set), blindHitPc:h!=null?Math.round(h*100):null, blindN:bTried };
+}); }
+/* two lines sharing a 0–100 axis: attempts on top, accuracy below — the gap IS your skipped marks */
+function dualTrend(a,b,o){ o=o||{};
+  const W=300,H=94,x0=6,x1=W-6,y0=10,y1=H-16, n=a.length;
+  const X=i=>n===1?(x0+x1)/2:x0+i*(x1-x0)/(n-1), Y=v=>y1-(v/100)*(y1-y0);
+  const pathOf=arr=>arr.map((v,i)=>(i?'L':'M')+X(i).toFixed(1)+' '+Y(v).toFixed(1)).join(' ');
+  const band=a.map((v,i)=>({i,hi:Math.max(a[i],b[i]),lo:Math.min(a[i],b[i])}));
+  const bandPath=band.map((p,i)=>(i?'L':'M')+X(p.i).toFixed(1)+' '+Y(p.hi).toFixed(1)).join(' ')
+    +' '+band.slice().reverse().map(p=>'L'+X(p.i).toFixed(1)+' '+Y(p.lo).toFixed(1)).join(' ')+' Z';
+  const dot=(arr,c)=>`<circle cx="${X(n-1).toFixed(1)}" cy="${Y(arr[n-1]).toFixed(1)}" r="3.4" fill="${c}"/>`;
+  return `<svg class="dual" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">
+    <path d="${bandPath}" fill="var(--accent)" opacity="0.07"/>
+    <path d="${pathOf(a)}" fill="none" stroke="${o.ca||'var(--sage-ink)'}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="${pathOf(b)}" fill="none" stroke="${o.cb||'var(--accent)'}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" opacity=".92"/>
+    ${dot(a,o.ca||'var(--sage-ink)')}${dot(b,o.cb||'var(--accent)')}</svg>`;
+}
+function leverCard(){
+  if(insType==='module') return '';
+  const L=leverAnalysis(); if(!L) return '';
+  const arrow=v=>v>0.4?'<span class="lv-up">▲</span>':v<-0.4?'<span class="lv-dn">▼</span>':'<span class="lv-fl">→</span>';
+  const verdict = L.lever==='accuracy'
+      ? `<b>Accuracy is your lever.</b> Lift it toward your own best form and it's worth about <b>+${L.accGain} marks</b> — more than pushing attempts. Precision over speed: the weak areas below are where it hides.`
+    : L.lever==='attempts'
+      ? `<b>Attempting more is your lever.</b> Your blind guesses pay off (${L.blindHitPc}% hit), so answering ~${Math.round(L.attHeadPp)} more per 100 is worth about <b>+${L.attGain} marks</b>. Stop leaving safe eliminations blank.`
+      : `<b>You're near your ceiling on both levers.</b> More marks now come from raw coverage — clear the weak-area clusters below, they're the ledger's highest-value fixes.`;
+  const foot = L.haveBlind ? '' : `<p class="tlab" style="margin-top:9px;color:var(--faint)">Log “blind tried” when you score a GT and this will also price attempting the ones you skip.</p>`;
+  return `<div class="card lv-card"><h3><span class="accent"></span>What's moving your marks<span class="h3-hint">accuracy vs attempts · tap</span><button class="cardq" data-help="lever">?</button></h3>
+    <div class="lv-keys"><span class="lv-k"><i style="background:var(--sage-ink)"></i>Accuracy <b>${Math.round(L.Acc*100)}%</b> ${arrow(L.accTrendPp)}</span>
+      <span class="lv-k"><i style="background:var(--accent)"></i>Attempted <b>${Math.round(L.A*100)}%</b> ${arrow(L.attTrendPp)}</span></div>
+    <div class="lv-chart">${dualTrend(L.accSeries,L.attSeries)}</div>
+    <p class="tlab" style="margin-top:12px">${verdict}</p>${foot}</div>`;
+}
+function leverSheet(){
+  const L=leverAnalysis(); if(!L){ metricHelp('lever'); return; }
+  const bar=(lab,val,gain,head,col,note)=>`<div class="lvb-row"><div class="lvb-top"><span>${lab}</span><b style="color:${col}">${gain>0?'+'+gain+' marks':'at ceiling'}</b></div>
+    <div class="lvb-track"><i style="width:0;background:${col}" data-gw="${Math.min(100,Math.round(gain/Math.max(1,Math.max(L.accGain,L.attGain))*100))}"></i></div>
+    <div class="tlab" style="margin-top:4px">${note}</div></div>`;
+  openSheet(`<h3>What actually moves your marks</h3>
+    <p>Score = <b>attempts × (5·accuracy − 1)</b>. Two levers, priced in real marks on the 800-mark paper from your last ${L.n} GTs.</p>
+    <div class="sp-lab">the two levers, ranked</div>
+    ${bar('Raise accuracy', L.Acc, L.accGain, L.accHeadPp, 'var(--sage-ink)', `You're at <b>${Math.round(L.Acc*100)}%</b> when you attempt. Reaching your own recent best (~${Math.round(L.Acc*100+L.accHeadPp)}%) is worth <b>+${L.accGain}</b>. Each +1% ≈ +${L.accVal.toFixed(1)} marks.`)}
+    ${L.attVal!=null?bar('Attempt more', L.A, L.attGain, L.attHeadPp, 'var(--accent-ink)', `You answer <b>${Math.round(L.A*100)}%</b>. Your blind guesses hit <b>${L.blindHitPc}%</b> (${L.blindN} logged) → each +1% attempted ≈ ${L.attVal>=0?'+':''}${L.attVal.toFixed(1)} marks.`)
+      :`<div class="lvb-row"><div class="lvb-top"><span>Attempt more</span><b style="color:var(--faint)">not priced yet</b></div><div class="tlab" style="margin-top:4px">You answer <b>${Math.round(L.A*100)}%</b>. Log “blind tried” at scoring and we'll price the marks in the ones you skip.</div></div>`}
+    <div class="sp-lab" style="margin-top:16px">accuracy vs attempts, test by test</div>
+    <div class="lv-chart big">${dualTrend(L.accSeries,L.attSeries)}</div>
+    <div class="lv-legend"><span><i style="background:var(--sage-ink)"></i>accuracy</span><span><i style="background:var(--accent)"></i>attempted</span><span class="lv-gap">gap = skipped</span></div>
+    <p class="tlab" style="margin-top:10px">The band between the lines is the marks you leave on the table by skipping. Closing it only helps where your guesses beat 20% — that's the break-even on +4/−1.</p>
+    <div class="actions" style="margin-top:14px"><button class="btn primary" onclick="closeSheet()">Close</button></div>`);
+  growBars(document.getElementById('sheet'));
+}
 function saveSession(score){
   if(triage.saved) return;
   const items=triage.items.map(it=>{ const o={error:it.error, conf:it.conf||null, subj:it.subj||null}; if(it.img)o.img=true; if(it.uncertain)o.uncertain=true; return o; });
@@ -3852,7 +3956,9 @@ const METRIC_HELP={
   scope:{t:'Time scope',is:'The window every card is computed over. Old data becomes noise as you log more.',
     do:'"14 days" for what to study next; "All time" for long-run progress. Auto-picks 14 days once you have enough tests.'},
   recover:{t:'Where the fastest marks are',is:'Not every wrong costs the same to fix. RF (knew it, didn\'t fire) + TE (misread) are marks you already own; KG + CC need real learning.',
-    do:'Clear the "already own" pile first — cue tweaks and a reading checklist are the cheapest points on the board. Tap any bucket for its protocol.'}
+    do:'Clear the "already own" pile first — cue tweaks and a reading checklist are the cheapest points on the board. Tap any bucket for its protocol.'},
+  lever:{t:'What\'s moving your marks',is:'Every mark on a +4/−1 paper comes from two levers: how much you ATTEMPT and how ACCURATE you are on what you attempt (marks = attempts × (5·accuracy − 1)). This prices each in real exam marks from your GTs and names the one with the most room to grow.',
+    do:'Push the named lever. Accuracy → precision on the weak clusters below. Attempts → stop leaving safe eliminations blank (only once your logged guesses beat 20%). The band between the two lines is the marks you skip.'}
 };
 function metricHelp(key){
   const h=METRIC_HELP[key]; if(!h) return;
@@ -3890,13 +3996,14 @@ function renderInsights(){
   };
   const detailed = entries.length ? secWrap('logs','From your detailed logs',[nextCard(map),masteryCard(),statStrip(),leakCard(),typeSplitCard()]) : '';
   const deep = secWrap('deep','The whole picture — every subject, every test',[heatmapCard(),weakAreasCard(),numbersCard(),testListCard()]);
-  box.innerHTML = scopeRow + typeRow + forecastCard() + threeMovesCard() + recoverableCard() + calibrationCard() + scoreTrendCard() + triageInsightsCard()
+  box.innerHTML = scopeRow + typeRow + forecastCard() + leverCard() + threeMovesCard() + recoverableCard() + calibrationCard() + scoreTrendCard() + triageInsightsCard()
     + deep + detailed;
   box.querySelectorAll('.cardq[data-help]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); buzz(5); metricHelp(b.dataset.help); });
   /* fold-outs animate in place (grid-rows 0fr → 1fr) — no re-render, so the motion is real */
   box.querySelectorAll('[data-tgl]').forEach(b=>b.onclick=()=>{ buzz(5); const id=b.dataset.tgl; insOpen[id]=!insOpen[id];
     b.classList.toggle('open',insOpen[id]); const bd=b.nextElementSibling; if(bd) bd.classList.toggle('open',insOpen[id]); });
   const fcc=box.querySelector('.fc-card'); if(fcc) fcc.onclick=()=>{ buzz(6); fcSheet(); };
+  const lvc=box.querySelector('.lv-card'); if(lvc) lvc.onclick=e=>{ if(e.target.closest('.cardq'))return; buzz(6); leverSheet(); };
   box.querySelectorAll('.sc-chip[data-sc]').forEach(b=>b.onclick=()=>{ buzz(5); insScope=b.dataset.sc; renderInsights(); });
   box.querySelectorAll('.sc-chip[data-it]').forEach(b=>b.onclick=()=>{ buzz(5); insType=b.dataset.it; renderInsights(); });
   const hm=document.getElementById('hmMore'); if(hm) hm.onclick=()=>{ buzz(5); hmAll=!hmAll; renderInsights(); };
