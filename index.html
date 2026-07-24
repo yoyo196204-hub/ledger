@@ -23,7 +23,7 @@
     --accent:#C1502D; --accent2:#DB8A54; --accent-ink:#A9431F; --accent-soft:#F6E6D7;
     --spring:cubic-bezier(.34,1.56,.64,1); --ease:cubic-bezier(.22,1,.36,1); --ease-io:cubic-bezier(.4,0,.2,1);
     --sage:#6E8663; --sage-ink:#546B4A; --sage-soft:#E6ECDD;
-    --rose:#C24634; --amber:#C8811A; --emerald:#5E7A54; --violet:#9E5CA8; --teal:#1F9E82; --pink:#B0688A; --indigo:#C1502D;
+    --rose:#C24634; --amber:#D4A017; --emerald:#5E7A54; --violet:#9E5CA8; --teal:#1F9E82; --pink:#B0688A; --indigo:#C1502D;
     --grad:linear-gradient(135deg,#DB8A54,#C1502D);
     --grad-soft:linear-gradient(135deg,#F7E9D9,#F3E0D0);
     --sans:ui-rounded,"SF Pro Rounded","Hiragino Maru Gothic ProN",system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
@@ -45,7 +45,7 @@
     --ink:#F3EADD; --ink2:#CDBFAD; --muted:#B0A08C; --faint:#8A7A66;
     --accent:#E27A4C; --accent2:#F0A06A; --accent-ink:#F0A16C; --accent-soft:#3A281D;
     --sage:#8FA982; --sage-ink:#A9C09C; --sage-soft:#26301F;
-    --rose:#E86A55; --amber:#E0A23C; --emerald:#8AAE7C; --violet:#C481CE; --teal:#3FBFA0; --pink:#D08AAC; --indigo:#E27A4C;
+    --rose:#E86A55; --amber:#E8B24A; --emerald:#8AAE7C; --violet:#C481CE; --teal:#3FBFA0; --pink:#D08AAC; --indigo:#E27A4C;
     --grad:linear-gradient(135deg,#E89A63,#D0602F);
     --grad-soft:linear-gradient(135deg,#31241A,#291E16);
     --shadow:0 1px 2px rgba(0,0,0,.30),0 8px 20px -10px rgba(0,0,0,.55);
@@ -62,7 +62,7 @@
       --ink:#F3EADD; --ink2:#CDBFAD; --muted:#B0A08C; --faint:#8A7A66;
       --accent:#E27A4C; --accent2:#F0A06A; --accent-ink:#F0A16C; --accent-soft:#3A281D;
       --sage:#8FA982; --sage-ink:#A9C09C; --sage-soft:#26301F;
-      --rose:#E86A55; --amber:#E0A23C; --emerald:#8AAE7C; --violet:#C481CE; --teal:#3FBFA0; --pink:#D08AAC; --indigo:#E27A4C;
+      --rose:#E86A55; --amber:#E8B24A; --emerald:#8AAE7C; --violet:#C481CE; --teal:#3FBFA0; --pink:#D08AAC; --indigo:#E27A4C;
       --grad:linear-gradient(135deg,#E89A63,#D0602F);
       --grad-soft:linear-gradient(135deg,#31241A,#291E16);
       --shadow:0 1px 2px rgba(0,0,0,.30),0 8px 20px -10px rgba(0,0,0,.55);
@@ -502,7 +502,9 @@
     transition:transform .44s cubic-bezier(.26,1.35,.42,1),opacity .22s ease}
   #cueStrip.show{opacity:1;pointer-events:auto;transform:translate(-50%,0) scale(1)}
   #cueStrip.blind{background:color-mix(in srgb,var(--rose) 7%,var(--surface));border-color:color-mix(in srgb,var(--rose) 55%,var(--border2))}
-  #cueStrip .cue-code{flex:none;width:30px;height:30px;border-radius:9px;color:#fff;font-size:12px;font-weight:850;display:grid;place-items:center}
+  #cueStrip .cue-code{flex:none;width:30px;height:30px;border-radius:9px;color:#fff;font-size:12px;font-weight:850;display:grid;place-items:center;box-shadow:0 2px 8px -2px var(--et,var(--accent))}
+  #cueStrip.show .cue-code{animation:cuepop .5s cubic-bezier(.34,1.56,.64,1) .06s both}
+  @keyframes cuepop{0%{transform:scale(.4) rotate(-12deg)}60%{transform:scale(1.12)}100%{transform:none}}
   #cueStrip .cue-tx{flex:1;font-size:12.5px;line-height:1.45;color:var(--ink)}
   #cueStrip .cue-tx b{color:var(--et,var(--accent-ink))}
   #cueStrip.blind .cue-tx b{color:var(--rose)}
@@ -735,18 +737,25 @@
   .mm-foot{margin-top:12px;padding-top:10px;border-top:1px solid var(--edge);color:var(--faint)}
   .mm-card.ember .mm-row{border-color:color-mix(in srgb,#fff 12%,transparent)}
   .mm-card.ember .mm-foot{border-color:color-mix(in srgb,#fff 12%,transparent)}
-  /* daily-drills card (mixed modules): accuracy trend + subject-leak bars */
+  /* daily-drills card (mixed modules): accuracy trend + a composition bar of where wrongs land */
   .dr-card{cursor:pointer}
-  .dr-lab{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);margin:16px 0 9px}
-  .dr-leak{display:flex;flex-direction:column;gap:8px}
-  .dr-row{display:flex;align-items:center;gap:9px;width:100%;background:none;border:none;padding:2px 0;text-align:left}
-  .dr-sub{flex:none;width:33%;font-size:13px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .dr-barwrap{flex:1;height:9px;border-radius:6px;background:var(--surface2);overflow:hidden}
-  .dr-bar{display:block;height:100%;border-radius:6px;background:var(--grad);transition:width .7s cubic-bezier(.22,1,.36,1)}
-  .dr-pc{flex:none;width:34px;text-align:right;font-size:12px;font-weight:750;color:var(--ink);font-variant-numeric:tabular-nums}
-  .dr-dir{flex:none;width:88px;text-align:right;font-size:10.5px;font-weight:800}
-  .dr-dir.dim{color:var(--faint)}
-  .dr-card.ember .dr-barwrap{background:color-mix(in srgb,#fff 10%,transparent)}
+  .dr-lab{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);margin:16px 0 9px;display:flex;align-items:center}
+  .dr-tot{margin-left:auto;font-size:10px;color:var(--faint);letter-spacing:0;text-transform:none;font-weight:700}
+  /* one 100% bar = the whole distribution; 2px surface gaps read the segments apart */
+  .dr-comp{display:flex;gap:2px;height:26px;border-radius:9px;overflow:hidden}
+  .dr-seg{display:flex;align-items:center;justify-content:center;min-width:5px;transition:flex .7s cubic-bezier(.22,1,.36,1)}
+  .dr-seg b{font-size:11px;font-weight:800;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.28)}
+  .dr-seg.other{background:color-mix(in srgb,var(--faint) 55%,var(--surface2))}
+  .dr-seg:first-child{border-top-left-radius:9px;border-bottom-left-radius:9px}
+  .dr-seg:last-child{border-top-right-radius:9px;border-bottom-right-radius:9px}
+  .dr-legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:11px}
+  .dr-leg{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);background:none;border:none;padding:2px 0}
+  .dr-leg i{width:10px;height:10px;border-radius:3px;flex:none}
+  .dr-leg b{color:var(--ink);font-variant-numeric:tabular-nums}
+  .dr-leg .dr-ar{font-size:10px;font-weight:800}
+  .dr-lname{max-width:11ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .dr-leg.static{color:var(--faint)}.dr-leg.static b{color:var(--muted)}
+  .dr-call{margin-top:12px}
   .bs-body{display:flex;align-items:center;gap:6px;margin-top:2px}
   .neg-wrap{position:relative;width:174px;flex:none}
   .neg{width:100%;height:auto;display:block;overflow:visible}
@@ -933,7 +942,7 @@
     --ink:#f7ecdc;--ink2:#e6cfb2;--muted:#c6ac8c;--faint:#a68d70;
     --surface:#241a12;--surface2:#31261c;--surface3:#3f3123;--border:#4a3a2b;--border2:#57452f;
     --accent:#e0955f;--accent2:#f0a05a;--accent-ink:#f4a468;--accent-soft:#3a281d;
-    --rose:#ec9077;--amber:#e6ab4a;--sage-ink:#b3cba3;--bl:#f4a468;
+    --rose:#e06a54;--amber:#ecc255;--sage-ink:#b3cba3;--bl:#f4a468;
     background:linear-gradient(165deg,#251b12,#150e08);border:1px solid #43331f;
     box-shadow:0 24px 48px -22px rgba(80,40,15,.6),inset 0 1px 0 rgba(255,210,160,.12)}
   .ember .h3-hint{color:var(--muted)}
@@ -1467,7 +1476,7 @@ const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.st
 async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } try{return localStorage.getItem(k)}catch(_){return null} }
 async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v);return true}catch(e){return false} } try{localStorage.setItem(k,v);return true}catch(_){return false} }
 const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
-const APP_VERSION='v46'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
+const APP_VERSION='v47'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
 
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 
@@ -3282,7 +3291,8 @@ function moduleInsight(){ return _memo('mi:'+insScopeVal(), function(){
   }).sort((a,b)=>b.n-a.n).slice(0,5);
   return { n:mods.length, nScored:scored.length, accSeries, attSeries, labels, accDir, lastAcc, avgAcc, momPc, leak, totW };
 }); }
-const DRILL_DIR={ up:{ic:'▲ getting worse', c:'var(--rose)'}, down:{ic:'▼ improving', c:'var(--sage-ink)'}, flat:{ic:'→ holding', c:'var(--faint)'} };
+const DRILL_DIR={ up:{ar:'▲', word:'getting worse', c:'var(--rose)'}, down:{ar:'▼', word:'improving', c:'var(--sage-ink)'}, flat:{ar:'→', word:'holding', c:'var(--faint)'} };
+const SUBJ_HUES=['var(--accent)','var(--teal)','var(--violet)','var(--amber)']; /* validated categorical set + gaps + legend */
 function moduleInsightCard(){
   if(insType==='gt') return '';
   const D=moduleInsight();
@@ -3295,15 +3305,28 @@ function moduleInsightCard(){
   const chart = D.nScored>=2 ? `<div class="lv-keys" style="margin-top:2px"><span class="lv-k"><i style="background:var(--sage-ink)"></i>Accuracy <b>${D.lastAcc}%</b></span><span class="lv-k"><i style="background:var(--accent)"></i>Attempted <b>${D.attSeries[D.attSeries.length-1]}%</b></span></div>
     <div class="lv-chart">${dualTrend(D.accSeries,D.attSeries)}</div>` : '';
   const trendLine = D.nScored>=3
-    ? `<p class="tlab" style="margin-top:10px">Across your last <b>${D.nScored}</b> drills your accuracy is ${trendTxt} — now <b>${D.lastAcc}%</b> (average ${D.avgAcc}%).${D.accDir==='flat'?' Flat means change WHAT you drill, not how much.':''}</p>`
-    : (D.nScored>=1?`<p class="tlab" style="margin-top:10px">Accuracy on your drills: <b>${D.lastAcc}%</b>. A couple more and the trend arrow unlocks.</p>`:`<p class="tlab" style="margin-top:10px">Enter the score on your modules to track accuracy over time.</p>`);
-  const leak = D.leak.length ? `<div class="dr-lab">Where your drill wrongs land</div>
-    <div class="dr-leak">${D.leak.map(x=>{ const d=x.dir?DRILL_DIR[x.dir]:null;
-      return `<button class="dr-row" data-sub="${esc(x.sub)}">
-        <span class="dr-sub">${esc(x.sub)}</span>
-        <span class="dr-barwrap"><span class="dr-bar" style="width:0" data-gw="${Math.round(x.pct)}"></span></span>
-        <span class="dr-pc">${x.pct}%</span>${d?`<span class="dr-dir" style="color:${d.c}">${d.ic}</span>`:'<span class="dr-dir dim">—</span>'}</button>`;}).join('')}</div>` : '';
-  return `<div class="card dr-card ${insType==='module'?'ember':''}"><h3><span class="accent"></span>Your daily drills<span class="h3-hint">mixed or topic · tap</span><button class="cardq" data-help="drills">?</button></h3>
+    ? `<p class="tlab" style="margin-top:10px">Over your last <b>${D.nScored}</b> drills accuracy is ${trendTxt} — now <b>${D.lastAcc}%</b> (avg ${D.avgAcc}%).${D.accDir==='flat'?' Flat → change WHAT you drill.':''}</p>`
+    : (D.nScored>=1?`<p class="tlab" style="margin-top:10px">Drill accuracy: <b>${D.lastAcc}%</b>. A couple more unlocks the trend.</p>`:`<p class="tlab" style="margin-top:10px">Enter the score on your modules to track accuracy over time.</p>`);
+  /* composition bar: the whole distribution of your drill wrongs in one glance — colored segments,
+     2px surface gaps, a legend carrying the concrete count and direction. */
+  let leak='';
+  if(D.leak.length){
+    const top=D.leak.slice(0,4), shown=top.reduce((a,x)=>a+x.pct,0), otherPct=Math.max(0,100-shown);
+    const otherN=D.totW-top.reduce((a,x)=>a+x.n,0);
+    const segs=top.map((x,i)=>`<span class="dr-seg" style="flex:${Math.max(1,x.n)};background:${SUBJ_HUES[i]}">${x.pct>=15?`<b>${x.pct}%</b>`:''}</span>`).join('')
+      + (otherPct>4?`<span class="dr-seg other" style="flex:${Math.max(1,otherN)}">${otherPct>=15?`<b>${otherPct}%</b>`:''}</span>`:'');
+    const legend=top.map((x,i)=>{ const d=x.dir?DRILL_DIR[x.dir]:null;
+      return `<button class="dr-leg" data-sub="${esc(x.sub)}"><i style="background:${SUBJ_HUES[i]}"></i><span class="dr-lname">${esc(x.sub)}</span> <b>${x.n}</b>${d?` <span class="dr-ar" style="color:${d.c}">${d.ar}</span>`:''}</button>`;}).join('')
+      + (otherN>0?`<span class="dr-leg static"><i style="background:var(--faint)"></i>other <b>${otherN}</b></span>`:'');
+    /* one concrete callout: the fastest-worsening leak, named with its count */
+    const worse=D.leak.find(x=>x.dir==='up');
+    const call = worse?`<p class="tlab dr-call"><b style="color:var(--rose)">${esc(worse.sub)}</b> is your rising leak — <b>${worse.n}</b> drill wrongs and climbing. Steer your next drills there.`
+      : (D.leak.find(x=>x.dir==='down')?`<p class="tlab dr-call"><b style="color:var(--sage-ink)">${esc(D.leak.find(x=>x.dir==='down').sub)}</b> is improving in your drills — keep it up.</p>`:'');
+    leak=`<div class="dr-lab">Where your drill wrongs land <span class="dr-tot">${D.totW} total</span></div>
+      <div class="dr-comp">${segs}</div>
+      <div class="dr-legend">${legend}</div>${call}`;
+  }
+  return `<div class="card dr-card ${insType==='module'?'ember':''}"><h3><span class="accent"></span>Your daily drills<span class="h3-hint">how your modules are going</span><button class="cardq" data-help="drills">?</button></h3>
     ${chart}${trendLine}${leak}</div>`;
 }
 function saveSession(score){
@@ -4257,57 +4280,56 @@ function numbersCard(){
   </div></div>`;
 }
 /* every metric explains itself in two lines — what it is, what to do. Tight on purpose. */
-/* help is where jargon goes to DIE — every entry is written like you're explaining it to a friend:
-   what it is, why it's worth caring about, and the one thing to do. No stats words without a plain gloss. */
+/* help = plain AND short. One clear sentence per part: what it is, why it matters, the one thing to do. */
 const METRIC_HELP={
   forecast:{t:'Your projected exam score',
-    is:'This looks at how you\'ve scored on your Grand Tests so far and draws the trend forward to exam day. Two fair-play adjustments happen first: every test is turned into a percentage (so a 180-question and a 200-question test can be compared), then scaled onto the real 800-mark paper. The line deliberately curves and flattens near the top — nobody keeps climbing forever, so it won\'t promise you a silly 800. The number range next to it (say 690–740) is how confident it can honestly be: with only a few tests it stays wide, and it narrows as you add more.',
-    why:'One test is noisy — a good or bad day tells you almost nothing on its own. The trend across all of them, and where it\'s pointing, is the real signal. The range keeps you from over-reading a single result.',
-    do:'Look at the direction, not the last score. The little "Form" tag tells you how your recent tests compare to your usual — climbing, flat, or an off day. The Plan tab says the same thing, so your studying and your numbers stay in agreement.'},
-  calibration:{t:'How well you can feel a mistake coming',
-    is:'When you triage a wrong answer you say how it felt in the exam — sure, down-to-two, or a total guess. This shows the mix. The scary slice is "felt sure": you were confident and still wrong, which means you can\'t feel that mistake coming.',
-    why:'Re-reading fixes the mistakes you know you\'re shaky on. It does nothing for the ones that felt right — those are the marks that quietly repeat in the real exam.',
-    do:'Shrink the "felt sure" slice. For each of those, write the contrast — what you believed vs what\'s true — so the belief itself gets corrected, not just re-read.'},
+    is:'Your Grand Test scores, turned into percentages so different-sized tests compare, with the trend drawn forward to exam day. The line flattens near the top on purpose; the range is how sure it can be — wide with few tests, tighter with more.',
+    why:'One test is noisy. The direction across all of them is the real signal.',
+    do:'Watch the "Form" tag, not the last score. The Plan tab echoes it, so the two agree.'},
+  calibration:{t:'Can you feel a mistake coming?',
+    is:'Of your wrongs, how sure each felt. The dangerous slice is "felt sure" — confident and still wrong.',
+    why:'Re-reading only fixes what you know you\'re shaky on. The felt-sure ones repeat in the exam.',
+    do:'Shrink that slice: for each, write what you believed vs what\'s true.'},
   ev:{t:'Is guessing worth it for you?',
-    is:'On a +4/−1 paper, a pure guess pays off only if you get better than 1 in 5 right (20%). This counts how often your blind guesses actually landed, from the times you told us you guessed.',
-    why:'Guess too much and the −1s bleed you; skip too much and you leave easy eliminations on the table. Your own hit-rate settles the argument instead of a rule of thumb.',
-    do:'If your guesses beat 20% — keep taking them. If they don\'t — stop guessing on the questions you can\'t narrow down at all.'},
+    is:'A blind guess on +4/−1 only pays if you beat 1-in-5 (20%). This is how often yours actually landed.',
+    why:'Your own hit-rate settles it better than a rule of thumb.',
+    do:'Above 20% — keep guessing. Below — skip the ones you can\'t narrow at all.'},
   signal:{t:'Your real problem subject',
-    is:'Not simply the subject with the most wrongs — that\'s usually just the subject you see most. This flags the one whose mistake RATE is genuinely out of line with your own average, and only once there\'s enough data to be sure it isn\'t a fluke.',
-    why:'Chasing the biggest pile of wrongs sends you to study something you\'re actually fine at. Chasing the out-of-line rate sends you where the marks really leak.',
-    do:'Fix it at its next scheduled read or revisit — the card tells you when. If nothing is flagged, your mistakes are spread evenly, so sticking to the plan is the right move.'},
+    is:'Not the subject with the most wrongs (usually just the one you see most) — the one whose mistake rate is truly out of line, once there\'s enough data to be sure.',
+    why:'It sends you where marks actually leak, not where volume tricks you.',
+    do:'Fix it at its next read/revisit — the card says when. Nothing flagged means an even spread; trust the plan.'},
   buckets:{t:'The four kinds of wrong',
-    is:'Every mistake is one of four: KG — didn\'t know it. RF — knew it but didn\'t fire in time. CC — confidently wrong (a blind spot). TE — misread the question. Each has a completely different cause.',
-    why:'A misread and a knowledge gap need opposite fixes. Sorting them is what turns "I got 40 wrong" into "here\'s exactly what to do about each kind".',
-    do:'Tap any bucket on a card to see its fix — a reading checklist for misreads, a written contrast for blind spots, and so on.'},
+    is:'KG — didn\'t know it. RF — knew it, didn\'t fire. CC — confidently wrong (blind spot). TE — misread it.',
+    why:'A misread and a gap need opposite fixes. Sorting them tells you what to do with each.',
+    do:'Tap any bucket for its fix.'},
   scoretrend:{t:'Your score, test by test',
-    is:'Your percentage score (marks as a share of that test\'s maximum, so different-sized tests compare fairly), your accuracy when you actually attempted, and how many you got wrong for each one right. Grand Tests and daily modules are kept on separate lines — they\'re different papers.',
-    why:'The shape matters more than any single dot: a score creeping up while your wrong-to-right ratio drops means you\'re getting genuinely sharper, not just luckier.',
-    do:'Switch between GTs and Modules. Tap any point for that test\'s numbers. The shape you want is the percentage rising while wrong-per-right falls.'},
-  blindrate:{t:'How many wrongs you never saw coming',
-    is:'The share of your wrong answers that you felt sure about. These are the dangerous ones — re-reading won\'t catch them because they never felt wrong in the first place.',
-    why:'They repeat in the exam exactly as they did in practice, because your gut still says the wrong thing.',
-    do:'Each needs a written contrast — what you believed vs what\'s true — not another read. The two-minute summary after a test is the moment to do it.'},
+    is:'Percentage score, accuracy when you attempted, and wrongs per right. GTs and modules stay on separate lines.',
+    why:'A rising score with a falling wrong-per-right means genuinely sharper, not just lucky.',
+    do:'Toggle GTs / Modules; tap any point for its numbers.'},
+  blindrate:{t:'Wrongs you never saw coming',
+    is:'The share of wrongs you felt sure about — the ones re-reading can\'t catch.',
+    why:'They repeat in the exam because your gut still says the wrong thing.',
+    do:'Write the contrast for each, not another read.'},
   scope:{t:'The time window',
-    is:'Every card is worked out over this window. As you log more, old tests slowly stop describing where you are now.',
-    why:'A weak spot from two months ago that you\'ve since fixed shouldn\'t still be shaping today\'s advice.',
-    do:'Use "14 days" to decide what to study next, "All time" to see the long-run climb. It picks 14 days for you once you have enough tests.'},
+    is:'The window every card is worked out over.',
+    why:'Old tests you\'ve moved past shouldn\'t still shape today\'s advice.',
+    do:'"14 days" for what to study next, "All time" for the long climb.'},
   recover:{t:'The cheapest marks to win back',
-    is:'Not every wrong costs the same effort to fix. The ones where you knew it but didn\'t fire (RF), or simply misread (TE), are marks you already own — a cue tweak or a reading habit gets them back. The other two need real learning.',
-    why:'Starting with the "already own" pile buys you the most marks for the least study time — the best trade before an exam.',
-    do:'Clear that pile first. Tap either group to see the exact habit or checklist that fixes it.'},
-  lever:{t:'The one habit that adds the most marks',
-    is:'Your score comes from just two things: how many questions you attempt, and how many of those you get right (your accuracy). This works out, in real marks, how much each one is worth for you right now, and names the bigger win.',
-    why:'Most people plateau because they push the wrong lever — grinding accuracy when the real gain is attempting a few more, or vice versa. This tells you which is yours.',
-    do:'Push the lever it names. If it\'s accuracy, aim for precision on your weak subjects below. If it\'s attempts, stop leaving safe eliminations blank — but only if your guesses already pay off.'},
+    is:'RF (knew it, didn\'t fire) and TE (misread) are marks you already own — a cue tweak or reading habit. KG and CC need real learning.',
+    why:'The "already own" pile is the most marks for the least study time.',
+    do:'Clear it first. Tap a group for its fix.'},
+  lever:{t:'The habit that adds the most marks',
+    is:'Score = how much you attempt × how accurate you are. This prices each in real marks and names the bigger win.',
+    why:'Most plateaus come from pushing the wrong one.',
+    do:'Push the lever it names — precision if accuracy, fewer blanks if attempts (once guessing pays).'},
   drills:{t:'How your daily modules are going',
-    is:'A read on your daily practice modules, whether you do them mixed or by topic. Two honest things: are your module scores trending up, holding, or slipping (from the accuracy you enter) — and which SUBJECTS your module wrongs land in most, with an arrow showing if each is getting better or worse (from the mistakes you triage). It never guesses per-subject accuracy from a mixed drill — that number doesn\'t exist, so it isn\'t faked.',
-    why:'Your daily grind is where most of your reps happen. This tells you whether the grind is actually moving your accuracy, and which subjects to steer your next drills toward.',
-    do:'If accuracy is flat, change what you\'re drilling, not how much. Work the subjects marked "getting worse" first — tap any one to see its full breakdown.'},
-  blind:{t:'Blind spots — and what to do with them',
-    is:'A blind spot is an answer you felt SURE about and still got wrong. It\'s the most dangerous kind, because a re-read never catches it — it won\'t feel wrong the next time either. The bar tracks each one from "live" (still dangerous) to "handled" (you\'ve written the correction) to "re-tested & clear".',
-    why:'These are the mistakes that quietly repeat in the real exam. Fixing the belief behind each one is the single highest-value thing your triaging surfaces.',
-    do:'For each live one, note the contrast — "I believed X, it\'s actually Y, because Z" — wherever you already keep your notes, then tap ✓ handled. Re-test them nearer the exam to lock them in.'}
+    is:'Whether your module accuracy is climbing or slipping, and which subjects your drill wrongs land in most — with a getting-better/worse arrow. It never fakes a per-subject score from a mixed drill.',
+    why:'Your daily grind is most of your reps — this shows if it\'s working and where to steer it.',
+    do:'If accuracy is flat, change what you drill. Hit the "getting worse" subjects first.'},
+  blind:{t:'Blind spots — what to do with them',
+    is:'Answers you felt sure about and still got wrong. A re-read never catches them. The bar tracks each from live → handled → re-tested clear.',
+    why:'They quietly repeat in the real exam. Fixing the belief is the highest-value thing triage surfaces.',
+    do:'Note the contrast (believed X → it\'s Y) wherever you write, tap ✓ handled, re-test later.'}
 };
 function metricHelp(key){
   const h=METRIC_HELP[key]; if(!h) return;
