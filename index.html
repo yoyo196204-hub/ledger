@@ -1111,6 +1111,10 @@
   .acs span{display:block;font-size:10px;font-weight:750;letter-spacing:.02em;text-transform:uppercase;color:var(--faint);margin-top:4px}
   .acc-when{text-align:center;font-size:11.5px;font-weight:650;color:var(--faint);margin:-2px 0 11px}
   @media(prefers-reduced-motion:reduce){ .acc-dot{animation:none} }
+  .cfg-live{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--sage-ink);
+    background:color-mix(in srgb,var(--sage) 16%,transparent);padding:7px 13px;border-radius:999px;margin-bottom:12px}
+  .cfg-live b{color:var(--ink)}
+  .cfg-dot{width:7px;height:7px;border-radius:50%;background:var(--sage-ink);flex:none}
   .acc-opts{display:flex;flex-direction:column;gap:10px;margin-top:14px}
   .acc-opt{display:block;width:100%;text-align:left;padding:14px 15px;height:auto;line-height:1.45}
   .acc-opt b{display:block;font-size:15px;font-weight:800;color:var(--ink);margin-bottom:3px}
@@ -1555,7 +1559,7 @@ const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.st
 async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } try{return localStorage.getItem(k)}catch(_){return null} }
 async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v);return true}catch(e){return false} } try{localStorage.setItem(k,v);return true}catch(_){return false} }
 const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
-const APP_VERSION='v51'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
+const APP_VERSION='v52'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
 
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 
@@ -5597,7 +5601,9 @@ function renderCloudSync(){
       <button class="databtn" id="cloudSignOut"><svg class="ic" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
       <div><div class="tt">Sign out</div><div class="dd">Stops sync here. Your mistakes stay on this device.</div></div></button>
       <button class="databtn" id="cloudHandOver"><svg class="ic" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>
-      <div><div class="tt">Sign out &amp; clear this device</div><div class="dd">For lending the phone to someone else. Snapshots first; your ledger stays in your account.</div></div></button>`;
+      <div><div class="tt">Sign out &amp; clear this device</div><div class="dd">For lending the phone to someone else. Snapshots first; your ledger stays in your account.</div></div></button>
+      <button class="databtn" id="cloudReconfig"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2V21a2 2 0 1 1-4 0v-.1A1.7 1.7 0 0 0 7 19.4l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0-1.2-2.9H3a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.6 7l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.7 1.7 0 0 0 10 4.6V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 2.9 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0 1.2 2.9H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+      <div><div class="tt">Sync settings</div><div class="dd">Copy your project config, or switch projects.</div></div><span class="arrow">›</span></button>`;
   } else if(fbStatus==='conflict'){
     const o=getOwner()||{};
     html=`<div class="databtn" style="cursor:default;border-color:color-mix(in srgb,var(--amber) 55%,transparent);background:color-mix(in srgb,var(--amber) 8%,var(--surface))">
@@ -5645,10 +5651,17 @@ function privacySheet(){
 function cloudSetupSheet(){
   const cur=ownFbCfg();
   const rules="rules_version = '2';\nservice cloud.firestore {\n  match /databases/{db}/documents {\n    match /ledgers/{uid} {\n      allow read, write: if request.auth != null && request.auth.uid == uid;\n    }\n  }\n}";
-  openSheet(`<h3>${builtInCfg()?'Use your own Firebase project':'Set up Google sync'}</h3>
-    ${builtInCfg()?`<p class="tlab">You don't need any of this — <b>Sign in with Google</b> already works and keeps your data private to your account. This is only for people who want the database in a project they own.</p>`:''}
-    <p>One time, ~10 min. It uses <b>your own</b> free Firebase project, so your data lives in <b>your</b> Google account — never mine.</p>
-    <ol class="steps">
+  /* already connected? then the useful thing here is getting the config OUT, not putting one in */
+  const haveOwn=!!cur;
+  openSheet(`<h3>${haveOwn?'Your sync project':(builtInCfg()?'Use your own Firebase project':'Set up Google sync')}</h3>
+    ${haveOwn?`<div class="cfg-live"><span class="cfg-dot"></span>Connected to <b>${esc(cur.projectId)}</b></div>
+      <p>To let friends sign in without any setup of their own, this project's config has to go into the app. Copy it here — you never need to open the Firebase console.</p>
+      <div class="actions" style="margin:12px 0 4px"><button class="btn primary" id="fbCfgCopy">Copy my config</button></div>
+      <p class="tlab">It is safe to share: a Firebase config is a public address label, not a password. What protects your data is the sign-in plus your database rules.</p>
+      <div class="sp-lab" style="margin-top:18px">change project</div>`:''}
+    ${builtInCfg()&&!haveOwn?`<p class="tlab">You don't need any of this — <b>Sign in with Google</b> already works and keeps your data private to your account. This is only for people who want the database in a project they own.</p>`:''}
+    ${haveOwn?'<p class="tlab">Only if you want to point this device at a different project.</p>':'<p>One time, ~10 min. It uses <b>your own</b> free Firebase project, so your data lives in <b>your</b> Google account — never mine.</p>'}
+    ${haveOwn?'':`<ol class="steps">
       <li><b>console.firebase.google.com</b> → <b>Add project</b> (any name) → you can skip Analytics → Create.</li>
       <li>On the project home, click the web icon <b>&lt;/&gt;</b>, nickname it, Register, and <b>copy the <code>firebaseConfig</code></b> block.</li>
       <li><b>Build → Authentication → Get started → Google → Enable</b> (choose your email as support contact) → Save.</li>
@@ -5656,11 +5669,17 @@ function cloudSetupSheet(){
       <li>Firestore <b>Rules</b> tab → paste this → Publish:<code style="display:block;white-space:pre-wrap;background:var(--surface2);border-radius:8px;padding:9px;margin-top:6px;font-size:11px;line-height:1.4">${esc(rules)}</code></li>
       <li><b>Authentication → Settings → Authorized domains → Add domain →</b> <b>${esc(location.hostname||'your site')}</b></li>
       <li>Paste the <code>firebaseConfig</code> below → Save.</li>
-    </ol>
+    </ol>`}
     <textarea id="fbCfgInput" placeholder='{ "apiKey": "…", "authDomain": "…", "projectId": "…" }'>${cur?esc(JSON.stringify(cur)):''}</textarea>
     <div class="actions" style="margin-top:14px"><button class="btn primary" id="fbCfgSave">Save &amp; connect</button>
       ${cur?'<button class="btn ghost" id="fbCfgClear">Remove</button>':'<button class="btn ghost" id="fbCfgCancel">Cancel</button>'}</div>`);
   const cancelBtn=document.getElementById('fbCfgCancel'); if(cancelBtn) cancelBtn.onclick=closeSheet;
+  const cpy=document.getElementById('fbCfgCopy');
+  if(cpy) cpy.onclick=()=>{ buzz(6);
+    /* formatted the way it needs to look in the file, so it can be pasted straight in */
+    const pretty='{\n'+Object.keys(cur).map(k=>`  ${k}: ${JSON.stringify(cur[k])}`).join(',\n')+'\n}';
+    copyText(pretty,'Config copied — paste it where you were asked for it');
+  };
   document.getElementById('fbCfgSave').onclick=()=>{
     let raw=document.getElementById('fbCfgInput').value.trim(); if(!raw){toast('Paste the config first');return}
     /* grab the real firebaseConfig object even if the whole snippet (with imports) was pasted:
