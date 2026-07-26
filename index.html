@@ -1559,7 +1559,7 @@ const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.st
 async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } try{return localStorage.getItem(k)}catch(_){return null} }
 async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v);return true}catch(e){return false} } try{localStorage.setItem(k,v);return true}catch(_){return false} }
 const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
-const APP_VERSION='v52'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
+const APP_VERSION='v53'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
 
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 
@@ -1628,7 +1628,15 @@ const K_OWNER='ml_owner_v1'; /* which Google account this device's data belongs 
    Leave it null and the app falls back to "bring your own Firebase project",
    exactly as before. Setup steps: see SETUP.md next to this file.
    ============================================================================ */
-const APP_FB_CFG = null; /* ← paste your firebaseConfig object here, e.g. {apiKey:"…", authDomain:"…", projectId:"…", appId:"…"} */
+const APP_FB_CFG = {
+  apiKey: "AIzaSyDcT3MQO-eJx5i1nlDuumd5DTJZt8CEl9M",
+  authDomain: "logger-b9d1a.firebaseapp.com",
+  projectId: "logger-b9d1a",
+  storageBucket: "logger-b9d1a.firebasestorage.app",
+  messagingSenderId: "422459507291",
+  appId: "1:422459507291:web:1576cbd54875adbfb2757e",
+  measurementId: "G-32XVXBE8RZ"
+};
 function builtInCfg(){ const c=APP_FB_CFG; return (c && c.apiKey && c.projectId) ? c : null; }
 let fbApp=null, fbUser=null, fbUnsub=null, fbPushT=null, fbApplying=false, fbStatus='off', fbLastSync=0, fbError='';
 let fbLastPush=0, fbLastPull=0, fbRemoteCount=null, fbSyncing=false;
@@ -1691,7 +1699,11 @@ async function boot(){
   loadPhotos().then(()=>render());
   maybeSnapshot(); /* fire-and-forget: today's ledger copy into IndexedDB */
   maybeBackupReminder();
-  initSync();
+  /* Only reach for the sync SDK when this device actually uses sync — someone who has signed
+     in before, or who set up their own project. A first-time visitor gets a working app and a
+     Sign in button without downloading half a megabyte of Firebase they may never need; the
+     tap itself loads it. */
+  if(ownFbCfg() || getOwner()) initSync(); else renderCloudSync();
 }
 
 function migrate(){
@@ -5354,8 +5366,10 @@ async function loadFirebase(){
   catch(_){ return false; }
 }
 
+let fbInited=false;
 async function initSync(){
   const cfg=getFbCfg(); if(!cfg){ fbStatus='off'; renderCloudSync(); return; }
+  fbInited=true;
   if(typeof navigator!=='undefined' && navigator.onLine===false){ fbStatus='offline'; renderCloudSync(); return; }
   fbStatus='loading'; fbError=''; renderCloudSync();
   const ok=await loadFirebase();
@@ -5431,6 +5445,8 @@ function authHint(e){
 }
 async function signInCloud(){
   const ok=await loadFirebase(); if(!ok){ toast("Couldn't load sync — check your connection"); return; }
+  /* boot may have skipped setup for a first-time visitor — wire the auth listener now */
+  if(!fbInited) await initSync();
   try{ if(!fbApp){ const cfg=getFbCfg(); if(cfg) fbApp=firebase.initializeApp(cfg); } }catch(_){}
   fbError=''; renderCloudSync();
   /* stay signed in on this device — set before the sign-in so the very first session sticks */
@@ -5562,7 +5578,8 @@ async function syncNow(){
 }
 /* opening the app / coming back online should immediately pull the latest */
 if(typeof window!=='undefined'){
-  window.addEventListener('online', ()=>{ if(getFbCfg()){ if(!fbUser) initSync(); else syncNow(); } });
+  window.addEventListener('online', ()=>{ if(!getFbCfg()) return;
+    if(fbUser) syncNow(); else if(ownFbCfg()||getOwner()) initSync(); });
   /* backgrounding (home screen, floating window, app switch) snapshots the live board AND flushes any pending cloud write */
   document.addEventListener('visibilitychange', ()=>{ if(document.hidden){ try{persistLiveTriage()}catch(_){} try{flushCloudPush()}catch(_){} return; }
     /* foregrounding re-syncs, but throttled — rapid app-switching must not fire a full reconcile each time */
