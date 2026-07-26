@@ -1526,7 +1526,7 @@ const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.st
 async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } try{return localStorage.getItem(k)}catch(_){return null} }
 async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v);return true}catch(e){return false} } try{localStorage.setItem(k,v);return true}catch(_){return false} }
 const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
-const APP_VERSION='v49'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
+const APP_VERSION='v50'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
 
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 
@@ -1657,10 +1657,14 @@ function migrate(){
     if(settings.moduleSet==='Module 1') settings.moduleSet=recent('module','Module 1');
     settings._migrated=true; changed=true;
   }
-  /* seed the Pass-3 grid once; a user edit is never overwritten */
+  /* seed the Pass-3 grid once; a user edit is never overwritten.
+     _upd stays 0 on purpose: a seed is not something you did, so it must never outrank the
+     plan sitting in your cloud copy. Stamping it "now" is what used to wipe the ticks on a
+     device that signed back in. */
   if(!settings._planSeeded && plan.rows.length===0){
-    plan=sanitizePlan({rows:PLAN_SEED, done:{}, skims:{}, _upd:Date.now()});
-    persistPlan(false); settings._planSeeded=true; changed=true;
+    plan=sanitizePlan({rows:PLAN_SEED, done:{}, skims:{}, _upd:0});
+    bumpData(); try{localStorage.setItem(K_PLAN,JSON.stringify(plan))}catch(_){}
+    settings._planSeeded=true; changed=true;
   }
   /* v22: normalize any stored sure+didn't-know into the belief-error bucket, once */
   if(!settings._normv22){
@@ -1670,7 +1674,7 @@ function migrate(){
     if(sChanged) persistSessions(false);
     settings._normv22=true; changed=true;
   }
-  if(changed){ persist(); persistSettings(); }
+  if(changed){ persist(); persistSettings(undefined, true); } /* housekeeping — keep the old stamp */
 }
 let _saveWarned=false;
 async function persist(cloud){
@@ -1681,7 +1685,15 @@ async function persist(cloud){
   if(cloud!==false) scheduleCloudPush();
   return ok;
 }
-async function persistSettings(cloud){ settings._upd=Date.now(); await sset(K_SET,JSON.stringify(settings)); if(cloud!==false) scheduleCloudPush(); }
+/* keepStamp: a housekeeping write (boot migrations, one-time flags) saves locally WITHOUT
+   claiming to be a fresh user edit. Stamping those bumped _upd to "now" on a device that had
+   just been set up, so its default exam date and set names won a last-write-wins comparison
+   against the real ones in your cloud copy. */
+async function persistSettings(cloud, keepStamp){
+  if(!keepStamp) settings._upd=Date.now();
+  await sset(K_SET,JSON.stringify(settings));
+  if(cloud!==false) scheduleCloudPush();
+}
 async function requestPersistence(){ try{ if(navigator.storage && navigator.storage.persist){ const p=await navigator.storage.persisted(); if(!p) await navigator.storage.persist(); } }catch(_){} }
 
 /* ---------- photos in IndexedDB ---------- */
@@ -2606,14 +2618,14 @@ function updatePlanBadge(){
 }
 function togglePlanDone(id){
   const r=plan.rows.find(x=>x.id===id); if(!r)return;
-  if(plan.done[id]){ delete plan.done[id]; persistPlan(); renderPlan(); toast('Marked not done'); return; }
+  if(plan.done[id]){ delete plan.done[id]; stampPlanRow(id); persistPlan(); renderPlan(); toast('Marked not done'); return; }
   plan.done[id]={ts:Date.now(), mode:'full'};
-  persistPlan();
+  stampPlanRow(id); persistPlan();
   const el=document.querySelector(`.pl-row[data-row="${CSS.escape(id)}"]`);
   if(el && !reducedMotion()){ el.classList.add('donepop'); setTimeout(()=>el.classList.remove('donepop'),300); }
   buzz(9);
   renderPlan();
-  toast(r.t+' — done',{label:'Undo',fn:()=>{ delete plan.done[id]; persistPlan(); renderPlan(); }});
+  toast(r.t+' — done',{label:'Undo',fn:()=>{ delete plan.done[id]; stampPlanRow(id); persistPlan(); renderPlan(); }});
 }
 function planGoTest(id){
   const r=plan.rows.find(x=>x.id===id); if(!r)return;
@@ -2623,7 +2635,7 @@ function planGoTest(id){
 }
 function logRevisit(id,depth){
   (plan.skims[id]=plan.skims[id]||[]).push({ts:Date.now(), depth});
-  persistPlan(); renderPlan(); buzz(9);
+  stampPlanRow(id); persistPlan(); renderPlan(); buzz(9);
   const nxt=nextRevisit(id);
   toast(depth==='skim'?'Skim logged'+(nxt?' — next around '+fmtShort(nxt):''):'Full pass logged'+(nxt?' — next around '+fmtShort(nxt):''));
 }
@@ -4699,8 +4711,12 @@ function renameSet(){
 
 /* ---------- backup / restore ---------- */
 function backupPayload(withPhotos){
-  /* v6 adds the plan; v5 added sessions + tombstones */
-  const p={app:'mistake-ledger',version:6,exportedAt:new Date().toISOString(),settings,entries,sessions,tombstones,plan};
+  /* v7 carries the sync config; v6 added the plan; v5 added sessions + tombstones */
+  const p={app:'mistake-ledger',version:7,exportedAt:new Date().toISOString(),settings,entries,sessions,tombstones,plan};
+  /* the firebaseConfig rides along so restoring a backup puts sync back too — otherwise a
+     cleared browser means hunting down the Firebase console and re-pasting it by hand. It is a
+     public project identifier, not a password: your data is still gated on signing in as you. */
+  const fc=getFbCfg(); if(fc) p.fbcfg=fc;
   if(withPhotos){p.photos={};entries.forEach(e=>{if(e.hasPhoto&&photos[e.id])p.photos[e.id]=photos[e.id]})}
   return JSON.stringify(p,null,2);
 }
@@ -4778,14 +4794,24 @@ function mergeIncoming(data){
     sanitizeSessions(data.sessions).forEach(s=>{ if(!have.has(s.id) && !(tombstones[s.id]&&tombstones[s.id]>=(s.ts||0))){ sessions.push(s); have.add(s.id); sesAdded++; } });
     if(sesAdded){ sessions.sort((a,b)=>(b.ts||0)-(a.ts||0)); sessions=sessions.slice(0,300); persistSessions(); }
   }
-  /* v6 backups carry the plan — apply only if newer; a v5 file leaves the plan untouched */
-  let planApplied=false, planSkipped=false;
+  /* v6 backups carry the plan — merged the same way the cloud does, so restoring onto a
+     freshly-seeded device brings your ticks back instead of losing them to the empty grid */
+  let planApplied=false;
   if(data && data.plan && typeof data.plan==='object'){
-    if((+data.plan._upd||0) > (plan._upd||0)){ plan=sanitizePlan(data.plan); persistPlan(); planApplied=true; }
-    else if((data.plan.rows||[]).length) planSkipped=true; /* say so — a silent skip reads as data loss */
+    const before=JSON.stringify({d:plan.done,s:plan.skims,r:plan.rows.length});
+    const merged=sanitizePlan(mergePlans(plan, sanitizePlan(data.plan)));
+    if(JSON.stringify({d:merged.done,s:merged.skims,r:merged.rows.length})!==before){
+      plan=merged; persistPlan(); planApplied=true;
+    }
+  }
+  /* a v7 backup can re-arm sync on a wiped device — adopt it only when there is none here,
+     so restoring an old file can never hijack a project you have since switched to */
+  let cfgAdopted=false;
+  if(data && data.fbcfg && data.fbcfg.apiKey && data.fbcfg.projectId && !getFbCfg()){
+    setFbCfg(data.fbcfg); cfgAdopted=true; try{ initSync(); }catch(_){}
   }
   if(!incoming.length && !sesAdded && !planApplied){
-    toast(planSkipped?'Nothing new — your plan here is newer, so it was kept':'Nothing new in that backup'); return; }
+    toast(cfgAdopted?'Sync restored — tap Sign in with Google':'Nothing new in that backup'); return; }
   const inPhotos=(data&&data.photos&&typeof data.photos==='object')?data.photos:{};
   const ids=new Set(entries.map(e=>e.id));let added=0;
   incoming.forEach(e=>{
@@ -4798,9 +4824,9 @@ function mergeIncoming(data){
   });
   entries.sort((a,b)=>(b.ts||0)-(a.ts||0));persist();render();
   const bits=[]; if(added)bits.push(added+' mistake'+(added>1?'s':'')); if(sesAdded)bits.push(sesAdded+' triage read'+(sesAdded>1?'s':''));
-  if(planApplied) bits.push('the plan');
-  const tail=planSkipped?' · plan here is newer, kept':'';
-  toast((bits.length?bits.join(' + ')+' added':'Nothing new to add')+tail);
+  if(planApplied) bits.push('plan progress');
+  if(cfgAdopted) bits.push('sync settings');
+  toast(bits.length?bits.join(' + ')+' added':'Nothing new to add');
 }
 function importData(ev){
   const file=ev.target.files[0];if(!file)return;const r=new FileReader();
@@ -5121,7 +5147,7 @@ function loadTombstones(){ try{const t=JSON.parse(localStorage.getItem(K_TOMB)||
 function persistSessions(cloud){ bumpData(); try{localStorage.setItem(K_SESS,JSON.stringify(sessions))}catch(_){}; if(cloud!==false) scheduleCloudPush(); }
 function persistPlan(cloud){ bumpData(); plan._upd=Date.now(); try{localStorage.setItem(K_PLAN,JSON.stringify(plan))}catch(_){}; if(cloud!==false) scheduleCloudPush(); }
 function sanitizePlan(obj){
-  const p={rows:[], done:{}, skims:{}, _upd:0};
+  const p={rows:[], done:{}, skims:{}, dv:{}, _upd:0};
   if(!obj||typeof obj!=='object') return p;
   p._upd=+obj._upd||0;
   const kinds=['read','test','buffer'];
@@ -5136,8 +5162,12 @@ function sanitizePlan(obj){
   const ids=new Set(p.rows.map(r=>r.id));
   Object.entries(obj.done||{}).forEach(([k,v])=>{ if(ids.has(k)&&v&&typeof v.ts==='number'){ const d={ts:v.ts, mode:v.mode==='partial'?'partial':'full'}; if(+v.mins>0) d.mins=+v.mins; p.done[k]=d; } });
   Object.entries(obj.skims||{}).forEach(([k,v])=>{ if(ids.has(k)&&Array.isArray(v)) p.skims[k]=v.filter(x=>x&&typeof x.ts==='number').map(x=>({ts:x.ts, depth:x.depth==='full'?'full':'skim'})); });
+  /* per-row tick versions — what lets an un-tick beat an older tick across devices */
+  Object.entries(obj.dv||{}).forEach(([k,v])=>{ if(ids.has(k)&&+v>0) p.dv[k]=+v; });
   return p;
 }
+/* every change to a row's done/skim state bumps that row's version */
+function stampPlanRow(id){ if(!plan.dv||typeof plan.dv!=='object') plan.dv={}; plan.dv[id]=Date.now(); }
 function loadPlan(){ try{ plan=sanitizePlan(JSON.parse(localStorage.getItem(K_PLAN)||'null')); }catch(_){ plan={rows:[],done:{},skims:{},_upd:0}; } }
 /* Pass 3 reading grid, 2026-07-04 → 2026-07-27. Pass 4 is deliberately unplanned. */
 const PLAN_SEED=[
@@ -5210,10 +5240,39 @@ function mergeLedger(a,b){
   const sById={}; const su=x=>x.upd||x.ts||0;
   (a.sessions||[]).concat(b.sessions||[]).forEach(s=>{ if(!s||!s.id)return; const cur=sById[s.id]; if(!cur||su(s)>su(cur)) sById[s.id]=s; });
   const sessions=Object.values(sById).filter(s=>!(tomb[s.id] && tomb[s.id]>=(s.ts||0))).sort((x,y)=>(y.ts||0)-(x.ts||0)).slice(0,300);
-  /* plan: last-write-wins whole-object on _upd, like settings — row-by-row merging breeds zombie rows */
-  const ap=(a.plan&&a.plan._upd)||0, bp=(b.plan&&b.plan._upd)||0;
-  const plan = bp>ap ? (b.plan||a.plan) : (a.plan||b.plan);
-  return {entries, settings, tombstones:tomb, sessions, plan};
+  return {entries, settings, tombstones:tomb, sessions, plan:mergePlans(a.plan,b.plan)};
+}
+/* ---- plan merge ----
+   The GRID (which days exist) is last-write-wins on _upd — merging rows one by one breeds
+   zombie rows after an edit. But your TICKS are not part of the grid: each one is a fact about
+   a specific day ("I read Pathology on the 4th"), so they merge per row instead of being
+   replaced wholesale. That is the bug this fixes: a phone that signed back in used to seed an
+   empty grid stamped "now", win the whole-object comparison, and wipe every tick — locally and
+   then in the cloud. Each row now carries its own version (dv), so two devices ticking
+   different days both keep their work and an un-tick still travels. */
+function planRowVer(p,id){ return (p&&p.dv&&+p.dv[id]) || (p&&p.done&&p.done[id]&&+p.done[id].ts) || 0; }
+function mergePlans(a,b){
+  const EMPTY={rows:[],done:{},skims:{},dv:{},_upd:0};
+  a=a||EMPTY; b=b||EMPTY;
+  const au=+a._upd||0, bu=+b._upd||0;
+  const base = bu>au ? b : a;
+  const out={ rows:(base.rows||[]).slice(), done:{}, skims:{}, dv:{}, _upd:Math.max(au,bu) };
+  const ids=new Set([].concat(Object.keys(a.done||{}),Object.keys(b.done||{}),
+    Object.keys(a.dv||{}),Object.keys(b.dv||{}),Object.keys(a.skims||{}),Object.keys(b.skims||{})));
+  ids.forEach(id=>{
+    const va=planRowVer(a,id), vb=planRowVer(b,id);
+    /* newer wins; on a tie a present tick beats an absent one so work is never silently lost */
+    const src = va>vb ? a : vb>va ? b : ((a.done&&a.done[id]) ? a : b);
+    if(src.done && src.done[id]) out.done[id]=src.done[id];
+    const v=Math.max(va,vb); if(v) out.dv[id]=v;
+    /* revisit passes only ever accumulate — union them by timestamp */
+    const sa=(a.skims&&a.skims[id])||[], sb=(b.skims&&b.skims[id])||[];
+    if(sa.length||sb.length){
+      const seen={}; sa.concat(sb).forEach(x=>{ if(x&&typeof x.ts==='number') seen[x.ts]=x; });
+      out.skims[id]=Object.values(seen).sort((x,y)=>x.ts-y.ts);
+    }
+  });
+  return out;
 }
 
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.async=true;s.onload=()=>res();s.onerror=()=>rej(new Error('load '+src));document.head.appendChild(s);});}
@@ -5236,7 +5295,16 @@ async function initSync(){
      connection returns — a triage read finished on the metro still reaches the cloud */
   try{ await firebase.firestore().enablePersistence({synchronizeTabs:true}); }
   catch(_){ /* second tab or old browser — sync still works, just without the offline queue */ }
-  try{ firebase.auth().onAuthStateChanged(u=>onAuth(u)); firebase.auth().getRedirectResult&&firebase.auth().getRedirectResult().catch(()=>{}); }
+  /* keep the session on this device across restarts and app updates. Without this the browser
+     default can fall back to a session-scoped login, which is what silently signs you out. */
+  try{ await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL); }catch(_){}
+  try{
+    firebase.auth().onAuthStateChanged(u=>onAuth(u));
+    /* a redirect sign-in finishes here on the way back in — surface failures instead of
+       swallowing them, otherwise a failed login just looks like nothing happened */
+    if(firebase.auth().getRedirectResult) firebase.auth().getRedirectResult()
+      .catch(e=>{ if(e&&e.code&&e.code!=='auth/no-auth-event'){ fbError=authHint(e); renderCloudSync(); } });
+  }
   catch(e){ fbStatus='error'; fbError=(e&&e.message)||(''+e); renderCloudSync(); }
 }
 function onAuth(u){
@@ -5258,7 +5326,17 @@ async function signInCloud(){
   const ok=await loadFirebase(); if(!ok){ toast("Couldn't load sync — check your connection"); return; }
   try{ if(!fbApp){ const cfg=getFbCfg(); if(cfg) fbApp=firebase.initializeApp(cfg); } }catch(_){}
   fbError=''; renderCloudSync();
+  /* stay signed in on this device — set before the sign-in so the very first session sticks */
+  try{ await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL); }catch(_){}
   const provider=new firebase.auth.GoogleAuthProvider();
+  /* no forced account chooser: with one Google session this signs you straight back in */
+  /* installed from the home screen, a popup often opens detached or is blocked outright, which
+     is what made signing back in a fight. There, go straight to the redirect flow. */
+  if(isStandalone()){
+    try{ await firebase.auth().signInWithRedirect(provider); }
+    catch(e){ fbError=authHint(e); renderCloudSync(); toast(fbError); }
+    return;
+  }
   try{ await firebase.auth().signInWithPopup(provider); }
   catch(e){
     const c=e&&e.code||'';
@@ -5297,16 +5375,22 @@ async function applyRemote(remote, initial){
     const inc={ entries:remote.entries||[], settings:remote.settings||{}, tombstones:remote.tombstones||{}, sessions:remote.sessions||[], plan:remote.plan||null };
     fbRemoteCount=inc.entries.length;
     const merged=mergeLedger({entries, settings, tombstones, sessions, plan}, inc);
+    /* compare the plan by CONTENT, not by _upd. Ticks now merge row by row, so the other
+       device's progress can arrive while _upd stays equal — keying off _upd alone threw those
+       ticks away, which is the same bug one layer up. */
+    const planSig=p=>JSON.stringify({r:(p&&p.rows)||[], d:(p&&p.done)||{}, s:(p&&p.skims)||{}});
+    const planChanged = planSig(merged.plan)!==planSig(plan);
     const changed = JSON.stringify(merged.entries)!==JSON.stringify(entries) ||
                     JSON.stringify(merged.tombstones)!==JSON.stringify(tombstones) ||
                     JSON.stringify(merged.sessions)!==JSON.stringify(sessions) ||
-                    ((merged.plan&&merged.plan._upd)||0)!==((plan&&plan._upd)||0) ||
+                    planChanged ||
                     ((merged.settings&&merged.settings._upd)||0)!==((settings&&settings._upd)||0);
     fbApplying=true;
     entries=sanitizeEntries(merged.entries);
     tombstones=merged.tombstones||{}; persistTombstones();
     sessions=sanitizeSessions(merged.sessions||[]); persistSessions(false);
-    if(merged.plan && (merged.plan._upd||0)!==(plan._upd||0)){ plan=sanitizePlan(merged.plan); try{localStorage.setItem(K_PLAN,JSON.stringify(plan))}catch(_){} }
+    if(merged.plan && (planChanged || (merged.plan._upd||0)!==(plan._upd||0))){
+      plan=sanitizePlan(merged.plan); try{localStorage.setItem(K_PLAN,JSON.stringify(plan))}catch(_){} }
     if(merged.settings && Object.keys(merged.settings).length) safeAssign(settings, merged.settings);
     await persist(false); await persistSettings(false);
     fbApplying=false; fbLastSync=Date.now(); fbLastPull=Date.now();
@@ -5384,9 +5468,11 @@ function renderCloudSync(){
       <div><div class="tt">Sign out</div><div class="dd">Stops sync here. Your mistakes stay on this device.</div></div></button>`;
   } else if(getFbCfg()){
     const busy=fbStatus==='loading';
+    /* config is already here, so this is a one-tap return — say so, and say that nothing was lost */
+    const back = fbStatus==='signedout';
     html=`<button class="databtn sync" id="cloudSignIn" ${busy?'disabled style="opacity:.6"':''}>
       <svg class="ic" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg>
-      <div><div class="tt">${busy?'Connecting…':'Sign in with Google'}</div><div class="dd">${fbError?'<span style=\'color:var(--rose)\'>'+esc(fbError)+'</span>':'Turn on live sync across your devices.'}</div></div><span class="arrow">›</span></button>
+      <div><div class="tt">${busy?'Connecting…':back?'Sign back in with Google':'Sign in with Google'}</div><div class="dd">${fbError?'<span style=\'color:var(--rose)\'>'+esc(fbError)+'</span>':back?'One tap — your project is still set up here, and nothing on this device was lost.':'Turn on live sync across your devices.'}</div></div><span class="arrow">›</span></button>
       <button class="databtn" id="cloudReconfig"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2V21a2 2 0 1 1-4 0v-.1A1.7 1.7 0 0 0 7 19.4l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0-1.2-2.9H3a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.6 7l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.7 1.7 0 0 0 10 4.6V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 2.9 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0 1.2 2.9H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
       <div><div class="tt">Sync settings</div><div class="dd">Change or remove the project config.</div></div></button>`;
   } else {
