@@ -669,7 +669,9 @@
   .st-tap{cursor:pointer}
   .theme-seg{margin-bottom:6px}
   /* v27: metric help, forecast, calibration */
-  .cardq{margin-left:auto;width:20px;height:20px;border-radius:50%;font-size:11px;font-weight:800;color:var(--muted);background:var(--surface2);border:1px solid var(--border2);flex:none;line-height:1;transition:all .15s}
+  .cardq{position:relative;margin-left:auto;width:20px;height:20px;border-radius:50%;font-size:11px;font-weight:800;color:var(--muted);background:var(--surface2);border:1px solid var(--border2);flex:none;line-height:1;transition:all .15s}
+  /* the dot stays small; the thumb target does not — an invisible 44px pad so it is actually hittable */
+  .cardq::before{content:"";position:absolute;top:50%;left:50%;width:44px;height:44px;transform:translate(-50%,-50%)}
   .cardq:active{transform:scale(.9)}
   .h3-hint + .cardq{margin-left:8px}
   .mh-row{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--border)}
@@ -738,6 +740,8 @@
   .vt.good{border-color:color-mix(in srgb,var(--sage-ink) 26%,var(--border2));background:color-mix(in srgb,var(--sage) 6%,var(--surface))}
   .vt.bad{border-color:color-mix(in srgb,var(--rose) 24%,var(--border2));background:color-mix(in srgb,var(--rose) 5%,var(--surface))}
   @media(min-width:560px){ .vt b{font-size:26px} .vt span{font-size:10.5px} .vt{padding:15px 6px 12px} }
+  .vt-note{margin:-6px 0 14px;font-size:12px;line-height:1.5;color:var(--muted);font-weight:600}
+  .vt-note b{color:var(--ink);font-variant-numeric:tabular-nums}
   /* the pulse row: drills + blind spots, two-in-one */
   .card.pulse{display:flex;align-items:stretch;padding:0;overflow:hidden}
   .ph{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px;align-items:flex-start;
@@ -864,7 +868,8 @@
   .sc-chip:active{transform:scale(.97)}
   .type-row{margin-top:-8px}
   .type-note{margin:-8px 2px 14px;font-size:11.5px;line-height:1.45;color:var(--muted)}
-  .hm-mode{margin-left:auto;width:30px;height:24px;border-radius:8px;font-size:12px;font-weight:800;color:var(--accent-ink);background:var(--surface2)}
+  .hm-mode{position:relative;margin-left:auto;width:34px;height:30px;border-radius:9px;font-size:12px;font-weight:800;color:var(--accent-ink);background:var(--surface2)}
+  .hm-mode::before{content:"";position:absolute;inset:-7px}
   .tri-cont{display:block;font-size:10px;font-weight:700;color:var(--faint);letter-spacing:.02em}
   .th-cont{font-weight:650;opacity:.75}
   /* v24: whole-picture section + numbers + wrongs↔plan chips */
@@ -1077,9 +1082,17 @@
   .sc-cell{min-width:0}
   .sc-cell label{display:block;font-size:11px;font-weight:750;letter-spacing:.05em;text-transform:uppercase;color:var(--faint);margin-bottom:6px;text-align:center}
   .stp{display:flex;align-items:stretch;border:1.5px solid var(--border2);border-radius:12px;overflow:hidden;background:var(--surface)}
-  .stp button{width:38px;font-size:19px;font-weight:700;color:var(--accent-ink);background:var(--surface2);flex:none}
-  .stp input{flex:1;width:0;min-width:0;border:none;text-align:center;font-weight:800;font-size:16px;padding:10px 2px;outline:none;background:transparent;box-shadow:none}
+  .stp button{width:32px;font-size:19px;font-weight:700;color:var(--accent-ink);background:var(--surface2);flex:none}
+  .stp input{flex:1;width:0;min-width:0;border:none;text-align:center;font-weight:800;font-size:16px;padding:10px 1px;outline:none;background:transparent;box-shadow:none}
+  .stp input::placeholder{font-weight:600;font-size:14px;color:var(--faint)}
   .sc-warn{margin-top:10px;font-size:12px;color:var(--amber);font-weight:600;background:color-mix(in srgb,var(--amber) 10%,transparent);border-radius:10px;padding:8px 11px;line-height:1.45}
+  /* the paper size: the denominator every % is scored against, stated instead of guessed */
+  .sc-tot{display:flex;align-items:center;gap:12px;margin-top:12px;padding:10px 13px;border-radius:12px;background:var(--surface2)}
+  .sc-tot label{flex:1;font-size:12.5px;font-weight:700;color:var(--ink2);line-height:1.3}
+  .sc-tot input{flex:none;width:74px;border:1.5px solid var(--border2);border-radius:10px;background:var(--surface);
+    text-align:center;font-weight:800;font-size:16px;padding:8px 4px;outline:none;color:var(--ink)}
+  .sc-tot input:focus{border-color:var(--accent)}
+  #scTotal b{color:var(--ink);font-variant-numeric:tabular-nums}
   .sm-score{margin-top:8px;font-size:13.5px;font-weight:700;color:var(--ink2)}
   .fixcta{width:100%;margin-top:12px;background:linear-gradient(135deg,#8A5CA8,#6E4390);box-shadow:0 8px 20px -9px rgba(110,67,144,.6),0 3px 0 0 #4E2F66;font-size:14px;line-height:1.35;padding:13px 16px}
   .linkish{font-size:inherit;color:var(--accent-ink);font-weight:700;text-align:left;display:inline}
@@ -1118,7 +1131,9 @@
   .rec-lab b{font-size:14.5px;font-weight:800}
   .rec-q{color:var(--sage-ink)} .rec-s{color:var(--accent-ink)}
   .rec-lab>span{margin-left:auto;display:inline-flex;gap:6px}
-  .rec-chip{font-size:11px;font-weight:800;padding:3px 9px;border-radius:8px;color:var(--bc);background:color-mix(in srgb,var(--bc) 13%,transparent);font-variant-numeric:tabular-nums}
+  .rec-chip{position:relative;font-size:11px;font-weight:800;padding:7px 10px;border-radius:9px;color:var(--bc);background:color-mix(in srgb,var(--bc) 13%,transparent);font-variant-numeric:tabular-nums;transition:transform .15s var(--spring)}
+  .rec-chip::before{content:"";position:absolute;inset:-8px -4px}
+  .rec-chip:active{transform:scale(.93)}
   .rec-chip:active{transform:scale(.94)}
   .st-seg{display:inline-flex;margin-left:auto;background:var(--surface2);border-radius:9px;padding:2px}
   .st-seg button{font-size:10.5px;font-weight:800;padding:4px 10px;border-radius:7px;color:var(--muted);letter-spacing:.02em}
@@ -1511,7 +1526,7 @@ const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.st
 async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } try{return localStorage.getItem(k)}catch(_){return null} }
 async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v);return true}catch(e){return false} } try{localStorage.setItem(k,v);return true}catch(_){return false} }
 const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
-const APP_VERSION='v48'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
+const APP_VERSION='v49'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
 
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 
@@ -2077,7 +2092,10 @@ function isDue(e){ return dueTime(e) <= endOfToday(); }
 function dueCount(){ return entries.filter(isDue).length; }
 function scheduleSRS(e,knew){
   let intv=e.intv||0, ease=e.ease||2.3;
-  if(knew){ intv = intv<=0 ? 1 : (intv===1 ? 3 : Math.round(intv*ease)); ease=Math.min(2.8,ease+0.05); }
+  /* a first-time card used to come back tomorrow whether you knew it or missed it — getting it
+     right earned nothing. Knowing it now graduates 2 → 4 → ×ease; missing it always resets to 1,
+     so the two answers are never the same schedule. */
+  if(knew){ intv = intv<=0 ? 2 : (intv<=2 ? 4 : Math.round(intv*ease)); ease=Math.min(2.8,ease+0.05); }
   else { intv=1; ease=Math.max(1.6,ease-0.2); }
   const d=daysToExam(); if(d!==null && d>0) intv=Math.min(intv,Math.max(1,d)); /* keep everything reviewable before the exam */
   e.intv=intv; e.ease=Math.round(ease*100)/100; e.due=Date.now()+intv*864e5;
@@ -2225,10 +2243,23 @@ function growBars(root){ requestAnimationFrame(()=>requestAnimationFrame(()=>{
    trends → lines (only where time matters) */
 function waffleChart(c,total){
   const cap=96, per=total>cap?Math.ceil(total/cap):1;
+  /* Largest-remainder (Hamilton) apportionment. Rounding each type on its own used to erase any
+     type smaller than half a dot — a real bucket vanishing from the chart. Here every non-zero
+     type keeps at least one dot and the dots still add up to the stated scale. */
+  const budget=Math.max(1,Math.round(total/per));
+  const live=ERRORS.filter(e=>(c[e.id]||0)>0);
+  const quota=live.map(e=>({e, q:(c[e.id]||0)/per}));
+  let alloc=quota.map(x=>({e:x.e, n:Math.max(1,Math.floor(x.q)), rem:x.q-Math.floor(x.q)}));
+  let spent=alloc.reduce((a,x)=>a+x.n,0);
+  /* hand out what's left to the biggest remainders; claw back from the biggest piles if we overspent */
+  const byRem=alloc.slice().sort((a,b)=>b.rem-a.rem);
+  for(let i=0; spent<budget && byRem.length; i++){ byRem[i%byRem.length].n++; spent++; }
+  const byN=()=>alloc.slice().sort((a,b)=>b.n-a.n);
+  while(spent>budget){ const big=byN().find(x=>x.n>1); if(!big) break; big.n--; spent--; }
   let i=0; const dots=[];
-  ERRORS.forEach(e=>{ const n=Math.round((c[e.id]||0)/per);
-    for(let k=0;k<n;k++){ dots.push(`<i class="wf-d" style="background:${e.c};animation-delay:${Math.min(700,i*9)}ms"></i>`); i++; } });
-  const note=per>1?`<span class="wf-note">1 dot = ${per} mistakes</span>`:'';
+  alloc.forEach(x=>{ for(let k=0;k<x.n;k++){
+    dots.push(`<i class="wf-d" style="background:${x.e.c};animation-delay:${Math.min(700,i*9)}ms"></i>`); i++; } });
+  const note=per>1?`<span class="wf-note">1 dot ≈ ${per} mistakes</span>`:'';
   return `<div class="waffle" role="img" aria-label="every mistake, one dot each, coloured by type">${dots.join('')}</div>${note}`;
 }
 function donutChart(segs,label,sub){
@@ -3025,7 +3056,9 @@ function scoreSheet(){
       <div class="sc-cell"><label>Wrong</label>${stp('scW','—')}</div>
       <div class="sc-cell"><label>Skipped</label>${stp('scS','—')}</div>
     </div>
-    <div class="tlab" id="scTotal" style="margin-top:10px">${isGT?'Total: 200 · auto-computed, editable':'Total: — · auto-computed'}</div>
+    <div class="sc-tot"><label for="scT">Questions on the paper</label>
+      <input type="number" id="scT" inputmode="numeric" min="1" value="${isGT?EXAM_Q:''}" placeholder="${isGT?EXAM_Q:'—'}"></div>
+    <div class="tlab" id="scTotal" style="margin-top:8px"></div>
     <div class="sc-warn" id="scWarn" hidden></div>
     <div class="sp-lab" style="margin-top:14px">blind attempts <span style="text-transform:none;letter-spacing:0">(optional — of your wrong ones, how many were pure guesses; leave blank if you didn't count)</span></div>
     ${stp('scB','leave blank')}
@@ -3033,29 +3066,44 @@ function scoreSheet(){
       <button class="btn ghost" id="scSkip">Skip this</button></div>`);
   const g=id=>document.getElementById(id);
   const val=id=>{ const v=g(id).value.trim(); return v===''?null:Math.max(0,Math.round(+v)||0); };
+  /* the denominator is the PAPER, not what you happened to attempt. Leaving Skipped blank used to
+     shrink the total and silently inflate every % (and the exam forecast built on it) — now the
+     paper size is its own field, skipped is inferred from it, and a nonsense total is refused. */
+  const paper=()=>{ const t=val('scT'); return t!=null&&t>0 ? t : (isGT?EXAM_Q:null); };
   const refresh=()=>{
-    const c=val('scC'),w=val('scW'),sk=val('scS');
-    const tot=(c!=null||w!=null||sk!=null)?((c||0)+(w||0)+(sk||0)):null;
-    g('scTotal').textContent='Total: '+(tot!=null?tot:(isGT?'200':'—'))+' · auto-computed';
-    const warn=g('scWarn');
+    const c=val('scC'), w=val('scW'), sk=val('scS'), att=(c||0)+(w||0), P=paper();
+    const skAuto = (sk==null && P!=null) ? Math.max(0, P-att) : null;
+    const tot = P!=null ? Math.max(P,att) : (att+(sk||0))||null;
+    g('scTotal').innerHTML = tot!=null
+      ? `Scored out of <b>${tot}</b>${skAuto!=null&&skAuto>0?` · skipped <b>${skAuto}</b> (auto)`:''}`
+      : 'Enter correct and wrong to score this read';
+    const warn=g('scWarn'); const msgs=[];
     const totalTri=(triage.base||0)+n; /* across all sittings of this read */
-    if(w!=null && Math.abs(w-totalTri)>2){ warn.hidden=false; warn.textContent=`You triaged ${totalTri} but logged ${w} wrong. Sort the rest before you trust the mix.`; }
-    else warn.hidden=true;
+    if(w!=null && Math.abs(w-totalTri)>2) msgs.push(`You triaged ${totalTri} but logged ${w} wrong — sort the rest before you trust the mix.`);
+    if(P!=null && att>P) msgs.push(`${att} answered is more than the ${P} questions on the paper.`);
+    if(isGT && P!=null && Math.abs(P-EXAM_Q)>40) msgs.push(`${P} questions is unusual for a GT — the exam is ${EXAM_Q}.`);
+    if(msgs.length){ warn.hidden=false; warn.textContent=msgs.join(' '); } else warn.hidden=true;
   };
   document.querySelectorAll('.stp [data-up],[data-dn]').forEach(b=>b.onclick=()=>{
     const id=b.dataset.up||b.dataset.dn, inp=g(id);
     inp.value=Math.max(0,(+inp.value||0)+(b.dataset.up?1:-1)); buzz(4); refresh();
   });
-  ['scC','scW','scS','scB'].forEach(id=>g(id).oninput=refresh);
+  ['scC','scW','scS','scB','scT'].forEach(id=>g(id).oninput=refresh);
   /* second sitting: show the score already on this read instead of a blank sheet */
   const ps=(mergeTarget(triage.set,triage.testType)||{}).score;
-  if(ps && ps.c!=null){ g('scC').value=ps.c; g('scW').value=ps.w; if(ps.s!=null)g('scS').value=ps.s; if(ps.blindTried!=null)g('scB').value=ps.blindTried; }
+  if(ps && ps.c!=null){ g('scC').value=ps.c; g('scW').value=ps.w; if(ps.s!=null)g('scS').value=ps.s;
+    if(ps.total>0) g('scT').value=ps.total; if(ps.blindTried!=null)g('scB').value=ps.blindTried; }
   else g('scW').value=(triage.base||0)+n;
   refresh();
   g('scSave').onclick=()=>{
-    const c=val('scC'), w=val('scW'), sk=val('scS'), b=val('scB');
+    const c=val('scC'), w=val('scW'), b=val('scB'), P=paper(), att=(c||0)+(w||0);
     let score=null;
-    if(c!=null && w!=null){ score={c,w,s:sk!=null?sk:null,total:(c+w+(sk||0))||(isGT?200:null)}; if(b!=null) score.blindTried=b; }
+    if(c!=null && w!=null){
+      const total = P!=null ? Math.max(P,att) : (att+(val('scS')||0))||null;
+      /* skipped is whatever the paper had left over — inferred when you don't type it */
+      const sk = val('scS')!=null ? val('scS') : (total!=null?Math.max(0,total-att):null);
+      score={c,w,s:sk,total}; if(b!=null) score.blindTried=b;
+    }
     closeSheet(); saveSession(score); triage.done=true; renderTriage();
   };
   g('scSkip').onclick=()=>{ closeSheet(); saveSession(null); triage.done=true; renderTriage(); };
@@ -3066,7 +3114,10 @@ const EXAM_Q=200, EXAM_MAX=EXAM_Q*4;
 function scoreStats(sn){
   const k=sn&&sn.score; if(!k || k.c==null || k.w==null) return null;
   const c=Math.max(0,+k.c||0), w=Math.max(0,+k.w||0), att=c+w;
-  const total=(k.total&&k.total>0)?k.total : (att + (k.s>0?+k.s:0)) || att || 1;
+  /* the denominator can never be smaller than what you actually attempted — a mistyped or
+     legacy total used to sail through and print impossible scores like 150%. */
+  const claimed=(k.total&&k.total>0)?+k.total : (att + (k.s>0?+k.s:0)) || att || 1;
+  const total=Math.max(claimed, att, 1);
   const marks=4*c-w, maxMarks=4*total;
   /* pct of the maximum — the one number comparable across a 50-Q module and a 200-Q GT */
   const pct = maxMarks>0 ? marks/maxMarks : 0;
@@ -3353,20 +3404,41 @@ const DRILL_DIR={ up:{ar:'▲', word:'getting worse', c:'var(--rose)'}, down:{ar
 const SUBJ_HUES=['var(--accent)','var(--teal)','var(--violet)','var(--amber)']; /* validated categorical set + gaps + legend */
 /* ---- the vitals strip: your five headline numbers, first thing on the page ---- */
 function vitalsStrip(){
-  const scored=scopedSessions().filter(scoreStats).slice().sort((a,b)=>(a.ts||0)-(b.ts||0));
-  if(!scored.length) return '';
-  let R=0,W=0; scored.forEach(s=>{ R+=(+s.score.c||0); W+=(+s.score.w||0); });
+  const ss=scopedSessions();
+  if(!ss.length) return '';
+  const scored=ss.filter(scoreStats).slice().sort((a,b)=>(a.ts||0)-(b.ts||0));
+  const B=blindSpotStats();
+  const tile=(v,lab,cls,tap,cu)=>`<button class="vt ${cls||''}" data-vt="${tap}"><b${cu&&typeof v==='number'?` data-cu="${v}"`:''}>${v==null?'—':v}</b><span>${lab}</span></button>`;
+  /* sorted = mistakes you triaged; that is a different quantity from the wrongs on your score
+     sheet, so the two are never both called "wrong". */
+  const sorted=ss.reduce((n,s)=>n+s.items.length,0);
+  if(!scored.length){
+    /* no score sheets yet — the headline row still has to exist, so it reports what triage knows */
+    const cc={nm:0,nr:0}; ss.forEach(s=>{ const q=triageCounts(s.items); cc.nm+=q.nearMiss; cc.nr+=q.blindAttempt; });
+    return `<div class="vitals">
+      ${tile(sorted,'sorted','','trend',true)}
+      ${tile(B?B.live:0,'blind',B&&B.live?'bad':'good','blind',true)}
+      ${tile(cc.nm,'near-miss','','trend',true)}
+      ${tile(cc.nr,'no-read','','trend',true)}
+      ${tile(ss.length,'reads','','trend',true)}
+    </div><p class="vt-note">Enter correct / wrong when you save a read to unlock right, wrong and W ÷ R here.</p>`;
+  }
+  let R=0,W=0; scored.forEach(s=>{ const k=scoreStats(s); R+=Math.max(0,+s.score.c||0); W+=Math.max(0,+s.score.w||0); });
   const wr=R? (W/R) : null;
   const last=scoreStats(scored[scored.length-1]).pct100;
-  const B=blindSpotStats();
-  const tile=(v,lab,cls,tap,cu)=>`<button class="vt ${cls||''}" data-vt="${tap}"><b ${cu?`data-cu="${v}"`:''}>${v==null?'—':cu?v:v}</b><span>${lab}</span></button>`;
+  /* coverage: how much of what you got wrong you have actually sorted. A real gap is worth
+     saying out loud — an unsorted wrong is a fix you never made. */
+  const cov = W>0 ? Math.round(Math.min(1,sorted/W)*100) : null;
+  const note = (cov!=null && cov<85 && W>=10)
+    ? `<p class="vt-note">You have sorted <b>${sorted}</b> of <b>${W}</b> wrongs (${cov}%) — the mix below only speaks for the sorted ones.</p>`
+    : '';
   return `<div class="vitals">
     ${tile(R,'right','good','trend',true)}
     ${tile(W,'wrong','bad','trend',true)}
-    ${tile(wr!=null?wr.toFixed(2):null,'W ÷ R','','help')}
+    ${tile(wr!=null?wr.toFixed(2):null,'W ÷ R','','ratio')}
     ${tile(last+'%','last %','','trend')}
     ${tile(B?B.live:0,'blind',B&&B.live?'bad':'good','blind',true)}
-  </div>`;
+  </div>${note}`;
 }
 /* ---- the pulse row: drills + blind spots merged into one slim two-in-one strip ---- */
 function pulseCard(){
@@ -3415,6 +3487,9 @@ function drillsSheet(){
 }
 function saveSession(score){
   if(triage.saved) return;
+  /* a read with nothing in it and no score is not data — it would only dilute every average.
+     (An empty read WITH a score is legitimate: a paper you aced but still want on the trend.) */
+  if(!triage.items.length && !(score && score.c!=null && score.w!=null)) return;
   const items=triage.items.map(it=>{ const o={error:it.error, conf:it.conf||null, subj:it.subj||null}; if(it.img)o.img=true; if(it.uncertain)o.uncertain=true; if(it.noted)o.noted=true; return o; });
   /* batch reads: finishing the same set again within ~20 h continues THAT read instead of
      spawning a twin — you triage a GT in sittings, it is still one test */
@@ -3798,7 +3873,10 @@ function streamChart(sess){
     <text class="xlab faintlab" x="${X(i).toFixed(1)}" y="${H-5}" text-anchor="middle">${triageCounts(s.items).total}</text>`).join('');
   /* invisible full-height hit areas: tap any test column → that test's deep dive */
   const cw=(x1-x0)/(n-1);
-  const taps=sess.map((s,i)=>`<rect class="st-tap" data-stest="${esc(s.testType+'|'+s.set)}" x="${Math.max(0,X(i)-cw/2).toFixed(1)}" y="0" width="${cw.toFixed(1)}" height="${H}" fill="transparent"/>`).join('');
+  /* clamp each column to the chart box — the end columns used to hang off the edge, so part of
+     their tap zone sat outside the SVG and simply could not be hit */
+  const taps=sess.map((s,i)=>{ const L=Math.max(0,X(i)-cw/2), R=Math.min(W,X(i)+cw/2);
+    return `<rect class="st-tap" data-stest="${esc(s.testType+'|'+s.set)}" x="${L.toFixed(1)}" y="0" width="${Math.max(1,R-L).toFixed(1)}" height="${H}" fill="transparent"/>`;}).join('');
   return `<svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Mistake-type mix across tests — tap a test to open it">${bands}${grid}${dots}${labs}${taps}</svg>`;
 }
 /* one segmented bar = your mistake DNA, no four-bar clutter. Segments are tappable → the fix. */
@@ -4392,6 +4470,10 @@ const METRIC_HELP={
     is:'Percentage score, accuracy when you attempted, and wrongs per right. GTs and modules stay on separate lines.',
     why:'A rising score with a falling wrong-per-right means genuinely sharper, not just lucky.',
     do:'Toggle GTs / Modules; tap any point for its numbers.'},
+  ratio:{t:'Wrong for every right (W ÷ R)',
+    is:'Your wrong answers divided by your right ones. 0.25 means one wrong per four right.',
+    why:'On +4/−1 each wrong cancels a quarter of a right, so this — not your raw score — is what negative marking actually costs you. Falling means sharper, even if your total sits still.',
+    do:'Below ~0.30 is strong. If it climbs while your score holds, you are attempting looser, not knowing less.'},
   blindrate:{t:'Wrongs you never saw coming',
     is:'The share of wrongs you felt sure about — the ones re-reading can\'t catch.',
     why:'They repeat in the exam because your gut still says the wrong thing.',
@@ -4467,7 +4549,7 @@ function renderInsights(){
   /* vitals taps: numbers → glide to the score-trend card and flash it; blind → its loop; ratio → help */
   box.querySelectorAll('.vt').forEach(b=>b.onclick=()=>{ buzz(6); const k=b.dataset.vt;
     if(k==='blind'){ blindSpotSheet(); return; }
-    if(k==='help'){ metricHelp('scoretrend'); return; }
+    if(k==='ratio'){ metricHelp('ratio'); return; }
     const st=box.querySelector('.st-card'); if(st){ st.scrollIntoView({behavior:reducedMotion()?'auto':'smooth',block:'center'}); st.classList.remove('flash'); void st.offsetWidth; st.classList.add('flash'); }
   });
   box.querySelectorAll('.sc-chip[data-sc]').forEach(b=>b.onclick=()=>{ buzz(5); insScope=b.dataset.sc; renderInsights(); });
@@ -4697,11 +4779,13 @@ function mergeIncoming(data){
     if(sesAdded){ sessions.sort((a,b)=>(b.ts||0)-(a.ts||0)); sessions=sessions.slice(0,300); persistSessions(); }
   }
   /* v6 backups carry the plan — apply only if newer; a v5 file leaves the plan untouched */
-  let planApplied=false;
-  if(data && data.plan && typeof data.plan==='object' && (+data.plan._upd||0) > (plan._upd||0)){
-    plan=sanitizePlan(data.plan); persistPlan(); planApplied=true;
+  let planApplied=false, planSkipped=false;
+  if(data && data.plan && typeof data.plan==='object'){
+    if((+data.plan._upd||0) > (plan._upd||0)){ plan=sanitizePlan(data.plan); persistPlan(); planApplied=true; }
+    else if((data.plan.rows||[]).length) planSkipped=true; /* say so — a silent skip reads as data loss */
   }
-  if(!incoming.length && !sesAdded && !planApplied){toast('Nothing new in that backup');return}
+  if(!incoming.length && !sesAdded && !planApplied){
+    toast(planSkipped?'Nothing new — your plan here is newer, so it was kept':'Nothing new in that backup'); return; }
   const inPhotos=(data&&data.photos&&typeof data.photos==='object')?data.photos:{};
   const ids=new Set(entries.map(e=>e.id));let added=0;
   incoming.forEach(e=>{
@@ -4714,7 +4798,9 @@ function mergeIncoming(data){
   });
   entries.sort((a,b)=>(b.ts||0)-(a.ts||0));persist();render();
   const bits=[]; if(added)bits.push(added+' mistake'+(added>1?'s':'')); if(sesAdded)bits.push(sesAdded+' triage read'+(sesAdded>1?'s':''));
-  toast(bits.length?bits.join(' + ')+' added':'Nothing new to add');
+  if(planApplied) bits.push('the plan');
+  const tail=planSkipped?' · plan here is newer, kept':'';
+  toast((bits.length?bits.join(' + ')+' added':'Nothing new to add')+tail);
 }
 function importData(ev){
   const file=ev.target.files[0];if(!file)return;const r=new FileReader();
