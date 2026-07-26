@@ -199,6 +199,8 @@
   .btn.primary{background:var(--grad);color:#fff;border:1.5px solid var(--edge-dk);box-shadow:0 5px 0 0 var(--edge-dk),0 8px 16px -6px rgba(193,80,45,.5)}
   .btn.primary:active{top:4px;box-shadow:0 1px 0 0 var(--edge-dk),0 3px 8px -6px rgba(193,80,45,.5)}
   .btn.ghost{background:var(--surface);border:1.5px solid var(--edge);color:var(--ink);flex:0 0 auto;padding:14px 18px;box-shadow:0 4px 0 0 var(--edge)}
+  .btn.danger{background:var(--rose);border:1.5px solid var(--rose);color:#fff;box-shadow:0 4px 0 0 color-mix(in srgb,var(--rose) 70%,#000)}
+  .btn.danger:active{box-shadow:0 1px 0 0 color-mix(in srgb,var(--rose) 70%,#000)}
   .btn.ghost:active{top:4px;box-shadow:0 0 0 0 var(--edge)}
 
   .filters{display:flex;gap:7px;overflow-x:auto;margin:0 -16px;padding:2px 16px 12px;scrollbar-width:none}
@@ -1086,6 +1088,33 @@
   .stp input{flex:1;width:0;min-width:0;border:none;text-align:center;font-weight:800;font-size:16px;padding:10px 1px;outline:none;background:transparent;box-shadow:none}
   .stp input::placeholder{font-weight:600;font-size:14px;color:var(--faint)}
   .sc-warn{margin-top:10px;font-size:12px;color:var(--amber);font-weight:600;background:color-mix(in srgb,var(--amber) 10%,transparent);border-radius:10px;padding:8px 11px;line-height:1.45}
+  /* the two-way fork when a second account signs in on a device that already holds a ledger */
+  /* signed-in identity card */
+  .acc-card{display:flex;align-items:center;gap:14px;padding:16px;border-radius:18px;margin-bottom:9px;
+    border:1px solid color-mix(in srgb,var(--sage) 45%,transparent);
+    background:linear-gradient(150deg,color-mix(in srgb,var(--sage) 14%,var(--surface)),var(--surface));
+    box-shadow:0 2px 10px -6px rgba(90,60,35,.3)}
+  .acc-av{width:52px;height:52px;border-radius:50%;flex:none;object-fit:cover;
+    border:2px solid var(--surface);box-shadow:0 2px 8px -3px rgba(90,60,35,.45)}
+  .acc-ini{display:grid;place-items:center;font-size:22px;font-weight:850;color:#fff;
+    background:linear-gradient(150deg,var(--accent2),var(--accent))}
+  .acc-who{min-width:0;flex:1}
+  .acc-nm{font-size:17px;font-weight:800;letter-spacing:-.01em;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .acc-em{font-size:12.5px;color:var(--muted);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px}
+  .acc-badge{display:inline-flex;align-items:center;gap:6px;margin-top:7px;font-size:11px;font-weight:750;
+    color:var(--sage-ink);background:color-mix(in srgb,var(--sage) 18%,transparent);padding:4px 9px;border-radius:999px}
+  .acc-dot{width:6px;height:6px;border-radius:50%;background:var(--sage-ink);flex:none;animation:accPulse 2.4s ease-in-out infinite}
+  @keyframes accPulse{0%,100%{opacity:1}50%{opacity:.35}}
+  .acc-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:9px}
+  .acs{padding:11px 10px;border-radius:14px;background:var(--surface);border:1px solid var(--border2);text-align:center}
+  .acs b{display:block;font-size:19px;font-weight:850;letter-spacing:-.02em;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1}
+  .acs span{display:block;font-size:10px;font-weight:750;letter-spacing:.02em;text-transform:uppercase;color:var(--faint);margin-top:4px}
+  .acc-when{text-align:center;font-size:11.5px;font-weight:650;color:var(--faint);margin:-2px 0 11px}
+  @media(prefers-reduced-motion:reduce){ .acc-dot{animation:none} }
+  .acc-opts{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+  .acc-opt{display:block;width:100%;text-align:left;padding:14px 15px;height:auto;line-height:1.45}
+  .acc-opt b{display:block;font-size:15px;font-weight:800;color:var(--ink);margin-bottom:3px}
+  .acc-opt span{display:block;font-size:12.5px;font-weight:550;color:var(--muted)}
   /* the paper size: the denominator every % is scored against, stated instead of guessed */
   .sc-tot{display:flex;align-items:center;gap:12px;margin-top:12px;padding:10px 13px;border-radius:12px;background:var(--surface2)}
   .sc-tot label{flex:1;font-size:12.5px;font-weight:700;color:var(--ink2);line-height:1.3}
@@ -1526,7 +1555,7 @@ const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.st
 async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } try{return localStorage.getItem(k)}catch(_){return null} }
 async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v);return true}catch(e){return false} } try{localStorage.setItem(k,v);return true}catch(_){return false} }
 const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
-const APP_VERSION='v50'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
+const APP_VERSION='v51'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
 
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 
@@ -1580,6 +1609,23 @@ let photos={}; /* id -> dataURL, kept in IndexedDB */
 let tombstones={}; /* id -> deletedAt, for delete-safe cloud merge */
 let _grpCache=null; /* memoised recurrence groups, invalidated on every persist() */
 const K_TOMB='ml_tombstones_v1', K_FBCFG='ml_fbcfg_v1', K_DEV='ml_device_v1', K_SESS='ml_sessions_v1', K_PLAN='ml_plan_v1', K_LIVETRI='ml_livetri_v1';
+const K_OWNER='ml_owner_v1'; /* which Google account this device's data belongs to */
+
+/* ============================================================================
+   SHARED SIGN-IN  —  paste one firebaseConfig here and everybody who opens this
+   app gets one-tap Google sign-in with no setup of their own.
+
+   Each person's ledger lives at ledgers/<their Google uid> and the security rules
+   only let that account read or write it, so two people sharing this project can
+   never see each other's data. Shipping the config in the page is expected and
+   safe: a Firebase web config is a public project identifier, not a password —
+   access is decided by the rules plus who is signed in.
+
+   Leave it null and the app falls back to "bring your own Firebase project",
+   exactly as before. Setup steps: see SETUP.md next to this file.
+   ============================================================================ */
+const APP_FB_CFG = null; /* ← paste your firebaseConfig object here, e.g. {apiKey:"…", authDomain:"…", projectId:"…", appId:"…"} */
+function builtInCfg(){ const c=APP_FB_CFG; return (c && c.apiKey && c.projectId) ? c : null; }
 let fbApp=null, fbUser=null, fbUnsub=null, fbPushT=null, fbApplying=false, fbStatus='off', fbLastSync=0, fbError='';
 let fbLastPush=0, fbLastPull=0, fbRemoteCount=null, fbSyncing=false;
 let _idc=0; /* id counter, guarantees uniqueness within a session */
@@ -1718,6 +1764,16 @@ async function maybeSnapshot(){
     await idbSnapPut(String(Date.now()), JSON.stringify({ts:Date.now(), entries, sessions, plan, tombstones}));
     const all=(await idbSnapAll()).sort((a,b)=>+b.k-+a.k);
     for(const s of all.slice(3)) await idbSnapDel(s.k);
+  }catch(_){}
+}
+/* an on-demand snapshot taken before anything irreversible (switching accounts, switching
+   projects). Ignores the once-a-day rule — the whole point is that it happens right now. */
+async function forceSnapshot(){
+  try{
+    if(!entries.length && !sessions.length) return;
+    await idbSnapPut(String(Date.now()), JSON.stringify({ts:Date.now(), entries, sessions, plan, tombstones}));
+    const all=(await idbSnapAll()).sort((a,b)=>+b.k-+a.k);
+    for(const s of all.slice(4)) await idbSnapDel(s.k);
   }catch(_){}
 }
 async function snapSheet(){
@@ -5220,8 +5276,19 @@ function sanitizeSessions(arr){
   });
 }
 function loadSessions(){ try{ sessions=sanitizeSessions(JSON.parse(localStorage.getItem(K_SESS)||'[]')); }catch(_){} }
-function getFbCfg(){ try{const c=JSON.parse(localStorage.getItem(K_FBCFG)||'null'); return (c&&c.apiKey&&c.projectId)?c:null;}catch(_){return null} }
+/* your own pasted project always wins, so nobody already syncing gets moved without asking;
+   otherwise fall back to the shared project baked into the app */
+function ownFbCfg(){ try{const c=JSON.parse(localStorage.getItem(K_FBCFG)||'null'); return (c&&c.apiKey&&c.projectId)?c:null;}catch(_){return null} }
+function getFbCfg(){ return ownFbCfg() || builtInCfg(); }
+function usingBuiltIn(){ return !ownFbCfg() && !!builtInCfg(); }
 function setFbCfg(c){ try{localStorage.setItem(K_FBCFG,JSON.stringify(c))}catch(_){} }
+/* ---- which account owns the data sitting on this device ----
+   The one thing that must never happen when several people use the same app: one person's
+   ledger being merged into another person's account. So a device records whose data it holds,
+   and a sign-in by anyone else stops for an explicit decision instead of silently combining. */
+function getOwner(){ try{ return JSON.parse(localStorage.getItem(K_OWNER)||'null'); }catch(_){ return null; } }
+function setOwner(u){ try{ localStorage.setItem(K_OWNER, JSON.stringify(u?{uid:u.uid,email:u.email||'',name:u.displayName||'',ts:Date.now()}:null)); }catch(_){} }
+function localDataCount(){ return entries.length + sessions.length + Object.keys((plan&&plan.done)||{}).length; }
 
 /* pure, commutative, idempotent merge — never loses a created entry, honours deletes */
 function mergeLedger(a,b){
@@ -5307,11 +5374,47 @@ async function initSync(){
   }
   catch(e){ fbStatus='error'; fbError=(e&&e.message)||(''+e); renderCloudSync(); }
 }
+let fbPendingUser=null; /* signed in, but this device holds someone else's ledger — awaiting a decision */
 function onAuth(u){
-  fbUser=u||null;
-  if(fbUser){ fbStatus='on'; startDocSync(); }
-  else { fbStatus='signedout'; if(fbUnsub){try{fbUnsub()}catch(_){}} fbUnsub=null; }
+  if(!u){ fbUser=null; fbStatus='signedout'; if(fbUnsub){try{fbUnsub()}catch(_){}} fbUnsub=null; renderCloudSync(); return; }
+  const owner=getOwner();
+  /* somebody else's data is sitting on this device — never fold it into this account silently */
+  if(owner && owner.uid && owner.uid!==u.uid && localDataCount()>0){
+    fbUser=null; fbPendingUser=u; fbStatus='conflict'; renderCloudSync(); accountConflictSheet(u, owner); return;
+  }
+  fbUser=u; fbStatus='on';
+  if(!owner || owner.uid!==u.uid) setOwner(u); /* first sign-in here, or a clean device */
+  startDocSync();
   renderCloudSync();
+}
+/* the fork in the road when two people share one device or one app install */
+function accountConflictSheet(u, owner){
+  const who=esc(owner.email||owner.name||'another account'), now=esc(u.email||u.displayName||'this account');
+  openSheet(`<h3>Whose ledger is this?</h3>
+    <p>This device is holding <b>${who}</b>'s work — <b>${entries.length}</b> written fixes, <b>${sessions.length}</b> triage reads and <b>${Object.keys((plan&&plan.done)||{}).length}</b> plan ticks. You have just signed in as <b>${now}</b>.</p>
+    <p class="tlab">Nothing has been sent anywhere yet, and a full snapshot is saved on this device before either choice.</p>
+    <div class="acc-opts">
+      <button class="btn ghost acc-opt" id="accSeparate"><b>Keep them separate</b><span>Load ${now}'s own ledger. ${who}'s work stays safe in this device's snapshots and in their own account.</span></button>
+      <button class="btn ghost acc-opt" id="accMerge"><b>Combine into ${now}</b><span>Add everything on this device to ${now}'s ledger. Choose this only if both are you.</span></button>
+    </div>
+    <div class="actions" style="margin-top:14px"><button class="btn" id="accCancel">Sign out instead</button></div>`);
+  document.getElementById('accSeparate').onclick=()=>{ closeSheet(); adoptAccount(fbPendingUser,'replace'); };
+  document.getElementById('accMerge').onclick=()=>{ closeSheet(); adoptAccount(fbPendingUser,'merge'); };
+  document.getElementById('accCancel').onclick=async()=>{ closeSheet(); fbPendingUser=null; try{ await firebase.auth().signOut(); }catch(_){}; toast('Signed out — nothing was changed'); };
+}
+async function adoptAccount(u, mode){
+  if(!u) return;
+  await forceSnapshot(); /* last-ditch copy of exactly what was here before anything moves */
+  if(mode==='replace'){
+    /* this account's ledger only — the other person's data is not pushed anywhere, just parked
+       in the snapshot we took a line ago and still live in their own account */
+    entries=[]; sessions=[]; tombstones={}; plan=sanitizePlan({rows:PLAN_SEED,done:{},skims:{},_upd:0});
+    await persist(false); persistSessions(false); persistTombstones();
+    try{localStorage.setItem(K_PLAN,JSON.stringify(plan))}catch(_){}
+  }
+  fbPendingUser=null; fbUser=u; setOwner(u); fbStatus='on';
+  memoClear(); render(); startDocSync(); renderCloudSync();
+  toast(mode==='replace'?'Loaded this account’s ledger — the other is safe in Snapshots':'Combined into this account');
 }
 function authHint(e){
   const c=(e&&e.code)||'';
@@ -5345,7 +5448,22 @@ async function signInCloud(){
     } else if(c!=='auth/popup-closed-by-user'){ fbError=authHint(e); renderCloudSync(); toast('Sign-in failed — see Data screen'); }
   }
 }
-async function signOutCloud(){ try{ if(fbUnsub){fbUnsub();fbUnsub=null} await firebase.auth().signOut(); }catch(_){} fbLastSync=fbLastPush=fbLastPull=0; fbRemoteCount=null; toast('Signed out of sync'); }
+async function signOutCloud(){
+  try{ if(fbUnsub){fbUnsub();fbUnsub=null} await firebase.auth().signOut(); }catch(_){}
+  fbLastSync=fbLastPush=fbLastPull=0; fbRemoteCount=null; toast('Signed out of sync');
+}
+/* handing the phone to someone else: clear the ledger AND the owner mark, after a snapshot,
+   so the next person starts clean instead of inheriting your data */
+async function signOutAndClear(){
+  await forceSnapshot();
+  try{ if(fbUnsub){fbUnsub();fbUnsub=null} await firebase.auth().signOut(); }catch(_){}
+  entries=[]; sessions=[]; tombstones={}; plan=sanitizePlan({rows:PLAN_SEED,done:{},skims:{},_upd:0});
+  await persist(false); persistSessions(false); persistTombstones();
+  try{localStorage.setItem(K_PLAN,JSON.stringify(plan))}catch(_){}
+  setOwner(null); fbUser=null; fbStatus='signedout'; fbLastSync=fbLastPush=fbLastPull=0; fbRemoteCount=null;
+  memoClear(); render(); renderCloudSync();
+  toast('Signed out and cleared — your copy is in Snapshots and in your account');
+}
 function docRef(){ return firebase.firestore().collection('ledgers').doc(fbUser.uid); }
 /* turn a Firestore error into plain-English guidance the user can act on */
 function fsHint(e){
@@ -5458,27 +5576,46 @@ function renderCloudSync(){
   if(fbStatus==='on' && fbUser){
     const errLine = fbError ? `<div class="dd" style="color:var(--rose);margin-top:2px">${esc(fbError)}</div>` : '';
     const cloudN = fbRemoteCount==null?'—':fbRemoteCount;
-    html=`<div class="databtn" style="cursor:default;border-color:color-mix(in srgb,var(--sage) 55%,transparent);background:linear-gradient(180deg,var(--sage-soft),var(--surface))">
-      <svg class="ic" viewBox="0 0 24 24" style="stroke:var(--sage-ink)"><path d="M22 11.1V12a10 10 0 1 1-5.9-9.1"/><path d="M22 4L12 14.01l-3-3"/></svg>
-      <div><div class="tt">Synced with Google</div><div class="dd">${esc(fbUser.email||fbUser.displayName||'signed in')}</div>
-      <div class="dd" style="margin-top:2px">${cloudN} in cloud · ${entries.length} here · sent ${rel(fbLastPush)} · received ${rel(fbLastPull)}</div>${errLine}</div></div>
+    /* the account card: a real identity, not a status line — this is the face of sync now */
+    const nm=fbUser.displayName||'', em=fbUser.email||'', pic=fbUser.photoURL||'';
+    const initial=esc((nm||em||'?').trim().charAt(0).toUpperCase());
+    const av = pic ? `<img class="acc-av" src="${esc(pic)}" alt="" referrerpolicy="no-referrer">`
+                   : `<span class="acc-av acc-ini">${initial}</span>`;
+    html=`<div class="acc-card">
+      ${av}
+      <div class="acc-who"><div class="acc-nm">${esc(nm||em||'Signed in')}</div>${nm&&em?`<div class="acc-em">${esc(em)}</div>`:''}
+        <div class="acc-badge"><span class="acc-dot"></span>Private to you · synced ${rel(fbLastPull)}</div></div>
+    </div>
+    <div class="acc-stats">
+      <div class="acs"><b>${cloudN}</b> <span>in cloud</span></div>
+      <div class="acs"><b>${entries.length}</b> <span>here</span></div>
+      <div class="acs"><b>${sessions.length}</b> <span>reads</span></div>
+    </div>
+    <div class="acc-when">sent ${rel(fbLastPush)} · received ${rel(fbLastPull)}</div>${errLine?`<div class="databtn" style="cursor:default">${errLine}</div>`:''}
       <button class="databtn sync" id="cloudSyncNow" ${fbSyncing?'disabled style="opacity:.6"':''}><svg class="ic" viewBox="0 0 24 24"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.5 9a9 9 0 0 1 14.9-3.4L23 10M1 14l4.6 4.4A9 9 0 0 0 20.5 15"/></svg>
       <div><div class="tt">${fbSyncing?'Syncing…':'Sync now'}</div><div class="dd">Pull the latest and push your changes right away.</div></div></button>
       <button class="databtn" id="cloudSignOut"><svg class="ic" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
-      <div><div class="tt">Sign out</div><div class="dd">Stops sync here. Your mistakes stay on this device.</div></div></button>`;
-  } else if(getFbCfg()){
+      <div><div class="tt">Sign out</div><div class="dd">Stops sync here. Your mistakes stay on this device.</div></div></button>
+      <button class="databtn" id="cloudHandOver"><svg class="ic" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>
+      <div><div class="tt">Sign out &amp; clear this device</div><div class="dd">For lending the phone to someone else. Snapshots first; your ledger stays in your account.</div></div></button>`;
+  } else if(fbStatus==='conflict'){
+    const o=getOwner()||{};
+    html=`<div class="databtn" style="cursor:default;border-color:color-mix(in srgb,var(--amber) 55%,transparent);background:color-mix(in srgb,var(--amber) 8%,var(--surface))">
+      <svg class="ic" viewBox="0 0 24 24" style="stroke:var(--amber)"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+      <div><div class="tt">Waiting on your choice</div><div class="dd">This device holds ${esc(o.email||o.name||'another account')}'s ledger. Nothing is syncing until you decide.</div></div></div>
+      <button class="databtn sync" id="cloudResolve"><div><div class="tt">Choose what to do ›</div><div class="dd">Keep them separate, or combine.</div></div></button>`;
+  } else {
     const busy=fbStatus==='loading';
-    /* config is already here, so this is a one-tap return — say so, and say that nothing was lost */
     const back = fbStatus==='signedout';
+    const zero = usingBuiltIn();
+    /* with a shared project baked in there is nothing to set up — it is one tap, always */
     html=`<button class="databtn sync" id="cloudSignIn" ${busy?'disabled style="opacity:.6"':''}>
       <svg class="ic" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg>
-      <div><div class="tt">${busy?'Connecting…':back?'Sign back in with Google':'Sign in with Google'}</div><div class="dd">${fbError?'<span style=\'color:var(--rose)\'>'+esc(fbError)+'</span>':back?'One tap — your project is still set up here, and nothing on this device was lost.':'Turn on live sync across your devices.'}</div></div><span class="arrow">›</span></button>
+      <div><div class="tt">${busy?'Connecting…':back?'Sign back in with Google':'Sign in with Google'}</div><div class="dd">${fbError?'<span style=\'color:var(--rose)\'>'+esc(fbError)+'</span>':back?'One tap — nothing on this device was lost.':zero?'One tap. Your ledger syncs across your phone and tablet, and only you can see it.':'Turn on live sync across your devices.'}</div></div><span class="arrow">›</span></button>
+      ${zero?`<button class="databtn" id="cloudPrivacy"><svg class="ic" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <div><div class="tt">Who can see my data?</div><div class="dd">Only you. Here is exactly how that works.</div></div></button>`:''}
       <button class="databtn" id="cloudReconfig"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2V21a2 2 0 1 1-4 0v-.1A1.7 1.7 0 0 0 7 19.4l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0-1.2-2.9H3a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.6 7l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.7 1.7 0 0 0 10 4.6V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 2.9 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0 1.2 2.9H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
-      <div><div class="tt">Sync settings</div><div class="dd">Change or remove the project config.</div></div></button>`;
-  } else {
-    html=`<button class="databtn sync" id="cloudSetup">
-      <svg class="ic" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg>
-      <div><div class="tt">Set up Google sync</div><div class="dd">Live cross-device sync via your own free Google project. ~10 min, one time. Text syncs; photos stay per-device.</div></div><span class="arrow">›</span></button>`;
+      <div><div class="tt">${zero?'Advanced — use my own project':'Sync settings'}</div><div class="dd">${zero?'Only if you want your data in a Firebase project you own.':'Change or remove the project config.'}</div></div></button>`;
   }
   box.innerHTML=html;
   const g=id=>document.getElementById(id);
@@ -5487,11 +5624,29 @@ function renderCloudSync(){
   if(g('cloudSignIn')) g('cloudSignIn').onclick=signInCloud;
   if(g('cloudSyncNow')) g('cloudSyncNow').onclick=syncNow;
   if(g('cloudSignOut')) g('cloudSignOut').onclick=signOutCloud;
+  if(g('cloudPrivacy')) g('cloudPrivacy').onclick=privacySheet;
+  if(g('cloudResolve')) g('cloudResolve').onclick=()=>{ if(fbPendingUser) accountConflictSheet(fbPendingUser, getOwner()||{}); };
+  if(g('cloudHandOver')) g('cloudHandOver').onclick=()=>{
+    openSheet(`<h3>Clear this device?</h3>
+      <p>Your ledger stays in your Google account and in this device's snapshots — this just wipes what is stored here so someone else can sign in fresh.</p>
+      <div class="actions" style="margin-top:14px"><button class="btn danger" id="hoGo">Snapshot &amp; clear</button><button class="btn ghost" onclick="closeSheet()">Cancel</button></div>`);
+    document.getElementById('hoGo').onclick=async()=>{ closeSheet(); await signOutAndClear(); };
+  };
+}
+function privacySheet(){
+  openSheet(`<h3>Who can see your data</h3>
+    <p><b>Only you.</b> Signing in with Google gives your ledger a private drawer that is locked to your account.</p>
+    <div class="mh-row"><span class="mh-k">Where it lives</span><span class="mh-v">A database this app owns, in one document keyed to your Google account.</span></div>
+    <div class="mh-row"><span class="mh-k">Who can open it</span><span class="mh-v">Only someone signed in as you. Everyone else — including other people using this app — is refused by the server, not just hidden in the interface.</span></div>
+    <div class="mh-row"><span class="mh-k">What is stored</span><span class="mh-v">Your mistakes, triage reads and plan. Photos never leave the device they were taken on.</span></div>
+    <div class="mh-row"><span class="mh-k">Leaving</span><span class="mh-v">Export a backup any time from this screen. Sign out and the device keeps working offline.</span></div>
+    <div class="actions" style="margin-top:14px"><button class="btn primary" onclick="closeSheet()">Got it</button></div>`);
 }
 function cloudSetupSheet(){
-  const cur=getFbCfg();
+  const cur=ownFbCfg();
   const rules="rules_version = '2';\nservice cloud.firestore {\n  match /databases/{db}/documents {\n    match /ledgers/{uid} {\n      allow read, write: if request.auth != null && request.auth.uid == uid;\n    }\n  }\n}";
-  openSheet(`<h3>Set up Google sync</h3>
+  openSheet(`<h3>${builtInCfg()?'Use your own Firebase project':'Set up Google sync'}</h3>
+    ${builtInCfg()?`<p class="tlab">You don't need any of this — <b>Sign in with Google</b> already works and keeps your data private to your account. This is only for people who want the database in a project they own.</p>`:''}
     <p>One time, ~10 min. It uses <b>your own</b> free Firebase project, so your data lives in <b>your</b> Google account — never mine.</p>
     <ol class="steps">
       <li><b>console.firebase.google.com</b> → <b>Add project</b> (any name) → you can skip Analytics → Create.</li>
@@ -5530,7 +5685,18 @@ function cloudSetupSheet(){
     setFbCfg(clean); fbApp=null; closeSheet(); toast('Config saved — now tap Sign in with Google'); initSync();
   };
   const clr=document.getElementById('fbCfgClear');
-  if(clr) clr.onclick=async()=>{ try{localStorage.removeItem(K_FBCFG)}catch(_){}; try{if(fbUser)await firebase.auth().signOut()}catch(_){}; fbApp=null;fbUser=null;fbStatus='off';fbLastSync=0; closeSheet(); renderCloudSync(); toast('Sync removed'); };
+  if(clr) clr.onclick=async()=>{
+    /* dropping your own project falls back to the shared one. Snapshot first: the data on this
+       device is about to point at a different cloud drawer. */
+    await forceSnapshot();
+    try{localStorage.removeItem(K_FBCFG)}catch(_){}
+    try{if(fbUser)await firebase.auth().signOut()}catch(_){}
+    setOwner(null); /* a different project means different account ids — start the ownership mark over */
+    fbApp=null;fbUser=null;fbStatus=builtInCfg()?'signedout':'off';fbLastSync=0;
+    closeSheet(); renderCloudSync();
+    toast(builtInCfg()?'Switched to the shared project — tap Sign in with Google':'Sync removed');
+    if(builtInCfg()) initSync();
+  };
 }
 
 boot();
