@@ -1154,6 +1154,34 @@
   .riv-big b{display:block;font-size:22px;font-weight:850;letter-spacing:-.03em;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1}
   .riv-big span{display:block;font-size:9.5px;font-weight:750;text-transform:uppercase;letter-spacing:.03em;color:var(--faint);margin-top:3px}
   .riv-foot{margin-top:14px}
+  /* trajectory */
+  .rvt{width:100%;height:auto;display:block;overflow:visible;margin-top:2px}
+  .rvt path{stroke-dasharray:600;stroke-dashoffset:600;animation:rvDraw 1.1s var(--ease) forwards}
+  .rvt path[fill]:not([fill="none"]){stroke-dasharray:none;stroke-dashoffset:0;animation:rvFade .8s var(--ease) forwards}
+  @keyframes rvDraw{to{stroke-dashoffset:0}}
+  @keyframes rvFade{from{opacity:0}to{opacity:.10}}
+  .rvt circle{opacity:0;animation:rvPop .4s var(--spring) .55s forwards}
+  @keyframes rvPop{to{opacity:1}}
+  .rvt-lab{font-size:9.5px;font-weight:800;letter-spacing:.01em}
+  .rvt-scale{display:flex;justify-content:space-between;font-size:10px;font-weight:700;color:var(--faint);margin-top:-4px}
+  .rvm{margin-top:12px;padding-top:11px;border-top:1px solid var(--edge)}
+  .rvm-row{display:flex;align-items:baseline;gap:9px;padding:4px 0;font-size:12.5px}
+  .rvm-nm{flex:none;min-width:5.5ch;font-weight:800;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:9ch}
+  .rvm-v{flex:none;font-size:15px;font-weight:850;font-variant-numeric:tabular-nums}
+  .rvm-v i{font-size:10px;font-style:normal;font-weight:700;opacity:.75;margin-left:2px}
+  .rvm-v.up{color:var(--sage-ink)} .rvm-v.dn{color:var(--rose)} .rvm-v.fl{color:var(--muted)}
+  .rvm-d{flex:1;text-align:right;font-size:11.5px;color:var(--muted);font-weight:600}
+  .rvm-none{display:block;padding:4px 0;font-size:12px;color:var(--faint);font-weight:600}
+  .rvm-say{margin-top:9px}
+  /* radar */
+  .rvr{width:176px;height:176px;display:block;margin:6px auto 2px;overflow:visible}
+  .rvr-sh{transform-origin:88px 88px;transform:scale(.72);opacity:0;animation:rvGrow .7s var(--spring) forwards}
+  @keyframes rvGrow{to{transform:scale(1);opacity:1}}
+  .rvr-lab{font-size:9px;font-weight:800;fill:var(--faint);letter-spacing:.02em}
+  .rvr-keys{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 16px;margin-top:8px}
+  .rvr-k{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--ink2)}
+  .rvr-k i{width:10px;height:10px;border-radius:3px}
+  @media(prefers-reduced-motion:reduce){ .rvt path,.rvt circle,.rvr-sh{animation:none;stroke-dashoffset:0;opacity:1;transform:none} }
   /* head-to-head */
   .card.duel{background:linear-gradient(160deg,color-mix(in srgb,var(--accent) 7%,var(--surface)),var(--surface))}
   .dl-heads{display:flex;align-items:center;gap:10px;margin-bottom:16px}
@@ -1640,7 +1668,7 @@ const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.st
 async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } try{return localStorage.getItem(k)}catch(_){return null} }
 async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v);return true}catch(e){return false} } try{localStorage.setItem(k,v);return true}catch(_){return false} }
 const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
-const APP_VERSION='v58'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
+const APP_VERSION='v59'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
 
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 
@@ -4798,10 +4826,12 @@ function renderRivals(){
   }
   const all=[me,...others].filter(Boolean);
   /* two people is the common case and deserves a real head-to-head, not a list of one row */
+  const traj = me ? rivTrajectory(me, others[0]) : '';
+  const radar = rivRadar(all);
   const duel = (all.length===2 && me) ? rivDuel(me, others[0]) : '';
   const board = rivBoard(all, me);
-  const bars = me ? rivBars(all, me) : '';
-  box.innerHTML=head+duel+board+bars+
+  const bars = (all.length>2 && me) ? rivBars(all, me) : '';
+  box.innerHTML=head+traj+radar+duel+board+bars+
     `<p class="tlab riv-foot">Only aggregate numbers are shared — never a single mistake, concept or note. <button class="linkish" id="rivWhat">What exactly? ›</button></p>
      <div class="actions" style="margin-top:12px"><button class="btn ghost" id="rivLeave">Leave group</button></div>`;
   bindRivals();
@@ -4832,6 +4862,120 @@ function rivDuel(a,b){
       <div class="dl-who b">${rivAvatar(b)}<span>${esc(b.name)}</span>${spark(b,'var(--violet)')}</div>
     </div>
     ${rows}</div>`;
+}
+/* ---- real maths on the shared series, no invention ----
+   Each row carries that person's last 8 GT percentages. That is enough for an honest
+   least-squares trend (points per test), a spread around it, and a projection — the same
+   shapes the solo Insights engine uses, just applied to two people at once. */
+function rivTrend(m){
+  const s=(m.series||[]).filter(v=>typeof v==='number');
+  if(s.length<3) return null;
+  const f=linReg(s.map((y,x)=>({x,y})));
+  if(!f) return null;
+  /* spread of the points around the fitted line = how steady they are, test to test */
+  const resid=s.map((y,x)=>y-(f.m*x+f.b));
+  const sd=Math.sqrt(resid.reduce((a,e)=>a+e*e,0)/Math.max(1,resid.length-1));
+  return { slope:f.m, n:s.length, sd, last:s[s.length-1], series:s };
+}
+/* both trajectories on one chart, with the gap between them shaded — the single most honest
+   comparison there is: are they converging, or pulling apart? */
+function rivTrajectory(a,b){
+  const A=(a.series||[]).filter(v=>typeof v==='number'), B=(b?b.series||[]:[]).filter(v=>typeof v==='number');
+  if(A.length<2 && B.length<2) return '';
+  const W=320,H=118,PL=8,PR=8,PT=10,PB=18;
+  const n=Math.max(A.length,B.length);
+  const all=A.concat(B); const lo=Math.min(...all), hi=Math.max(...all);
+  const pad=Math.max(3,(hi-lo)*0.18), Y0=Math.max(0,lo-pad), Y1=Math.min(100,hi+pad)||1;
+  /* right-align both series so the newest test of each sits at the right edge */
+  const X=(i,len)=>PL+((i+(n-len))/(n-1||1))*(W-PL-PR);
+  const Y=v=>H-PB-((v-Y0)/((Y1-Y0)||1))*(H-PT-PB);
+  const pts=(S)=>S.map((v,i)=>({x:X(i,S.length),y:Y(v)}));
+  const line=(S,c,w)=>S.length<2?'':`<path d="${smoothPath(pts(S))}" fill="none" stroke="${c}" stroke-width="${w||2.4}" stroke-linecap="round" stroke-linejoin="round"/>`;
+  const dots=(S,c)=>pts(S).map((p,i)=>`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${i===S.length-1?3.6:2.2}" fill="${c}"/>`).join('');
+  /* the band between the two, only where both have a point */
+  let band='';
+  if(A.length>1 && B.length>1){
+    const k=Math.min(A.length,B.length);
+    const pa=pts(A).slice(-k), pb=pts(B).slice(-k);
+    band=`<path d="${areaBand(pa,pb.slice().reverse())}" fill="var(--accent)" opacity=".10"/>`;
+  }
+  /* both end labels sit at the right edge, so when the two finish on similar scores they land on
+     top of each other — push them apart, higher score above */
+  const endY={};
+  if(A.length&&B.length){
+    const ya=Y(A[A.length-1]), yb=Y(B[B.length-1]);
+    if(Math.abs(ya-yb)<13){ const aUp=ya<=yb; endY.A=aUp?Math.min(ya,yb)-7:Math.max(ya,yb)+7; endY.B=aUp?Math.max(ya,yb)+7:Math.min(ya,yb)-7; }
+  }
+  const endLab=(S,c,nm,key)=>{ if(!S.length) return '';
+    const p=pts(S)[S.length-1];
+    const y=Math.max(9,Math.min(H-4,(endY[key]!=null?endY[key]:p.y-7)));
+    return `<text x="${(W-2).toFixed(1)}" y="${y.toFixed(1)}" class="rvt-lab" fill="${c}" text-anchor="end">${esc(nm)} ${S[S.length-1]}%</text>`; };
+  return `<div class="card"><h3><span class="accent"></span>Trajectory <span class="h3-hint">test by test</span></h3>
+    <svg class="rvt" viewBox="0 0 ${W} ${H}" role="img" aria-label="both score trends">
+      ${band}
+      ${line(B,'var(--violet)')}${line(A,'var(--accent)')}
+      ${dots(B,'var(--violet)')}${dots(A,'var(--accent)')}
+      ${endLab(B,'var(--violet)',(b&&b.name||'').split(' ')[0],'B')}${endLab(A,'var(--accent)',(a.name||'').split(' ')[0],'A')}
+    </svg>
+    <div class="rvt-scale"><span>${Math.round(Y0)}%</span><span>${Math.round(Y1)}%</span></div>
+    ${rivMomentum(a,b)}</div>`;
+}
+/* who is actually moving, and how fast — least squares, stated with its own uncertainty */
+function rivMomentum(a,b){
+  const ta=rivTrend(a), tb=b?rivTrend(b):null;
+  const say=(t,m)=>{
+    if(!t) return `<span class="rvm-none">${esc((m.name||'').split(' ')[0])} — ${(m.series||[]).length||0} test${((m.series||[]).length===1)?'':'s'}, need 3 to read a trend</span>`;
+    const dir=t.slope>0.4?'climbing':t.slope<-0.4?'slipping':'flat';
+    const cls=t.slope>0.4?'up':t.slope<-0.4?'dn':'fl';
+    return `<div class="rvm-row"><span class="rvm-nm">${esc((m.name||'').split(' ')[0])}</span>
+      <span class="rvm-v ${cls}">${t.slope>0?'+':''}${t.slope.toFixed(1)}<i>% / test</i></span>
+      <span class="rvm-d">${dir} · ±${t.sd.toFixed(1)} swing</span></div>`;
+  };
+  let verdict='';
+  if(ta&&tb){
+    const gap=(a.last||0)-(b.last||0), close=ta.slope-tb.slope;
+    if(Math.abs(gap)<=1.5) verdict='Neck and neck right now.';
+    else { const ahead=gap>0?a:b, behind=gap>0?b:a, catchUp=gap>0?-close:close;
+      verdict=`${esc((ahead.name||'').split(' ')[0])} leads by ${Math.abs(Math.round(gap))} points`;
+      /* only claim a catch-up when the trend difference actually closes the gap */
+      if(catchUp>0.4){ const tests=Math.ceil(Math.abs(gap)/Math.abs(close));
+        verdict+=`, but ${esc((behind.name||'').split(' ')[0])} is gaining ${Math.abs(close).toFixed(1)}/test — level in about ${tests} test${tests===1?'':'s'} at this rate.`; }
+      else verdict+='.';
+    }
+  }
+  return `<div class="rvm">${say(ta,a)}${tb?say(tb,b):''}${verdict?`<p class="tlab rvm-say">${verdict}</p>`:''}</div>`;
+}
+/* the shape of each person across all six measures at once — normalised to the group's best on
+   every axis, so it reads as "where am I strong", not as a single fake score */
+function rivRadar(all){
+  if(all.length<2) return '';
+  const AX=RIV_METRICS;
+  const norm=(m,d)=>{
+    const vals=all.map(x=>x[d.k]).filter(v=>v!=null);
+    if(!vals.length || m[d.k]==null) return 0;
+    const best=d.hi?Math.max(...vals):Math.min(...vals);
+    const worst=d.hi?Math.min(...vals):Math.max(...vals);
+    if(best===worst) return 1;
+    /* 0.25 floor so a full-but-behind axis is still visible as a shape */
+    return 0.25+0.75*Math.abs(m[d.k]-worst)/Math.abs(best-worst);
+  };
+  const C=88,R=62;
+  const pt=(i,r)=>{ const ang=-Math.PI/2+i*2*Math.PI/AX.length;
+    return [C+Math.cos(ang)*r, C+Math.sin(ang)*r]; };
+  const grid=[0.33,0.66,1].map(f=>`<polygon points="${AX.map((_,i)=>pt(i,R*f).map(v=>v.toFixed(1)).join(',')).join(' ')}" fill="none" stroke="var(--border)" stroke-width="1"/>`).join('');
+  const spokes=AX.map((_,i)=>{ const [x,y]=pt(i,R); return `<line x1="${C}" y1="${C}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="var(--border)" stroke-width="1"/>`; }).join('');
+  const COL=['var(--accent)','var(--violet)','var(--teal)','var(--amber)'];
+  const shapes=all.slice(0,4).map((m,mi)=>{
+    const p=AX.map((d,i)=>pt(i,R*norm(m,d)).map(v=>v.toFixed(1)).join(',')).join(' ');
+    return `<polygon class="rvr-sh" points="${p}" fill="${COL[mi]}" fill-opacity=".16" stroke="${COL[mi]}" stroke-width="2" stroke-linejoin="round" style="animation-delay:${mi*110}ms"/>`;
+  }).join('');
+  const labs=AX.map((d,i)=>{ const [x,y]=pt(i,R+13);
+    return `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" class="rvr-lab" text-anchor="${x<C-6?'end':x>C+6?'start':'middle'}" dominant-baseline="middle">${esc(d.t.split(' ')[0])}</text>`; }).join('');
+  const key=all.slice(0,4).map((m,i)=>`<span class="rvr-k"><i style="background:${COL[i]}"></i>${esc((m.name||'').split(' ')[0])}</span>`).join('');
+  return `<div class="card"><h3><span class="accent"></span>Shape of each of you <span class="h3-hint">best on each line = full</span></h3>
+    <svg class="rvr" viewBox="0 0 176 176" role="img" aria-label="six-way comparison">${grid}${spokes}${shapes}${labs}</svg>
+    <div class="rvr-keys">${key}</div>
+    <p class="tlab" style="margin-top:8px">Each spoke is scaled to whoever is best at it in this group — a full reach means top of the group on that line, not a perfect score.</p></div>`;
 }
 /* the ranked board — ordered by latest GT, because that is the number that decides the exam */
 function rivBoard(all,me){
