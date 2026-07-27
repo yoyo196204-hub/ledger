@@ -1174,8 +1174,48 @@
   .rvm-none{display:block;padding:4px 0;font-size:12px;color:var(--faint);font-weight:600}
   .rvm-say{margin-top:9px}
   /* radar */
-  .rvr{width:176px;height:176px;display:block;margin:6px auto 2px;overflow:visible}
-  .rvr-sh{transform-origin:88px 88px;transform:scale(.72);opacity:0;animation:rvGrow .7s var(--spring) forwards}
+  /* ===== app-wide motion: one system, every screen =====
+     A view arriving settles into place; the cards inside it land in sequence rather than
+     appearing all at once; anything tappable answers the finger immediately. */
+  .view.on{animation:viewIn .34s cubic-bezier(.22,1,.36,1) both}
+  @keyframes viewIn{from{opacity:0;transform:translateY(9px) scale(.994)}to{opacity:1;transform:none}}
+  .view.on .card,.view.on .databtn,.view.on .riv-head,.view.on .vitals,.view.on .th-dash,
+  .view.on .pl-week,.view.on .th-card,.view.on .acc-card,.view.on .acc-stats{
+    animation:cardIn .42s cubic-bezier(.22,1,.36,1) both}
+  @keyframes cardIn{from{opacity:0;transform:translateY(13px)}to{opacity:1;transform:none}}
+  .view.on > *:nth-child(2){animation-delay:.03s}
+  .view.on > *:nth-child(3){animation-delay:.06s}
+  .view.on > *:nth-child(4){animation-delay:.09s}
+  .view.on #insightsBody > *:nth-child(-n+8){animation:cardIn .42s cubic-bezier(.22,1,.36,1) both}
+  .view.on #insightsBody > *:nth-child(2){animation-delay:.05s}
+  .view.on #insightsBody > *:nth-child(3){animation-delay:.10s}
+  .view.on #insightsBody > *:nth-child(4){animation-delay:.15s}
+  .view.on #insightsBody > *:nth-child(5){animation-delay:.19s}
+  .view.on #insightsBody > *:nth-child(6){animation-delay:.22s}
+  .view.on #insightsBody > *:nth-child(n+7){animation-delay:.25s}
+  .view.on #rivalsBody > *{animation:cardIn .44s cubic-bezier(.22,1,.36,1) both}
+  .view.on #rivalsBody > *:nth-child(2){animation-delay:.07s}
+  .view.on #rivalsBody > *:nth-child(3){animation-delay:.14s}
+  .view.on #rivalsBody > *:nth-child(n+4){animation-delay:.20s}
+  /* press physics: everything tappable dips under the finger and springs back */
+  .card,.databtn,.riv-row,.ses-row,.pl-row,.wk-row,.vt,.thd,.acs,.tab{
+    -webkit-tap-highlight-color:transparent}
+  .databtn,.riv-row.me,.vt,.thd,.acs,.rec-chip,.dr-leg,.mx-key,.bs-sub,.chip{
+    transition:transform .18s cubic-bezier(.34,1.56,.64,1),box-shadow .18s,border-color .18s,background .18s}
+  .databtn:active{transform:scale(.975)}
+  .ses-row.tap:active,.pl-row:active,.wk-row:active{transform:scale(.985)}
+  .tab{transition:transform .2s cubic-bezier(.34,1.56,.64,1),color .15s}
+  .tab:active{transform:scale(.9)}
+  .tab.on svg{animation:tabPop .34s cubic-bezier(.34,1.56,.64,1)}
+  @keyframes tabPop{40%{transform:translateY(-3px) scale(1.12)}}
+  @media(prefers-reduced-motion:reduce){
+    .view.on,.view.on .card,.view.on .databtn,.view.on #insightsBody > *,.view.on #rivalsBody > *,
+    .view.on .vitals,.view.on .th-dash,.view.on .th-card,.view.on .acc-card,.view.on .acc-stats,
+    .tab.on svg{animation:none}
+  }
+  .rvr{width:208px;height:208px;display:block;margin:6px auto 2px;overflow:visible}
+  .rvr-note{margin-top:8px}
+  .rvr-sh{transform-origin:104px 104px;transform:scale(.72);opacity:0;animation:rvGrow .7s var(--spring) forwards}
   @keyframes rvGrow{to{transform:scale(1);opacity:1}}
   .rvr-lab{font-size:9px;font-weight:800;fill:var(--faint);letter-spacing:.02em}
   .rvr-keys{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 16px;margin-top:8px}
@@ -1668,7 +1708,7 @@ const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.st
 async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } try{return localStorage.getItem(k)}catch(_){return null} }
 async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v);return true}catch(e){return false} } try{localStorage.setItem(k,v);return true}catch(_){return false} }
 const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
-const APP_VERSION='v59'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
+const APP_VERSION='v60'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
 
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 
@@ -4804,7 +4844,7 @@ function renderRivals(){
     box.innerHTML=`<div class="riv-empty"><div class="riv-emoji">🏁</div>
       <h3>Start a group</h3>
       <p>Create one and share the code, or paste a code you were given. Only the people with that code see each other.</p>
-      <div class="riv-what"><b>What gets shared</b><span>Your name and picture, your GT percentages, wrong-per-right, day streak, how many mistakes you have sorted, and how many blind spots you have handled. <b>Never</b> the mistakes themselves — no concepts, no subjects, no notes.</span></div>
+      <div class="riv-what"><b>What gets shared</b><span>Your name and picture, your GT percentages, wrong-per-right, day streak, mistakes sorted, blind spots handled, and which <b>subjects</b> your wrongs fall in (as percentages). <b>Never</b> the mistakes themselves — no concepts, no notes, no photos.</span></div>
       <div class="actions" style="margin-top:16px"><button class="btn primary" id="rivNew">Create a group</button></div>
       <div class="sp-lab" style="margin-top:18px">or join one</div>
       <div class="sp-custom"><input type="text" id="rivCode" placeholder="8-letter code" autocomplete="off" maxlength="9"><button class="btn primary" id="rivJoin">Join</button></div></div>`;
@@ -4827,11 +4867,10 @@ function renderRivals(){
   const all=[me,...others].filter(Boolean);
   /* two people is the common case and deserves a real head-to-head, not a list of one row */
   const traj = me ? rivTrajectory(me, others[0]) : '';
-  const radar = rivRadar(all);
-  const duel = (all.length===2 && me) ? rivDuel(me, others[0]) : '';
+  const radar = rivSubjectRadar(all);
   const board = rivBoard(all, me);
   const bars = (all.length>2 && me) ? rivBars(all, me) : '';
-  box.innerHTML=head+traj+radar+duel+board+bars+
+  box.innerHTML=head+traj+radar+board+bars+
     `<p class="tlab riv-foot">Only aggregate numbers are shared — never a single mistake, concept or note. <button class="linkish" id="rivWhat">What exactly? ›</button></p>
      <div class="actions" style="margin-top:12px"><button class="btn ghost" id="rivLeave">Leave group</button></div>`;
   bindRivals();
@@ -4904,7 +4943,7 @@ function rivTrajectory(a,b){
   const endY={};
   if(A.length&&B.length){
     const ya=Y(A[A.length-1]), yb=Y(B[B.length-1]);
-    if(Math.abs(ya-yb)<13){ const aUp=ya<=yb; endY.A=aUp?Math.min(ya,yb)-7:Math.max(ya,yb)+7; endY.B=aUp?Math.max(ya,yb)+7:Math.min(ya,yb)-7; }
+    if(Math.abs(ya-yb)<18){ const mid=(ya+yb)/2, aUp=ya<=yb; endY.A=aUp?mid-9:mid+9; endY.B=aUp?mid+9:mid-9; }
   }
   const endLab=(S,c,nm,key)=>{ if(!S.length) return '';
     const p=pts(S)[S.length-1];
@@ -4945,37 +4984,50 @@ function rivMomentum(a,b){
   }
   return `<div class="rvm">${say(ta,a)}${tb?say(tb,b):''}${verdict?`<p class="tlab rvm-say">${verdict}</p>`:''}</div>`;
 }
-/* the shape of each person across all six measures at once — normalised to the group's best on
-   every axis, so it reads as "where am I strong", not as a single fake score */
-function rivRadar(all){
-  if(all.length<2) return '';
-  const AX=RIV_METRICS;
-  const norm=(m,d)=>{
-    const vals=all.map(x=>x[d.k]).filter(v=>v!=null);
-    if(!vals.length || m[d.k]==null) return 0;
-    const best=d.hi?Math.max(...vals):Math.min(...vals);
-    const worst=d.hi?Math.min(...vals):Math.max(...vals);
-    if(best===worst) return 1;
-    /* 0.25 floor so a full-but-behind axis is still visible as a shape */
-    return 0.25+0.75*Math.abs(m[d.k]-worst)/Math.abs(best-worst);
-  };
-  const C=88,R=62;
-  const pt=(i,r)=>{ const ang=-Math.PI/2+i*2*Math.PI/AX.length;
-    return [C+Math.cos(ang)*r, C+Math.sin(ang)*r]; };
-  const grid=[0.33,0.66,1].map(f=>`<polygon points="${AX.map((_,i)=>pt(i,R*f).map(v=>v.toFixed(1)).join(',')).join(' ')}" fill="none" stroke="var(--border)" stroke-width="1"/>`).join('');
+/* Where each person's mistakes actually concentrate, subject by subject. Axes are the subjects
+   that matter to this group (union of everyone's biggest), each person's reach on an axis is
+   their share of wrongs in that subject. Reading it: overlapping peaks = you are both losing
+   marks in the same place; a lone spike = that subject is your problem alone. */
+function rivSubjectRadar(all){
+  const withSubs=all.filter(m=>(m.subs||[]).length>=3);
+  if(withSubs.length<1) return '';
+  const score={};
+  withSubs.forEach(m=>(m.subs||[]).forEach(x=>{ score[x.s]=Math.max(score[x.s]||0, x.pc); }));
+  const AX=Object.keys(score).sort((a,b)=>score[b]-score[a]).slice(0,7);
+  if(AX.length<3) return '';
+  const peak=Math.max(...AX.map(s=>score[s]))||1;
+  const val=(m,s)=>{ const f=(m.subs||[]).find(x=>x.s===s); return f?f.pc:0; };
+  const C=104,R=74;
+  const pt=(i,r)=>{ const a=-Math.PI/2+i*2*Math.PI/AX.length; return [C+Math.cos(a)*r, C+Math.sin(a)*r]; };
+  const ring=f=>`<polygon points="${AX.map((_,i)=>pt(i,R*f).map(v=>v.toFixed(1)).join(',')).join(' ')}" fill="none" stroke="var(--border)" stroke-width="1"/>`;
+  const grid=[0.33,0.66,1].map(ring).join('');
   const spokes=AX.map((_,i)=>{ const [x,y]=pt(i,R); return `<line x1="${C}" y1="${C}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="var(--border)" stroke-width="1"/>`; }).join('');
   const COL=['var(--accent)','var(--violet)','var(--teal)','var(--amber)'];
-  const shapes=all.slice(0,4).map((m,mi)=>{
-    const p=AX.map((d,i)=>pt(i,R*norm(m,d)).map(v=>v.toFixed(1)).join(',')).join(' ');
-    return `<polygon class="rvr-sh" points="${p}" fill="${COL[mi]}" fill-opacity=".16" stroke="${COL[mi]}" stroke-width="2" stroke-linejoin="round" style="animation-delay:${mi*110}ms"/>`;
+  const shapes=withSubs.slice(0,4).map((m,mi)=>{
+    const p=AX.map((s,i)=>pt(i,R*Math.min(1,val(m,s)/peak)).map(v=>v.toFixed(1)).join(',')).join(' ');
+    return `<polygon class="rvr-sh" points="${p}" fill="${COL[mi]}" fill-opacity=".15" stroke="${COL[mi]}" stroke-width="2" stroke-linejoin="round" style="animation-delay:${mi*120}ms"/>`;
   }).join('');
-  const labs=AX.map((d,i)=>{ const [x,y]=pt(i,R+13);
-    return `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" class="rvr-lab" text-anchor="${x<C-6?'end':x>C+6?'start':'middle'}" dominant-baseline="middle">${esc(d.t.split(' ')[0])}</text>`; }).join('');
-  const key=all.slice(0,4).map((m,i)=>`<span class="rvr-k"><i style="background:${COL[i]}"></i>${esc((m.name||'').split(' ')[0])}</span>`).join('');
-  return `<div class="card"><h3><span class="accent"></span>Shape of each of you <span class="h3-hint">best on each line = full</span></h3>
-    <svg class="rvr" viewBox="0 0 176 176" role="img" aria-label="six-way comparison">${grid}${spokes}${shapes}${labs}</svg>
+  const labs=AX.map((s,i)=>{ const [x,y]=pt(i,R+14);
+    return `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" class="rvr-lab" text-anchor="${x<C-6?'end':x>C+6?'start':'middle'}" dominant-baseline="middle">${esc(s.length>9?s.slice(0,8)+'\u2026':s)}</text>`; }).join('');
+  const key=withSubs.slice(0,4).map((m,i)=>`<span class="rvr-k"><i style="background:${COL[i]}"></i>${esc((m.name||'').split(' ')[0])}</span>`).join('');
+  /* the one sentence worth saying: the subject you BOTH bleed in, and each person's own worst */
+  let read='';
+  if(withSubs.length>=2){
+    const a=withSubs[0], b=withSubs[1];
+    const shared=AX.map(s=>({s, m:Math.min(val(a,s),val(b,s))})).sort((x,y)=>y.m-x.m)[0];
+    const aw=(a.subs||[])[0], bw=(b.subs||[])[0];
+    const bits=[];
+    if(shared && shared.m>=8) bits.push(`You are both losing most in <b>${esc(shared.s)}</b>.`);
+    if(aw&&bw&&aw.s!==bw.s) bits.push(`${esc((a.name||'').split(' ')[0])}'s biggest hole is <b>${esc(aw.s)}</b> (${aw.pc}%), ${esc((b.name||'').split(' ')[0])}'s is <b>${esc(bw.s)}</b> (${bw.pc}%).`);
+    read=bits.join(' ');
+  } else if(withSubs.length===1 && (withSubs[0].subs||[])[0]){
+    const w=withSubs[0].subs[0]; read=`Your mistakes concentrate in <b>${esc(w.s)}</b> (${w.pc}%). When someone joins, both shapes overlay here.`;
+  }
+  return `<div class="card"><h3><span class="accent"></span>Where the mistakes land <span class="h3-hint">by subject</span></h3>
+    <svg class="rvr" viewBox="0 0 208 208" role="img" aria-label="mistakes by subject, per person">${grid}${spokes}${shapes}${labs}</svg>
     <div class="rvr-keys">${key}</div>
-    <p class="tlab" style="margin-top:8px">Each spoke is scaled to whoever is best at it in this group — a full reach means top of the group on that line, not a perfect score.</p></div>`;
+    ${read?`<p class="tlab" style="margin-top:10px">${read}</p>`:''}
+    <p class="tlab rvr-note">A bigger reach means more of that person's wrongs land in that subject — it is a share of their own total, so a heavy tester and a light one still compare fairly.</p></div>`;
 }
 /* the ranked board — ordered by latest GT, because that is the number that decides the exam */
 function rivBoard(all,me){
@@ -5028,8 +5080,8 @@ function bindRivals(){
     b.classList.remove('spin'); renderRivals(); };
   if(g('rivWhat')) g('rivWhat').onclick=()=>openSheet(`<h3>What Rivals shares</h3>
     <p>A single small row, separate from your ledger, readable only by people who have your group code.</p>
-    <div class="mh-row"><span class="mh-k">Shared</span><span class="mh-v">Your Google name and picture · GT percentages (latest, best, average, last 8) · wrong-per-right · day streak · number of mistakes sorted · share of blind spots handled.</span></div>
-    <div class="mh-row"><span class="mh-k">Never shared</span><span class="mh-v">The mistakes themselves — concepts, subjects, notes, photos, your plan, anything you typed.</span></div>
+    <div class="mh-row"><span class="mh-k">Shared</span><span class="mh-v">Your Google name and picture · GT percentages (latest, best, average, last 8) · wrong-per-right · day streak · mistakes sorted · share of blind spots handled · the share of your wrongs falling in each subject.</span></div>
+    <div class="mh-row"><span class="mh-k">Never shared</span><span class="mh-v">The mistakes themselves — what the question was, your concepts, notes, photos, your plan, anything you typed.</span></div>
     <div class="mh-row"><span class="mh-k">Leaving</span><span class="mh-v">Deletes the row immediately.</span></div>
     <div class="actions" style="margin-top:14px"><button class="btn primary" onclick="closeSheet()">Got it</button></div>`);
 }
@@ -5736,8 +5788,20 @@ function myRivalStats(){
     sorted, streak: activeStreak(),
     blindLive: B.live, blindHandled: B.handled,
     handledPc: B.total? Math.round(B.handled/B.total*100) : null,
+    /* where your mistakes concentrate, by subject, as a share of your own total. A share, not a
+       count, so someone with 400 wrongs and someone with 40 are still comparable. Subject names
+       only — never what the mistake was. */
+    subs: subjectShares(),
     exam: settings.examDate||'', at: Date.now()
   };
+}
+function subjectShares(){
+  const c={}; let n=0;
+  sessions.forEach(s=>(s.items||[]).forEach(it=>{ if(it.subj && SUBJECTS.includes(it.subj)){ c[it.subj]=(c[it.subj]||0)+1; n++; } }));
+  entries.forEach(e=>{ if(e.subject && SUBJECTS.includes(e.subject)){ c[e.subject]=(c[e.subject]||0)+1; n++; } });
+  if(n<5) return [];
+  return Object.keys(c).map(s=>({s, pc:Math.round(c[s]/n*100)}))
+    .sort((a,b)=>b.pc-a.pc).slice(0,8).filter(x=>x.pc>0);
 }
 /* keep only known keys and safe types — a member row is written by another person's device */
 function sanitizeRival(uid, o){
@@ -5754,6 +5818,10 @@ function sanitizeRival(uid, o){
     tests:num(o.tests,100000)||0, wr:num(o.wr,1000),
     sorted:num(o.sorted,1e6)||0, streak:num(o.streak,10000)||0,
     blindLive:num(o.blindLive,1e6)||0, handledPc:num(o.handledPc,100),
+    /* subject names are checked against the known list, so a crafted row cannot smuggle text in */
+    subs:(Array.isArray(o.subs)?o.subs:[]).slice(0,8)
+      .filter(x=>x&&typeof x.s==='string'&&SUBJECTS.includes(x.s))
+      .map(x=>({s:x.s, pc:Math.max(0,Math.min(100,+x.pc||0))})),
     at:num(o.at,8.7e12)||0 };
 }
 
