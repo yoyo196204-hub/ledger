@@ -42,6 +42,42 @@ It saves a backup either way.
 
 ---
 
+## One rules update needed for Rivals
+
+The **Rivals** tab (comparing your numbers with a study partner's) needs one extra rule, because
+a scoreboard has to let group members read each other's rows. Your **ledger stays private** —
+this only opens the small scoreboard rows, which contain no mistakes.
+
+Go to **console.firebase.google.com → logger-b9d1a → Build → Firestore Database → Rules**,
+replace everything with this, and click **Publish**:
+
+```
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{db}/documents {
+
+    // your ledger — only you, exactly as before
+    match /ledgers/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // Rivals scoreboard — signed-in people who know the group code can read the rows,
+    // but you can only ever write your own
+    match /groups/{gid}/members/{uid} {
+      allow read: if request.auth != null;
+      allow write, delete: if request.auth != null && request.auth.uid == uid;
+    }
+  }
+}
+```
+
+Until you publish this, the Rivals tab will say the database is blocking access. Everything else
+keeps working normally.
+
+> Group codes are random 8-character strings. Someone would have to be signed in **and** know
+> your exact code to see the board. If that ever bothers you, leave the group — your row is
+> deleted immediately.
+
 ## How the separation actually works (skip if you don't care)
 
 Everyone shares one database, but each person gets their own locked drawer:
