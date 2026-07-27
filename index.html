@@ -276,6 +276,58 @@
   .next .row:last-child{border:none;padding-bottom:0}
   .next .n{width:23px;height:23px;border-radius:8px;background:var(--accent-soft);color:var(--accent-ink);font-weight:800;font-size:12px;display:grid;place-items:center;flex:none;margin-top:1px}
   .next .row b{color:var(--ink);font-weight:680}
+  /* ---- "Do this next": a count, a size bar, four words ---- */
+  .na-row{display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:12px;width:100%;text-align:left;
+    padding:12px 0;border:none;border-bottom:1px solid var(--border);background:none;cursor:pointer;
+    transition:transform .18s var(--spring),background .18s;border-radius:11px}
+  .na-row:first-of-type{padding-top:3px}
+  .na-row:last-child{border-bottom:none;padding-bottom:2px}
+  .na-row:hover{background:var(--surface2);transform:translateX(2px)}
+  .na-row:active{transform:scale(.985)}
+  .na-n{flex:none;display:flex;flex-direction:column;align-items:center;min-width:42px}
+  .na-n b{font-size:21px;font-weight:850;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums}
+  .na-n i{font-size:9.5px;font-style:normal;font-weight:750;letter-spacing:.05em;text-transform:uppercase;color:var(--faint);margin-top:3px}
+  .na-row.hot .na-n b{color:var(--rose)} .na-row.warn .na-n b{color:var(--accent-ink)}
+  .na-mid{min-width:0}
+  .na-t{display:block;font-size:13.5px;font-weight:700;color:var(--ink);line-height:1.3;overflow-wrap:anywhere}
+  .na-bar{display:block;height:5px;border-radius:4px;background:var(--surface2);margin-top:7px;overflow:hidden}
+  .na-bar i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .55s cubic-bezier(.4,0,.2,1)}
+  .na-row.hot .na-bar i{background:linear-gradient(90deg,var(--rose),color-mix(in srgb,var(--rose) 55%,#fff))}
+  .na-d{flex:none;font-size:11px;font-weight:650;color:var(--faint);text-align:right;max-width:96px;line-height:1.3}
+  .na-clear{display:flex;align-items:center;gap:12px;padding:4px 0 2px}
+  .na-tick{width:30px;height:30px;flex:none;border-radius:11px;display:grid;place-items:center;font-size:15px;font-weight:800;
+    color:var(--sage-ink);background:color-mix(in srgb,var(--sage) 18%,transparent)}
+  .na-clear b{display:block;font-size:14px;font-weight:800;color:var(--ink)}
+  .na-clear span{display:block;font-size:12px;color:var(--muted);font-weight:600;margin-top:2px}
+  /* ---- "three moves": each move is a picture ---- */
+  .tm-row{display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px;width:100%;text-align:left;
+    padding:13px 0;border:none;border-bottom:1px solid var(--border);background:none;cursor:pointer;
+    transition:transform .18s var(--spring),background .18s;border-radius:11px}
+  .tm-row:first-of-type{padding-top:3px} .tm-row:last-child{border-bottom:none;padding-bottom:2px}
+  .tm-row.tap:hover{background:var(--surface2);transform:translateX(2px)} .tm-row.tap:active{transform:scale(.985)}
+  .tm-in{min-width:0}
+  .tm-h{display:flex;align-items:baseline;flex-wrap:wrap;gap:7px;margin-bottom:9px}
+  .tm-k{font-size:9.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+  .tm-h b{font-size:14.5px;font-weight:800;color:var(--ink)}
+  .tm-tag{font-size:10px;font-weight:850;letter-spacing:.03em;padding:2px 7px;border-radius:7px;
+    color:var(--c);background:color-mix(in srgb,var(--c) 14%,transparent)}
+  .tm-delta{font-size:11px;font-weight:800;font-variant-numeric:tabular-nums}
+  .tm-delta.up{color:var(--rose)} .tm-delta.down{color:var(--sage-ink)} .tm-delta.flat{color:var(--faint)}
+  .tm-cmp{display:flex;flex-direction:column;gap:7px}
+  .tm-b{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:9px}
+  .tm-b i{display:block;height:9px;border-radius:6px;background:var(--border2);min-width:4px;transition:width .55s cubic-bezier(.4,0,.2,1)}
+  .tm-b span{font-size:12.5px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;min-width:32px;text-align:right}
+  .tm-b em{font-style:normal;font-size:10.5px;font-weight:650;color:var(--faint);min-width:74px}
+  .tm-spark{display:flex;align-items:center;gap:11px}
+  .tm-spark .miniln{width:64px;height:20px;flex:none}
+  .tm-seq{font-size:12.5px;font-weight:750;color:var(--muted);font-variant-numeric:tabular-nums;letter-spacing:.02em}
+  .tm-prog{display:flex;align-items:center;gap:10px}
+  .tm-track{flex:1;height:9px;border-radius:6px;background:var(--surface2);overflow:hidden}
+  .tm-track i{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .55s cubic-bezier(.4,0,.2,1)}
+  .tm-track.done i{background:linear-gradient(90deg,var(--sage),var(--sage-ink))}
+  .tm-prog span{font-size:11.5px;font-weight:700;color:var(--faint);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .tm-flat{height:9px;border-radius:6px;background:var(--surface2);position:relative;overflow:hidden}
+  .tm-flat span{position:absolute;inset:0 60% 0 0;background:repeating-linear-gradient(135deg,var(--border2) 0 4px,transparent 4px 8px)}
 
   .split{display:grid;grid-template-columns:1fr 1fr;gap:11px}
   .splitcol{background:var(--surface2);border-radius:15px;padding:15px}
@@ -695,6 +747,12 @@
   .fcs-w{width:34px;font-size:11px;color:var(--faint);font-variant-numeric:tabular-nums;flex:none}
   /* marks-lever card: dual trend + verdict */
   .lv-card{cursor:pointer}
+  .lv-verdict{display:flex;align-items:baseline;gap:9px;margin-top:12px;padding:10px 13px;border-radius:13px;background:var(--surface2)}
+  .lv-verdict span{flex:1;min-width:0;font-size:13.5px;font-weight:800;color:var(--ink);line-height:1.3}
+  .lv-verdict b{font-size:20px;font-weight:850;font-variant-numeric:tabular-nums}
+  .lv-verdict i{font-style:normal;font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--faint)}
+  .lv-verdict.acc{background:color-mix(in srgb,var(--sage) 13%,var(--surface2))} .lv-verdict.acc b{color:var(--sage-ink)}
+  .lv-verdict.att{background:color-mix(in srgb,var(--accent) 11%,var(--surface2))} .lv-verdict.att b{color:var(--accent-ink)}
   .lv-keys{display:flex;gap:16px;margin:-2px 0 6px}
   .lv-k{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
   .lv-k i{width:9px;height:9px;border-radius:3px;flex:none}
@@ -773,6 +831,17 @@
   .wf-note{display:block;margin-top:9px;font-size:11px;color:var(--faint);font-weight:650}
   .mx-kp{font-size:10.5px;color:var(--faint);font-weight:700;margin-left:1px}
   /* donut — a ring you read in half a second */
+  .cal-card{cursor:pointer}
+  .cal-band{display:flex;align-items:baseline;gap:9px;margin-top:12px;padding:10px 13px;border-radius:13px;background:var(--surface2)}
+  .cal-band b{font-size:22px;font-weight:850;font-variant-numeric:tabular-nums;line-height:1}
+  .cal-band span{flex:1;min-width:0;font-size:13.5px;font-weight:750;color:var(--ink);line-height:1.35}
+  .cal-band i{font-style:normal;font-size:10px;font-weight:850;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:7px;white-space:nowrap}
+  .cal-band.bad b,.cal-band.bad i{color:var(--rose)} .cal-band.bad{background:color-mix(in srgb,var(--rose) 10%,var(--surface2))} .cal-band.bad i{background:color-mix(in srgb,var(--rose) 14%,transparent)}
+  .cal-band.mid b,.cal-band.mid i{color:var(--amber)} .cal-band.mid i{background:color-mix(in srgb,var(--amber) 16%,transparent)}
+  .cal-band.good b,.cal-band.good i{color:var(--sage-ink)} .cal-band.good{background:color-mix(in srgb,var(--sage) 12%,var(--surface2))} .cal-band.good i{background:color-mix(in srgb,var(--sage) 18%,transparent)}
+  .cal-ev-foot{display:flex;justify-content:space-between;align-items:baseline;margin-top:8px;font-size:11px;font-weight:650;color:var(--faint)}
+  .cal-ev-foot b{font-size:13px;font-weight:850;color:var(--ink);font-variant-numeric:tabular-nums}
+  .cal-ev-foot b.good{color:var(--sage-ink)} .cal-ev-foot b.bad{color:var(--rose)}
   .cal-flex{display:flex;align-items:center;gap:18px;margin-top:4px}
   .donut-wrap{position:relative;width:104px;height:104px;flex:none}
   .donut{width:100%;height:100%;display:block;transform-origin:50% 50%;animation:donutIn .7s var(--spring)}
@@ -847,6 +916,12 @@
   .fc-form.bad{color:var(--rose);background:color-mix(in srgb,var(--rose) 14%,transparent)}
   .fc-formline{margin-top:10px;padding-top:10px;border-top:1px solid color-mix(in srgb,var(--accent) 14%,transparent)}
   .fc-formline b{color:var(--accent-ink)}
+  /* the four numbers that used to be a paragraph */
+  .fc-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;padding-top:11px;border-top:1px solid color-mix(in srgb,var(--accent) 14%,transparent)}
+  .fc-chip{display:inline-flex;align-items:baseline;gap:5px;padding:5px 10px;border-radius:10px;background:var(--surface2);
+    font-size:10.5px;font-weight:650;color:var(--muted);white-space:nowrap}
+  .fc-chip b{font-size:14px;font-weight:850;color:var(--ink);font-variant-numeric:tabular-nums}
+  .fc-chip.up b{color:var(--sage-ink)} .fc-chip.down b{color:var(--rose)}
   .cal-ev{margin-top:14px;padding:12px;border-radius:13px;background:var(--surface2)}
   .cal-ev.good{background:color-mix(in srgb,var(--sage) 12%,var(--surface2))}
   .cal-ev.bad{background:color-mix(in srgb,var(--rose) 9%,var(--surface2))}
@@ -859,6 +934,9 @@
   .fc-lock-row{display:flex;gap:12px;align-items:flex-start}
   .fc-lock-ic{font-size:26px;flex:none;line-height:1.1}
   .fc-lock-t{font-size:14px;font-weight:800;color:var(--ink)}
+  .fc-pips{display:flex;gap:6px;margin-top:8px}
+  .fc-pips i{flex:1;height:7px;border-radius:5px;background:var(--surface2);border:1px solid var(--edge)}
+  .fc-pips i.on{background:linear-gradient(90deg,var(--accent),var(--accent2));border-color:transparent}
   .fc-lock{border:1.5px dashed var(--border2)}
   .fc-line{stroke-dasharray:600;stroke-dashoffset:600;animation:dashin 1.2s .25s cubic-bezier(.4,0,.2,1) forwards;filter:drop-shadow(0 0 5px rgba(224,149,95,.5))}
   .fc-proj{animation:floaty 3s ease-in-out infinite}
@@ -1141,8 +1219,22 @@
     box-shadow:0 2px 7px -3px rgba(90,60,35,.5)}
   .riv-ini{display:grid;place-items:center;font-size:17px;font-weight:850;color:#fff;background:linear-gradient(150deg,var(--accent2),var(--accent))}
   .riv-av.sm{width:34px;height:34px} .riv-ini.sm{font-size:15px}
-  .riv-row{display:flex;align-items:center;gap:11px;padding:11px 0;border-top:1px solid var(--edge)}
+  .riv-row{display:flex;align-items:center;gap:11px;padding:11px 0;border-top:1px solid var(--edge);
+    width:100%;text-align:left;background:none;border-left:none;border-right:none;border-bottom:none;cursor:pointer;
+    transition:transform .18s var(--spring),background .18s}
   .riv-row:first-of-type{border-top:none}
+  .riv-row:hover{background:var(--surface2);border-radius:12px}
+  .riv-row:active{transform:scale(.985)}
+  .riv-gap{height:5px;border-radius:4px;background:var(--surface2);overflow:hidden;margin:6px 0 4px}
+  .riv-gap i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .55s cubic-bezier(.4,0,.2,1)}
+  .riv-big .miniln{width:52px;height:16px;margin-top:4px;margin-left:auto;display:block}
+  .rvs-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--edge)}
+  .rvs-row:last-of-type{border-bottom:none}
+  .rvs-k{font-size:12.5px;font-weight:700;color:var(--ink2)}
+  .rvs-k span{display:block;font-size:10.5px;font-weight:600;color:var(--faint);margin-top:1px}
+  .rvs-row b{font-size:16px;font-weight:850;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .rvs-row b.lead{color:var(--sage-ink)}
+  .rvs-row b i{font-style:normal;font-size:9.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase}
   .riv-row.me{background:color-mix(in srgb,var(--accent) 5%,transparent);margin:0 -16px;padding-left:16px;padding-right:16px;border-radius:12px}
   .riv-rank{flex:none;width:26px;text-align:center;font-size:16px;font-weight:850;color:var(--faint)}
   .riv-mid{flex:1;min-width:0}
@@ -1214,8 +1306,47 @@
     .view.on .vitals,.view.on .th-dash,.view.on .th-card,.view.on .acc-card,.view.on .acc-stats,
     .tab.on svg{animation:none}
   }
-  .rvr{width:208px;height:208px;display:block;margin:6px auto 2px;overflow:visible}
+  .rvr{width:100%;max-width:264px;height:auto;display:block;margin:8px auto 4px;overflow:visible;touch-action:manipulation}
   .rvr-note{margin-top:8px}
+  /* ---- subject weightage scatter ---- */
+  .wgc{width:100%;height:auto;display:block;margin:8px 0 2px;overflow:visible;touch-action:manipulation}
+  .wg-zone{fill:color-mix(in srgb,var(--rose) 9%,transparent);stroke:color-mix(in srgb,var(--rose) 26%,transparent);stroke-width:1;stroke-dasharray:3 3}
+  .wg-zlab{font-size:9px;font-weight:800;fill:color-mix(in srgb,var(--rose) 78%,var(--faint));letter-spacing:.05em;text-transform:uppercase}
+  .wg-tick line{stroke:var(--edge);stroke-width:1}
+  .wg-tick line.wg-mid{stroke:var(--border2);stroke-width:1.4;stroke-dasharray:5 3}
+  .wg-tick text,.wg-zt{font-size:8.5px;font-weight:750;fill:var(--faint)}
+  .wg-zt{font-style:italic}
+  .wg-ax{stroke:var(--border);stroke-width:1}
+  .wg-xl{font-size:9px;font-weight:750;fill:var(--faint)}
+  .wg-nm{font-size:10px;font-weight:850;fill:var(--ink2);pointer-events:none}
+  .wg-g .wg-dot{stroke:var(--surface);stroke-width:1.5;transition:r .18s var(--ease),filter .18s var(--ease);
+    transform-origin:center;opacity:0;animation:wgPop .5s var(--spring) forwards}
+  .wg-g:nth-of-type(2n) .wg-dot{animation-delay:60ms} .wg-g:nth-of-type(3n) .wg-dot{animation-delay:110ms}
+  @keyframes wgPop{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:none}}
+  .wg-g.hot .wg-dot{fill:var(--rose)} .wg-g.even .wg-dot{fill:var(--amber)} .wg-g.safe .wg-dot{fill:var(--sage)}
+  .wg-g.zero .wg-dot{fill:none;stroke:var(--border2);stroke-width:1.4}
+  .wg-hit{fill:transparent;cursor:pointer;outline:none}
+  .wg-g.on .wg-dot{stroke:var(--ink);stroke-width:2.2;filter:drop-shadow(0 2px 6px rgba(0,0,0,.22))}
+  .wg-g:hover .wg-dot{stroke:var(--ink2);stroke-width:2}
+  .wg-hit:focus-visible + *,.wg-g:focus-within .wg-dot{stroke:var(--ink);stroke-width:2.2}
+  .wg-read{margin-top:10px;padding:11px 13px;border-radius:14px;background:var(--surface2);border:1px solid var(--edge);min-height:86px}
+  .wg-rt{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+  .wg-rt b{font-size:15px;font-weight:850;color:var(--ink)}
+  .wg-q{font-size:11px;font-weight:750;color:var(--faint);white-space:nowrap}
+  .wg-rb{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:7px}
+  .wg-m{display:inline-flex;align-items:baseline;gap:5px;font-size:11px;font-weight:650;color:var(--muted)}
+  .wg-m b{font-size:15px;font-weight:850;color:var(--ink);font-variant-numeric:tabular-nums}
+  .wg-m.bl b{color:var(--rose)}
+  .wg-v{margin-top:7px}
+  .wg-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .wg-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border-radius:11px;font-size:12px;font-weight:750;
+    color:var(--ink2);background:var(--surface2);border:1px solid var(--edge);cursor:pointer;transition:transform .16s var(--spring),border-color .16s,background .16s}
+  .wg-chip b{font-size:12px;font-weight:850;color:var(--rose);font-variant-numeric:tabular-nums}
+  .wg-chip:hover{transform:translateY(-1px);border-color:var(--border2)}
+  .wg-chip:active{transform:scale(.96)}
+  .wg-chip.on{background:color-mix(in srgb,var(--rose) 10%,var(--surface));border-color:color-mix(in srgb,var(--rose) 40%,var(--border))}
+  .wg-note{margin-top:9px}
+  @media(prefers-reduced-motion:reduce){ .wg-g .wg-dot{animation:none;opacity:1} }
   /* floor / ceiling range */
   .flr-wrap{margin-top:4px}
   .flr-track{position:relative;height:14px;border-radius:8px;background:var(--surface2);overflow:hidden}
@@ -1236,16 +1367,44 @@
   .rp-mid{flex:1;min-width:0}
   .rp-t{display:block;font-size:13.5px;font-weight:700;color:var(--ink);line-height:1.35}
   .rp-d{display:block;font-size:11.5px;color:var(--muted);font-weight:600;margin-top:2px}
+  .rp-dots{display:flex;gap:4px;margin-top:6px}
+  .rp-dots i{width:8px;height:8px;border-radius:50%;flex:none;animation:wgPop .4s var(--spring) both}
+  .rp-dots i:nth-child(2){animation-delay:50ms} .rp-dots i:nth-child(3){animation-delay:100ms} .rp-dots i:nth-child(4){animation-delay:150ms}
+  .rp-dots i.open{background:var(--rose)} .rp-dots i.ok{background:var(--sage)}
+  .rp-dots i.more{background:none;border:1.4px dashed var(--border2)}
+  @media(prefers-reduced-motion:reduce){ .rp-dots i{animation:none} }
   .rp-st{flex:none;font-size:11px;font-weight:800;padding:4px 9px;border-radius:8px}
   .rp-st.open{color:var(--rose);background:color-mix(in srgb,var(--rose) 12%,transparent)}
   .rp-st.done{color:var(--sage-ink);background:color-mix(in srgb,var(--sage) 18%,transparent)}
   @media(prefers-reduced-motion:reduce){ .flr-band{animation:none} }
   .rvr-sh{transform-origin:104px 104px;transform:scale(.72);opacity:0;animation:rvGrow .7s var(--spring) forwards}
   @keyframes rvGrow{to{transform:scale(1);opacity:1}}
-  .rvr-lab{font-size:9px;font-weight:800;fill:var(--faint);letter-spacing:.02em}
-  .rvr-keys{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 16px;margin-top:8px}
-  .rvr-k{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--ink2)}
-  .rvr-k i{width:10px;height:10px;border-radius:3px}
+  .rvr-lab{font-size:9px;font-weight:800;fill:var(--faint);letter-spacing:.02em;pointer-events:none;transition:fill .18s}
+  .rvr-lab.on{fill:var(--ink);font-size:10px}
+  .rvr-v{opacity:0;animation:wgPop .45s var(--spring) forwards;pointer-events:none;transition:r .18s var(--ease),stroke-width .18s}
+  .rvr-v.on{r:5;stroke:var(--surface);stroke-width:1.6}
+  .rvr-hit{fill:transparent;cursor:pointer;outline:none;transition:fill .18s}
+  .rvr-hit.on{fill:color-mix(in srgb,var(--accent) 9%,transparent)}
+  .rvr-sh,.rvr-v{transition:opacity .2s var(--ease)}
+  .rvr [data-riv].dim{opacity:.12}
+  .rvr-keys{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 10px;margin-top:8px}
+  .rvr-k{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--ink2);
+    padding:5px 10px;border-radius:10px;background:var(--surface2);border:1px solid transparent;cursor:pointer;
+    transition:transform .16s var(--spring),border-color .16s}
+  .rvr-k:hover{transform:translateY(-1px)} .rvr-k:active{transform:scale(.96)}
+  .rvr-k.on{border-color:var(--border2);background:var(--surface)}
+  .rvr-k i{width:10px;height:10px;border-radius:3px;flex:none}
+  .rvr-read{margin-top:10px;padding:11px 13px;border-radius:14px;background:var(--surface2);border:1px solid var(--edge)}
+  .rvr-rt{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:9px}
+  .rvr-rt b{font-size:15px;font-weight:850;color:var(--ink)}
+  .rvr-rt span{font-size:10.5px;font-weight:650;color:var(--faint);text-align:right}
+  .rvr-rr{display:grid;grid-template-columns:64px 1fr auto;align-items:center;gap:9px;padding:4px 0}
+  .rvr-rn{font-size:12px;font-weight:700;color:var(--ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rvr-rb{height:9px;border-radius:6px;background:var(--surface);overflow:hidden}
+  .rvr-rb i{display:block;height:100%;border-radius:6px;min-width:4px;animation:rvrGrow .5s var(--ease) both}
+  @keyframes rvrGrow{from{transform:scaleX(.15);transform-origin:left}to{transform:none}}
+  .rvr-rr b{font-size:13.5px;font-weight:850;color:var(--ink);font-variant-numeric:tabular-nums;min-width:34px;text-align:right}
+  @media(prefers-reduced-motion:reduce){ .rvr-v{animation:none;opacity:1} .rvr-rb i{animation:none} }
   @media(prefers-reduced-motion:reduce){ .rvt path,.rvt circle,.rvr-sh{animation:none;stroke-dashoffset:0;opacity:1;transform:none} }
   /* head-to-head */
   .card.duel{background:linear-gradient(160deg,color-mix(in srgb,var(--accent) 7%,var(--surface)),var(--surface))}
@@ -1309,7 +1468,12 @@
   .wk-rank.worst{background:color-mix(in srgb,var(--rose) 13%,transparent);color:var(--rose)}
   .wk-mid{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
   .wk-t{font-weight:750;font-size:14.5px}
-  .wk-d{font-size:11.5px;color:var(--muted);font-weight:600}
+  .wk-d{font-size:11.5px;color:var(--muted);font-weight:600;display:flex;align-items:center;gap:7px}
+  .wk-d b{font-size:13px;font-weight:850;color:var(--ink);font-variant-numeric:tabular-nums}
+  .wk-d b.bl{color:var(--rose)}
+  .wk-mag{height:5px;border-radius:4px;background:var(--surface2);overflow:hidden}
+  .wk-mag i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .55s cubic-bezier(.4,0,.2,1)}
+  .wk-dom{font-size:9.5px;font-weight:850;letter-spacing:.04em;padding:2px 6px;border-radius:6px;color:var(--c);background:color-mix(in srgb,var(--c) 14%,transparent)}
   /* fix box inside the bucket sheet */
   .fg-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
   .fg-tech{font-size:12px;font-weight:800;color:var(--accent-ink);background:var(--accent-soft);padding:5px 11px;border-radius:9px}
@@ -1402,12 +1566,22 @@
   .chart .xlab{fill:var(--muted);font-size:9.5px;font-weight:600}
   .hbars{display:flex;flex-direction:column;gap:13px}
   .hbar{display:grid;grid-template-columns:112px 1fr auto;align-items:center;gap:11px}
+  .lk-bar{width:100%;text-align:left;background:none;border:none;padding:2px 0;margin:-2px 0;cursor:pointer;border-radius:9px;
+    transition:transform .16s var(--spring),background .16s}
+  .lk-bar:hover{background:var(--surface2);transform:translateX(2px)}
+  .lk-bar:active{transform:scale(.985)}
   .hbar .k{font-size:12.5px;color:var(--ink2);font-weight:560;line-height:1.25}
   .hbar .k b{font-weight:850}
   .hbar .track{height:12px;background:var(--surface2);border-radius:7px;overflow:hidden}
   .hbar .fill{height:100%;border-radius:7px;transition:width .5s cubic-bezier(.4,0,.2,1);min-width:7px}
   .hbar .v{font-size:13px;font-weight:750;color:var(--ink);font-variant-numeric:tabular-nums;min-width:16px;text-align:right}
   /* the two halves of the "where marks leak" card share one frame */
+  .tf-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .tf-chip{display:inline-flex;align-items:baseline;gap:6px;padding:6px 11px;border-radius:11px;font-size:11px;font-weight:700;
+    color:var(--muted);background:color-mix(in srgb,var(--c) 10%,var(--surface2));border:none}
+  .tf-chip b{font-size:15px;font-weight:850;color:var(--c);font-variant-numeric:tabular-nums}
+  .tf-chip.tap{cursor:pointer;transition:transform .16s var(--spring)}
+  .tf-chip.tap:hover{transform:translateY(-1px)} .tf-chip.tap:active{transform:scale(.96)}
   .leak-sub{font-size:11px;font-weight:750;letter-spacing:.07em;text-transform:uppercase;color:var(--faint);margin:2px 0 12px}
   .leak-sub:not(:first-of-type){margin-top:20px}
   /* slim context numbers — not a bento of islands */
@@ -1733,9 +1907,13 @@ const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.st
 async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } try{return localStorage.getItem(k)}catch(_){return null} }
 async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v);return true}catch(e){return false} } try{localStorage.setItem(k,v);return true}catch(_){return false} }
 const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
-const APP_VERSION='v61'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
+const APP_VERSION='v62'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
 
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
+/* Roughly how a 200-question NEET-PG paper is split by subject — an average of recent years,
+   not an official blueprint, and it is labelled as an approximation wherever it is shown.
+   It is used only to say which subjects carry the most marks, never to score anything. */
+const PAPER_MIX={"Anatomy":12,"Physiology":10,"Biochemistry":10,"Pathology":17,"Pharmacology":15,"Microbiology":13,"Forensic Medicine":8,"PSM / Community Med":15,"Medicine":24,"Surgery":20,"OBGYN":17,"Pediatrics":9,"Orthopaedics":6,"ENT":6,"Ophthalmology":6,"Anaesthesia":4,"Radiology":4,"Dermatology":2,"Psychiatry":2};
 
 const ERRORS=[
   {id:'knowledge', code:'KG', t:"Didn't know it",
@@ -3524,17 +3702,16 @@ function leverCard(){
   if(insType==='module') return '';
   const L=leverAnalysis(); if(!L) return '';
   const arrow=v=>v>0.4?'<span class="lv-up">▲</span>':v<-0.4?'<span class="lv-dn">▼</span>':'<span class="lv-fl">→</span>';
-  const verdict = L.lever==='accuracy'
-      ? `<b>Accuracy is your lever.</b> Lift it toward your own best form and it's worth about <b>+${L.accGain} marks</b> — more than pushing attempts. Precision over speed: the weak areas below are where it hides.`
-    : L.lever==='attempts'
-      ? `<b>Attempting more is your lever.</b> Your blind guesses pay off (${L.blindHitPc}% hit), so answering ~${Math.round(L.attHeadPp)} more per 100 is worth about <b>+${L.attGain} marks</b>. Stop leaving safe eliminations blank.`
-      : `<b>You're near your ceiling on both levers.</b> More marks now come from raw coverage — clear the weak-area clusters below, they're the ledger's highest-value fixes.`;
-  const foot = L.haveBlind ? '' : `<p class="tlab" style="margin-top:9px;color:var(--faint)">Log “blind tried” when you score a GT and this will also price attempting the ones you skip.</p>`;
+  /* the verdict is a banner, not a paragraph — the reasoning behind it is priced out in the sheet */
+  const V = L.lever==='accuracy' ? {t:'Accuracy is your lever', g:L.accGain, c:'acc'}
+    : L.lever==='attempts'      ? {t:'Attempting more is your lever', g:L.attGain, c:'att'}
+    :                             {t:'Near your ceiling on both', g:0, c:'cap'};
+  const foot = L.haveBlind ? '' : `<p class="tlab" style="margin-top:9px;color:var(--faint)">Log “blind tried” at scoring to price the ones you skip too.</p>`;
   return `<div class="card lv-card"><h3><span class="accent"></span>What's moving your marks<span class="h3-hint">accuracy vs attempts · tap</span><button class="cardq" data-help="lever">?</button></h3>
     <div class="lv-keys"><span class="lv-k"><i style="background:var(--sage-ink)"></i>Accuracy <b>${Math.round(L.Acc*100)}%</b> ${arrow(L.accTrendPp)}</span>
       <span class="lv-k"><i style="background:var(--accent)"></i>Attempted <b>${Math.round(L.A*100)}%</b> ${arrow(L.attTrendPp)}</span></div>
     <div class="lv-chart">${dualTrend(L.accSeries,L.attSeries)}</div>
-    <p class="tlab" style="margin-top:12px">${verdict}</p>${foot}</div>`;
+    <div class="lv-verdict ${V.c}"><span>${V.t}</span>${V.g>0?`<b>+${V.g}</b><i>marks</i>`:'<i>coverage next</i>'}</div>${foot}</div>`;
 }
 function leverSheet(){
   const L=leverAnalysis(); if(!L){ metricHelp('lever'); return; }
@@ -3946,22 +4123,39 @@ function howToFixSheet(errId){
     <div class="actions" style="margin-top:16px"><button class="btn primary" onclick="closeSheet()">Got it</button></div>`);
 }
 
+/* Do this next — a queue you read at a glance: a count, a bar for how big it is against the
+   others, and four words. The sentence that used to sit here is one tap away in the sheet, so
+   nothing was dropped, only moved to where you go looking for it. */
+let _naDetail={};
 function nextCard(map){
-  const rows=[]; let i=1;
   const open=entries.filter(e=>e.status==='open');
+  const acts=[];
   if(open.length){ const mins=Math.max(1,Math.round(open.length*20/60));
-    rows.push(`<div class="row"><span class="n">${i++}</span><span>Clear <b>${open.length} open</b> in Review — about ${mins} min. Night before your GT at the latest.</span></div>`); }
+    acts.push({k:'open', n:open.length, u:'open', t:'Clear your Review queue', d:`≈${mins} min`, tone:'hot',
+      det:`<h3>Clear your Review queue</h3><p><b>${open.length}</b> mistake${open.length>1?'s are':' is'} still open — about <b>${mins} minute${mins>1?'s':''}</b> of recall at 20 seconds each. Do it the night before your next GT at the latest, so the fixes are fresh when the paper asks for them.</p>`});
+  }
   const reps=buildGroups().filter(a=>a.length>=2).sort((a,b)=>b.length-a.length).slice(0,3);
-  if(reps.length) rows.push(`<div class="row"><span class="n">${i++}</span><span>You keep re-missing ${reps.map(a=>`<b>${esc(a[0].concept)}</b> ×${a.length}`).join(', ')}. Cheapest marks on the table — nail these this week.</span></div>`);
+  if(reps.length){ const tot=reps.reduce((a,g)=>a+g.length,0);
+    acts.push({k:'rep', n:tot, u:'repeats', t:esc(reps[0][0].concept), d:reps.length>1?`+${reps.length-1} more concept${reps.length>2?'s':''}`:'keeps coming back', tone:'hot', sub:reps[0][0].subject,
+      det:`<h3>The same ideas, again</h3><p>You keep re-missing ${reps.map(a=>`<b>${esc(a[0].concept)}</b> ×${a.length}`).join(', ')}. These are the cheapest marks on the table — the concept is already identified, it just has not stuck. Nail them this week.</p>`});
+  }
   const openBySub={}; open.forEach(e=>openBySub[e.subject]=(openBySub[e.subject]||0)+1);
   const worst=Object.entries(openBySub).sort((a,b)=>b[1]-a[1])[0];
-  if(worst && worst[1]>=3) rows.push(`<div class="row"><span class="n">${i++}</span><span><b>${esc(worst[0])}</b> is leaking most right now — ${worst[1]} open. Give it first slot in this week's modules.</span></div>`);
+  if(worst && worst[1]>=3) acts.push({k:'sub', n:worst[1], u:'open', t:esc(worst[0]), d:'leaking most right now', tone:'warn', sub:worst[0],
+    det:`<h3>${esc(worst[0])}</h3><p><b>${worst[1]}</b> open mistakes sit in ${esc(worst[0])} — more than any other subject right now. Give it the first slot in this week's modules.</p>`});
   const blindOpen=open.filter(isBlind).length;
-  if(blindOpen) rows.push(`<div class="row"><span class="n">${i++}</span><span><b>${blindOpen} blind spot${blindOpen>1?'s':''}</b> — sure but wrong. These won't feel wrong in the exam either; re-learn them properly.</span></div>`);
-  if(!rows.length) rows.push(`<div class="row"><span class="n">✓</span><span>Nothing open — you're clear. Log your next GT or module and keep it that way.</span></div>`);
+  if(blindOpen) acts.push({k:'blind', n:blindOpen, u:'blind', t:'Blind spots with no fix', d:'sure, and still wrong', tone:'hot',
+    det:`<h3>Blind spots with no fix</h3><p><b>${blindOpen}</b> of your open mistakes are ones you felt sure about. They will not feel wrong in the exam either — a re-read does not touch them. Re-learn the concept and write what you believed against what is true.</p>`});
+  const mx=Math.max(1,...acts.map(a=>a.n));
+  _naDetail={}; acts.forEach(a=>_naDetail[a.k]=a.det);
+  const rows=acts.length ? acts.map(a=>`<button class="na-row ${a.tone}" data-na="${a.k}"${a.sub?` data-nasub="${esc(a.sub)}"`:''}>
+      <span class="na-n"><b data-cu="${a.n}">${a.n}</b><i>${a.u}</i></span>
+      <span class="na-mid"><span class="na-t">${a.t}</span><span class="na-bar"><i style="width:0" data-gw="${Math.round(a.n/mx*100)}"></i></span></span>
+      <span class="na-d">${a.d}</span><span class="th-go">›</span></button>`).join('')
+    : `<div class="na-clear"><span class="na-tick">✓</span><div><b>Nothing open</b><span>Log your next GT or module and keep it that way.</span></div></div>`;
   const d=daysToExam();
-  const head=d!==null&&d>0?`Do this next · ${d} day${d>1?'s':''} to exam`:'Do this next';
-  return `<div class="card next"><h3><span class="accent"></span>${head}</h3>${rows.join('')}</div>`;
+  const head=d!==null&&d>0?`Do this next <span class="h3-hint">${d} day${d>1?'s':''} to exam</span>`:'Do this next';
+  return `<div class="card next"><h3><span class="accent"></span>${head}</h3>${rows}</div>`;
 }
 function typeSplitCard(){
   const gt=entries.filter(e=>e.testType==='gt'), mod=entries.filter(e=>e.testType==='module');
@@ -4046,18 +4240,20 @@ function leakCard(){
   const byErr=Object.fromEntries(ERRORS.map(e=>[e.id,entries.filter(x=>x.error===e.id).length]));
   const domErr=ERRORS.slice().sort((a,b)=>byErr[b.id]-byErr[a.id])[0];
   const maxErr=Math.max(1,...Object.values(byErr));
-  const errBars=ERRORS.map(e=>`<div class="hbar"><span class="k">${e.t}</span><div class="track"><div class="fill" style="width:${Math.max(3,byErr[e.id]/maxErr*100)}%;background:linear-gradient(90deg,${e.c},color-mix(in srgb,${e.c} 72%,#fff))"></div></div><span class="v">${byErr[e.id]}</span></div>`).join('');
+  const errBars=ERRORS.map(e=>`<button class="hbar lk-bar" data-e="${e.id}"><span class="k">${e.t}</span><div class="track"><div class="fill" style="width:${Math.max(3,byErr[e.id]/maxErr*100)}%;background:linear-gradient(90deg,${e.c},color-mix(in srgb,${e.c} 72%,#fff))"></div></div><span class="v">${byErr[e.id]}</span></button>`).join('');
   const subCount={}; entries.forEach(e=>subCount[e.subject]=(subCount[e.subject]||0)+1);
   const subSorted=Object.entries(subCount).sort((a,b)=>b[1]-a[1]).slice(0,6);
   const maxSub=Math.max(1,...subSorted.map(s=>s[1]));
-  const subBars=subSorted.map(([s,n])=>`<div class="hbar"><span class="k">${esc(s)}</span><div class="track"><div class="fill" style="width:${Math.max(3,n/maxSub*100)}%;background:linear-gradient(90deg,var(--accent),var(--accent2))"></div></div><span class="v">${n}</span></div>`).join('');
+  const subBars=subSorted.map(([s,n])=>`<button class="hbar lk-bar" data-sub="${esc(s)}"><span class="k">${esc(s)}</span><div class="track"><div class="fill" style="width:${Math.max(3,n/maxSub*100)}%;background:linear-gradient(90deg,var(--accent),var(--accent2))"></div></div><span class="v">${n}</span></button>`).join('');
   /* the integrative line: where the commonest mistake-type actually clusters */
   const domErrSubs={}; entries.filter(e=>e.error===domErr.id).forEach(e=>domErrSubs[e.subject]=(domErrSubs[e.subject]||0)+1);
   const worst=Object.entries(domErrSubs).sort((a,b)=>b[1]-a[1])[0];
+  /* one line, because both bar stacks above already said the rest — the fix guidance is a tap
+     away on any bar segment, so nothing is lost by not printing it here */
   const synth = worst && worst[1]>=2
-    ? `Most marks go to <b style="color:${domErr.c}">${domErr.t.toLowerCase()}</b>, and it clusters in <b>${esc(worst[0])}</b> (${worst[1]}). ${FIXTEXT[domErr.id]}`
-    : `Most marks go to <b style="color:${domErr.c}">${domErr.t.toLowerCase()}</b>. ${FIXTEXT[domErr.id]}`;
-  return `<div class="card"><h3><span class="accent"></span>Where your marks leak</h3>
+    ? `<b style="color:${domErr.c}">${domErr.t}</b> is your biggest leak, and it clusters in <b>${esc(worst[0])}</b> (${worst[1]}).`
+    : `<b style="color:${domErr.c}">${domErr.t}</b> is your biggest leak.`;
+  return `<div class="card"><h3><span class="accent"></span>Where your marks leak <span class="h3-hint">tap a bar for the fix</span></h3>
     <div class="leak-sub">By mistake type</div><div class="hbars">${errBars}</div>
     <div class="leak-sub">By subject</div><div class="hbars">${subBars}</div>
     <p class="tlab" style="margin-top:15px">${synth}</p></div>`;
@@ -4271,6 +4467,123 @@ function subjectTrend(sub){
   const p=pGammaLess(a0+k(newer), b0+newer.length, a0+k(older), b0+older.length); /* P(newer < older) */
   return p>=0.8?'down':p<=0.2?'up':'flat';
 }
+/* ============ subject weightage ============
+   Two facts per subject, on one picture:
+     across  → how many questions it typically carries on a 200-Q paper (what it is WORTH)
+     up      → leak index = your share of mistakes there ÷ its share of the paper
+               (1.0 = exactly in proportion; 2.0 = you bleed twice what its size predicts)
+     size    → how many of your wrongs landed there
+   Top-right is where the cheap marks are: big subject, disproportionate bleed.
+   The leak index is scale-free, so it is honest whether you have 20 wrongs or 200. */
+let _wgRead={}, _wgFirst='';
+function weightRows(){
+  const m=buildSubjects(scopedSessions(), scopedEntries());
+  let totN=0; Object.keys(m).forEach(s=>{ if(PAPER_MIX[s]>0) totN+=m[s].n; });
+  const gtSets=new Set();
+  scopedSessions().forEach(s=>{ if((s.testType||'gt')==='gt') gtSets.add(s.set); });
+  scopedEntries().forEach(e=>{ if((e.testType||'gt')==='gt') gtSets.add(e.set); });
+  const nT=gtSets.size;
+  const canRisk = insType!=='module' && nT>=2;
+  const rows=Object.keys(PAPER_MIX).map(s=>{
+    const q=PAPER_MIX[s], n=(m[s]&&m[s].n)||0, pShare=q/EXAM_Q;
+    return { s, q, n, pShare, mShare: totN?n/totN:0,
+             leak: totN>=12 ? (n/totN)/pShare : null,
+             swing: canRisk ? n/nT*5 : null,
+             blind: (m[s]&&m[s].sure)||0 };
+  });
+  return { rows, totN, nT, canRisk, haveMine: totN>=12 };
+}
+function weightCard(){
+  const {rows,totN,nT,canRisk,haveMine}=weightRows();
+  const HEAD=`<h3><span class="accent"></span>What the paper is worth<span class="h3-hint">subject weightage</span><button class="cardq" data-help="weight">?</button></h3>`;
+  /* before there is enough of your own data, the paper's own mix is still worth seeing —
+     the card appears from day one and says plainly what is still missing */
+  if(!haveMine){
+    const top=rows.slice().sort((a,b)=>b.q-a.q).slice(0,10);
+    const mx=top[0].q;
+    const bars=top.map(r=>`<div class="hbar"><span class="k">${esc(r.s)}</span>
+      <div class="track"><div class="fill" style="width:${Math.max(4,r.q/mx*100)}%;background:linear-gradient(90deg,var(--accent),var(--accent2))"></div></div>
+      <span class="v">${r.q}Q</span></div>`).join('');
+    return `<div class="card wg-card">${HEAD}<div class="hbars">${bars}</div>
+      <p class="tlab wg-note">Approximate mix of a 200-question paper. Your own leak overlays it once this window holds 12 subject-tagged mistakes — it has <b>${totN}</b>.</p></div>`;
+  }
+  /* ---- the scatter ---- */
+  const real=rows.filter(r=>r.n>0);
+  const zero=rows.filter(r=>!r.n && r.q>=10);      /* big subjects you have not missed yet: worth seeing */
+  const shown=real.concat(zero);
+  const W=344,H=218,x0=50,x1=W-14,y0=26,y1=H-38;
+  const yz=y1-7;                                   /* the "none yet" lane, clear of the axis line */
+  const qmax=Math.max(...shown.map(r=>r.q))||1;
+  const X=q=>x0+10+(q/qmax)*(x1-x0-20);   /* inset so the widest bubble never bleeds off the frame */
+  const lg=v=>Math.log(v)/Math.LN2;
+  /* the vertical scale is set by the subjects you actually bleed in; a subject with zero wrongs
+     has no leak ratio at all, so it sits in its own lane instead of stretching the axis to -inf */
+  const span=Math.max(1, ...real.map(r=>Math.abs(lg(Math.max(0.3,Math.min(4,r.leak))))));
+  const Y=v=>((y0+y1)/2) - (lg(Math.max(0.3,Math.min(4,v)))/span)*((y1-y0)/2);
+  const posOf=r=>({x:X(r.q), y:r.n?Y(r.leak):yz});
+  const nmax=Math.max(1,...shown.map(r=>r.n));
+  const RAD=r=>r.n?4+7*Math.sqrt(r.n/nmax):3;
+  /* the zone worth acting on: a subject that carries real marks AND bleeds above its weight */
+  const zx=X(10), zy=Y(1.15);
+  const zone=`<rect class="wg-zone" x="${zx.toFixed(1)}" y="${y0}" width="${(x1-zx).toFixed(1)}" height="${Math.max(0,zy-y0).toFixed(1)}" rx="8"/>
+    <text class="wg-zlab" x="${(zx+6).toFixed(1)}" y="${(y0-7).toFixed(1)}">fix these first</text>`;
+  const ticks=[[2,'2× weight'],[1,'on par'],[0.5,'half']].filter(t=>Math.abs(lg(t[0]))<=span+0.01)
+    .map(([v,lab])=>`<g class="wg-tick"><line x1="${x0-4}" y1="${Y(v).toFixed(1)}" x2="${x1}" y2="${Y(v).toFixed(1)}"${v===1?' class="wg-mid"':''}/>
+      <text x="${x0-8}" y="${(Y(v)+3).toFixed(1)}" text-anchor="end">${lab}</text></g>`).join('');
+  const zeroLane=zero.length?`<text class="wg-zt" x="${x0-8}" y="${(yz+3).toFixed(1)}" text-anchor="end">none yet</text>`:'';
+  const tone=r=>!r.n?'zero':(r.leak>=1.25?'hot':r.leak<=0.8?'safe':'even');
+  /* biggest painted first so the small ones stay visible — and stay hittable — on top of them */
+  const dots=shown.slice().sort((a,b)=>b.n-a.n).map(r=>{
+    const pos=posOf(r), cx=pos.x, cy=pos.y, rad=RAD(r);
+    return `<g class="wg-g ${tone(r)}"><circle class="wg-dot" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${rad.toFixed(1)}"/>
+      <circle class="wg-hit" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${Math.max(9,rad+4).toFixed(1)}" data-wsub="${esc(r.s)}" tabindex="0" role="button" aria-label="${esc(r.s)}"><title>${esc(r.s)}</title></circle></g>`;
+  }).join('');
+  /* name only the few that matter, and only where the name will not land on another one */
+  const taken=[{a:zx,b:zx+62,c:y0-16,d:y0-2}];   /* the zone caption holds its own space */
+  const fits=(a,b,y)=>!taken.some(t=>a<t.b&&b>t.a&&y-9<t.d&&y+3>t.c);
+  const named=real.slice().sort((a,b)=>b.n-a.n).slice(0,3);
+  const labs=named.map(r=>{ const pos=posOf(r), cx=pos.x, cy=pos.y, rad=RAD(r);
+    const txt=r.s.split(' /')[0], wpx=txt.length*5.6;
+    const anchor = cx>x1-wpx/2 ? 'end' : cx<x0+wpx/2 ? 'start' : 'middle';
+    const a = anchor==='end'?cx-wpx : anchor==='start'?cx : cx-wpx/2;
+    const slots=[cy-rad-6, cy+rad+12, cy-rad-19, cy+rad+24];
+    for(let i=0;i<slots.length;i++){ const by=slots[i];
+      if(by<y0+2||by>y1-2) continue;
+      if(!fits(a,a+wpx,by)) continue;
+      taken.push({a:a,b:a+wpx,c:by-9,d:by+3});
+      return `<text class="wg-nm" x="${cx.toFixed(1)}" y="${by.toFixed(1)}" text-anchor="${anchor}">${esc(txt)}</text>`;
+    }
+    return '';
+  }).join('');
+  const chart=`<svg class="wgc" viewBox="0 0 ${W} ${H}" role="img" aria-label="Subject weightage against your leak">
+    ${zone}${ticks}${zeroLane}
+    <line class="wg-ax" x1="${x0}" y1="${y1}" x2="${x1}" y2="${y1}"/>
+    <text class="wg-xl" x="${x0}" y="${H-8}">fewer questions</text>
+    <text class="wg-xl" x="${x1}" y="${H-8}" text-anchor="end">more questions on the paper →</text>
+    ${dots}${labs}</svg>`;
+  /* the readout under the chart is the "detail on tap" half — one subject at a time, real numbers */
+  _wgRead={};
+  rows.forEach(r=>{
+    const lk=r.leak==null?null:r.leak;
+    const verdict = !r.n ? `Nothing lost here yet across ${totN} tagged mistakes.`
+      : lk>=1.25 ? `Bleeding <b>${lk.toFixed(1)}×</b> what its size predicts.`
+      : lk<=0.8  ? `Holding — <b>${lk.toFixed(1)}×</b> its size, below par for you.`
+      : `Right in proportion (<b>${lk.toFixed(1)}×</b>).`;
+    _wgRead[r.s]=`<div class="wg-rt"><b>${esc(r.s)}</b><span class="wg-q">${r.q} Q per paper</span></div>
+      <div class="wg-rb"><span class="wg-m"><b>${r.n}</b>your wrongs</span><span class="wg-m"><b>${Math.round(r.mShare*100)}%</b>of your total</span><span class="wg-m"><b>${Math.round(r.pShare*100)}%</b>of the paper</span>${r.blind?`<span class="wg-m bl"><b>${r.blind}</b>blind</span>`:''}</div>
+      <p class="tlab wg-v">${verdict}${r.swing!=null&&r.n?` About <b>${Math.round(r.swing)}</b> marks a paper ride on it.`:''}</p>
+      ${r.n?`<button class="linkish" data-wgo="${esc(r.s)}">Open ${esc(r.s.split(' /')[0])} ›</button>`:''}`;
+  });
+  const first=named[0]||rows.slice().sort((a,b)=>b.q-a.q)[0];
+  _wgFirst=first.s;
+  const hot=rows.filter(r=>r.n>0 && r.leak>=1.25 && r.q>=10).sort((a,b)=>b.n-a.n).slice(0,3);
+  const chips=hot.length?`<div class="wg-chips">${hot.map(r=>`<button class="wg-chip" data-wsub2="${esc(r.s)}">${esc(r.s.split(' /')[0])}<b>${r.leak.toFixed(1)}×</b></button>`).join('')}</div>`:'';
+  return `<div class="card wg-card">${HEAD}
+    ${chart}
+    <div class="wg-read" id="wgRead">${_wgRead[_wgFirst]}</div>
+    ${chips}
+    <p class="tlab wg-note">Paper mix is a recent-years average, not an official blueprint${canRisk?` · marks-per-paper from your ${nT} scored GT${nT>1?'s':''}`:''}.</p></div>`;
+}
 function weakAreasCard(){
   const m=buildSubjects(scopedSessions(), scopedEntries());
   const subs=Object.keys(m).map(s=>({s,...m[s]})).sort((a,b)=>b.wgt-a.wgt);
@@ -4278,14 +4591,19 @@ function weakAreasCard(){
   const today=todayISO();
   const shown=wkAll?subs:subs.slice(0,5);
   const trArrow={up:'<span class="wk-tr up" title="more mistakes recently — worsening">▲ worsening</span>',down:'<span class="wk-tr down" title="fewer mistakes recently — improving">▼ improving</span>',flat:''};
+  const topN=Math.max(1,...shown.map(x=>x.n));
   const rows=shown.map((x,i)=>{ const dom=ERRORS.slice().sort((a,b)=>x.errs[b.id]-x.errs[a.id])[0];
     const mini=ERRORS.map(e=>x.errs[e.id]?`<span style="flex:${x.errs[e.id]};background:${e.c}"></span>`:'').join('');
     const nx=subjectNextTouch(x.s);
     const nxChip=nx?`<span class="wk-next${nx.d<=today?' now':''}">${nx.kind==='revisit'?'revisit':'read'} ${nx.d<=today?'today':fmtShort(nx.d)}</span>`:'';
     const tr=trArrow[subjectTrend(x.s)]||'';
+    /* the size bar carries "how much" and the mix bar carries "what kind" — so the line under
+       them only has to carry the two numbers a bar cannot show */
     return `<button class="wk-row" data-sub="${esc(x.s)}"><span class="wk-rank${i===0?' worst':''}">${i+1}</span>
-      <div class="wk-mid"><div class="wk-t">${esc(x.s)}${nxChip}${tr}</div><div class="gtmini">${mini}</div>
-      <div class="wk-d">${x.n} mark${x.n>1?'s':''} lost${x.sure?` · <b class="bl">${x.sure} blind</b>`:''} · mostly ${dom.t.toLowerCase()}</div></div>
+      <div class="wk-mid"><div class="wk-t">${esc(x.s)}${nxChip}${tr}</div>
+      <div class="wk-mag"><i style="width:0" data-gw="${Math.round(x.n/topN*100)}"></i></div>
+      <div class="gtmini">${mini}</div>
+      <div class="wk-d"><b>${x.n}</b> lost${x.sure?` · <b class="bl">${x.sure}</b> blind`:''} <span class="wk-dom" style="--c:${dom.c}">${dom.code}</span></div></div>
       <span class="th-go">›</span></button>`;}).join('');
   const more=subs.length>5?`<button class="linkish" id="wkMore" style="margin-top:10px">${wkAll?'Show top 5 only ‹':'Show all '+subs.length+' subjects ›'}</button>`:'';
   return `<div class="card"><h3><span class="accent"></span>Weak areas — study these first <span class="h3-hint">recent tests count more</span><button class="cardq" data-help="signal">?</button></h3>${rows}${more}</div>`;
@@ -4389,12 +4707,12 @@ function triageInsightsCard(){
     ${recent.length>=2?`<div class="leak-sub" style="margin-top:20px">How the mix flows, test by test <span class="h3-hint">tap a test</span></div><div class="chartwrap" style="margin-top:2px">${streamChart(recent)}</div>`:''}
     ${trends}
     ${(()=>{ let nm=0,im=0,un=0; ss.forEach(x=>{const q=triageCounts(x.items); nm+=q.nearMiss; im+=q.img; un+=q.uncertain;});
-      const bits=[];
-      if(nm) bits.push(`<div class="tlab" style="margin-top:12px"><b style="color:var(--amber)">${nm} near-miss${nm>1?'es':''}</b> — down to two with a belief error. ${FIXNEAR}</div>`);
-      if(im) bits.push(`<div class="tlab" style="margin-top:8px"><b>${im}</b> ${im>1?'were':'was'} image-based — your documented leak. Drill images for the hotspot subjects.</div>`);
-      if(un) bits.push(`<button class="linkish" id="uncLine" style="margin-top:8px">${un} mistake${un>1?'s':''} you couldn't classify. Reopen them when you review the paper — an unsorted mistake is an unsorted fix. ›</button>`);
-      return bits.join('');})()}
-    <p class="tlab" style="margin-top:14px">Your steady leak is <b style="color:${dom.c}">${dom.t.toLowerCase()}</b>. ${FIXTEXT[dom.id]}</p></div>`;
+      const chips=[];
+      if(nm) chips.push(`<span class="tf-chip" style="--c:var(--amber)"><b>${nm}</b>near-miss</span>`);
+      if(im) chips.push(`<span class="tf-chip" style="--c:var(--violet)"><b>${im}</b>image-based</span>`);
+      if(un) chips.push(`<button class="tf-chip tap" id="uncLine" style="--c:var(--ink2)"><b>${un}</b>parked ›</button>`);
+      return chips.length?`<div class="tf-chips">${chips.join('')}</div>`:'';})()}
+    <p class="tlab" style="margin-top:14px">Your steady leak is <b style="color:${dom.c}">${dom.t.toLowerCase()}</b> — tap it above for the fix.</p></div>`;
 }
 function uncertainSheet(){
   const rows=sessions.map(sn=>{ const parked=(sn.items||[]).filter(it=>it.uncertain); if(!parked.length) return '';
@@ -4405,45 +4723,91 @@ function uncertainSheet(){
     <div class="actions" style="margin-top:14px"><button class="btn primary" onclick="closeSheet()">Done</button></div>`);
 }
 /* the week's argument in three moves — each row ends in a verb */
+/* This week's three moves — each move is a picture first:
+     1  the hotspot as two bars, its rate against your own baseline
+     2  discipline as a three-point line of blind attempts
+     3  unfinished work as a written-vs-owed progress bar
+   Every explanatory sentence lives in the tap-through sheet, keyed by move. */
+let _tmDetail={};
 function threeMovesCard(){
   if(!sessions.length && !entries.length) return '';
   const ss=scopedSessions(), ee=scopedEntries(); /* all three moves follow the active type scope */
-  const rows=[];
+  const rows=[]; _tmDetail={};
+  /* one wrapper per row so the chevron sits beside the whole block, not under it */
+  const wrap=(k,tappable,inner)=>rows.push(`<${tappable?'button':'div'} class="tm-row${tappable?' tap':''}"${tappable?` data-tm="${k}"`:''}><div class="tm-in">${inner}</div>${tappable?'<span class="th-go">›</span>':''}</${tappable?'button':'div'}>`);
   /* 1 — hotspot, from the signal engine: a rate out of line with baseline on enough data,
      not just the biggest subject and not a 2-question fluke */
   const sigs=subjectSignals();
   if(sigs.length){
-    const g=sigs[0];
+    const g=sigs[0], isB=g.kind==='blind', e=isB?null:ERR_MAP[g.kind];
+    const col=isB?'var(--rose)':e.c;
+    const r1=Math.round(g.rate*100), b1=Math.round(g.base*100);
+    const mx=Math.max(r1,b1,1);
     let when='';
     const nx=subjectNextTouch(g.sub);
     if(nx) when=` ${esc(g.sub)}'s next ${nx.kind==='revisit'?'revisit is due':'read is scheduled'} ${nx.d<=todayISO()?'today':fmtShort(nx.d)} — do it there.`;
-    if(g.kind==='blind'){
-      rows.push(`<div class="row"><span class="n">1</span><span><b class="bl">Blind spots cluster in ${esc(g.sub)}</b> — ${Math.round(g.rate*100)}% of its ${g.n} wrongs vs ${Math.round(g.base*100)}% everywhere else. A real cluster, not volume. ${esc(FIXACT.reasoning)}${when}</span></div>`);
-    } else {
-      const e=ERR_MAP[g.kind];
-      rows.push(`<div class="row"><span class="n">1</span><span><b style="color:${e.c}">${e.code}</b> clusters in <b>${esc(g.sub)}</b> — ${Math.round(g.rate*100)}% of its ${g.n} wrongs vs ${Math.round(g.base*100)}% baseline. ${esc(FIXACT[g.kind])}${when}</span></div>`);
-    }
+    _tmDetail.hot=`<h3>${esc(g.sub)}</h3><p>${isB?`<b>Blind spots</b> — sure and still wrong — make up <b>${r1}%</b> of ${esc(g.sub)}'s ${g.n} wrongs, against <b>${b1}%</b> everywhere else.`
+      :`<b style="color:${col}">${e.t}</b> makes up <b>${r1}%</b> of ${esc(g.sub)}'s ${g.n} wrongs, against a <b>${b1}%</b> baseline across all your subjects.`}
+      This passed the cluster test, so it is a real pattern and not just the subject you happen to sit the most questions in.</p>
+      <p style="margin-top:10px">${esc(FIXACT[isB?'reasoning':g.kind])}${when}</p>`;
+    wrap('hot',true,`<div class="tm-h"><span class="tm-k">Hotspot</span><b>${esc(g.sub)}</b><span class="tm-tag" style="--c:${col}">${isB?'blind':e.code}</span></div>
+      <div class="tm-cmp">
+        <div class="tm-b"><i style="width:0;background:${col}" data-gw="${Math.round(r1/mx*100)}"></i><span>${r1}%</span><em>here</em></div>
+        <div class="tm-b"><i style="width:0" data-gw="${Math.round(b1/mx*100)}"></i><span>${b1}%</span><em>your baseline</em></div>
+      </div>`);
   } else {
     const anyTagged=ss.some(sn=>sn.items.some(it=>it.subj)) || ee.some(e=>e.subject);
-    rows.push(`<div class="row"><span class="n">1</span><span>${anyTagged?'No abnormal cluster — your mistakes are spread evenly across subjects right now. That means the plan, not one subject, is the lever.':'No hotspot yet — tag subjects while you triage to find one.'}</span></div>`);
+    _tmDetail.hot=`<h3>No hotspot right now</h3><p>${anyTagged?'Nothing clusters above your own baseline by enough to call it. Your mistakes are spread evenly across subjects, which means the plan — not one subject — is the lever this week.':'Tag subjects while you triage and a hotspot can be found. Without subject tags there is nothing to compare.'}</p>`;
+    wrap('hot',true,`<div class="tm-h"><span class="tm-k">Hotspot</span><b>${anyTagged?'Spread evenly':'Not enough tags'}</b></div>
+      <div class="tm-flat"><span></span></div>`);
   }
   /* 2 — discipline */
   const last3=ss.slice(0,3).slice().reverse().map(x=>triageCounts(x.items).blindAttempt);
-  if(ss.length<3) rows.push(`<div class="row"><span class="n">2</span><span>Blind-attempt trend: not enough tests yet — triage 3 reads to see it.</span></div>`);
-  else{
-    const [a,b2,c2]=last3, lost=a+b2+c2;
-    if(c2>a) rows.push(`<div class="row"><span class="n">2</span><span>Your blind attempts went <b>${a} → ${b2} → ${c2}</b>. That's −${lost} marks across three tests. Skip anything you can't reduce to two options.</span></div>`);
-    else if(c2<a) rows.push(`<div class="row"><span class="n">2</span><span>Blind attempts fell <b>${a} → ${b2} → ${c2}</b>. Discipline is working — keep skipping the no-reads.</span></div>`);
-    else rows.push(`<div class="row"><span class="n">2</span><span>Blind attempts are flat (<b>${a} → ${b2} → ${c2}</b>). Hold the line and keep skipping.</span></div>`);
+  if(ss.length<3){
+    _tmDetail.disc=`<h3>Blind attempts</h3><p>A blind attempt is a question you answered with no read at all. On +4/−1 those cost you marks on average. Triage three reads and the trend across them appears here.</p>`;
+    wrap('disc',true,`<div class="tm-h"><span class="tm-k">Discipline</span><b>${ss.length} of 3 tests</b></div>
+      <div class="tm-flat"><span></span></div>`);
+  } else {
+    const [a,b2,c2]=last3, lost=a+b2+c2, dir=c2>a?'up':c2<a?'down':'flat';
+    _tmDetail.disc=`<h3>Blind attempts</h3><p>Across your last three tests you attempted <b>${a} → ${b2} → ${c2}</b> questions with no read at all — <b>${lost}</b> in total.</p>
+      <p style="margin-top:10px">${dir==='up'?'The count is climbing. Skip anything you cannot reduce to two options — on +4/−1 a pure guess loses marks in the long run.'
+        :dir==='down'?'The count is falling. The discipline is working — keep skipping the no-reads.'
+        :'The count is holding. Hold the line and keep skipping the ones you cannot narrow.'}</p>`;
+    wrap('disc',true,`<div class="tm-h"><span class="tm-k">Discipline</span><b>${c2} blind attempt${c2===1?'':'s'}</b><span class="tm-delta ${dir}">${dir==='up'?'▲':dir==='down'?'▼':'—'} ${Math.abs(c2-a)||'flat'}</span></div>
+      <div class="tm-spark">${miniLine(last3, dir==='down'?'var(--sage-ink)':dir==='up'?'var(--rose)':'var(--muted)')}<span class="tm-seq">${a} → ${b2} → ${c2}</span></div>`);
   }
   /* 3 — unfinished */
-  let unWritten=0, offender=null, parked=0;
-  ss.forEach(sn=>{ const q=triageCounts(sn.items); parked+=q.uncertain;
+  let unWritten=0, offender=null, parked=0, blindTot=0, written=0;
+  ss.forEach(sn=>{ const q=triageCounts(sn.items); parked+=q.uncertain; blindTot+=q.blind; written+=Math.min(q.blind,writtenCount(sn.id));
     if(q.blind>0 && (Date.now()-sn.ts)>48*3600e3){ const miss=Math.max(0,q.blind-writtenCount(sn.id)); if(miss>0){ unWritten+=miss; if(!offender) offender=sn; } } });
+  const donePc=blindTot?Math.round(written/blindTot*100):100;
   if(unWritten||parked){
-    rows.push(`<button class="row rowtap" id="tmUnfin"><span class="n">3</span><span>${unWritten?`<b class="bl">${unWritten} blind spot${unWritten>1?'s':''}</b>${offender?` from ${esc(offender.set)}`:''} never got a fix written`:''}${unWritten&&parked?' · ':''}${parked?`<b>${parked}</b> parked unsorted`:''}. Write them now.</span></button>`);
-  } else rows.push(`<div class="row"><span class="n">3</span><span>Nothing unfinished — every blind spot has a written fix. Keep it that way.</span></div>`);
-  return `<div class="card next"><h3><span class="accent"></span>This week's three moves<button class="cardq" data-help="signal">?</button></h3>${rows.join('')}</div>`;
+    _tmDetail.unfin=`<h3>Unfinished work</h3><p>${unWritten?`<b>${unWritten} blind spot${unWritten>1?'s':''}</b>${offender?` — the oldest from <b>${esc(offender.set)}</b>` :''} never got a fix written. A blind spot you cannot feel coming and have not written down is the one that repeats.`:''}
+      ${unWritten&&parked?'</p><p style="margin-top:10px">':''}${parked?`<b>${parked}</b> mistake${parked>1?'s are':' is'} parked unsorted — they are in the ledger but not in any bucket, so nothing counts them yet.`:''}</p>`;
+    wrap('unfin',true,`<div class="tm-h"><span class="tm-k">Unfinished</span><b>${unWritten?`${unWritten} without a fix`:`${parked} parked`}</b>${unWritten&&parked?`<span class="tm-tag" style="--c:var(--amber)">+${parked} parked</span>`:''}</div>
+      <div class="tm-prog"><div class="tm-track"><i style="width:0" data-gw="${donePc}"></i></div><span>${written}/${blindTot} written</span></div>`);
+  } else {
+    _tmDetail.unfin=`<h3>Nothing unfinished</h3><p>Every blind spot in this window has a written fix, and nothing is parked unsorted. That is the state to hold — it is what makes the rest of these numbers trustworthy.</p>`;
+    wrap('unfin',true,`<div class="tm-h"><span class="tm-k">Unfinished</span><b>All clear</b></div>
+      <div class="tm-prog"><div class="tm-track done"><i style="width:0" data-gw="100"></i></div><span>${written}/${blindTot||0} written</span></div>`);
+  }
+  return `<div class="card next tm-card"><h3><span class="accent"></span>This week's three moves<button class="cardq" data-help="signal">?</button></h3>${rows.join('')}</div>`;
+}
+/* the sentence behind each move, plus the door into the work it names */
+function movesSheet(k){
+  const det=_tmDetail[k]; if(!det) return;
+  const sig=(subjectSignals()||[])[0];
+  openSheet(det+`<div class="actions" style="margin-top:16px">
+    ${k==='hot'&&sig?`<button class="btn primary" id="tmSub">Open ${esc(sig.sub)}</button>`:''}
+    ${k==='unfin'?'<button class="btn primary" id="tmWrite">Write the fixes</button>':''}
+    ${k==='disc'?'<button class="btn primary" id="tmBlind">See every blind spot</button>':''}
+    <button class="btn ghost" onclick="closeSheet()">Close</button></div>`);
+  const g=id=>document.getElementById(id);
+  if(g('tmSub')) g('tmSub').onclick=()=>{ closeSheet(); subjectSheet(sig.sub); };
+  if(g('tmBlind')) g('tmBlind').onclick=()=>{ closeSheet(); blindSpotSheet(); };
+  if(g('tmWrite')) g('tmWrite').onclick=()=>{ closeSheet();
+    let off=null; sessions.forEach(sn=>{ const q=triageCounts(sn.items); if(!off && q.blind>writtenCount(sn.id)) off=sn; });
+    if(off) writeFixComposer(off.id); else uncertainSheet(); };
 }
 /* marks · accuracy · W:C across scored reads */
 /* the expanded read on the projection: every test, its pull on the line, and how the band is built —
@@ -4456,8 +4820,16 @@ function fcSheet(){
     return `<div class="fcs-row"><span class="fcs-set">${esc(s.set)}</span><span class="fcs-when">${relTime(s.ts)}</span>
       <span class="fcs-pc">${st.pct100}%</span><div class="fcs-track"><i style="width:0" data-gw="${pull}"></i></div><span class="fcs-w">${pull}%</span></div>`; }).join('');
   const bandW=Math.round((f.hi-f.lo)/2);
+  const dir=f.perWeekPc>0.3?'up':f.perWeekPc<-0.3?'down':'flat', pw=Math.abs(f.perWeekPc);
+  const nearCap = f.midPc>=85 && dir!=='down';
+  const trendTxt = dir==='up'?`climbing about <b>+${pw}%/week</b>`
+    : dir==='down'?`slipping about <b>${pw}%/week</b> — the trend is the wrong way`
+    : `holding steady`;
+  const mom=formMomentum(), fm=mom?FORM_META[mom.verdict]:null;
   openSheet(`<h3>The projection, opened up</h3>
     <p style="margin-bottom:8px"><b>${f.mid}/${f.max}</b> on exam day · honest range <b>${f.lo}–${f.hi}</b>.</p>
+    <p class="tlab" style="margin-bottom:10px">Across your last ${f.n} full GTs (sizes evened out to %) you're ${trendTxt}. Hold that and you land near <b>${f.mid}/${f.max}</b> on a 200-Q paper, ${f.d2e} days out — realistically <b>${f.lo}–${f.hi}</b>.${nearCap?' The curve bends as you near the ceiling, so gains up here come slower and cost more.':''}</p>
+    ${fm?`<p class="tlab" style="margin-bottom:10px"><b>Form:</b> ${fm.line}</p>`:''}
     <div class="sp-lab">each test's pull on the line</div>
     <div class="fcs-rows">${rows}</div>
     <p class="tlab" style="margin-top:6px">Pull = recency weight (21-day half-life) — today's GT counts about ×2 one from three weeks ago.</p>
@@ -4519,10 +4891,12 @@ function forecastCard(){
     const ss=timeScopedSessions(); if(!ss.length) return '';
     const gtScored=ss.filter(x=>x.testType==='gt' && scoreStats(x)).length;
     const need=Math.max(0,3-gtScored);
+    const pips=[0,1,2].map(i=>`<i class="${i<gtScored?'on':''}"></i>`).join('');
     return `<div class="card fc-lock"><h3><span class="accent"></span>Projected exam score<button class="cardq" data-help="forecast">?</button></h3>
-      <div class="fc-lock-row"><span class="fc-lock-ic">📈</span><div>
-      <div class="fc-lock-t">Locked — ${gtScored} of 3 scored full GTs</div>
-      <div class="tlab" style="margin-top:3px">After a <b>GT</b>, tap <b>Save the read</b> (not Skip) and enter correct / wrong. ${need} more full GT${need===1?'':'s'} and this projects your exam-day score. The exam is a full paper, so only GTs count here — daily modules feed the score trend instead.</div>
+      <div class="fc-lock-row"><span class="fc-lock-ic">📈</span><div style="flex:1;min-width:0">
+      <div class="fc-lock-t">${gtScored} of 3 scored GTs</div>
+      <div class="fc-pips">${pips}</div>
+      <div class="tlab" style="margin-top:7px">${need} more scored GT${need===1?'':'s'} unlocks this. GTs only — modules feed the score trend.</div>
       </div></div></div>`;
   }
   const W=336,H=152,x0=8,x1=W-40,y0=14,y1=H-26;
@@ -4538,19 +4912,14 @@ function forecastCard(){
   const bandTop=Y(f.hiPc), bandBot=Y(f.loPc);
   const dots=ppts.map((p,i)=>`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="2.6" fill="var(--accent-ink)"><title>${esc(f.pts[i].set)}: ${f.pts[i].marks}/${4*f.pts[i].total} (${f.pts[i].y}%)</title></circle>`).join('');
   const dir=f.perWeekPc>0.3?'up':f.perWeekPc<-0.3?'down':'flat';
-  const pw=Math.abs(f.perWeekPc);
-  const nearCap = f.midPc>=85 && dir!=='down';
-  const trendTxt = dir==='up'?`climbing about <b>+${pw}%/week</b>`
-    : dir==='down'?`slipping about <b>${pw}%/week</b> — the trend is the wrong way`
-    : `holding steady`;
   /* curved projection: sample the fitted logistic so the line visibly bends toward its ceiling */
   const lastX=f.pts[f.pts.length-1].x, projPts=[];
   for(let i=0;i<=12;i++){ const xi=lastX+(f.x0-lastX)*i/12; projPts.push({x:X(xi),y:Y(invlogit(f.fit.m*xi+f.fit.b)*100)}); }
   const projPath=smoothPath(projPts);
   const mom=formMomentum(), fm=mom?FORM_META[mom.verdict]:null;
   const formPill=fm?`<span class="fc-form ${fm.cls}">${fm.ic} ${fm.lab}</span>`:'';
-  const formLine=fm?`<p class="tlab fc-formline"><b>Form:</b> ${fm.line}</p>`:'';
-  return `<div class="card fc-card ember"><h3><span class="accent"></span>Projected exam score<span class="h3-hint">GT-only · tap to open</span><button class="cardq" data-help="forecast">?</button></h3>
+  const bandW=Math.round((f.hi-f.lo)/2);
+  return `<div class="card fc-card ember"><h3><span class="accent"></span>Projected exam score<span class="h3-hint">GT-only · tap</span><button class="cardq" data-help="forecast">?</button></h3>
     <div class="fc-big"><b data-cu="${f.mid}">${f.mid}</b><span class="fc-of">/ ${f.max}</span><span class="fc-band">${f.midPc}% · range ${f.lo}–${f.hi}</span>${formPill}</div>
     <div class="chartwrap"><svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Projected exam score, normalised">
       <path d="M ${last.x.toFixed(1)} ${last.y.toFixed(1)} L ${proj.x.toFixed(1)} ${bandTop.toFixed(1)} L ${proj.x.toFixed(1)} ${bandBot.toFixed(1)} Z" fill="var(--accent)" opacity=".13"/>
@@ -4560,11 +4929,18 @@ function forecastCard(){
       <circle class="fc-proj" cx="${proj.x.toFixed(1)}" cy="${proj.y.toFixed(1)}" r="4.5" fill="#fff" stroke="var(--accent-ink)" stroke-width="2"/>
       <text x="${proj.x.toFixed(1)}" y="${(proj.y-9).toFixed(1)}" text-anchor="end" class="xlab" style="fill:var(--accent-ink);font-weight:800">EXAM</text>
     </svg></div>
-    <p class="tlab" style="margin-top:6px">Across your last ${f.n} full GTs (sizes evened out to %) you're ${trendTxt}. Hold that and you land near <b>${f.mid}/${f.max}</b> on a 200-Q paper (${f.d2e} days out) — realistically <b>${f.lo}–${f.hi}</b>.${nearCap?' The curve bends as you near the ceiling — gains up here come slower and cost more.':''} Recent GTs count more (21-day half-life), and the band widens with fewer tests — it can't honestly be tighter on ${f.n}.</p>${formLine}</div>`;
+    <div class="fc-chips">
+      <span class="fc-chip ${dir}"><b>${f.perWeekPc>=0?'+':''}${(+f.perWeekPc).toFixed(1)}%</b>per week</span>
+      <span class="fc-chip"><b>±${bandW}</b>marks of doubt</span>
+      <span class="fc-chip"><b>${f.n}</b>GTs behind it</span>
+      <span class="fc-chip"><b>${f.d2e}</b>days out</span>
+    </div></div>`;
 }
 /* metacognition, zero extra taps: read from your mistakes how well you know when you're wrong,
    and whether your blind guessing is paying off on +4/-1 */
+let _calDetail='';
 function calibrationCard(){
+  _calDetail='';
   const ss=scopedSessions(); if(!ss.length) return '';
   let sure=0,twoish=0,noidea=0, B=0,Bmiss=0, haveB=false;
   ss.forEach(s=>{ const cp=sessComp(s); sure+=cp.sure; twoish+=cp.twoish; noidea+=cp.noidea;
@@ -4576,7 +4952,11 @@ function calibrationCard(){
     Math.round(blindRate*100)+'%','felt sure');
   const keys=[['felt sure',sure,'var(--rose)'],['down to 2',twoish,'var(--amber)'],['no read',noidea,'var(--ink2)']]
     .map(k=>`<span class="mx-key"><i style="background:${k[2]}"></i>${k[0]}<b>${k[1]}</b></span>`).join('');
-  const calVerdict = blindRate>=0.4?`<b class="bl">${Math.round(blindRate*100)}% of your mistakes were ones you felt sure about.</b> That's the danger zone — you can't feel these coming, so they'll repeat in the exam unless the concept itself is fixed.`
+  /* the donut already shows the percentage — this band carries the meaning, not the number again */
+  const calBand = blindRate>=0.4?{k:'bad',  t:'danger zone',     v:"You can't feel these coming"}
+    : blindRate>=0.2?           {k:'mid',  t:'middling',        v:'You sense most of them'}
+    :                           {k:'good', t:'well calibrated', v:"You know when you're shaky"};
+  _calDetail = blindRate>=0.4?`<b>${Math.round(blindRate*100)}% of your mistakes were ones you felt sure about.</b> That's the danger zone — you can't feel these coming, so they'll repeat in the exam unless the concept itself is fixed.`
     : blindRate>=0.2?`<b>${Math.round(blindRate*100)}% of your mistakes felt sure.</b> Middling calibration — most of your errors you at least sensed. Keep converting the sure-but-wrong ones into written fixes.`
     : `Only <b>${Math.round(blindRate*100)}% of your mistakes felt sure</b> — good self-awareness. You mostly know when you're shaky; the leak is knowledge and nerve, not blind confidence.`;
   let evBlock='';
@@ -4589,15 +4969,25 @@ function calibrationCard(){
     const verdict = clears?'The whole confidence range clears break-even — keep taking the guess, skipping these loses you marks.'
       : loses?'The whole range sits below break-even — skip the pure no-reads instead of guessing.'
       : `Your range (${Math.round(wlo*100)}–${Math.round(whi*100)}%) straddles the 20% line — too few blind attempts to call it yet. Keep logging them.`;
+    _calDetail+=`</p><p style="margin-top:12px">On +4/−1 a blind guess needs a <b>20%</b> hit rate to break even. You're at <b>${Math.round(hr*100)}%</b> across ${B} logged blind attempts (95% confidence ${Math.round(wlo*100)}–${Math.round(whi*100)}%), so each one is worth <b>${ev>=0?'+':''}${ev.toFixed(2)}</b> marks. ${verdict}`;
     evBlock=`<div class="cal-ev ${clears?'good':loses?'bad':''}">
       <div class="cal-ev-row"><span>Blind guesses that paid off</span><b>${hits}/${B} · ${Math.round(hr*100)}%</b></div>
       <div class="cal-bar"><span class="cal-ci" style="left:${Math.round(wlo*100)}%;right:${Math.round((1-whi)*100)}%"></span><span class="cal-fill" style="width:0;background:${good?'var(--sage-ink)':'var(--rose)'}" data-gw="${Math.round(Math.min(100,hr*100))}"></span><span class="cal-be" style="left:20%" title="break-even 20%"></span></div>
-      <p class="tlab" style="margin-top:8px">On +4/−1 you need <b>20%</b> to break even. You're at <b>${Math.round(hr*100)}%</b> (95% CI ${Math.round(wlo*100)}–${Math.round(whi*100)}%) → each blind guess is worth <b>${ev>=0?'+':''}${ev.toFixed(2)}</b> marks. ${verdict}</p></div>`;
+      <div class="cal-ev-foot"><span>break-even 20%</span><b class="${clears?'good':loses?'bad':''}">${ev>=0?'+':''}${ev.toFixed(2)} marks a guess</b></div></div>`;
   }
-  return `<div class="card"><h3><span class="accent"></span>How well you read yourself<button class="cardq" data-help="calibration">?</button></h3>
+  /* a div, not a button: a <button> cannot legally contain the help <button>, and the parser
+     silently closes the card around it — which empties half the card out of its own frame */
+  return `<div class="card cal-card" id="calCard" role="button" tabindex="0"><h3><span class="accent"></span>How well you read yourself<span class="h3-hint">tap</span><button class="cardq" data-help="calibration">?</button></h3>
     <div class="cal-flex">${ring}<div class="mx-keys cal-keys">${keys}</div></div>
-    <p class="tlab" style="margin-top:12px">${calVerdict}</p>
+    <div class="cal-band ${calBand.k}"><span>${calBand.v}</span><i>${calBand.t}</i></div>
     ${evBlock}</div>`;
+}
+/* the sentence that used to sit on the calibration card, now one tap deeper */
+function calSheet(){
+  if(!_calDetail) { metricHelp('calibration'); return; }
+  openSheet(`<h3>How well you read yourself</h3><p>${_calDetail}</p>
+    <div class="actions" style="margin-top:16px"><button class="btn primary" id="calBlind">See every blind spot</button><button class="btn ghost" onclick="closeSheet()">Close</button></div>`);
+  const b=document.getElementById('calBlind'); if(b) b.onclick=()=>{ closeSheet(); blindSpotSheet(); };
 }
 /* ---- your floor, not your ceiling ----
    A single best score flatters; the exam is one draw from your whole distribution, and a bad
@@ -4644,17 +5034,21 @@ function repeatCard(){
     const blind=g.filter(isBlind).length;
     return { g, n:g.length, open, last, blind, sub:g[0].subject||'', label:(g.find(e=>e.status!=='fixed')||g[0]).concept||'' };
   }).sort((a,b)=> (b.n-a.n) || (b.open-a.open) || (b.last-a.last)).slice(0,5);
-  const rows=ranked.map(r=>`<button class="rp-row" data-rpsub="${esc(r.sub)}">
+  /* a dot per hit, filled while it is still open — you count the beads, not the sentence */
+  const rows=ranked.map(r=>{
+    const dots=r.g.slice(0,8).map(e=>`<i class="${e.status==='fixed'?'ok':'open'}"></i>`).join('')+(r.n>8?'<i class="more"></i>':'');
+    return `<button class="rp-row" data-rpsub="${esc(r.sub)}">
       <span class="rp-n">${r.n}<i>×</i></span>
       <span class="rp-mid"><span class="rp-t">${esc(r.label.length>52?r.label.slice(0,51)+'…':r.label)}</span>
-        <span class="rp-d">${esc(r.sub||'untagged')}${r.blind?` · <b class="bl">${r.blind} blind</b>`:''} · last ${relTime(r.last)}</span></span>
-      <span class="rp-st ${r.open?'open':'done'}">${r.open?r.open+' open':'✓'}</span></button>`).join('');
+        <span class="rp-dots">${dots}</span>
+        <span class="rp-d">${esc(r.sub||'untagged')}${r.blind?` · <b class="bl">${r.blind} blind</b>`:''} · ${relTime(r.last)}</span></span>
+      <span class="rp-st ${r.open?'open':'done'}">${r.open?r.open+' open':'✓'}</span></button>`;}).join('');
   const stillOpen=ranked.filter(r=>r.open).length;
   return `<div class="card"><h3><span class="accent"></span>Keeps coming back <span class="h3-hint">same idea, more than once</span><button class="cardq" data-help="repeat">?</button></h3>
     ${rows}
     <p class="tlab" style="margin-top:12px">${stillOpen
-      ? `<b>${stillOpen}</b> of these ${stillOpen===1?'is':'are'} still unfixed. A concept that has beaten you twice will beat you a third time — these are worth more than any number of one-offs.`
-      : `All of your repeats are marked fixed. Re-test them once more near the exam to be sure it stuck.`}</p></div>`;
+      ? `<b>${stillOpen}</b> still unfixed — the cheapest marks you have.`
+      : `Every repeat is marked fixed. Re-test them near the exam.`}</p></div>`;
 }
 /* EBM triage of your own errors: not every wrong costs the same to fix.
    RF + TE = marks you already own (a cue/process fix). KG + CC = real learning.
@@ -4674,9 +5068,9 @@ function recoverableCard(){
   return `<div class="card"><h3><span class="accent"></span>Where the fastest marks are<button class="cardq" data-help="recover">?</button></h3>
     ${bar}
     <div class="rec-row"><div class="rec-lab"><b class="rec-q">${quick} you already own</b><span>${chip('retrieval')}${chip('execution')}</span></div>
-      <p class="tlab">Knew it, didn't fire · misread it. No new studying — reshape the cue, run a reading checklist. ${quick>=study?'This is your biggest, cheapest pile of marks — start here.':'Cheap points: clear these first.'}</p></div>
+      <p class="tlab">No new studying — reshape the cue, run a reading checklist.</p></div>
     <div class="rec-row"><div class="rec-lab"><b class="rec-s">${study} need real study</b><span>${chip('knowledge')}${chip('reasoning')}</span></div>
-      <p class="tlab">Didn't know it · confidently wrong. New learning or a corrected belief — slower, but the confidently-wrong ones stick best once you re-test them.</p></div>
+      <p class="tlab">New learning or a corrected belief. Tap a code for the drill.</p></div>
   </div>`;
 }
 function scoreTrendCard(){
@@ -4769,6 +5163,10 @@ function numbersCard(){
 /* every metric explains itself in two lines — what it is, what to do. Tight on purpose. */
 /* help = plain AND short. One clear sentence per part: what it is, why it matters, the one thing to do. */
 const METRIC_HELP={
+  weight:{t:'What the paper is worth',
+    is:'Across = how many questions a subject usually carries on a 200-question paper. Up = your share of mistakes there divided by that subject\'s share of the paper. Bubble size = how many of your wrongs landed there.',
+    why:'A subject that is 24 questions and where you bleed double is worth far more than a 2-question one you are shaky in. Being level with the line means you are exactly as good there as everywhere else.',
+    do:'Work the top-right first. The paper mix is a recent-years average, so treat it as a guide to size, not a promise about this year\'s paper.'},
   forecast:{t:'Your projected exam score',
     is:'Your Grand Test scores, turned into percentages so different-sized tests compare, with the trend drawn forward to exam day. The line flattens near the top on purpose; the range is how sure it can be — wide with few tests, tighter with more.',
     why:'One test is noisy. The direction across all of them is the real signal.',
@@ -4838,6 +5236,39 @@ function metricHelp(key){
     <div class="mh-row"><div class="mh-k">What to do</div><div class="mh-v">${esc(h.do)}</div></div>
     <div class="actions" style="margin-top:16px"><button class="btn primary" onclick="closeSheet()">Got it</button></div>`);
 }
+/* the detail half of a "Do this next" row: the full sentence, plus the door to where it lives */
+function nextSheet(k,sub){
+  const det=_naDetail[k]; if(!det) return;
+  const go={open:['Open the Book','book'], rep:['See the repeats','book'], sub:['Open the Book','book']}[k];
+  openSheet(det+`<div class="actions" style="margin-top:16px">
+    ${k==='blind'?'<button class="btn primary" id="naBlind">See every blind spot</button>':''}
+    ${sub?`<button class="btn ghost" id="naSub">Open ${esc(sub)}</button>`:''}
+    ${go?`<button class="btn ${sub?'ghost':'primary'}" id="naGo">${go[0]}</button>`:''}
+    <button class="btn ghost" onclick="closeSheet()">Close</button></div>`);
+  const g=id=>document.getElementById(id);
+  if(g('naBlind')) g('naBlind').onclick=()=>{ closeSheet(); blindSpotSheet(); };
+  if(g('naSub')) g('naSub').onclick=()=>{ closeSheet(); subjectSheet(sub); };
+  if(g('naGo')) g('naGo').onclick=()=>{ closeSheet(); if(sub){ bookFilter.sub=sub; renderBook(); } switchView('book'); };
+}
+function bindWeight(box){
+  const read=box.querySelector('#wgRead'); if(!read) return;
+  const hits=[].slice.call(box.querySelectorAll('.wg-hit'));
+  const chips=[].slice.call(box.querySelectorAll('[data-wsub2]'));
+  const wire=()=>{ const b=read.querySelector('[data-wgo]');
+    if(b) b.onclick=e=>{ e.stopPropagation(); buzz(6); subjectSheet(b.dataset.wgo); }; };
+  const show=sub=>{ if(!_wgRead[sub]) return; read.innerHTML=_wgRead[sub]; wire();
+    hits.forEach(h=>h.parentNode.classList.toggle('on', h.dataset.wsub===sub));
+    chips.forEach(c=>c.classList.toggle('on', c.dataset.wsub2===sub)); };
+  hits.forEach(h=>{ const s=h.dataset.wsub;
+    h.addEventListener('mouseenter',()=>show(s));
+    h.addEventListener('focus',()=>show(s));
+    h.addEventListener('click',()=>{ buzz(5); show(s); });
+  });
+  chips.forEach(c=>c.onclick=()=>{ buzz(5); show(c.dataset.wsub2); });
+  const svg=box.querySelector('.wgc');
+  if(svg) svg.addEventListener('mouseleave',()=>show(_wgFirst));
+  wire();
+}
 function renderInsights(){
   memoClear();
   const box=document.getElementById('insightsBody');
@@ -4867,13 +5298,17 @@ function renderInsights(){
   };
   const detailed = entries.length ? secWrap('logs','From your detailed logs',[nextCard(map),masteryCard(),statStrip(),leakCard(),typeSplitCard()]) : '';
   const deep = secWrap('deep','The whole picture — every subject, every test',[heatmapCard(),weakAreasCard(),numbersCard(),testListCard()]);
-  box.innerHTML = scopeRow + typeRow + vitalsStrip() + forecastCard() + pulseCard() + leverCard() + threeMovesCard() + recoverableCard() + floorCard() + calibrationCard() + repeatCard() + scoreTrendCard() + triageInsightsCard()
+  box.innerHTML = scopeRow + typeRow + vitalsStrip() + forecastCard() + pulseCard() + leverCard() + weightCard() + threeMovesCard() + recoverableCard() + floorCard() + calibrationCard() + repeatCard() + scoreTrendCard() + triageInsightsCard()
     + deep + detailed;
+  /* the weightage scatter is live: hover or tap a bubble and the readout under it becomes that
+     subject. The readout carries the link into the full subject sheet, so a tap never overshoots. */
+  bindWeight(box);
   box.querySelectorAll('.cardq[data-help]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); buzz(5); metricHelp(b.dataset.help); });
   /* fold-outs animate in place (grid-rows 0fr → 1fr) — no re-render, so the motion is real */
   box.querySelectorAll('[data-tgl]').forEach(b=>b.onclick=()=>{ buzz(5); const id=b.dataset.tgl; insOpen[id]=!insOpen[id];
     b.classList.toggle('open',insOpen[id]); const bd=b.nextElementSibling; if(bd) bd.classList.toggle('open',insOpen[id]); });
   const fcc=box.querySelector('.fc-card'); if(fcc) fcc.onclick=()=>{ buzz(6); fcSheet(); };
+  const cal=document.getElementById('calCard'); if(cal) cal.onclick=e=>{ if(e.target.closest('.cardq'))return; buzz(6); calSheet(); };
   const lvc=box.querySelector('.lv-card'); if(lvc) lvc.onclick=e=>{ if(e.target.closest('.cardq'))return; buzz(6); leverSheet(); };
   const pDr=document.getElementById('pulseDr'); if(pDr) pDr.onclick=()=>{ buzz(6); drillsSheet(); };
   const pBl=document.getElementById('pulseBl'); if(pBl) pBl.onclick=()=>{ buzz(6); blindSpotSheet(); };
@@ -4892,16 +5327,14 @@ function renderInsights(){
   /* physical spring count-ups on the display numbers (raw-numbers grid + projected score) */
   box.querySelectorAll('.num b[data-cu], .neg-num b[data-cu], .vt b[data-cu]').forEach(el=>{ const to=+el.dataset.cu; if(to&&to<=9999) countUp(el,to); });
   const fcb=box.querySelector('.fc-big b[data-cu]'); if(fcb){ const to=+fcb.dataset.cu; if(isFinite(to)) countUp(fcb,to,v=>Math.round(v)); }
-  const tm=document.getElementById('tmUnfin'); if(tm) tm.onclick=()=>{
-    let off=null; sessions.forEach(sn=>{ const q=triageCounts(sn.items); if(!off && q.blind>writtenCount(sn.id)) off=sn; });
-    if(off) writeFixComposer(off.id); else uncertainSheet();
-  };
+  box.querySelectorAll('[data-na]').forEach(b=>b.onclick=()=>{ buzz(6); nextSheet(b.dataset.na, b.dataset.nasub||''); });
+  box.querySelectorAll('[data-tm]').forEach(b=>b.onclick=()=>{ buzz(6); movesSheet(b.dataset.tm); });
   const ul=document.getElementById('uncLine'); if(ul) ul.onclick=uncertainSheet;
   box.querySelectorAll('[data-test]').forEach(b=>b.onclick=()=>{buzz(6);testDetailSheet(b.dataset.test)});
   box.querySelectorAll('[data-sub]:not([data-e])').forEach(b=>b.onclick=()=>{buzz(6);subjectSheet(b.dataset.sub)});
   box.querySelectorAll('[data-rpsub]').forEach(b=>b.onclick=()=>{buzz(6); const s=b.dataset.rpsub; if(s) subjectSheet(s); else switchView('book');});
   box.querySelectorAll('.hm-c.tapc').forEach(b=>b.onclick=()=>{buzz(6);bucketFixSheet(b.dataset.e, b.dataset.sub, +b.dataset.n)});
-  box.querySelectorAll('.mixbar .mx-seg, .mx-keys .mx-key, .rec-chip').forEach(b=>b.onclick=()=>{buzz(6);bucketFixSheet(b.dataset.e)});
+  box.querySelectorAll('.mixbar .mx-seg, .mx-keys .mx-key, .rec-chip, .lk-bar[data-e]').forEach(b=>b.onclick=()=>{buzz(6);bucketFixSheet(b.dataset.e)});
   box.querySelectorAll('.st-tap').forEach(r=>r.onclick=()=>{buzz(6);testDetailSheet(r.dataset.stest)});
   box.querySelectorAll('.spark-row[data-sp]').forEach(b=>b.onclick=()=>{ try{ buzz(6); sparkSheet(JSON.parse(b.dataset.sp)); }catch(_){} });
   growBars(box); /* every data bar on the page shares the same sweep-in */
@@ -4965,6 +5398,8 @@ function renderRivals(){
     `<p class="tlab riv-foot">Only aggregate numbers are shared — never a single mistake, concept or note. <button class="linkish" id="rivWhat">What exactly? ›</button></p>
      <div class="actions" style="margin-top:12px"><button class="btn ghost" id="rivLeave">Leave group</button></div>`;
   bindRivals();
+  bindRadar(box);
+  box.querySelectorAll('[data-rivu]').forEach(b=>b.onclick=()=>{ buzz(6); rivalSheet(b.dataset.rivu); });
   box.querySelectorAll('[data-cu]').forEach(el=>{ const v=+el.dataset.cu; if(isFinite(v)&&Math.abs(v)<=9999) countUp(el,v); });
   growBars(box);
 }
@@ -5100,31 +5535,62 @@ function rivSubjectRadar(all){
   const grid=[0.33,0.66,1].map(ring).join('');
   const spokes=AX.map((_,i)=>{ const [x,y]=pt(i,R); return `<line x1="${C}" y1="${C}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="var(--border)" stroke-width="1"/>`; }).join('');
   const COL=['var(--accent)','var(--violet)','var(--teal)','var(--amber)'];
-  const shapes=withSubs.slice(0,4).map((m,mi)=>{
+  const people=withSubs.slice(0,4);
+  const shapes=people.map((m,mi)=>{
     const p=AX.map((s,i)=>pt(i,R*Math.min(1,val(m,s)/peak)).map(v=>v.toFixed(1)).join(',')).join(' ');
-    return `<polygon class="rvr-sh" points="${p}" fill="${COL[mi]}" fill-opacity=".15" stroke="${COL[mi]}" stroke-width="2" stroke-linejoin="round" style="animation-delay:${mi*120}ms"/>`;
+    return `<polygon class="rvr-sh" data-riv="${mi}" points="${p}" fill="${COL[mi]}" fill-opacity=".15" stroke="${COL[mi]}" stroke-width="2" stroke-linejoin="round" style="animation-delay:${mi*120}ms"/>`;
   }).join('');
+  /* a vertex per person per axis: the shape stops being a blob and becomes readable points */
+  const verts=people.map((m,mi)=>AX.map((s,i)=>{ const [x,y]=pt(i,R*Math.min(1,val(m,s)/peak));
+    return `<circle class="rvr-v" data-ax="${i}" data-riv="${mi}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3" fill="${COL[mi]}" style="animation-delay:${mi*120+i*28}ms"/>`; }).join('')).join('');
   const labs=AX.map((s,i)=>{ const [x,y]=pt(i,R+14);
-    return `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" class="rvr-lab" text-anchor="${x<C-6?'end':x>C+6?'start':'middle'}" dominant-baseline="middle">${esc(s.length>9?s.slice(0,8)+'\u2026':s)}</text>`; }).join('');
-  const key=withSubs.slice(0,4).map((m,i)=>`<span class="rvr-k"><i style="background:${COL[i]}"></i>${esc((m.name||'').split(' ')[0])}</span>`).join('');
-  /* the one sentence worth saying: the subject you BOTH bleed in, and each person's own worst */
-  let read='';
-  if(withSubs.length>=2){
-    const a=withSubs[0], b=withSubs[1];
-    const shared=AX.map(s=>({s, m:Math.min(val(a,s),val(b,s))})).sort((x,y)=>y.m-x.m)[0];
-    const aw=(a.subs||[])[0], bw=(b.subs||[])[0];
-    const bits=[];
-    if(shared && shared.m>=8) bits.push(`You are both losing most in <b>${esc(shared.s)}</b>.`);
-    if(aw&&bw&&aw.s!==bw.s) bits.push(`${esc((a.name||'').split(' ')[0])}'s biggest hole is <b>${esc(aw.s)}</b> (${aw.pc}%), ${esc((b.name||'').split(' ')[0])}'s is <b>${esc(bw.s)}</b> (${bw.pc}%).`);
-    read=bits.join(' ');
-  } else if(withSubs.length===1 && (withSubs[0].subs||[])[0]){
-    const w=withSubs[0].subs[0]; read=`Your mistakes concentrate in <b>${esc(w.s)}</b> (${w.pc}%). When someone joins, both shapes overlay here.`;
-  }
-  return `<div class="card"><h3><span class="accent"></span>Where the mistakes land <span class="h3-hint">by subject</span></h3>
-    <svg class="rvr" viewBox="0 0 208 208" role="img" aria-label="mistakes by subject, per person">${grid}${spokes}${shapes}${labs}</svg>
+    return `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" class="rvr-lab" data-ax="${i}" text-anchor="${x<C-6?'end':x>C+6?'start':'middle'}" dominant-baseline="middle">${esc(s.length>9?s.slice(0,8)+'\u2026':s)}</text>`; }).join('');
+  /* a wedge per axis, so hovering or tapping anywhere near a spoke picks that subject */
+  const half=Math.PI/AX.length;
+  const wedges=AX.map((s,i)=>{ const a=-Math.PI/2+i*2*Math.PI/AX.length, RR=R+24;
+    const p1=[C+Math.cos(a-half)*RR, C+Math.sin(a-half)*RR], p2=[C+Math.cos(a+half)*RR, C+Math.sin(a+half)*RR];
+    return `<path class="rvr-hit" data-ax="${i}" data-axs="${esc(s)}" tabindex="0" role="button" aria-label="${esc(s)}"
+      d="M${C} ${C} L${p1[0].toFixed(1)} ${p1[1].toFixed(1)} A${RR} ${RR} 0 0 1 ${p2[0].toFixed(1)} ${p2[1].toFixed(1)} Z"><title>${esc(s)}</title></path>`; }).join('');
+  const key=people.map((m,i)=>`<button class="rvr-k" data-riv="${i}"><i style="background:${COL[i]}"></i>${esc((m.name||'').split(' ')[0])}</button>`).join('');
+  /* the readout: one subject at a time, everyone's number on it, ranked worst first */
+  _rvrRead={};
+  AX.forEach((s,i)=>{
+    const line=people.map((m,mi)=>({m,mi,pc:val(m,s)})).sort((a,b)=>b.pc-a.pc);
+    const mx=Math.max(1,...line.map(x=>x.pc));
+    _rvrRead[i]=`<div class="rvr-rt"><b>${esc(s)}</b><span>share of each person's own wrongs</span></div>
+      ${line.map(x=>`<div class="rvr-rr"><span class="rvr-rn">${esc((x.m.name||'').split(' ')[0])}</span>
+        <span class="rvr-rb"><i style="width:${Math.round(x.pc/mx*100)}%;background:${COL[x.mi]}"></i></span>
+        <b>${x.pc}%</b></div>`).join('')}`;
+  });
+  /* open on the subject the group as a whole bleeds hardest in */
+  _rvrFirst=0; let best=-1;
+  AX.forEach((s,i)=>{ const tot=people.reduce((a,m)=>a+val(m,s),0); if(tot>best){ best=tot; _rvrFirst=i; } });
+  return `<div class="card rvr-card"><h3><span class="accent"></span>Where the mistakes land <span class="h3-hint">tap a subject</span></h3>
+    <svg class="rvr" viewBox="0 0 208 208" role="img" aria-label="mistakes by subject, per person">${grid}${spokes}${shapes}${verts}${labs}${wedges}</svg>
     <div class="rvr-keys">${key}</div>
-    ${read?`<p class="tlab" style="margin-top:10px">${read}</p>`:''}
-    <p class="tlab rvr-note">A bigger reach means more of that person's wrongs land in that subject — it is a share of their own total, so a heavy tester and a light one still compare fairly.</p></div>`;
+    <div class="rvr-read" id="rvrRead">${_rvrRead[_rvrFirst]||''}</div>
+    <p class="tlab rvr-note">Reach is a share of that person's own total, so a heavy tester and a light one compare fairly.</p></div>`;
+}
+let _rvrRead={}, _rvrFirst=0;
+/* the radar answers the cursor: a wedge lights its spoke and swaps the readout to that subject;
+   a name in the key isolates that person, which is the only honest way to read overlapping shapes */
+function bindRadar(box){
+  const svg=box.querySelector('.rvr'), read=box.querySelector('#rvrRead');
+  if(!svg||!read) return;
+  const show=i=>{ if(!_rvrRead[i]) return; read.innerHTML=_rvrRead[i];
+    svg.querySelectorAll('.rvr-hit,.rvr-lab,.rvr-v').forEach(el=>el.classList.toggle('on', +el.dataset.ax===+i)); };
+  svg.querySelectorAll('.rvr-hit').forEach(h=>{ const i=+h.dataset.ax;
+    h.addEventListener('mouseenter',()=>show(i));
+    h.addEventListener('focus',()=>show(i));
+    h.addEventListener('click',()=>{ buzz(5); show(i); });
+  });
+  svg.addEventListener('mouseleave',()=>show(_rvrFirst));
+  let solo=null;
+  box.querySelectorAll('.rvr-k[data-riv]').forEach(k=>k.onclick=()=>{ buzz(5);
+    const mi=+k.dataset.riv; solo = solo===mi ? null : mi;
+    box.querySelectorAll('.rvr-k[data-riv]').forEach(o=>o.classList.toggle('on', solo!=null && +o.dataset.riv===solo));
+    svg.querySelectorAll('[data-riv]').forEach(el=>el.classList.toggle('dim', solo!=null && +el.dataset.riv!==solo));
+  });
 }
 /* the ranked board — ordered by latest GT, because that is the number that decides the exam */
 function rivBoard(all,me){
@@ -5136,14 +5602,61 @@ function rivBoard(all,me){
   const rows=rank.map((m,i)=>{
     const mine=me&&m.uid===me.uid;
     const stale=m.at && (Date.now()-m.at>7*864e5);
-    return `<div class="riv-row${mine?' me':''}">
+    /* a bar under the name shows the score as a share of the leader's, so the gap is visible
+       and not just arithmetic; the whole row opens that person's card */
+    const top=rank[0] && rank[0].last!=null ? rank[0].last : 0;
+    const w=(m.last!=null && top>0) ? Math.round(m.last/top*100) : 0;
+    return `<button class="riv-row${mine?' me':''}" data-rivu="${esc(m.uid)}">
       <span class="riv-rank">${i<3?medal[i]:i+1}</span>
       ${rivAvatar(m,'sm')}
       <div class="riv-mid"><div class="riv-nm">${esc(m.name)}${mine?'<span class="riv-you">you</span>':''}</div>
-        <div class="riv-sub">${m.tests||0} GT${(m.tests||0)===1?'':'s'} · ${m.sorted||0} sorted · ${m.streak||0}d streak${stale?' · <i>not updated in a week</i>':''}</div></div>
-      <div class="riv-big"><b${m.last==null?'':` data-cu="${m.last}"`}>${m.last==null?'—':m.last}</b><span>${m.last==null?'no GT yet':'latest'}</span></div>
-    </div>`;}).join('');
-  return `<div class="card"><h3><span class="accent"></span>The board <span class="h3-hint">by latest GT</span></h3>${rows}</div>`;
+        <div class="riv-gap"><i style="width:0" data-gw="${w}"></i></div>
+        <div class="riv-sub">${m.tests||0} GT${(m.tests||0)===1?'':'s'} · ${m.sorted||0} sorted · ${m.streak||0}d streak${stale?' · <i>stale</i>':''}</div></div>
+      <div class="riv-big"><b${m.last==null?'':` data-cu="${m.last}"`}>${m.last==null?'—':m.last}</b><span>${m.last==null?'no GT yet':'latest'}</span>
+        ${m.series&&m.series.length>1?miniLine(m.series,mine?'var(--accent)':'var(--violet)'):''}</div>
+      <span class="th-go">›</span>
+    </button>`;}).join('');
+  return `<div class="card"><h3><span class="accent"></span>The board <span class="h3-hint">tap a row</span></h3>${rows}</div>`;
+}
+/* one person, opened up: every shared metric, their GT line, and where their wrongs land */
+function rivalSheet(uid){
+  const m=(lb.members||[]).find(x=>x.uid===uid); if(!m) return;
+  const mine=fbUser&&m.uid===fbUser.uid;
+  const rows=RIV_METRICS.map(d=>{
+    const v=m[d.k]; if(v==null) return '';
+    const vals=(lb.members||[]).map(x=>x[d.k]).filter(x=>x!=null);
+    const best=vals.length?(d.hi?Math.max.apply(null,vals):Math.min.apply(null,vals)):null;
+    const lead = best!=null && v===best;
+    return `<div class="rvs-row"><div class="rvs-k">${d.t}<span>${d.hint}</span></div>
+      <b class="${lead?'lead':''}">${fmtRiv(m,d.k)}${lead?' <i>best</i>':''}</b></div>`;
+  }).filter(Boolean).join('');
+  const t=rivTrend(m);
+  const subs=(m.subs||[]).slice(0,6);
+  const smx=Math.max(1,...subs.map(x=>x.pc));
+  openSheet(`<h3>${esc(m.name)}${mine?' (you)':''}</h3>
+    ${m.series&&m.series.length>1?`<div class="sp-lab">their last ${m.series.length} GTs</div>
+      <div class="chartwrap">${areaPct(m.series)}</div>`:''}
+    ${t?`<p class="tlab">Moving <b>${t.slope>=0?'+':''}${t.slope.toFixed(1)}%</b> per test, swinging ±${t.sd.toFixed(1)}% around that line.</p>`:''}
+    <div class="sp-lab" style="margin-top:14px">every shared number</div>
+    ${rows}
+    ${subs.length?`<div class="sp-lab" style="margin-top:16px">where their wrongs land</div>
+      ${subs.map(x=>`<div class="hbar"><span class="k">${esc(x.s)}</span><div class="track"><div class="fill" style="width:${Math.max(4,Math.round(x.pc/smx*100))}%;background:linear-gradient(90deg,var(--accent),var(--accent2))"></div></div><span class="v">${x.pc}%</span></div>`).join('')}`:''}
+    <p class="tlab" style="margin-top:14px">${m.at?'Their row was last published '+relTime(m.at)+'.':'No publish time on this row yet.'}</p>
+    <div class="actions" style="margin-top:14px"><button class="btn primary" onclick="closeSheet()">Close</button></div>`);
+  growBars(document.getElementById('sheet'));
+}
+/* a compact percentage area line, reused for a rival's GT series */
+function areaPct(vals){
+  const W=320,H=110,x0=10,x1=W-10,y0=12,y1=H-16;
+  const lo=Math.min.apply(null,vals), hi=Math.max.apply(null,vals), sp=(hi-lo)||1;
+  const pts=vals.map((v,i)=>({x: vals.length===1?(x0+x1)/2 : x0+i*(x1-x0)/(vals.length-1), y: y1-((v-lo)/sp)*(y1-y0)}));
+  const line=smoothPath(pts), last=pts[pts.length-1];
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="their grand test percentages">
+    <path d="${line} L ${last.x.toFixed(1)} ${y1} L ${pts[0].x.toFixed(1)} ${y1} Z" fill="var(--accent)" opacity=".12"/>
+    <path d="${line}" fill="none" stroke="var(--accent-ink)" stroke-width="2.4" stroke-linecap="round"/>
+    ${pts.map(p=>`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="2.6" fill="var(--accent-ink)"/>`).join('')}
+    <text x="${last.x.toFixed(1)}" y="${Math.max(10,last.y-9).toFixed(1)}" text-anchor="end" class="plab">${vals[vals.length-1]}%</text>
+  </svg>`;
 }
 /* where you actually stand: your value against the group's best on each metric */
 function rivBars(all,me){
