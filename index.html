@@ -671,15 +671,29 @@
   .mx-key b{color:var(--ink);font-variant-numeric:tabular-nums}
   /* subject × mistake heatmap */
   .heatmap{display:flex;flex-direction:column;gap:5px;overflow-x:auto;margin:0 -2px;padding:0 2px}
-  .hm-row{display:grid;grid-template-columns:96px repeat(4,1fr) 34px;gap:5px;align-items:stretch;animation:rise .3s cubic-bezier(.22,1,.36,1) both}
+  .hm-row{display:grid;grid-template-columns:88px repeat(4,1fr) 30px;gap:5px;align-items:stretch;animation:rise .3s cubic-bezier(.22,1,.36,1) both;
+    border-radius:9px;transition:background .18s}
+  .hm-row.has-mk{grid-template-columns:92px repeat(4,1fr) 24px 32px}
+  .hm-row.row-on{background:var(--surface2)}
   .hm-row:nth-child(3){animation-delay:.04s}.hm-row:nth-child(4){animation-delay:.08s}.hm-row:nth-child(5){animation-delay:.12s}
   .hm-row:nth-child(6){animation-delay:.15s}.hm-row:nth-child(n+7){animation-delay:.18s}
   .hm-head .hm-c,.hm-head .hm-tot{font-size:10.5px;font-weight:800;letter-spacing:.03em;background:none;color:var(--faint);height:auto;padding-bottom:2px}
   .hm-head .hm-c{color:inherit}
   .hm-sub{font-size:12px;font-weight:640;color:var(--ink2);align-self:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .hm-c{display:grid;place-items:center;height:34px;border-radius:8px;font-size:13px;font-weight:750;color:var(--ink2);font-variant-numeric:tabular-nums;transition:background .4s}
+  .hm-c{display:grid;place-items:center;height:34px;border-radius:8px;font-size:13px;font-weight:750;color:var(--ink2);font-variant-numeric:tabular-nums;
+    transition:background .4s,transform .16s var(--spring),box-shadow .16s;position:relative}
   .hm-c.lt{color:#fff}
+  .hm-c.col-on{box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--ink) 28%,transparent)}
+  .hm-c.tapc{cursor:pointer}
+  .hm-c.tapc:hover{transform:scale(1.09);box-shadow:0 4px 12px -3px rgba(0,0,0,.3);z-index:2}
+  .hm-c.tapc:active{transform:scale(.97)}
+  .hm-hd{cursor:default}
   .hm-tot{align-self:center;text-align:right;font-size:12.5px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums}
+  /* marks a paper, per subject — the exam-facing column, tinted by how much is at stake */
+  .hm-mk{align-self:center;display:grid;place-items:center;height:26px;border-radius:8px;
+    background:color-mix(in srgb, var(--accent) calc(var(--i,0) * 46%), var(--surface2))}
+  .hm-mk b{font-size:12px;font-weight:850;color:var(--ink);font-variant-numeric:tabular-nums}
+  .hm-mk.hd{background:none;height:auto;font-size:10.5px;font-weight:800;letter-spacing:.03em;color:var(--faint)}
   /* smart set picker */
   .setnew{display:flex;align-items:center;gap:13px;width:100%;text-align:left;color:#fff;background:var(--grad);border-radius:16px;padding:14px 16px;margin-bottom:8px;
     box-shadow:0 8px 20px -9px rgba(193,80,45,.55);transition:transform .09s}
@@ -1306,7 +1320,7 @@
     .view.on .vitals,.view.on .th-dash,.view.on .th-card,.view.on .acc-card,.view.on .acc-stats,
     .tab.on svg{animation:none}
   }
-  .rvr{width:100%;max-width:264px;height:auto;display:block;margin:8px auto 4px;overflow:visible;touch-action:manipulation}
+  .rvr{width:100%;max-width:300px;height:auto;display:block;margin:10px auto 4px;overflow:visible;touch-action:manipulation}
   .rvr-note{margin-top:8px}
   /* ---- subject weightage scatter ---- */
   .wgc{width:100%;height:auto;display:block;margin:8px 0 2px;overflow:visible;touch-action:manipulation}
@@ -1319,7 +1333,7 @@
   .wg-ax{stroke:var(--border);stroke-width:1}
   .wg-xl{font-size:9px;font-weight:750;fill:var(--faint)}
   .wg-nm{font-size:10px;font-weight:850;fill:var(--ink2);pointer-events:none}
-  .wg-g .wg-dot{stroke:var(--surface);stroke-width:1.5;transition:r .18s var(--ease),filter .18s var(--ease);
+  .wg-g .wg-dot{pointer-events:none;stroke:var(--surface);stroke-width:1.5;transition:r .18s var(--ease),filter .18s var(--ease);
     transform-origin:center;opacity:0;animation:wgPop .5s var(--spring) forwards}
   .wg-g:nth-of-type(2n) .wg-dot{animation-delay:60ms} .wg-g:nth-of-type(3n) .wg-dot{animation-delay:110ms}
   @keyframes wgPop{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:none}}
@@ -1330,8 +1344,13 @@
   .wg-g:hover .wg-dot{stroke:var(--ink2);stroke-width:2}
   .wg-hit:focus-visible + *,.wg-g:focus-within .wg-dot{stroke:var(--ink);stroke-width:2.2}
   .wg-read{margin-top:10px;padding:11px 13px;border-radius:14px;background:var(--surface2);border:1px solid var(--edge);min-height:86px}
-  .wg-rt{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
-  .wg-rt b{font-size:15px;font-weight:850;color:var(--ink)}
+  .wg-rt{display:flex;align-items:center;gap:9px}
+  .wg-rt b{flex:1;min-width:0;font-size:15px;font-weight:850;color:var(--ink)}
+  .wg-step{width:26px;height:26px;flex:none;border-radius:9px;border:1px solid var(--edge);background:var(--surface);
+    color:var(--muted);font-size:15px;font-weight:800;line-height:1;cursor:pointer;display:grid;place-items:center;
+    transition:transform .16s var(--spring),color .16s,border-color .16s}
+  .wg-step:hover{color:var(--accent-ink);border-color:var(--border2);transform:translateY(-1px)}
+  .wg-step:active{transform:scale(.9)}
   .wg-q{font-size:11px;font-weight:750;color:var(--faint);white-space:nowrap}
   .wg-rb{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:7px}
   .wg-m{display:inline-flex;align-items:baseline;gap:5px;font-size:11px;font-weight:650;color:var(--muted)}
@@ -1355,6 +1374,20 @@
     animation:flrIn .7s var(--ease) both}
   @keyframes flrIn{from{transform:scaleX(.3);opacity:0}to{transform:none;opacity:1}}
   .flr-tick{position:absolute;top:-3px;width:3px;height:20px;border-radius:2px;background:var(--ink);opacity:.7}
+  .flr-card{cursor:pointer}
+  .flr-track{height:18px}
+  .flr-dot{position:absolute;top:50%;width:7px;height:7px;border-radius:50%;background:var(--accent-ink);
+    border:1.5px solid var(--surface);margin-left:-3.5px;transform:translateY(calc(-50% - var(--r,0px))) scale(0);
+    animation:flrDot .42s var(--spring) both}
+  @keyframes flrDot{to{transform:translateY(calc(-50% - var(--r,0px))) scale(1)}}
+  .flr-band-row{display:flex;align-items:baseline;gap:9px;margin-top:12px;padding:10px 13px;border-radius:13px;background:var(--surface2)}
+  .flr-band-row span{font-size:11.5px;font-weight:650;color:var(--muted)}
+  .flr-band-row b{flex:1;font-size:17px;font-weight:850;color:var(--ink);font-variant-numeric:tabular-nums}
+  .flr-v{font-style:normal;font-size:10px;font-weight:850;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:7px;white-space:nowrap}
+  .flr-v.tight{color:var(--sage-ink);background:color-mix(in srgb,var(--sage) 18%,transparent)}
+  .flr-v.normal{color:var(--muted);background:var(--surface)}
+  .flr-v.wide{color:var(--rose);background:color-mix(in srgb,var(--rose) 13%,transparent)}
+  @media(prefers-reduced-motion:reduce){ .flr-dot{animation:none;transform:translateY(calc(-50% - var(--r,0px))) scale(1)} }
   .flr-ends{display:flex;justify-content:space-between;align-items:baseline;margin-top:9px;font-size:11.5px;font-weight:650;color:var(--faint)}
   .flr-ends b{font-size:17px;font-weight:850;color:var(--ink);font-variant-numeric:tabular-nums}
   .flr-mid{color:var(--muted);font-weight:700}
@@ -1381,10 +1414,55 @@
   @keyframes rvGrow{to{transform:scale(1);opacity:1}}
   .rvr-lab{font-size:9px;font-weight:800;fill:var(--faint);letter-spacing:.02em;pointer-events:none;transition:fill .18s}
   .rvr-lab.on{fill:var(--ink);font-size:10px}
+  /* nineteen spokes: whisper-quiet until one is picked */
+  .rvr-ring{stroke:var(--edge);stroke-width:1}
+  .rvr-par{stroke:var(--accent-ink);stroke-width:1.7;stroke-dasharray:5 4;opacity:.75}
+  .rvr-parlab{font-size:8px;font-weight:850;letter-spacing:.06em;text-transform:uppercase;fill:var(--accent-ink);opacity:.85;pointer-events:none}
+  .rvr-spoke{stroke:var(--edge);stroke-width:1;transition:stroke .18s,stroke-width .18s}
+  .rvr-spoke.on{stroke:var(--accent-ink);stroke-width:1.8}
+  .rvr-arc{stroke-width:2.5;stroke-linecap:round;opacity:.55}
+  .rvr-arc.b0{stroke:var(--teal)} .rvr-arc.b1{stroke:var(--violet)} .rvr-arc.b2{stroke:var(--accent)}
+  .rvr-blocks{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 14px;margin-top:2px}
+  .rvr-bk{display:inline-flex;align-items:center;gap:5px;font-size:9.5px;font-weight:850;
+    letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
+  .rvr-bk i{width:14px;height:3px;border-radius:2px;flex:none}
+  .rvr-bk.b0 i{background:var(--teal)} .rvr-bk.b1 i{background:var(--violet)} .rvr-bk.b2 i{background:var(--accent)}
+  .rvr-plate{fill:var(--surface);opacity:.92;pointer-events:none}
+  .rvr-ctr{font-size:11.5px;font-weight:850;fill:var(--ink);pointer-events:none}
+  .rvr-ctr2{font-size:8px;font-weight:700;fill:var(--faint);pointer-events:none}
+  .rvr-modes{display:flex;gap:6px;margin:2px 0 4px}
+  .rvr-m{flex:1;padding:7px 8px;border-radius:11px;border:1px solid var(--edge);background:var(--surface2);
+    font-size:11.5px;font-weight:750;color:var(--muted);cursor:pointer;transition:transform .16s var(--spring),background .16s,color .16s}
+  .rvr-m:hover{transform:translateY(-1px)} .rvr-m:active{transform:scale(.97)}
+  .rvr-m.on{background:var(--accent-soft);color:var(--accent-ink);border-color:transparent}
   .rvr-v{opacity:0;animation:wgPop .45s var(--spring) forwards;pointer-events:none;transition:r .18s var(--ease),stroke-width .18s}
   .rvr-v.on{r:5;stroke:var(--surface);stroke-width:1.6}
   .rvr-hit{fill:transparent;cursor:pointer;outline:none;transition:fill .18s}
   .rvr-hit.on{fill:color-mix(in srgb,var(--accent) 9%,transparent)}
+  /* every subject, with numbers — the detail half of the ring */
+  .rvg{margin-top:12px;border-top:1px solid var(--edge);padding-top:4px}
+  .rvg-blk{display:flex;align-items:center;gap:9px;margin:12px 0 4px;font-size:9.5px;font-weight:850;
+    letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+  .rvg-blk i{flex:1;height:1px;background:var(--edge)}
+  .rvg-row{display:grid;grid-template-columns:1fr auto minmax(64px,1.1fr) auto;align-items:center;gap:10px;
+    width:100%;text-align:left;padding:7px 8px;margin:0 -8px;border:none;background:none;border-radius:10px;cursor:pointer;
+    opacity:0;animation:rvgIn .4s var(--ease) forwards;transition:background .16s,transform .16s var(--spring)}
+  @keyframes rvgIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .rvg-row:hover{background:var(--surface2)} .rvg-row.on{background:var(--accent-soft)}
+  .rvg-row:active{transform:scale(.99)}
+  .rvg-row.none{opacity:.42}
+  .rvg-s{font-size:12.5px;font-weight:700;color:var(--ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rvg-q{font-size:10px;font-weight:750;color:var(--faint);font-variant-numeric:tabular-nums}
+  .rvg-bars{display:flex;flex-direction:column;gap:3px;min-width:0}
+  .rvg-c{display:block;height:5px;border-radius:3px;background:var(--surface2);overflow:hidden;transition:opacity .2s}
+  .rvg-c.dim{opacity:.18}
+  .rvg-c i{display:block;height:100%;border-radius:3px;transition:width .55s cubic-bezier(.4,0,.2,1)}
+  .rvg-v{display:inline-flex;align-items:center;justify-content:flex-end;gap:5px;font-size:12px;font-weight:850;
+    color:var(--ink);font-variant-numeric:tabular-nums;min-width:50px;text-align:right}
+  .rvg-v i{width:6px;height:6px;border-radius:50%;flex:none}
+  .rvg-row.none .rvg-v{color:var(--faint);font-weight:700}
+  @media(prefers-reduced-motion:reduce){ .rvg-row{animation:none;opacity:1} .rvg-row.none{opacity:.42} }
+  .rvr-sh{pointer-events:none}
   .rvr-sh,.rvr-v{transition:opacity .2s var(--ease)}
   .rvr [data-riv].dim{opacity:.12}
   .rvr-keys{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 10px;margin-top:8px}
@@ -1467,13 +1545,24 @@
   .wk-rank{flex:none;width:26px;height:26px;border-radius:9px;display:grid;place-items:center;font-weight:850;font-size:12.5px;background:var(--surface2);color:var(--muted)}
   .wk-rank.worst{background:color-mix(in srgb,var(--rose) 13%,transparent);color:var(--rose)}
   .wk-mid{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
-  .wk-t{font-weight:750;font-size:14.5px}
-  .wk-d{font-size:11.5px;color:var(--muted);font-weight:600;display:flex;align-items:center;gap:7px}
+  .wk-t{font-weight:750;font-size:14.5px;display:flex;align-items:center;flex-wrap:wrap;gap:7px}
+  .wk-d{font-size:11.5px;color:var(--muted);font-weight:600;display:flex;align-items:center;flex-wrap:wrap;gap:7px}
   .wk-d b{font-size:13px;font-weight:850;color:var(--ink);font-variant-numeric:tabular-nums}
   .wk-d b.bl{color:var(--rose)}
-  .wk-mag{height:5px;border-radius:4px;background:var(--surface2);overflow:hidden}
-  .wk-mag i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .55s cubic-bezier(.4,0,.2,1)}
+  .wk-mag{height:9px;border-radius:5px;background:var(--surface2);overflow:hidden;flex:none}
+  .wk-mag > i{display:flex;height:100%;border-radius:5px;overflow:hidden;min-width:6px;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .55s cubic-bezier(.4,0,.2,1)}
+  .wk-mag > i > span{min-width:2px}
+  .wk-mag > i > span:not(:last-child){border-right:1px solid color-mix(in srgb,var(--surface) 70%,transparent)}
   .wk-dom{font-size:9.5px;font-weight:850;letter-spacing:.04em;padding:2px 6px;border-radius:6px;color:var(--c);background:color-mix(in srgb,var(--c) 14%,transparent)}
+  .wk-q{font-size:9.5px;font-weight:800;color:var(--faint);background:var(--surface2);padding:2px 6px;border-radius:6px;flex:none}
+  .wk-lk{font-size:10px;font-weight:850;color:var(--muted);font-variant-numeric:tabular-nums}
+  .wk-lk.hot{color:var(--rose)} .wk-lk.ok{color:var(--sage-ink)}
+  .wk-sort{display:flex;gap:6px;margin:-2px 0 12px}
+  .wk-sb{flex:1;padding:6px 8px;border-radius:10px;border:1px solid var(--edge);background:var(--surface2);
+    font-size:11px;font-weight:750;color:var(--muted);cursor:pointer;transition:transform .16s var(--spring),background .16s,color .16s}
+  .wk-sb:hover{transform:translateY(-1px)} .wk-sb:active{transform:scale(.97)}
+  .wk-sb.on{background:var(--accent-soft);color:var(--accent-ink);border-color:transparent}
   /* fix box inside the bucket sheet */
   .fg-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
   .fg-tech{font-size:12px;font-weight:800;color:var(--accent-ink);background:var(--accent-soft);padding:5px 11px;border-radius:9px}
@@ -1661,6 +1750,22 @@
     .tab{flex-direction:row;justify-content:flex-start;gap:12px;padding:12px 14px;border-radius:12px;font-size:14px;font-weight:600;color:var(--ink2)}
     .tab svg{width:20px;height:20px}
     .tab.on{background:var(--accent-soft);color:var(--accent-ink)}
+  }
+  /* A tablet held in the hand has room for two columns of cards. Anything that is a page-level
+     control — the scope chips, a section fold-out, the group header — still spans the full width,
+     so the reading order stays "settings, then cards" rather than a scrambled masonry. */
+  @media (min-width:820px){
+    /* minmax(0,1fr) not 1fr: a grid track defaults to min-content, so one wide child (the map,
+       the test list) would otherwise push the whole page sideways */
+    #insightsBody,#rivalsBody{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 16px;align-items:start;min-width:0}
+    #insightsBody > .scope-row,#insightsBody > .type-note,#insightsBody > .vitals,
+    #insightsBody > .ins-sec,#insightsBody > .sec-body,#insightsBody > .empty,
+    #insightsBody > .fc-card,#insightsBody > .fc-lock{grid-column:1 / -1}
+    #rivalsBody > .riv-head,#rivalsBody > .riv-foot,#rivalsBody > .actions,#rivalsBody > .riv-empty{grid-column:1 / -1}
+    .sec-inner{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 16px;align-items:start;min-width:0}
+    /* the two tall ones read better full width than squeezed into half of it */
+    .sec-inner > .card:has(.heatmap),.sec-inner > .card.gtlist{grid-column:1 / -1}
+    .rvr{max-width:340px}
   }
   @media (min-width:1100px){ .wrap{max-width:940px} }
 </style>
@@ -1907,7 +2012,7 @@ const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.st
 async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } try{return localStorage.getItem(k)}catch(_){return null} }
 async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v);return true}catch(e){return false} } try{localStorage.setItem(k,v);return true}catch(_){return false} }
 const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
-const APP_VERSION='v62'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
+const APP_VERSION='v63'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
 
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 /* Roughly how a 200-question NEET-PG paper is split by subject — an average of recent years,
@@ -4475,24 +4580,38 @@ function subjectTrend(sub){
      size    → how many of your wrongs landed there
    Top-right is where the cheap marks are: big subject, disproportionate bleed.
    The leak index is scale-free, so it is honest whether you have 20 wrongs or 200. */
-let _wgRead={}, _wgFirst='';
-function weightRows(){
+let _wgRead={}, _wgFirst='', _wgOrder=[];
+/* ============ one exam-impact engine, shared by every card that talks about subjects ============
+   Everything downstream — the weightage scatter, weak areas, the subject x mistake map — reads
+   from here, so those three can never quietly disagree about the same subject.
+     q        questions that subject typically carries on a 200-Q paper
+     n        your wrongs in it, in the active scope
+     mShare   its share of your wrongs        pShare  its share of the paper
+     leak     mShare / pShare — 1.0 is exactly par, 2.0 is twice what its size predicts
+     perPaper wrongs a paper, from your scored GTs;  marks = that x 5 (the +4 forgone plus the -1)
+   leak needs 12 tagged mistakes and marks needs 2 scored GTs; below either, the field is null
+   rather than a number that would look real. */
+function examImpact(){ return _memo('exi:'+insScopeVal()+':'+insType, _examImpact); }
+function _examImpact(){
   const m=buildSubjects(scopedSessions(), scopedEntries());
-  let totN=0; Object.keys(m).forEach(s=>{ if(PAPER_MIX[s]>0) totN+=m[s].n; });
   const gtSets=new Set();
-  scopedSessions().forEach(s=>{ if((s.testType||'gt')==='gt') gtSets.add(s.set); });
+  scopedSessions().forEach(x=>{ if((x.testType||'gt')==='gt') gtSets.add(x.set); });
   scopedEntries().forEach(e=>{ if((e.testType||'gt')==='gt') gtSets.add(e.set); });
-  const nT=gtSets.size;
-  const canRisk = insType!=='module' && nT>=2;
-  const rows=Object.keys(PAPER_MIX).map(s=>{
-    const q=PAPER_MIX[s], n=(m[s]&&m[s].n)||0, pShare=q/EXAM_Q;
-    return { s, q, n, pShare, mShare: totN?n/totN:0,
-             leak: totN>=12 ? (n/totN)/pShare : null,
-             swing: canRisk ? n/nT*5 : null,
-             blind: (m[s]&&m[s].sure)||0 };
+  const nT=gtSets.size, canRisk = insType!=='module' && nT>=2;
+  let totN=0; Object.keys(m).forEach(k=>{ if(PAPER_MIX[k]>0) totN+=m[k].n; });
+  const haveMine = totN>=12;
+  const rows=Object.keys(PAPER_MIX).map(k=>{
+    const t=m[k]||null, q=PAPER_MIX[k], n=t?t.n:0, pShare=q/EXAM_Q;
+    return { s:k, q, n, blind:t?t.sure:0, wgt:t?t.wgt:0, errs:(t&&t.errs)||{knowledge:0,retrieval:0,reasoning:0,execution:0},
+             pShare, mShare: totN?n/totN:0,
+             leak: haveMine ? (n/totN)/pShare : null,
+             perPaper: canRisk ? n/nT : null,
+             swing: canRisk ? n/nT*5 : null };
   });
-  return { rows, totN, nT, canRisk, haveMine: totN>=12 };
+  return { rows, totN, nT, canRisk, haveMine };
 }
+/* the weightage scatter and weak areas read the same rows */
+function weightRows(){ return examImpact(); }
 function weightCard(){
   const {rows,totN,nT,canRisk,haveMine}=weightRows();
   const HEAD=`<h3><span class="accent"></span>What the paper is worth<span class="h3-hint">subject weightage</span><button class="cardq" data-help="weight">?</button></h3>`;
@@ -4514,17 +4633,25 @@ function weightCard(){
   const W=344,H=218,x0=50,x1=W-14,y0=26,y1=H-38;
   const yz=y1-7;                                   /* the "none yet" lane, clear of the axis line */
   const qmax=Math.max(...shown.map(r=>r.q))||1;
-  const X=q=>x0+10+(q/qmax)*(x1-x0-20);   /* inset so the widest bubble never bleeds off the frame */
+  const X0=q=>x0+10+(q/qmax)*(x1-x0-20);   /* inset so the widest bubble never bleeds off the frame */
+  /* Six pairs of subjects carry exactly the same number of questions (Pathology and OBGYN are both
+     17Q), so they would land on one another and only the top one could be hovered or tapped. Nudge
+     same-weight subjects apart by a fixed step, ordered by name so the picture never jumps around
+     between renders. The step is smaller than the axis gap between adjacent weights. */
+  const JIT=14, byQ={};
+  shown.slice().sort((a,b)=>a.s<b.s?-1:1).forEach(r=>{ (byQ[r.q]=byQ[r.q]||[]).push(r.s); });
+  const X=r=>{ const g=byQ[r.q]||[r.s], k=g.indexOf(r.s);
+    return X0(r.q) + (g.length>1 ? (k-(g.length-1)/2)*JIT : 0); };
   const lg=v=>Math.log(v)/Math.LN2;
   /* the vertical scale is set by the subjects you actually bleed in; a subject with zero wrongs
      has no leak ratio at all, so it sits in its own lane instead of stretching the axis to -inf */
   const span=Math.max(1, ...real.map(r=>Math.abs(lg(Math.max(0.3,Math.min(4,r.leak))))));
   const Y=v=>((y0+y1)/2) - (lg(Math.max(0.3,Math.min(4,v)))/span)*((y1-y0)/2);
-  const posOf=r=>({x:X(r.q), y:r.n?Y(r.leak):yz});
+  const posOf=r=>({x:X(r), y:r.n?Y(r.leak):yz});
   const nmax=Math.max(1,...shown.map(r=>r.n));
   const RAD=r=>r.n?4+7*Math.sqrt(r.n/nmax):3;
   /* the zone worth acting on: a subject that carries real marks AND bleeds above its weight */
-  const zx=X(10), zy=Y(1.15);
+  const zx=X0(10), zy=Y(1.15);
   const zone=`<rect class="wg-zone" x="${zx.toFixed(1)}" y="${y0}" width="${(x1-zx).toFixed(1)}" height="${Math.max(0,zy-y0).toFixed(1)}" rx="8"/>
     <text class="wg-zlab" x="${(zx+6).toFixed(1)}" y="${(y0-7).toFixed(1)}">fix these first</text>`;
   const ticks=[[2,'2× weight'],[1,'on par'],[0.5,'half']].filter(t=>Math.abs(lg(t[0]))<=span+0.01)
@@ -4532,12 +4659,42 @@ function weightCard(){
       <text x="${x0-8}" y="${(Y(v)+3).toFixed(1)}" text-anchor="end">${lab}</text></g>`).join('');
   const zeroLane=zero.length?`<text class="wg-zt" x="${x0-8}" y="${(yz+3).toFixed(1)}" text-anchor="end">none yet</text>`:'';
   const tone=r=>!r.n?'zero':(r.leak>=1.25?'hot':r.leak<=0.8?'safe':'even');
-  /* biggest painted first so the small ones stay visible — and stay hittable — on top of them */
-  const dots=shown.slice().sort((a,b)=>b.n-a.n).map(r=>{
-    const pos=posOf(r), cx=pos.x, cy=pos.y, rad=RAD(r);
-    return `<g class="wg-g ${tone(r)}"><circle class="wg-dot" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${rad.toFixed(1)}"/>
-      <circle class="wg-hit" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${Math.max(9,rad+4).toFixed(1)}" data-wsub="${esc(r.s)}" tabindex="0" role="button" aria-label="${esc(r.s)}"><title>${esc(r.s)}</title></circle></g>`;
-  }).join('');
+  /* Each mark's touch target grows to a comfortable size but never past half the distance to its
+     closest neighbour — so no bubble can ever sit on top of another one's centre and swallow the
+     tap meant for it. Whatever is left over is covered by the steppers in the readout. */
+  const P=shown.map(posOf);
+  /* A couple of pairs still land within a fingertip of each other even after the equal-weight
+     nudge — Pharmacology at 15Q and OBGYN at 17Q, for instance. Three passes of gentle mutual
+     repulsion separate only the pairs that actually collide, and clamp keeps everyone in frame. */
+  const MINSEP=26;
+  for(let pass=0; pass<5; pass++){
+    for(let i=0;i<P.length;i++) for(let j=i+1;j<P.length;j++){
+      let dx=P[j].x-P[i].x, dy=P[j].y-P[i].y, d=Math.hypot(dx,dy);
+      if(d>=MINSEP) continue;
+      if(d<0.01){ dx=1; dy=0; d=1; }
+      const push=(MINSEP-d)/2/d;
+      /* a subject with no wrongs has no ratio, so it must stay pinned to its own lane —
+         nudge those sideways only, never up into a scale that does not apply to them */
+      const vi=shown[i].n?0.5:0, vj=shown[j].n?0.5:0;
+      P[i].x-=dx*push; P[i].y-=dy*push*vi; P[j].x+=dx*push; P[j].y+=dy*push*vj;
+    }
+    P.forEach((q,i)=>{ q.x=Math.max(x0+8,Math.min(x1-8,q.x));
+      q.y = shown[i].n ? Math.max(y0+4,Math.min(y1-3,q.y)) : yz; });
+  }
+  const hitR=shown.map((r,i)=>{ let near=1e9;
+    P.forEach((q,j)=>{ if(i===j) return; const d=Math.hypot(P[i].x-q.x, P[i].y-q.y); if(d<near) near=d; });
+    /* targets may overlap; what must never happen is a mark's own centre falling inside a
+       neighbour's target, because then the neighbour swallows every tap aimed at it */
+    /* a small bubble is not a small target: size encodes volume, reachability should not depend on it */
+    return Math.max(8, Math.min(17, near-1));
+  });
+  const dots=shown.map((r,i)=>({r,i}))
+    .sort((a,b)=>b.r.n-a.r.n)   /* biggest painted first, so the small ones stay visible on top */
+    .map(({r,i})=>{
+      const cx=P[i].x, cy=P[i].y, rad=RAD(r);
+      return `<g class="wg-g ${tone(r)}"><circle class="wg-dot" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${rad.toFixed(1)}"/>
+      <circle class="wg-hit" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${hitR[i].toFixed(1)}" data-wsub="${esc(r.s)}" tabindex="0" role="button" aria-label="${esc(r.s)}"><title>${esc(r.s)}</title></circle></g>`;
+    }).join('');
   /* name only the few that matter, and only where the name will not land on another one */
   const taken=[{a:zx,b:zx+62,c:y0-16,d:y0-2}];   /* the zone caption holds its own space */
   const fits=(a,b,y)=>!taken.some(t=>a<t.b&&b>t.a&&y-9<t.d&&y+3>t.c);
@@ -4569,13 +4726,16 @@ function weightCard(){
       : lk>=1.25 ? `Bleeding <b>${lk.toFixed(1)}×</b> what its size predicts.`
       : lk<=0.8  ? `Holding — <b>${lk.toFixed(1)}×</b> its size, below par for you.`
       : `Right in proportion (<b>${lk.toFixed(1)}×</b>).`;
-    _wgRead[r.s]=`<div class="wg-rt"><b>${esc(r.s)}</b><span class="wg-q">${r.q} Q per paper</span></div>
+    _wgRead[r.s]=`<div class="wg-rt"><button class="wg-step" data-wstep="-1" aria-label="Previous subject">‹</button>
+      <b>${esc(shortSubj(r.s))}</b><span class="wg-q">${r.q} Q per paper</span>
+      <button class="wg-step" data-wstep="1" aria-label="Next subject">›</button></div>
       <div class="wg-rb"><span class="wg-m"><b>${r.n}</b>your wrongs</span><span class="wg-m"><b>${Math.round(r.mShare*100)}%</b>of your total</span><span class="wg-m"><b>${Math.round(r.pShare*100)}%</b>of the paper</span>${r.blind?`<span class="wg-m bl"><b>${r.blind}</b>blind</span>`:''}</div>
       <p class="tlab wg-v">${verdict}${r.swing!=null&&r.n?` About <b>${Math.round(r.swing)}</b> marks a paper ride on it.`:''}</p>
       ${r.n?`<button class="linkish" data-wgo="${esc(r.s)}">Open ${esc(r.s.split(' /')[0])} ›</button>`:''}`;
   });
   const first=named[0]||rows.slice().sort((a,b)=>b.q-a.q)[0];
   _wgFirst=first.s;
+  _wgOrder=shown.slice().sort((a,b)=>(b.q-a.q)||(a.s<b.s?-1:1)).map(r=>r.s);
   const hot=rows.filter(r=>r.n>0 && r.leak>=1.25 && r.q>=10).sort((a,b)=>b.n-a.n).slice(0,3);
   const chips=hot.length?`<div class="wg-chips">${hot.map(r=>`<button class="wg-chip" data-wsub2="${esc(r.s)}">${esc(r.s.split(' /')[0])}<b>${r.leak.toFixed(1)}×</b></button>`).join('')}</div>`:'';
   return `<div class="card wg-card">${HEAD}
@@ -4584,29 +4744,43 @@ function weightCard(){
     ${chips}
     <p class="tlab wg-note">Paper mix is a recent-years average, not an official blueprint${canRisk?` · marks-per-paper from your ${nT} scored GT${nT>1?'s':''}`:''}.</p></div>`;
 }
+/* Weak areas, ranked the way the exam would rank them: marks you are on track to lose in that
+   subject on a 200-question paper. Volume alone over-rates a subject you sit a lot of questions
+   in; the leak multiple next to it says whether the bleed is out of proportion to its size.
+   Falls back to the recency-weighted count when there are not yet two scored GTs to rate from. */
+let wkSort='marks';
 function weakAreasCard(){
-  const m=buildSubjects(scopedSessions(), scopedEntries());
-  const subs=Object.keys(m).map(s=>({s,...m[s]})).sort((a,b)=>b.wgt-a.wgt);
-  if(subs.length<2 || subs.reduce((a,x)=>a+x.n,0)<4) return '';
+  const ex=examImpact();
+  const live=ex.rows.filter(r=>r.n>0);
+  if(live.length<2 || ex.totN<4) return '';
+  const canMarks = ex.canRisk;
+  const byMarks = canMarks && wkSort==='marks';
+  const subs=live.slice().sort((a,b)=> byMarks ? (b.swing-a.swing)||(b.n-a.n) : (b.wgt-a.wgt)||(b.n-a.n));
   const today=todayISO();
   const shown=wkAll?subs:subs.slice(0,5);
   const trArrow={up:'<span class="wk-tr up" title="more mistakes recently — worsening">▲ worsening</span>',down:'<span class="wk-tr down" title="fewer mistakes recently — improving">▼ improving</span>',flat:''};
-  const topN=Math.max(1,...shown.map(x=>x.n));
+  const top=Math.max(0.0001,...shown.map(x=>byMarks?x.swing:x.n));
   const rows=shown.map((x,i)=>{ const dom=ERRORS.slice().sort((a,b)=>x.errs[b.id]-x.errs[a.id])[0];
     const mini=ERRORS.map(e=>x.errs[e.id]?`<span style="flex:${x.errs[e.id]};background:${e.c}"></span>`:'').join('');
     const nx=subjectNextTouch(x.s);
     const nxChip=nx?`<span class="wk-next${nx.d<=today?' now':''}">${nx.kind==='revisit'?'revisit':'read'} ${nx.d<=today?'today':fmtShort(nx.d)}</span>`:'';
     const tr=trArrow[subjectTrend(x.s)]||'';
-    /* the size bar carries "how much" and the mix bar carries "what kind" — so the line under
-       them only has to carry the two numbers a bar cannot show */
+    const lk = x.leak==null?'' : `<span class="wk-lk ${x.leak>=1.25?'hot':x.leak<=0.8?'ok':''}">${x.leak.toFixed(1)}×</span>`;
+    const magW=Math.round(Math.min(1,(byMarks?x.swing:x.n)/top)*100);
+    /* One bar, two readings: its length is how much this subject costs against the worst one,
+       and the colours inside it are which kinds of mistake made up that cost. Two separate bars
+       said the same thing twice and read as clutter. */
     return `<button class="wk-row" data-sub="${esc(x.s)}"><span class="wk-rank${i===0?' worst':''}">${i+1}</span>
-      <div class="wk-mid"><div class="wk-t">${esc(x.s)}${nxChip}${tr}</div>
-      <div class="wk-mag"><i style="width:0" data-gw="${Math.round(x.n/topN*100)}"></i></div>
-      <div class="gtmini">${mini}</div>
-      <div class="wk-d"><b>${x.n}</b> lost${x.sure?` · <b class="bl">${x.sure}</b> blind`:''} <span class="wk-dom" style="--c:${dom.c}">${dom.code}</span></div></div>
+      <div class="wk-mid"><div class="wk-t">${esc(shortSubj(x.s))}<span class="wk-q">${x.q}Q</span>${nxChip}${tr}</div>
+      <div class="wk-mag"><i style="width:0" data-gw="${magW}">${mini}</i></div>
+      <div class="wk-d">${canMarks?`<b>≈${Math.round(x.swing)}</b> marks a paper`:`<b>${x.n}</b> lost`}${x.blind?` · <b class="bl">${x.blind}</b> blind`:''} ${lk}<span class="wk-dom" style="--c:${dom.c}">${dom.code}</span></div></div>
       <span class="th-go">›</span></button>`;}).join('');
+  const sortRow=canMarks?`<div class="wk-sort" role="tablist">
+    <button class="wk-sb ${wkSort==='marks'?'on':''}" data-wks="marks">Marks at risk</button>
+    <button class="wk-sb ${wkSort==='recent'?'on':''}" data-wks="recent">Most recent</button></div>`:'';
   const more=subs.length>5?`<button class="linkish" id="wkMore" style="margin-top:10px">${wkAll?'Show top 5 only ‹':'Show all '+subs.length+' subjects ›'}</button>`:'';
-  return `<div class="card"><h3><span class="accent"></span>Weak areas — study these first <span class="h3-hint">recent tests count more</span><button class="cardq" data-help="signal">?</button></h3>${rows}${more}</div>`;
+  const hint=canMarks?`≈ marks per 200-Q paper`:`recent tests count more`;
+  return `<div class="card"><h3><span class="accent"></span>Weak areas — study these first <span class="h3-hint">${hint}</span><button class="cardq" data-help="weak">?</button></h3>${sortRow}${rows}${more}</div>`;
 }
 function subjectSheet(sub){
   const x=buildSubjects()[sub]; if(!x)return;
@@ -4994,32 +5168,51 @@ function calSheet(){
    draw is the one that hurts. This reports the order statistics of your scored GTs: the worst
    you have actually produced, the middle, the best, and the band you land in four times out of
    five. No model, no fit — just your own results, sorted. */
+/* Your floor, not your ceiling. A single best score flatters; the exam is one draw from the whole
+   spread. The strip shows every scored GT as its own mark, the shaded band is where four in five
+   of them fall, and the notch is the median — so the distribution is the picture, not a sentence
+   about the distribution. The reading behind it is one tap away. */
+let _flrDetail='';
 function floorCard(){
   const gts=scopedSessions().filter(s=>(s.testType||'gt')==='gt' && scoreStats(s))
     .map(s=>scoreStats(s).pct100).sort((a,b)=>a-b);
+  _flrDetail='';
   if(gts.length<4) return '';
   const q=p=>{ const i=(gts.length-1)*p, lo=Math.floor(i), hi=Math.ceil(i);
     return lo===hi ? gts[lo] : gts[lo]+(gts[hi]-gts[lo])*(i-lo); };
   const lo=q(0.10), mid=q(0.50), hi=q(0.90), worst=gts[0], best=gts[gts.length-1];
   const span=Math.max(1,best-worst);
-  const pos=v=>Math.round((v-worst)/span*100);
+  /* inset the scale so the worst and best marks sit inside the track instead of half off its ends */
+  const pos=v=>Math.round(3+(v-worst)/span*94);
   const spread=Math.round(hi-lo);
-  const read = spread<=6
-    ? `Tight. Your bad days and good days are only <b>${spread}</b> points apart — what you know is what you score, reliably.`
+  const verdict = spread<=6 ? {k:'tight', t:'tight'} : spread<=14 ? {k:'normal', t:'normal swing'} : {k:'wide', t:'wide swing'};
+  _flrDetail = spread<=6
+    ? `Your bad days and good days are only <b>${spread}</b> points apart — what you know is what you score, reliably. Plan on the median.`
     : spread<=14
-      ? `A <b>${spread}</b>-point swing between a bad day and a good one. Normal, but the low end is what a single exam can hand you.`
-      : `A <b>${spread}</b>-point swing is wide. Your score depends heavily on the day, so the floor — not the best — is the honest planning number.`;
-  return `<div class="card"><h3><span class="accent"></span>Your floor, not your ceiling <span class="h3-hint">${gts.length} scored GTs</span><button class="cardq" data-help="floor">?</button></h3>
+      ? `There is a <b>${spread}</b>-point gap between a bad day and a good one. That is normal, but the low end is what a single exam can hand you, so plan on the floor and treat the best as upside.`
+      : `A <b>${spread}</b>-point swing is wide. Your score depends heavily on which day you get, so the floor — not the best — is the honest planning number. Narrowing it is worth more than lifting the ceiling.`;
+  /* one mark per test, nudged apart when two land on the same point */
+  const seen={};
+  const dots=gts.map((v,i)=>{ const px=pos(v); const k=Math.round(px/3); const n=(seen[k]=(seen[k]||0)+1);
+    return `<span class="flr-dot" style="left:${px}%;--r:${(n-1)*4}px;animation-delay:${i*45}ms" title="${Math.round(v)}%"></span>`; }).join('');
+  return `<div class="card flr-card" id="flrCard" role="button" tabindex="0"><h3><span class="accent"></span>Your floor, not your ceiling <span class="h3-hint">${gts.length} GTs · tap</span><button class="cardq" data-help="floor">?</button></h3>
     <div class="flr-wrap">
       <div class="flr-track">
         <span class="flr-band" style="left:${pos(lo)}%;right:${100-pos(hi)}%"></span>
         <span class="flr-tick mid" style="left:${pos(mid)}%"></span>
+        ${dots}
       </div>
       <div class="flr-ends"><span><b data-cu="${Math.round(worst)}">${Math.round(worst)}</b>% worst</span>
         <span class="flr-mid">median <b>${Math.round(mid)}%</b></span>
         <span><b data-cu="${Math.round(best)}">${Math.round(best)}</b>% best</span></div>
     </div>
-    <p class="tlab" style="margin-top:12px">Four times in five you land between <b>${Math.round(lo)}%</b> and <b>${Math.round(hi)}%</b>. ${read}</p></div>`;
+    <div class="flr-band-row"><span>4 in 5 land between</span><b>${Math.round(lo)}–${Math.round(hi)}%</b><i class="flr-v ${verdict.k}">${verdict.t}</i></div></div>`;
+}
+function floorSheet(){
+  if(!_flrDetail){ metricHelp('floor'); return; }
+  openSheet(`<h3>Your floor, not your ceiling</h3><p>${_flrDetail}</p>
+    <p class="tlab" style="margin-top:10px">These are order statistics of your scored GTs — the actual sorted values, not a model. The band is the 10th to the 90th percentile, so one freak test cannot define either end.</p>
+    <div class="actions" style="margin-top:16px"><button class="btn primary" onclick="closeSheet()">Close</button></div>`);
 }
 /* ---- what keeps coming back ----
    The recurrence engine already groups near-identical concepts. A concept you have got wrong
@@ -5111,35 +5304,59 @@ const FIXACT={
 /* near-misses are a cross-cut, not a bucket */
 const FIXNEAR="Down to two and lost it. These are the closest marks you have. Re-read only the discriminating feature between your option and the key — not the whole topic.";
 /* subject × mistake-type heatmap — the systematic 2-D view: which bucket concentrates in which subject */
+/* The subject x mistake map, ordered by what it costs on the paper rather than raw volume, with a
+   marks-a-paper column on the right so a row reads as "this subject, this kind of mistake, this
+   many marks". Rows and columns light up together under the pointer — the grid is the one place
+   you are genuinely scanning in two directions at once. */
 function heatmapCard(){
-  const grid={}, subTot={};
-  const add=(sub,err)=>{ if(!sub||!ERR_MAP[err])return; (grid[sub]=grid[sub]||{})[err]=(grid[sub][err]||0)+1; subTot[sub]=(subTot[sub]||0)+1; };
-  scopedEntries().forEach(e=>add(e.subject,e.error));
-  scopedSessions().forEach(s=>s.items.forEach(it=>add(it.subj,it.error)));
-  const subs=Object.keys(subTot).sort((a,b)=>subTot[b]-subTot[a]);
-  const total=subs.reduce((a,s)=>a+subTot[s],0);
-  if(subs.length<2 || total<4) return '';
-  const top=hmAll?subs:subs.slice(0,8);
-  let max=1; top.forEach(su=>ERRORS.forEach(e=>max=Math.max(max,grid[su][e.id]||0)));
-  const head=`<div class="hm-row hm-head"><span class="hm-sub"></span>${ERRORS.map(e=>`<span class="hm-c" style="color:${e.c}">${e.code}</span>`).join('')}<span class="hm-tot">all</span></div>`;
-  const rows=top.map((su,ri)=>{
-    const cells=ERRORS.map(e=>{ const n=grid[su][e.id]||0, a=n/max;
-      const shown=hmPct?(n?Math.round(n/subTot[su]*100)+'':''):(n||'');
-      const inten=hmPct?(n/subTot[su]):a;
+  const ex=examImpact();
+  const live=ex.rows.filter(r=>r.n>0);
+  const total=live.reduce((a,r)=>a+r.n,0);
+  if(live.length<2 || total<4) return '';
+  const order = ex.canRisk ? live.slice().sort((a,b)=>(b.swing-a.swing)||(b.n-a.n))
+                           : live.slice().sort((a,b)=>b.n-a.n);
+  const top=hmAll?order:order.slice(0,8);
+  let max=1; top.forEach(r=>ERRORS.forEach(e=>max=Math.max(max,r.errs[e.id]||0)));
+  const maxSwing=Math.max(0.0001,...top.map(r=>r.swing||0));
+  const MK=ex.canRisk?' has-mk':'';
+  const head=`<div class="hm-row hm-head${MK}"><span class="hm-sub"></span>${ERRORS.map((e,ci)=>`<span class="hm-c hm-hd" data-col="${ci}" style="color:${e.c}" title="${esc(e.t)}">${e.code}</span>`).join('')}<span class="hm-tot">all</span>${ex.canRisk?'<span class="hm-mk hd" title="marks a paper at risk">mk</span>':''}</div>`;
+  const rows=top.map((r,ri)=>{
+    const cells=ERRORS.map((e,ci)=>{ const n=r.errs[e.id]||0, a=n/max;
+      const shown=hmPct?(n?Math.round(n/r.n*100)+'':''):(n||'');
+      const inten=hmPct?(n/r.n):a;
       const bg=n?`color-mix(in srgb, ${e.c} ${Math.round(16+70*inten)}%, transparent)`:'var(--surface2)';
-      return n?`<button class="hm-c tapc${inten>0.6?' lt':''}" data-sub="${esc(su)}" data-e="${e.id}" data-n="${n}" title="${esc(e.t+' in '+su+' — tap for the fix')}" style="background:${bg}">${shown}</button>`
-             :`<span class="hm-c" style="background:${bg}"></span>`; }).join('');
-    return `<div class="hm-row hm-in" style="animation-delay:${ri*26}ms"><span class="hm-sub" title="${esc(su)}">${esc(su)}</span>${cells}<span class="hm-tot">${subTot[su]}</span></div>`;
+      return n?`<button class="hm-c tapc${inten>0.6?' lt':''}" data-col="${ci}" data-sub="${esc(r.s)}" data-e="${e.id}" data-n="${n}" title="${esc(e.t+' in '+r.s+' — tap for the fix')}" style="background:${bg}">${shown}</button>`
+             :`<span class="hm-c" data-col="${ci}" style="background:${bg}"></span>`; }).join('');
+    /* a pill rather than a bar: on a phone the row has four cells and a total already, and a
+       track wide enough to read would have cost the subject name its last few characters */
+    const mk=ex.canRisk?`<span class="hm-mk" style="--i:${((r.swing||0)/maxSwing).toFixed(2)}"><b>${Math.round(r.swing)}</b></span>`:'';
+    return `<div class="hm-row hm-in${MK}" data-hrow="${ri}" style="animation-delay:${ri*26}ms"><span class="hm-sub" title="${esc(r.s)}">${esc(shortSubj(r.s))}</span>${cells}<span class="hm-tot">${r.n}</span>${mk}</div>`;
   }).join('');
   /* the note uses the signal engine — same maths as the three moves, so the map and the moves never disagree */
   const sig=subjectSignals()[0];
   const note=sig?`<p class="tlab" style="margin-top:13px">Signal: <b style="color:${sig.kind==='blind'?'var(--rose)':ERR_MAP[sig.kind].c}">${sig.kind==='blind'?'blind spots':ERR_MAP[sig.kind].t.toLowerCase()}</b> cluster in <b>${esc(sig.sub)}</b> — ${Math.round(sig.rate*100)}% of its ${sig.n} wrongs vs ${Math.round(sig.base*100)}% baseline.</p>`
     :`<p class="tlab" style="margin-top:13px;color:var(--faint)">No abnormal cluster in this window — spread is even.</p>`;
-  let untagged=0; sessions.forEach(s=>s.items.forEach(it=>{ if(!it.subj) untagged++; }));
+  let untagged=0; sessions.forEach(x=>x.items.forEach(it=>{ if(!it.subj) untagged++; }));
   const tagNote=untagged?`<p class="tlab" style="margin-top:10px;color:var(--faint)">${untagged} triaged mistake${untagged>1?'s':''} ha${untagged>1?'ve':'s'} no subject — tap “+ subject” on the ticket to put them on this map.</p>`:'';
-  const more=subs.length>8?`<button class="linkish" id="hmMore" style="margin-top:10px">${hmAll?'Show top 8 only ‹':'Show all '+subs.length+' subjects ›'}</button>`:'';
-  return `<div class="card"><h3><span class="accent"></span>Subject × mistake map <span class="h3-hint">tap a cell</span><button class="cardq" data-help="buckets">?</button><button class="hm-mode" id="hmMode">${hmPct?'%':'#'}</button></h3>
-    <div class="heatmap">${head}${rows}</div>${more}${note}${tagNote}</div>`;
+  const more=order.length>8?`<button class="linkish" id="hmMore" style="margin-top:10px">${hmAll?'Show top 8 only ‹':'Show all '+order.length+' subjects ›'}</button>`:'';
+  const hint=ex.canRisk?'ordered by marks at risk':'tap a cell';
+  return `<div class="card"><h3><span class="accent"></span>Subject × mistake map <span class="h3-hint">${hint}</span><button class="cardq" data-help="buckets">?</button><button class="hm-mode" id="hmMode">${hmPct?'%':'#'}</button></h3>
+    <div class="heatmap" id="heatmap">${head}${rows}</div>${more}${note}${tagNote}</div>`;
+}
+/* a grid is scanned in two directions, so both must answer the pointer */
+function bindHeatmap(box){
+  const hm=box.querySelector('#heatmap'); if(!hm) return;
+  const cells=[].slice.call(hm.querySelectorAll('[data-col]'));
+  const rows=[].slice.call(hm.querySelectorAll('[data-hrow]'));
+  const clear=()=>{ cells.forEach(c=>c.classList.remove('col-on')); rows.forEach(r=>r.classList.remove('row-on')); };
+  cells.forEach(c=>{
+    c.addEventListener('mouseenter',()=>{ clear();
+      const col=c.dataset.col;
+      cells.forEach(o=>{ if(o.dataset.col===col) o.classList.add('col-on'); });
+      const row=c.closest('[data-hrow]'); if(row) row.classList.add('row-on');
+    });
+  });
+  hm.addEventListener('mouseleave',clear);
 }
 /* the raw numbers behind everything — one glance, in the deep-dive section */
 function numbersCard(){
@@ -5163,6 +5380,14 @@ function numbersCard(){
 /* every metric explains itself in two lines — what it is, what to do. Tight on purpose. */
 /* help = plain AND short. One clear sentence per part: what it is, why it matters, the one thing to do. */
 const METRIC_HELP={
+  radar:{t:'Where the mistakes land',
+    is:'Every subject on the paper gets an axis, grouped into pre-clinical, para-clinical and clinical. How far a shape reaches on an axis is how much of that person\'s wrongs land in that subject.',
+    why:'A fixed set of axes means your shape and theirs are directly comparable, and a subject can never quietly drop off the picture. "Against paper weight" divides each share by how big that subject is on a 200-question paper, so the ring itself becomes par — outside it you bleed more than the paper\'s own weighting predicts.',
+    do:'Hover or tap any spoke, or any row in the list below, to see everyone\'s number on that subject. Tap a name to isolate one shape.'},
+  weak:{t:'Weak areas',
+    is:'Your subjects ranked by the marks you are on track to lose in each on a 200-question paper — your wrongs per GT in that subject, times five, because a wrong costs the four you did not get plus the one deducted.',
+    why:'Volume alone flatters a subject the paper simply asks a lot about. The multiple beside each row is your share of mistakes there divided by that subject\'s share of the paper, so 2.0× means you bleed twice what its size predicts.',
+    do:'Work the top of the list. Switch to "Most recent" when you want to see what has gone wrong lately rather than what costs most.'},
   weight:{t:'What the paper is worth',
     is:'Across = how many questions a subject usually carries on a 200-question paper. Up = your share of mistakes there divided by that subject\'s share of the paper. Bubble size = how many of your wrongs landed there.',
     why:'A subject that is 24 questions and where you bleed double is worth far more than a 2-question one you are shaky in. Being level with the line means you are exactly as good there as everywhere else.',
@@ -5254,9 +5479,15 @@ function bindWeight(box){
   const read=box.querySelector('#wgRead'); if(!read) return;
   const hits=[].slice.call(box.querySelectorAll('.wg-hit'));
   const chips=[].slice.call(box.querySelectorAll('[data-wsub2]'));
+  let cur='';
   const wire=()=>{ const b=read.querySelector('[data-wgo]');
-    if(b) b.onclick=e=>{ e.stopPropagation(); buzz(6); subjectSheet(b.dataset.wgo); }; };
-  const show=sub=>{ if(!_wgRead[sub]) return; read.innerHTML=_wgRead[sub]; wire();
+    if(b) b.onclick=e=>{ e.stopPropagation(); buzz(6); subjectSheet(b.dataset.wgo); };
+    /* the steppers walk every subject in paper-weight order, so a mark too small or too crowded
+       to tap is never a subject you cannot reach */
+    read.querySelectorAll('[data-wstep]').forEach(s=>s.onclick=e=>{ e.stopPropagation(); buzz(5);
+      const i=_wgOrder.indexOf(cur); if(i<0||!_wgOrder.length) return;
+      show(_wgOrder[(i + (+s.dataset.wstep) + _wgOrder.length) % _wgOrder.length]); }); };
+  const show=sub=>{ if(!_wgRead[sub]) return; cur=sub; read.innerHTML=_wgRead[sub]; wire();
     hits.forEach(h=>h.parentNode.classList.toggle('on', h.dataset.wsub===sub));
     chips.forEach(c=>c.classList.toggle('on', c.dataset.wsub2===sub)); };
   hits.forEach(h=>{ const s=h.dataset.wsub;
@@ -5267,7 +5498,7 @@ function bindWeight(box){
   chips.forEach(c=>c.onclick=()=>{ buzz(5); show(c.dataset.wsub2); });
   const svg=box.querySelector('.wgc');
   if(svg) svg.addEventListener('mouseleave',()=>show(_wgFirst));
-  wire();
+  show(_wgFirst);
 }
 function renderInsights(){
   memoClear();
@@ -5303,12 +5534,14 @@ function renderInsights(){
   /* the weightage scatter is live: hover or tap a bubble and the readout under it becomes that
      subject. The readout carries the link into the full subject sheet, so a tap never overshoots. */
   bindWeight(box);
+  bindHeatmap(box);
   box.querySelectorAll('.cardq[data-help]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); buzz(5); metricHelp(b.dataset.help); });
   /* fold-outs animate in place (grid-rows 0fr → 1fr) — no re-render, so the motion is real */
   box.querySelectorAll('[data-tgl]').forEach(b=>b.onclick=()=>{ buzz(5); const id=b.dataset.tgl; insOpen[id]=!insOpen[id];
     b.classList.toggle('open',insOpen[id]); const bd=b.nextElementSibling; if(bd) bd.classList.toggle('open',insOpen[id]); });
   const fcc=box.querySelector('.fc-card'); if(fcc) fcc.onclick=()=>{ buzz(6); fcSheet(); };
   const cal=document.getElementById('calCard'); if(cal) cal.onclick=e=>{ if(e.target.closest('.cardq'))return; buzz(6); calSheet(); };
+  const flr=document.getElementById('flrCard'); if(flr) flr.onclick=e=>{ if(e.target.closest('.cardq'))return; buzz(6); floorSheet(); };
   const lvc=box.querySelector('.lv-card'); if(lvc) lvc.onclick=e=>{ if(e.target.closest('.cardq'))return; buzz(6); leverSheet(); };
   const pDr=document.getElementById('pulseDr'); if(pDr) pDr.onclick=()=>{ buzz(6); drillsSheet(); };
   const pBl=document.getElementById('pulseBl'); if(pBl) pBl.onclick=()=>{ buzz(6); blindSpotSheet(); };
@@ -5324,6 +5557,7 @@ function renderInsights(){
   const hmM=document.getElementById('hmMode'); if(hmM) hmM.onclick=()=>{ buzz(5); hmPct=!hmPct; renderInsights(); };
   box.querySelectorAll('#stSeg button').forEach(b=>b.onclick=e=>{ e.stopPropagation(); buzz(5); stType=b.dataset.t; renderInsights(); });
   const wk=document.getElementById('wkMore'); if(wk) wk.onclick=()=>{ buzz(5); wkAll=!wkAll; renderInsights(); };
+  box.querySelectorAll('[data-wks]').forEach(b=>b.onclick=()=>{ buzz(5); wkSort=b.dataset.wks; renderInsights(); });
   /* physical spring count-ups on the display numbers (raw-numbers grid + projected score) */
   box.querySelectorAll('.num b[data-cu], .neg-num b[data-cu], .vt b[data-cu]').forEach(el=>{ const to=+el.dataset.cu; if(to&&to<=9999) countUp(el,to); });
   const fcb=box.querySelector('.fc-big b[data-cu]'); if(fcb){ const to=+fcb.dataset.cu; if(isFinite(to)) countUp(fcb,to,v=>Math.round(v)); }
@@ -5514,6 +5748,21 @@ function rivMomentum(a,b){
    that matter to this group (union of everyone's biggest), each person's reach on an axis is
    their share of wrongs in that subject. Reading it: overlapping peaks = you are both losing
    marks in the same place; a lone spike = that subject is your problem alone. */
+/* ---- where the mistakes land, across every subject on the paper ----
+   Nineteen axes, always, in exam-block order — pre-clinical, para-clinical, clinical. A fixed set
+   means two people's shapes are directly comparable and a subject can never quietly drop off the
+   picture because it did not make some top-N cut. Two readings of the same data:
+     share    — how much of that person's own wrongs land in a subject
+     vs paper — that share divided by the subject's share of a 200-Q paper; 1.0 is exactly par,
+                so the ring itself becomes "as good here as everywhere else"
+   The grid underneath carries all nineteen with numbers, and the two cross-highlight. */
+const SUBJ_BLOCKS=[
+  {t:'Pre-clinical', subs:['Anatomy','Physiology','Biochemistry']},
+  {t:'Para-clinical', subs:['Pathology','Pharmacology','Microbiology','Forensic Medicine','PSM / Community Med']},
+  {t:'Clinical', subs:['Medicine','Surgery','OBGYN','Pediatrics','Orthopaedics','ENT','Ophthalmology','Anaesthesia','Radiology','Dermatology','Psychiatry']}
+];
+const RADAR_AX=SUBJ_BLOCKS.reduce((a,b)=>a.concat(b.subs),[]);
+let rvrMode='share';
 function rivSubjectRadar(all){
   const withSubs=all.filter(m=>(m.subs||[]).length>=3);
   /* say why it is empty rather than disappearing — silently rendering nothing is how a shipped
@@ -5523,73 +5772,155 @@ function rivSubjectRadar(all){
     return `<div class="card"><h3><span class="accent"></span>Where the mistakes land <span class="h3-hint">by subject</span></h3>
       <p class="tlab">Waiting on subject data${waiting.length?' from '+waiting.map(esc).join(' and '):''}. It is sent the next time each person opens the app, once they have sorted a handful of mistakes with subjects tagged.</p></div>`;
   }
-  const score={};
-  withSubs.forEach(m=>(m.subs||[]).forEach(x=>{ score[x.s]=Math.max(score[x.s]||0, x.pc); }));
-  const AX=Object.keys(score).sort((a,b)=>score[b]-score[a]).slice(0,7);
-  if(AX.length<3) return '';
-  const peak=Math.max(...AX.map(s=>score[s]))||1;
-  const val=(m,s)=>{ const f=(m.subs||[]).find(x=>x.s===s); return f?f.pc:0; };
-  const C=104,R=74;
-  const pt=(i,r)=>{ const a=-Math.PI/2+i*2*Math.PI/AX.length; return [C+Math.cos(a)*r, C+Math.sin(a)*r]; };
-  const ring=f=>`<polygon points="${AX.map((_,i)=>pt(i,R*f).map(v=>v.toFixed(1)).join(',')).join(' ')}" fill="none" stroke="var(--border)" stroke-width="1"/>`;
-  const grid=[0.33,0.66,1].map(ring).join('');
-  const spokes=AX.map((_,i)=>{ const [x,y]=pt(i,R); return `<line x1="${C}" y1="${C}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="var(--border)" stroke-width="1"/>`; }).join('');
-  const COL=['var(--accent)','var(--violet)','var(--teal)','var(--amber)'];
   const people=withSubs.slice(0,4);
+  const AX=RADAR_AX;
+  const share=(m,s)=>{ const f=(m.subs||[]).find(x=>x.s===s); return f?f.pc:0; };
+  const leak=(m,s)=>{ const w=PAPER_MIX[s]; if(!w) return 0; return share(m,s)/(w/EXAM_Q*100); };
+  const val=(m,s)=>rvrMode==='share'?share(m,s):leak(m,s);
+  /* share mode scales to the biggest single share on the board; par mode pins 2x to the rim so
+     the mid ring always means "level with your own average" */
+  const peak = rvrMode==='share'
+    ? Math.max(1, ...people.map(m=>Math.max(0,...AX.map(s=>share(m,s)))))
+    : 2;
+  const C=132,R=96;
+  const pt=(i,r)=>{ const a=-Math.PI/2+i*2*Math.PI/AX.length; return [C+Math.cos(a)*r, C+Math.sin(a)*r]; };
+  const ringAt=f=>`<polygon class="rvr-ring" points="${AX.map((_,i)=>pt(i,R*f).map(v=>v.toFixed(1)).join(',')).join(' ')}" fill="none"/>`;
+  const grid=[0.25,0.5,0.75,1].map(ringAt).join('')
+    + (rvrMode==='par'?`<polygon class="rvr-par" points="${AX.map((_,i)=>pt(i,R*0.5).map(v=>v.toFixed(1)).join(',')).join(' ')}" fill="none"/>
+       <text class="rvr-parlab" x="${C+3}" y="${(C-R*0.5-4).toFixed(1)}">par</text>`:'');
+  const spokes=AX.map((_,i)=>{ const q=pt(i,R); return `<line class="rvr-spoke" x1="${C}" y1="${C}" x2="${q[0].toFixed(1)}" y2="${q[1].toFixed(1)}"/>`; }).join('');
+  /* the three exam blocks marked as coloured arcs on the rim. Their names go in a legend below —
+     text out at the rim gets clipped by the card on a narrow phone, which is how labels disappear. */
+  let idx=0; const blockArcs=SUBJ_BLOCKS.map((b,bi)=>{
+    const from=idx, to=idx+b.subs.length-1; idx+=b.subs.length;
+    const a0=-Math.PI/2+(from-0.44)*2*Math.PI/AX.length, a1=-Math.PI/2+(to+0.44)*2*Math.PI/AX.length;
+    const RR=R+12, big=(a1-a0)>Math.PI?1:0;
+    return `<path class="rvr-arc b${bi}" d="M${(C+Math.cos(a0)*RR).toFixed(1)} ${(C+Math.sin(a0)*RR).toFixed(1)} A${RR} ${RR} 0 ${big} 1 ${(C+Math.cos(a1)*RR).toFixed(1)} ${(C+Math.sin(a1)*RR).toFixed(1)}" fill="none"/>`;
+  }).join('');
+  const blockKey=`<div class="rvr-blocks">${SUBJ_BLOCKS.map((b,bi)=>`<span class="rvr-bk b${bi}"><i></i>${esc(b.t)}</span>`).join('')}</div>`;
+  const COL=['var(--accent)','var(--violet)','var(--teal)','var(--amber)'];
   const shapes=people.map((m,mi)=>{
     const p=AX.map((s,i)=>pt(i,R*Math.min(1,val(m,s)/peak)).map(v=>v.toFixed(1)).join(',')).join(' ');
-    return `<polygon class="rvr-sh" data-riv="${mi}" points="${p}" fill="${COL[mi]}" fill-opacity=".15" stroke="${COL[mi]}" stroke-width="2" stroke-linejoin="round" style="animation-delay:${mi*120}ms"/>`;
+    return `<polygon class="rvr-sh" data-riv="${mi}" points="${p}" fill="${COL[mi]}" fill-opacity=".14" stroke="${COL[mi]}" stroke-width="2" stroke-linejoin="round" style="animation-delay:${mi*120}ms"/>`;
   }).join('');
-  /* a vertex per person per axis: the shape stops being a blob and becomes readable points */
-  const verts=people.map((m,mi)=>AX.map((s,i)=>{ const [x,y]=pt(i,R*Math.min(1,val(m,s)/peak));
-    return `<circle class="rvr-v" data-ax="${i}" data-riv="${mi}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3" fill="${COL[mi]}" style="animation-delay:${mi*120+i*28}ms"/>`; }).join('')).join('');
-  const labs=AX.map((s,i)=>{ const [x,y]=pt(i,R+14);
-    return `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" class="rvr-lab" data-ax="${i}" text-anchor="${x<C-6?'end':x>C+6?'start':'middle'}" dominant-baseline="middle">${esc(s.length>9?s.slice(0,8)+'\u2026':s)}</text>`; }).join('');
-  /* a wedge per axis, so hovering or tapping anywhere near a spoke picks that subject */
+  /* a vertex only where there is something to see, so nineteen axes do not become a ring of dots */
+  const verts=people.map((m,mi)=>AX.map((s,i)=>{ const v=val(m,s); if(v<=0) return '';
+    const q=pt(i,R*Math.min(1,v/peak));
+    return `<circle class="rvr-v" data-ax="${i}" data-riv="${mi}" cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(1)}" r="2.6" fill="${COL[mi]}" style="animation-delay:${mi*110+i*16}ms"/>`; }).join('')).join('');
+  /* A hit area per axis. With nineteen of them a pie slice is a needle near the middle — too thin
+     for a fingertip, and its bounding box does not even sit inside itself. An annular sector keeps
+     the target a fat band the whole way round and leaves the middle free for the label. */
   const half=Math.PI/AX.length;
-  const wedges=AX.map((s,i)=>{ const a=-Math.PI/2+i*2*Math.PI/AX.length, RR=R+24;
-    const p1=[C+Math.cos(a-half)*RR, C+Math.sin(a-half)*RR], p2=[C+Math.cos(a+half)*RR, C+Math.sin(a+half)*RR];
+  const wedges=AX.map((s,i)=>{ const a=-Math.PI/2+i*2*Math.PI/AX.length, RO=R+18, RI=R*0.42;
+    const P=(ang,r)=>[(C+Math.cos(ang)*r).toFixed(1),(C+Math.sin(ang)*r).toFixed(1)];
+    const o1=P(a-half,RO), o2=P(a+half,RO), i1=P(a-half,RI), i2=P(a+half,RI);
     return `<path class="rvr-hit" data-ax="${i}" data-axs="${esc(s)}" tabindex="0" role="button" aria-label="${esc(s)}"
-      d="M${C} ${C} L${p1[0].toFixed(1)} ${p1[1].toFixed(1)} A${RR} ${RR} 0 0 1 ${p2[0].toFixed(1)} ${p2[1].toFixed(1)} Z"><title>${esc(s)}</title></path>`; }).join('');
+      d="M${i1[0]} ${i1[1]} L${o1[0]} ${o1[1]} A${RO} ${RO} 0 0 1 ${o2[0]} ${o2[1]} L${i2[0]} ${i2[1]} A${RI} ${RI} 0 0 0 ${i1[0]} ${i1[1]} Z"><title>${esc(s)}</title></path>`; }).join('');
+  /* the hovered subject is named in the middle of the ring — on its own plate, because a label
+     sitting directly on top of two overlapping polygons is not a label anyone can read */
+  const centre=`<circle class="rvr-plate" cx="${C}" cy="${C}" r="${(R*0.40).toFixed(1)}"/>
+    <text class="rvr-ctr" id="rvrCtr" x="${C}" y="${C-3}" text-anchor="middle">${esc(shortSubj(AX[0]))}</text>
+    <text class="rvr-ctr2" id="rvrCtr2" x="${C}" y="${C+11}" text-anchor="middle"></text>`;
   const key=people.map((m,i)=>`<button class="rvr-k" data-riv="${i}"><i style="background:${COL[i]}"></i>${esc((m.name||'').split(' ')[0])}</button>`).join('');
-  /* the readout: one subject at a time, everyone's number on it, ranked worst first */
-  _rvrRead={};
+  const modes=`<div class="rvr-modes" role="tablist">
+    <button class="rvr-m ${rvrMode==='share'?'on':''}" data-rvm="share">Share of wrongs</button>
+    <button class="rvr-m ${rvrMode==='par'?'on':''}" data-rvm="par">Against paper weight</button></div>`;
+  /* readout + the full nineteen-subject grid, grouped by block, sorted inside a block by paper size */
+  _rvrRead={}; _rvrRows={};
   AX.forEach((s,i)=>{
-    const line=people.map((m,mi)=>({m,mi,pc:val(m,s)})).sort((a,b)=>b.pc-a.pc);
-    const mx=Math.max(1,...line.map(x=>x.pc));
-    _rvrRead[i]=`<div class="rvr-rt"><b>${esc(s)}</b><span>share of each person's own wrongs</span></div>
-      ${line.map(x=>`<div class="rvr-rr"><span class="rvr-rn">${esc((x.m.name||'').split(' ')[0])}</span>
-        <span class="rvr-rb"><i style="width:${Math.round(x.pc/mx*100)}%;background:${COL[x.mi]}"></i></span>
-        <b>${x.pc}%</b></div>`).join('')}`;
+    const line=people.map((m,mi)=>({m,mi,v:val(m,s),sh:share(m,s)})).sort((a,b)=>b.v-a.v);
+    const mx=Math.max(0.0001,...line.map(x=>x.v));
+    const anyone=line.some(x=>x.sh>0);
+    _rvrRead[i]=`<div class="rvr-rt"><b>${esc(shortSubj(s))}</b><span>${PAPER_MIX[s]} Q per paper</span></div>
+      ${anyone?line.map(x=>`<div class="rvr-rr"><span class="rvr-rn">${esc((x.m.name||'').split(' ')[0])}</span>
+        <span class="rvr-rb"><i style="width:${Math.round(Math.min(1,x.v/mx)*100)}%;background:${COL[x.mi]}"></i></span>
+        <b>${rvrMode==='share'?fmtPc(x.sh):(x.sh>0?x.v.toFixed(1)+'×':'—')}</b></div>`).join('')
+        : `<p class="tlab" style="margin:2px 0 0">Nobody in this group has lost a mark here yet.</p>`}`;
   });
+  let gi=0;
+  const gridRows=SUBJ_BLOCKS.map(b=>{
+    const rows=b.subs.map(s=>{ const i=RADAR_AX.indexOf(s);
+      const cells=people.map((m,mi)=>{ const sh=share(m,s), lk=leak(m,s);
+        const w=rvrMode==='share' ? Math.min(100,sh/Math.max(0.0001,peak)*100) : Math.min(100,lk/2*100);
+        return `<span class="rvg-c"><i style="width:0;background:${COL[mi]}" data-gw="${Math.round(w)}"></i></span>`; }).join('');
+      /* the number on the right belongs to whoever leads the subject — the dot says who, so it is
+         never an anonymous figure floating next to two different people's bars — and it is quoted
+         in whichever unit the card is currently showing */
+      let lead=0, leadMi=0, leadSh=0;
+      people.forEach((m,mi)=>{ const v=val(m,s); if(v>lead){ lead=v; leadMi=mi; leadSh=share(m,s); } });
+      const txt = leadSh>0 ? (rvrMode==='share'?fmtPc(lead):lead.toFixed(1)+'\u00d7') : '';
+      return `<button class="rvg-row${leadSh>0?'':' none'}" data-axrow="${i}" style="animation-delay:${(gi++)*14}ms">
+        <span class="rvg-s">${esc(shortSubj(s))}</span><span class="rvg-q">${PAPER_MIX[s]}Q</span>
+        <span class="rvg-bars">${cells}</span>
+        <b class="rvg-v">${txt?`<i style="background:${COL[leadMi]}"></i>${txt}`:'—'}</b></button>`; }).join('');
+    return `<div class="rvg-blk"><span>${esc(b.t)}</span><i></i></div>${rows}`;
+  }).join('');
   /* open on the subject the group as a whole bleeds hardest in */
   _rvrFirst=0; let best=-1;
   AX.forEach((s,i)=>{ const tot=people.reduce((a,m)=>a+val(m,s),0); if(tot>best){ best=tot; _rvrFirst=i; } });
-  return `<div class="card rvr-card"><h3><span class="accent"></span>Where the mistakes land <span class="h3-hint">tap a subject</span></h3>
-    <svg class="rvr" viewBox="0 0 208 208" role="img" aria-label="mistakes by subject, per person">${grid}${spokes}${shapes}${verts}${labs}${wedges}</svg>
+  return `<div class="card rvr-card"><h3><span class="accent"></span>Where the mistakes land <span class="h3-hint">all ${AX.length} subjects</span><button class="cardq" data-help="radar">?</button></h3>
+    ${modes}
+    <svg class="rvr" viewBox="0 0 264 264" role="img" aria-label="mistakes by subject, per person">${grid}${spokes}${blockArcs}${shapes}${verts}${centre}${wedges}</svg>
+    ${blockKey}
     <div class="rvr-keys">${key}</div>
     <div class="rvr-read" id="rvrRead">${_rvrRead[_rvrFirst]||''}</div>
-    <p class="tlab rvr-note">Reach is a share of that person's own total, so a heavy tester and a light one compare fairly.</p></div>`;
+    <div class="rvg" id="rvgGrid">${gridRows}</div>
+    <p class="tlab rvr-note">${rvrMode==='share'
+      ? 'Reach is a share of that person’s own total, so a heavy tester and a light one compare fairly.'
+      : 'Reach is that share divided by the subject’s size on a 200-Q paper. The dashed ring is par; the rim is 2×, so anything worse than that touches the edge — read the exact figure below.'}</p></div>`;
 }
+function fmtPc(v){ return v>=10?Math.round(v)+'%' : v>0 ? (Math.round(v*10)/10)+'%' : '0%'; }
+/* two subject names are long enough to force a truncation everywhere they appear */
+const SUBJ_SHORT={'PSM / Community Med':'PSM','Forensic Medicine':'Forensic Med'};
+function shortSubj(s){ return SUBJ_SHORT[s]||s; }
+let _rvrRows={};
 let _rvrRead={}, _rvrFirst=0;
 /* the radar answers the cursor: a wedge lights its spoke and swaps the readout to that subject;
    a name in the key isolates that person, which is the only honest way to read overlapping shapes */
 function bindRadar(box){
   const svg=box.querySelector('.rvr'), read=box.querySelector('#rvrRead');
+  /* the mode switch re-renders the whole card, so it must be wired even when the radar
+     itself is in its waiting state */
+  box.querySelectorAll('[data-rvm]').forEach(b=>b.onclick=()=>{ buzz(5); rvrMode=b.dataset.rvm; renderRivals(); });
   if(!svg||!read) return;
-  const show=i=>{ if(!_rvrRead[i]) return; read.innerHTML=_rvrRead[i];
-    svg.querySelectorAll('.rvr-hit,.rvr-lab,.rvr-v').forEach(el=>el.classList.toggle('on', +el.dataset.ax===+i)); };
+  const ctr=svg.querySelector('#rvrCtr'), ctr2=svg.querySelector('#rvrCtr2');
+  const rows=[].slice.call(box.querySelectorAll('[data-axrow]'));
+  /* one selection drives three things at once: the ring, the readout and the subject grid.
+     That is what makes the two halves feel like one instrument rather than two pictures. */
+  /* Highlighting only — never scroll on hover. Moving the page out from under a pointer that is
+     merely passing over a spoke makes the whole card feel like it is fighting you. */
+  const show=i=>{ if(!_rvrRead[i]) return;
+    read.innerHTML=_rvrRead[i];
+    const s=RADAR_AX[i];
+    if(ctr){ ctr.textContent = s.length>13 ? s.split(' /')[0] : s; }
+    if(ctr2){ ctr2.textContent = PAPER_MIX[s] ? PAPER_MIX[s]+' Q per paper' : ''; }
+    svg.querySelectorAll('.rvr-hit,.rvr-v').forEach(el=>el.classList.toggle('on', +el.dataset.ax===+i));
+    svg.querySelectorAll('.rvr-spoke').forEach((el,k)=>el.classList.toggle('on', k===+i));
+    rows.forEach(r=>r.classList.toggle('on', +r.dataset.axrow===+i));
+  };
   svg.querySelectorAll('.rvr-hit').forEach(h=>{ const i=+h.dataset.ax;
     h.addEventListener('mouseenter',()=>show(i));
     h.addEventListener('focus',()=>show(i));
-    h.addEventListener('click',()=>{ buzz(5); show(i); });
+    /* a deliberate tap on a spoke does bring its row into view — that one was asked for */
+    h.addEventListener('click',()=>{ buzz(5); show(i);
+      const hit=rows.filter(r=>+r.dataset.axrow===+i)[0];
+      if(hit && hit.scrollIntoView) hit.scrollIntoView({block:'nearest', behavior:reducedMotion()?'auto':'smooth'}); });
+  });
+  rows.forEach(r=>{ const i=+r.dataset.axrow;
+    r.addEventListener('mouseenter',()=>show(i));
+    r.addEventListener('click',()=>{ buzz(5); show(i); });
   });
   svg.addEventListener('mouseleave',()=>show(_rvrFirst));
+  show(_rvrFirst);
   let solo=null;
   box.querySelectorAll('.rvr-k[data-riv]').forEach(k=>k.onclick=()=>{ buzz(5);
     const mi=+k.dataset.riv; solo = solo===mi ? null : mi;
     box.querySelectorAll('.rvr-k[data-riv]').forEach(o=>o.classList.toggle('on', solo!=null && +o.dataset.riv===solo));
     svg.querySelectorAll('[data-riv]').forEach(el=>el.classList.toggle('dim', solo!=null && +el.dataset.riv!==solo));
+    /* the grid dims with the ring — one person isolated means one person everywhere */
+    box.querySelectorAll('.rvg-row').forEach(r=>{
+      [].forEach.call(r.querySelectorAll('.rvg-c'),(c,mi)=>c.classList.toggle('dim', solo!=null && mi!==solo));
+    });
   });
 }
 /* the ranked board — ordered by latest GT, because that is the number that decides the exam */
@@ -6404,13 +6735,17 @@ function myRivalStats(){
     exam: settings.examDate||'', at: Date.now()
   };
 }
+/* Every subject you have lost a mark in, not a top-8 slice — the radar draws all nineteen axes,
+   so sending only eight is what made it look like the feature was half built. One decimal, because
+   a subject at 1.4% rounds to zero and would vanish exactly like the missing eleven did. */
 function subjectShares(){
   const c={}; let n=0;
   sessions.forEach(s=>(s.items||[]).forEach(it=>{ if(it.subj && SUBJECTS.includes(it.subj)){ c[it.subj]=(c[it.subj]||0)+1; n++; } }));
   entries.forEach(e=>{ if(e.subject && SUBJECTS.includes(e.subject)){ c[e.subject]=(c[e.subject]||0)+1; n++; } });
   if(n<5) return [];
-  return Object.keys(c).map(s=>({s, pc:Math.round(c[s]/n*100)}))
-    .sort((a,b)=>b.pc-a.pc).slice(0,8).filter(x=>x.pc>0);
+  return Object.keys(c).filter(s=>c[s]>0)
+    .map(s=>({s, pc:Math.round(c[s]/n*1000)/10}))
+    .sort((a,b)=>b.pc-a.pc);
 }
 /* keep only known keys and safe types — a member row is written by another person's device */
 function sanitizeRival(uid, o){
@@ -6427,10 +6762,16 @@ function sanitizeRival(uid, o){
     tests:num(o.tests,100000)||0, wr:num(o.wr,1000),
     sorted:num(o.sorted,1e6)||0, streak:num(o.streak,10000)||0,
     blindLive:num(o.blindLive,1e6)||0, handledPc:num(o.handledPc,100),
-    /* subject names are checked against the known list, so a crafted row cannot smuggle text in */
-    subs:(Array.isArray(o.subs)?o.subs:[]).slice(0,8)
-      .filter(x=>x&&typeof x.s==='string'&&SUBJECTS.includes(x.s))
-      .map(x=>({s:x.s, pc:Math.max(0,Math.min(100,+x.pc||0))})),
+    /* subject names are checked against the known list, so a crafted row cannot smuggle text in.
+       The cap is the whole subject list — the radar has an axis for every one of them — and a
+       repeated name is dropped so a hostile row cannot send nineteen copies of one subject. */
+    subs:(function(a){ const seen={}, out=[];
+      (Array.isArray(a)?a:[]).forEach(x=>{
+        if(!x||typeof x.s!=='string'||!SUBJECTS.includes(x.s)||seen[x.s]) return;
+        seen[x.s]=1; out.push({s:x.s, pc:Math.round(Math.max(0,Math.min(100,+x.pc||0))*10)/10});
+      });
+      return out.slice(0,SUBJECTS.length);
+    })(o.subs),
     at:num(o.at,8.7e12)||0 };
 }
 
