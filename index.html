@@ -105,10 +105,13 @@
   /* while typing, slide the bottom bar away so the keyboard never overlaps the field or the nav floats mid-screen */
   body.kbd nav{transform:translateY(140%);pointer-events:none}
   input,textarea{scroll-margin-top:78px;scroll-margin-bottom:96px}
-  .tabs{max-width:680px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:2px;padding:0 8px}
-  .tab{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 4px;border-radius:12px;color:var(--faint);
-    font-size:10.5px;font-weight:560;transition:color .15s}
-  .tab svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8}
+  /* six tabs: fixed six-column grid so nothing can ever wrap onto a second row */
+  .tabs{max-width:680px;margin:0 auto;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:1px;padding:0 4px}
+  .tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:6px 1px;border-radius:12px;color:var(--faint);
+    font-size:9.5px;font-weight:560;transition:color .15s;min-width:0}
+  .tab > span:last-child{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:-.01em}
+  .tab svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.8}
+  @media(min-width:400px){ .tab{font-size:10.5px;padding:6px 3px} .tabs{gap:2px;padding:0 8px} }
   .tab.on{color:var(--accent-ink)}
   .tab.on span:last-child{font-weight:750}
   .railbrand{display:none}
@@ -1115,6 +1118,72 @@
     border-top-color:var(--accent);animation:accSpin .8s linear infinite}
   @keyframes accSpin{to{transform:rotate(360deg)}}
   @media(prefers-reduced-motion:reduce){ .acc-spin{animation-duration:2s} }
+  /* ================= Rivals ================= */
+  .riv-empty{text-align:center;padding:26px 18px 20px}
+  .riv-emoji{font-size:40px;line-height:1;margin-bottom:10px}
+  .riv-empty h3{font-family:var(--serif);font-size:24px;font-weight:500;margin:0 0 8px}
+  .riv-empty p{font-size:14px;line-height:1.55;color:var(--ink2);margin:0 auto;max-width:34ch}
+  .riv-what{margin-top:18px;padding:13px 15px;border-radius:14px;background:var(--surface2);text-align:left}
+  .riv-what b{display:block;font-size:12.5px;font-weight:800;margin-bottom:4px}
+  .riv-what span{font-size:12.5px;line-height:1.55;color:var(--muted)}
+  .riv-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+  .riv-code{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;padding:11px 15px;border-radius:15px;
+    background:linear-gradient(150deg,color-mix(in srgb,var(--accent) 11%,var(--surface)),var(--surface));
+    border:1px solid color-mix(in srgb,var(--accent) 26%,transparent);cursor:pointer}
+  .riv-clab{font-size:9.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--faint)}
+  .riv-code b{font-size:22px;font-weight:850;letter-spacing:.16em;color:var(--accent-ink);font-variant-numeric:tabular-nums}
+  .riv-tap{font-size:10.5px;font-weight:650;color:var(--faint)}
+  .riv-ref{flex:none;width:44px;height:44px;border-radius:14px;background:var(--surface);border:1px solid var(--border2);
+    font-size:19px;color:var(--accent-ink)}
+  .riv-ref.spin{animation:accSpin .9s linear infinite}
+  .riv-av{width:40px;height:40px;border-radius:50%;flex:none;object-fit:cover;border:2px solid var(--surface);
+    box-shadow:0 2px 7px -3px rgba(90,60,35,.5)}
+  .riv-ini{display:grid;place-items:center;font-size:17px;font-weight:850;color:#fff;background:linear-gradient(150deg,var(--accent2),var(--accent))}
+  .riv-av.sm{width:34px;height:34px} .riv-ini.sm{font-size:15px}
+  .riv-row{display:flex;align-items:center;gap:11px;padding:11px 0;border-top:1px solid var(--edge)}
+  .riv-row:first-of-type{border-top:none}
+  .riv-row.me{background:color-mix(in srgb,var(--accent) 5%,transparent);margin:0 -16px;padding-left:16px;padding-right:16px;border-radius:12px}
+  .riv-rank{flex:none;width:26px;text-align:center;font-size:16px;font-weight:850;color:var(--faint)}
+  .riv-mid{flex:1;min-width:0}
+  .riv-nm{font-size:14.5px;font-weight:750;color:var(--ink);display:flex;align-items:center;gap:7px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .riv-you{font-size:9.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--accent-ink);
+    background:color-mix(in srgb,var(--accent) 14%,transparent);padding:2px 6px;border-radius:6px;flex:none}
+  .riv-sub{font-size:11.5px;color:var(--muted);font-weight:600;margin-top:2px}
+  .riv-sub i{color:var(--amber);font-style:normal}
+  .riv-big{flex:none;text-align:right;min-width:56px}
+  .riv-big b{display:block;font-size:22px;font-weight:850;letter-spacing:-.03em;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1}
+  .riv-big span{display:block;font-size:9.5px;font-weight:750;text-transform:uppercase;letter-spacing:.03em;color:var(--faint);margin-top:3px}
+  .riv-foot{margin-top:14px}
+  /* head-to-head */
+  .card.duel{background:linear-gradient(160deg,color-mix(in srgb,var(--accent) 7%,var(--surface)),var(--surface))}
+  .dl-heads{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+  .dl-who{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:5px}
+  .dl-who span{font-size:12.5px;font-weight:750;color:var(--ink);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .dl-who .miniln{width:58px;height:18px}
+  .dl-vs{flex:none;font-family:var(--serif);font-style:italic;font-size:16px;color:var(--faint)}
+  .dl-row{padding:9px 0;border-top:1px solid var(--edge)}
+  .dl-lab{text-align:center;font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--faint);margin-bottom:6px}
+  .dl-lab span{display:block;font-size:10.5px;font-weight:600;letter-spacing:0;text-transform:none;color:var(--faint);opacity:.85;margin-top:1px}
+  .dl-bars{display:flex;align-items:center;gap:8px}
+  .dl-side{flex:1;display:flex;align-items:center;gap:7px;min-width:0}
+  .dl-side.a{justify-content:flex-end}
+  .dl-side i{display:block;height:10px;border-radius:6px;background:color-mix(in srgb,var(--accent) 28%,transparent);transition:width .7s var(--ease)}
+  .dl-side.a i{background:color-mix(in srgb,var(--accent) 30%,transparent)}
+  .dl-side.b i{background:color-mix(in srgb,var(--violet) 30%,transparent)}
+  .dl-side.a.win i{background:var(--accent)} .dl-side.b.win i{background:var(--violet)}
+  .dl-side b{flex:none;font-size:15px;font-weight:800;color:var(--muted);font-variant-numeric:tabular-nums}
+  .dl-side.win b{color:var(--ink)}
+  /* you vs the group's best */
+  .rb-row{padding:10px 0;border-top:1px solid var(--edge)}
+  .rb-row:first-of-type{border-top:none}
+  .rb-top{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;font-weight:700;color:var(--ink2);margin-bottom:7px}
+  .rb-top b{font-size:11.5px;font-weight:800;color:var(--muted)}
+  .rb-top b.good{color:var(--sage-ink)}
+  .rb-track{position:relative;height:12px;border-radius:7px;background:var(--surface2);overflow:hidden}
+  .rb-track i{position:absolute;left:0;top:0;height:100%;border-radius:7px;transition:width .7s var(--ease)}
+  .rb-best{background:color-mix(in srgb,var(--accent) 22%,transparent)}
+  .rb-mine{background:var(--accent)}
+  @media(prefers-reduced-motion:reduce){ .riv-ref.spin{animation-duration:2.4s} }
   .cfg-live{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--sage-ink);
     background:color-mix(in srgb,var(--sage) 16%,transparent);padding:7px 13px;border-radius:999px;margin-bottom:12px}
   .cfg-live b{color:var(--ink)}
@@ -1468,6 +1537,12 @@ try{ var _s=JSON.parse(localStorage.getItem('ml_settings_v2')||'{}'); if(_s&&(_s
     <div id="insightsBody"></div>
   </section>
 
+  <!-- RIVALS -->
+  <section class="view" id="v-rivals">
+    <div class="sec-title"><h2>Rivals</h2><div class="hint">the same numbers, side by side</div></div>
+    <div id="rivalsBody"></div>
+  </section>
+
   <!-- DATA -->
   <section class="view" id="v-data">
     <div class="sec-title"><h2>Data &amp; app</h2><div class="hint">it lives on this device — keep a backup</div></div>
@@ -1548,6 +1623,8 @@ try{ var _s=JSON.parse(localStorage.getItem('ml_settings_v2')||'{}'); if(_s&&(_s
       <svg viewBox="0 0 24 24"><path d="M3 3v18h18M7 14l3-3 3 3 5-6"/></svg><span>Insights</span></button>
     <button class="tab" data-v="book">
       <span class="tabic"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z"/></svg><span class="tabbadge" id="revBadge" hidden></span></span><span>Book</span></button>
+    <button class="tab" data-v="rivals">
+      <span class="tabic"><svg viewBox="0 0 24 24"><path d="M6 21V9M12 21V4M18 21v-7"/></svg><span class="tabbadge" id="rivBadge" hidden></span></span><span>Rivals</span></button>
     <button class="tab" data-v="data">
       <svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg><span>Data</span></button>
   </div>
@@ -1563,7 +1640,7 @@ const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.st
 async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } try{return localStorage.getItem(k)}catch(_){return null} }
 async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v);return true}catch(e){return false} } try{localStorage.setItem(k,v);return true}catch(_){return false} }
 const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
-const APP_VERSION='v54'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
+const APP_VERSION='v55'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
 
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 
@@ -1618,6 +1695,8 @@ let tombstones={}; /* id -> deletedAt, for delete-safe cloud merge */
 let _grpCache=null; /* memoised recurrence groups, invalidated on every persist() */
 const K_TOMB='ml_tombstones_v1', K_FBCFG='ml_fbcfg_v1', K_DEV='ml_device_v1', K_SESS='ml_sessions_v1', K_PLAN='ml_plan_v1', K_LIVETRI='ml_livetri_v1';
 const K_OWNER='ml_owner_v1'; /* which Google account this device's data belongs to */
+const K_LB='ml_rivals_v1';   /* the rivals group this account has joined, if any */
+let lb={gid:null, name:'', members:[], pulled:0, publishedAt:0};
 
 /* ============================================================================
    SHARED SIGN-IN  —  paste one firebaseConfig here and everybody who opens this
@@ -1682,6 +1761,7 @@ async function boot(){
   loadTombstones();
   loadSessions();
   loadPlan();
+  loadLB();
   migrate();
   if(settings.lastSubject && SUBJECTS.includes(settings.lastSubject)) form.subject=settings.lastSubject;
   applyTheme();
@@ -2031,6 +2111,7 @@ function renderViewByName(v){
   else if(v==='book'){ renderBook(); _dirty.book=false; }
   else if(v==='review'){ renderReview(); _dirty.review=false; }
   else if(v==='insights'){ renderInsights(); _dirty.insights=false; }
+  else if(v==='rivals'){ renderRivals(); _dirty.rivals=false; }
 }
 function daysToExam(){
   if(!settings.examDate)return null;
@@ -3201,10 +3282,13 @@ function scoreSheet(){
 const EXAM_Q=200, EXAM_MAX=EXAM_Q*4;
 function scoreStats(sn){
   const k=sn&&sn.score; if(!k || k.c==null || k.w==null) return null;
-  const c=Math.max(0,+k.c||0), w=Math.max(0,+k.w||0), att=c+w;
+  /* clamp before any arithmetic: a doctored cloud doc carrying 1e308 turned 4c−w into Infinity
+     and every percentage downstream into NaN. No real paper exceeds a few thousand questions. */
+  const CAP=100000, num=v=>{ const n=+v; return isFinite(n) ? Math.min(CAP,Math.max(0,n)) : 0; };
+  const c=num(k.c), w=num(k.w), att=c+w;
   /* the denominator can never be smaller than what you actually attempted — a mistyped or
      legacy total used to sail through and print impossible scores like 150%. */
-  const claimed=(k.total&&k.total>0)?+k.total : (att + (k.s>0?+k.s:0)) || att || 1;
+  const claimed=(k.total&&num(k.total)>0)?num(k.total) : (att + num(k.s)) || att || 1;
   const total=Math.max(claimed, att, 1);
   const marks=4*c-w, maxMarks=4*total;
   /* pct of the maximum — the one number comparable across a 50-Q module and a 200-Q GT */
@@ -4663,6 +4747,147 @@ function renderInsights(){
   growBars(box); /* every data bar on the page shares the same sweep-in */
 }
 
+/* ---- Rivals view ---- */
+const RIV_METRICS=[
+  {k:'last',   t:'Latest GT',      s:'%',  hi:true,  hint:'your most recent full test'},
+  {k:'best',   t:'Best GT',        s:'%',  hi:true,  hint:'your ceiling so far'},
+  {k:'wr',     t:'Wrong per right',s:'',   hi:false, hint:'lower is sharper'},
+  {k:'streak', t:'Day streak',     s:'d',  hi:true,  hint:'days in a row you showed up'},
+  {k:'sorted', t:'Mistakes sorted',s:'',   hi:true,  hint:'the work itself'},
+  {k:'handledPc',t:'Blind spots handled',s:'%',hi:true,hint:'how much of what you cannot feel is dealt with'}
+];
+function rivAvatar(m,cls){ const ini=esc((m.name||'?').trim().charAt(0).toUpperCase());
+  return m.photo ? `<img class="riv-av ${cls||''}" src="${esc(m.photo)}" alt="" referrerpolicy="no-referrer">`
+                 : `<span class="riv-av riv-ini ${cls||''}">${ini}</span>`; }
+function fmtRiv(m,k){ const v=m[k]; if(v==null) return '—';
+  const d=RIV_METRICS.find(x=>x.k===k); return (k==='wr'? v.toFixed(2) : Math.round(v))+(d?d.s:''); }
+function renderRivals(){
+  const box=document.getElementById('rivalsBody'); if(!box) return;
+  if(!fbUser){
+    box.innerHTML=`<div class="riv-empty"><div class="riv-emoji">🏁</div>
+      <h3>Sign in to compare</h3>
+      <p>Rivals lines your numbers up against a study partner's. It needs a Google account so each person's row belongs to them.</p>
+      <div class="actions" style="margin-top:16px"><button class="btn primary" id="rivGo">Go to sign-in</button></div></div>`;
+    document.getElementById('rivGo').onclick=()=>switchView('data');
+    return;
+  }
+  if(!lb.gid){
+    box.innerHTML=`<div class="riv-empty"><div class="riv-emoji">🏁</div>
+      <h3>Start a group</h3>
+      <p>Create one and share the code, or paste a code you were given. Only the people with that code see each other.</p>
+      <div class="riv-what"><b>What gets shared</b><span>Your name and picture, your GT percentages, wrong-per-right, day streak, how many mistakes you have sorted, and how many blind spots you have handled. <b>Never</b> the mistakes themselves — no concepts, no subjects, no notes.</span></div>
+      <div class="actions" style="margin-top:16px"><button class="btn primary" id="rivNew">Create a group</button></div>
+      <div class="sp-lab" style="margin-top:18px">or join one</div>
+      <div class="sp-custom"><input type="text" id="rivCode" placeholder="8-letter code" autocomplete="off" maxlength="9"><button class="btn primary" id="rivJoin">Join</button></div></div>`;
+    document.getElementById('rivNew').onclick=async()=>{ buzz(9); await joinRivals(newGroupCode(),'My group'); };
+    document.getElementById('rivJoin').onclick=async()=>{ buzz(6); await joinRivals(document.getElementById('rivCode').value,''); };
+    return;
+  }
+  const me=(lb.members||[]).find(m=>m.uid===fbUser.uid);
+  const others=(lb.members||[]).filter(m=>m.uid!==fbUser.uid);
+  const head=`<div class="riv-head">
+    <div class="riv-code"><span class="riv-clab">group code</span><b id="rivCopy">${esc(lb.gid)}</b><span class="riv-tap">tap to copy</span></div>
+    <button class="riv-ref" id="rivRefresh" aria-label="Refresh">⟳</button></div>`;
+  if(!others.length){
+    box.innerHTML=head+`<div class="riv-empty"><div class="riv-emoji">👋</div><h3>Waiting for someone to join</h3>
+      <p>Send them the code above. When they join with it, both of your rows appear here.</p>
+      <p class="tlab">Your row is already published${lb.publishedAt?' · updated '+relTime(lb.publishedAt):''}.</p>
+      <div class="actions" style="margin-top:16px"><button class="btn ghost" id="rivLeave">Leave group</button></div></div>`;
+    bindRivals(); return;
+  }
+  const all=[me,...others].filter(Boolean);
+  /* two people is the common case and deserves a real head-to-head, not a list of one row */
+  const duel = (all.length===2 && me) ? rivDuel(me, others[0]) : '';
+  const board = rivBoard(all, me);
+  const bars = me ? rivBars(all, me) : '';
+  box.innerHTML=head+duel+board+bars+
+    `<p class="tlab riv-foot">Only aggregate numbers are shared — never a single mistake, concept or note. <button class="linkish" id="rivWhat">What exactly? ›</button></p>
+     <div class="actions" style="margin-top:12px"><button class="btn ghost" id="rivLeave">Leave group</button></div>`;
+  bindRivals();
+  box.querySelectorAll('[data-cu]').forEach(el=>{ const v=+el.dataset.cu; if(isFinite(v)&&Math.abs(v)<=9999) countUp(el,v); });
+  growBars(box);
+}
+/* the versus card: one metric at a time, both faces, who is ahead and by how much */
+function rivDuel(a,b){
+  const rows=RIV_METRICS.map(d=>{
+    const va=a[d.k], vb=b[d.k];
+    if(va==null && vb==null) return '';
+    let lead=''; /* 'a' | 'b' | '' */
+    if(va!=null && vb!=null && va!==vb) lead = (d.hi ? va>vb : va<vb) ? 'a' : 'b';
+    const max=Math.max(Math.abs(va||0),Math.abs(vb||0))||1;
+    const wa=Math.round(Math.abs(va||0)/max*100), wb=Math.round(Math.abs(vb||0)/max*100);
+    return `<div class="dl-row">
+      <div class="dl-lab">${d.t}<span>${d.hint}</span></div>
+      <div class="dl-bars">
+        <div class="dl-side a ${lead==='a'?'win':''}"><b>${fmtRiv(a,d.k)}</b><i style="width:0" data-gw="${wa}"></i></div>
+        <div class="dl-side b ${lead==='b'?'win':''}"><i style="width:0" data-gw="${wb}"></i><b>${fmtRiv(b,d.k)}</b></div>
+      </div></div>`;
+  }).join('');
+  const spark=(m,c)=>m.series&&m.series.length>1?miniLine(m.series,c):'';
+  return `<div class="card duel">
+    <div class="dl-heads">
+      <div class="dl-who a">${rivAvatar(a)}<span>${esc(a.name)}</span>${spark(a,'var(--accent)')}</div>
+      <span class="dl-vs">vs</span>
+      <div class="dl-who b">${rivAvatar(b)}<span>${esc(b.name)}</span>${spark(b,'var(--violet)')}</div>
+    </div>
+    ${rows}</div>`;
+}
+/* the ranked board — ordered by latest GT, because that is the number that decides the exam */
+function rivBoard(all,me){
+  const rank=all.slice().sort((x,y)=>{
+    const a=x.last==null?-1e9:x.last, b=y.last==null?-1e9:y.last;
+    if(b!==a) return b-a; return (y.sorted||0)-(x.sorted||0);
+  });
+  const medal=['🥇','🥈','🥉'];
+  const rows=rank.map((m,i)=>{
+    const mine=me&&m.uid===me.uid;
+    const stale=m.at && (Date.now()-m.at>7*864e5);
+    return `<div class="riv-row${mine?' me':''}">
+      <span class="riv-rank">${i<3?medal[i]:i+1}</span>
+      ${rivAvatar(m,'sm')}
+      <div class="riv-mid"><div class="riv-nm">${esc(m.name)}${mine?'<span class="riv-you">you</span>':''}</div>
+        <div class="riv-sub">${m.tests||0} GT${(m.tests||0)===1?'':'s'} · ${m.sorted||0} sorted · ${m.streak||0}d streak${stale?' · <i>not updated in a week</i>':''}</div></div>
+      <div class="riv-big"><b${m.last==null?'':` data-cu="${m.last}"`}>${m.last==null?'—':m.last}</b><span>${m.last==null?'no GT yet':'latest'}</span></div>
+    </div>`;}).join('');
+  return `<div class="card"><h3><span class="accent"></span>The board <span class="h3-hint">by latest GT</span></h3>${rows}</div>`;
+}
+/* where you actually stand: your value against the group's best on each metric */
+function rivBars(all,me){
+  const rows=RIV_METRICS.map(d=>{
+    const vals=all.map(m=>m[d.k]).filter(v=>v!=null);
+    if(vals.length<2 || me[d.k]==null) return '';
+    const best=d.hi?Math.max(...vals):Math.min(...vals);
+    const mine=me[d.k];
+    const ahead = d.hi ? mine>=best : mine<=best;
+    const max=Math.max(...vals.map(Math.abs))||1;
+    const pc=Math.round(Math.abs(mine)/max*100), bp=Math.round(Math.abs(best)/max*100);
+    const gap = mine===best ? '' : (d.k==='wr' ? Math.abs(mine-best).toFixed(2) : Math.abs(Math.round(mine-best))+ (d.s||''));
+    return `<div class="rb-row"><div class="rb-top"><span>${d.t}</span>
+      <b class="${ahead?'good':''}">${ahead?'leading':gap+' behind'}</b></div>
+      <div class="rb-track"><i class="rb-best" style="width:0" data-gw="${bp}"></i><i class="rb-mine" style="width:0" data-gw="${pc}"></i></div></div>`;
+  }).filter(Boolean).join('');
+  if(!rows) return '';
+  return `<div class="card"><h3><span class="accent"></span>You vs the best in the group</h3>${rows}
+    <p class="tlab" style="margin-top:12px">The pale bar is the group's best on each line; the solid one is you.</p></div>`;
+}
+function bindRivals(){
+  const g=id=>document.getElementById(id);
+  if(g('rivLeave')) g('rivLeave').onclick=()=>{
+    openSheet(`<h3>Leave this group?</h3><p>Your scoreboard row is deleted and you drop off everyone else's board. Your own ledger is not touched at all.</p>
+      <div class="actions" style="margin-top:14px"><button class="btn danger" id="lvGo">Leave</button><button class="btn ghost" onclick="closeSheet()">Cancel</button></div>`);
+    g('lvGo').onclick=async()=>{ closeSheet(); await leaveRivals(); };
+  };
+  if(g('rivCopy')) g('rivCopy').onclick=()=>{ buzz(6); copyText(lb.gid,'Code copied — send it to your study partner'); };
+  if(g('rivRefresh')) g('rivRefresh').onclick=async()=>{ buzz(6); const b=g('rivRefresh'); b.classList.add('spin');
+    try{ await publishRivalStats(); await pullRivals(); }catch(e){ toast(fsHint(e)); }
+    b.classList.remove('spin'); renderRivals(); };
+  if(g('rivWhat')) g('rivWhat').onclick=()=>openSheet(`<h3>What Rivals shares</h3>
+    <p>A single small row, separate from your ledger, readable only by people who have your group code.</p>
+    <div class="mh-row"><span class="mh-k">Shared</span><span class="mh-v">Your Google name and picture · GT percentages (latest, best, average, last 8) · wrong-per-right · day streak · number of mistakes sorted · share of blind spots handled.</span></div>
+    <div class="mh-row"><span class="mh-k">Never shared</span><span class="mh-v">The mistakes themselves — concepts, subjects, notes, photos, your plan, anything you typed.</span></div>
+    <div class="mh-row"><span class="mh-k">Leaving</span><span class="mh-v">Deletes the row immediately.</span></div>
+    <div class="actions" style="margin-top:14px"><button class="btn primary" onclick="closeSheet()">Got it</button></div>`);
+}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 let toastT;
 function toast(msg,action){
@@ -5320,6 +5545,73 @@ function getOwner(){ try{ return JSON.parse(localStorage.getItem(K_OWNER)||'null
 function setOwner(u){ try{ localStorage.setItem(K_OWNER, JSON.stringify(u?{uid:u.uid,email:u.email||'',name:u.displayName||'',ts:Date.now()}:null)); }catch(_){} }
 function localDataCount(){ return entries.length + sessions.length + Object.keys((plan&&plan.done)||{}).length; }
 
+/* ============ Rivals ============
+   A leaderboard has to read other people's numbers, which is the opposite of how the rest of
+   this app works. So it never touches your ledger. It publishes a separate, tiny scoreboard
+   row — counts and percentages only, no concepts, no subjects, no mistakes — to a group you
+   explicitly join. Leave the group and the row is deleted. */
+function loadLB(){ try{ const o=JSON.parse(localStorage.getItem(K_LB)||'null');
+  if(o&&typeof o==='object') lb={gid:typeof o.gid==='string'?o.gid:null, name:typeof o.name==='string'?o.name.slice(0,40):'',
+    members:Array.isArray(o.members)?o.members:[], pulled:+o.pulled||0, publishedAt:+o.publishedAt||0}; }catch(_){} }
+function saveLB(){ try{ localStorage.setItem(K_LB, JSON.stringify(lb)); }catch(_){} }
+function newGroupCode(){ const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let s='';
+  for(let i=0;i<8;i++) s+=A[Math.floor(Math.random()*A.length)]; return s; }
+function normGroupCode(s){ return String(s||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,8); }
+/* day-streak over every day you triaged or wrote a fix */
+function activeStreak(){
+  const day=ts=>{ const d=new Date(ts); return d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate(); };
+  const set=new Set(sessions.map(s=>day(s.ts||0)).concat(entries.map(e=>day(e.ts||0))));
+  let n=0; const d=new Date();
+  for(;;){ const k=d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate();
+    if(set.has(k)){ n++; d.setDate(d.getDate()-1); }
+    else if(n===0 && day(Date.now())===k){ d.setDate(d.getDate()-1); if(!set.has(d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate())) break; }
+    else break; }
+  return n;
+}
+/* everything the scoreboard row may contain — derived, aggregate, and nothing identifying
+   beyond the name and picture Google already gave us */
+function myRivalStats(){
+  const gts=sessions.filter(s=>(s.testType||'gt')==='gt' && scoreStats(s)).slice().sort((a,b)=>(a.ts||0)-(b.ts||0));
+  const pcts=gts.map(s=>scoreStats(s).pct100);
+  let R=0,W=0; gts.forEach(s=>{ const k=scoreStats(s); R+=Math.max(0,+s.score.c||0); W+=Math.max(0,+s.score.w||0); });
+  const B=(()=>{ let id=0,noted=0; sessions.forEach(s=>{ id+=triageCounts(s.items).blind; noted+=notedBlindFor(s); });
+    const written=entries.filter(isBlind).length, cleared=entries.filter(e=>isBlind(e)&&e.status==='fixed').length;
+    const total=Math.max(id,written), handled=Math.min(total,noted+written);
+    return { total, handled, cleared:Math.min(handled,cleared), live:Math.max(0,total-handled) }; })();
+  const sorted=sessions.reduce((n,s)=>n+s.items.length,0);
+  return {
+    name:(fbUser&&(fbUser.displayName||fbUser.email||'').slice(0,40))||'Anonymous',
+    photo:(fbUser&&fbUser.photoURL)||'',
+    last: pcts.length?pcts[pcts.length-1]:null,
+    best: pcts.length?Math.max(...pcts):null,
+    avg:  pcts.length?Math.round(pcts.reduce((a,b)=>a+b,0)/pcts.length):null,
+    series: pcts.slice(-8),
+    tests: gts.length,
+    wr: R? +(W/R).toFixed(2) : null,
+    sorted, streak: activeStreak(),
+    blindLive: B.live, blindHandled: B.handled,
+    handledPc: B.total? Math.round(B.handled/B.total*100) : null,
+    exam: settings.examDate||'', at: Date.now()
+  };
+}
+/* keep only known keys and safe types — a member row is written by another person's device */
+function sanitizeRival(uid, o){
+  if(!o||typeof o!=='object') return null;
+  /* null must stay null: "no GT yet" is not a score of zero, and +null quietly becomes 0 */
+  const num=(v,max)=>{ if(v==null||v==='') return null; const n=+v;
+    return isFinite(n)?Math.max(-1000,Math.min(max||1e7,n)):null; };
+  const str=(v,n)=>typeof v==='string'?v.slice(0,n):'';
+  const pic=str(o.photo,300);
+  return { uid:String(uid).slice(0,64), name:str(o.name,40)||'Anonymous',
+    photo:/^https:\/\//.test(pic)?pic:'',            /* only real https avatars, never data:/javascript: */
+    last:num(o.last,100), best:num(o.best,100), avg:num(o.avg,100),
+    series:Array.isArray(o.series)?o.series.slice(-8).map(v=>num(v,100)).filter(v=>v!=null):[],
+    tests:num(o.tests,100000)||0, wr:num(o.wr,1000),
+    sorted:num(o.sorted,1e6)||0, streak:num(o.streak,10000)||0,
+    blindLive:num(o.blindLive,1e6)||0, handledPc:num(o.handledPc,100),
+    at:num(o.at,8.7e12)||0 };
+}
+
 /* pure, commutative, idempotent merge — never loses a created entry, honours deletes */
 function mergeLedger(a,b){
   const tomb=Object.assign({},a.tombstones||{});
@@ -5509,6 +5801,34 @@ async function signOutAndClear(){
   toast('Signed out and cleared — your copy is in Snapshots and in your account');
 }
 function docRef(){ return firebase.firestore().collection('ledgers').doc(fbUser.uid); }
+/* the scoreboard lives in its own collection, well away from any ledger */
+function rivalRef(gid,uid){ return firebase.firestore().collection('groups').doc(gid).collection('members').doc(uid||fbUser.uid); }
+async function publishRivalStats(){
+  if(!fbUser || !lb.gid || fbStatus!=='on') return;
+  try{ await rivalRef(lb.gid).set(JSON.parse(JSON.stringify(myRivalStats())));
+    lb.publishedAt=Date.now(); saveLB(); }catch(e){ /* a scoreboard must never break syncing */ }
+}
+async function pullRivals(){
+  if(!fbUser || !lb.gid) return [];
+  const snap=await firebase.firestore().collection('groups').doc(lb.gid).collection('members').get();
+  const out=[]; snap.forEach(d=>{ const s=sanitizeRival(d.id, d.data()); if(s) out.push(s); });
+  lb.members=out; lb.pulled=Date.now(); saveLB();
+  return out;
+}
+async function leaveRivals(){
+  const gid=lb.gid;
+  try{ if(fbUser && gid) await rivalRef(gid).delete(); }catch(_){}
+  lb={gid:null,name:'',members:[],pulled:0,publishedAt:0}; saveLB();
+  renderRivals(); toast('Left the group — your row was deleted');
+}
+async function joinRivals(code, label){
+  const gid=normGroupCode(code);
+  if(gid.length<6){ toast('That code looks too short'); return; }
+  lb.gid=gid; lb.name=String(label||'').slice(0,40); lb.members=[]; saveLB();
+  await publishRivalStats();
+  try{ await pullRivals(); }catch(e){ toast(fsHint(e)); }
+  renderRivals();
+}
 /* turn a Firestore error into plain-English guidance the user can act on */
 function fsHint(e){
   const c=(e&&e.code)||'';
@@ -5530,6 +5850,8 @@ async function startDocSync(){
     fbUnsub=ref.onSnapshot(s=>{ if(!s||!s.exists)return; if(s.metadata&&s.metadata.hasPendingWrites)return; fbRemoteCount=((s.data()||{}).entries||[]).length; applyRemote(s.data(), false); },
       err=>{ fbStatus='error'; fbError=fsHint(err); renderCloudSync(); toast('Sync error — see Data screen'); });
     fbStatus='on'; fbLastSync=Date.now(); renderCloudSync();
+    /* keep your scoreboard row current whenever a real sync completes */
+    if(lb.gid) publishRivalStats();
   }catch(e){ fbStatus='error'; fbError=fsHint(e); renderCloudSync(); toast('Sync error — see Data screen'); }
 }
 async function applyRemote(remote, initial){
