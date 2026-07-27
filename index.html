@@ -1111,6 +1111,10 @@
   .acs span{display:block;font-size:10px;font-weight:750;letter-spacing:.02em;text-transform:uppercase;color:var(--faint);margin-top:4px}
   .acc-when{text-align:center;font-size:11.5px;font-weight:650;color:var(--faint);margin:-2px 0 11px}
   @media(prefers-reduced-motion:reduce){ .acc-dot{animation:none} }
+  .acc-spin{width:26px;height:26px;flex:none;border-radius:50%;border:2.5px solid color-mix(in srgb,var(--accent) 25%,transparent);
+    border-top-color:var(--accent);animation:accSpin .8s linear infinite}
+  @keyframes accSpin{to{transform:rotate(360deg)}}
+  @media(prefers-reduced-motion:reduce){ .acc-spin{animation-duration:2s} }
   .cfg-live{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--sage-ink);
     background:color-mix(in srgb,var(--sage) 16%,transparent);padding:7px 13px;border-radius:999px;margin-bottom:12px}
   .cfg-live b{color:var(--ink)}
@@ -1559,7 +1563,7 @@ const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.st
 async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } try{return localStorage.getItem(k)}catch(_){return null} }
 async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v);return true}catch(e){return false} } try{localStorage.setItem(k,v);return true}catch(_){return false} }
 const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
-const APP_VERSION='v53'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
+const APP_VERSION='v54'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
 
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 
@@ -1703,7 +1707,7 @@ async function boot(){
      in before, or who set up their own project. A first-time visitor gets a working app and a
      Sign in button without downloading half a megabyte of Firebase they may never need; the
      tap itself loads it. */
-  if(ownFbCfg() || getOwner()) initSync(); else renderCloudSync();
+  if(ownFbCfg() || getOwner() || signInPending()) initSync(); else renderCloudSync();
 }
 
 function migrate(){
@@ -5302,6 +5306,16 @@ function setFbCfg(c){ try{localStorage.setItem(K_FBCFG,JSON.stringify(c))}catch(
    The one thing that must never happen when several people use the same app: one person's
    ledger being merged into another person's account. So a device records whose data it holds,
    and a sign-in by anyone else stops for an explicit decision instead of silently combining. */
+/* A redirect sign-in leaves the page entirely and comes back as a fresh load. Nothing about a
+   first-time signer says "this device syncs" yet — no saved project, no owner — so boot would
+   skip setting sync up and the returning login had nobody listening for it. This marker is what
+   survives the round trip. Short-lived: an abandoned attempt must not make every future start
+   eager. */
+const K_PENDAUTH='ml_pendauth_v1';
+function markSignInPending(){ try{ localStorage.setItem(K_PENDAUTH, String(Date.now())); }catch(_){} }
+function clearSignInPending(){ try{ localStorage.removeItem(K_PENDAUTH); }catch(_){} }
+function signInPending(){ try{ const t=+localStorage.getItem(K_PENDAUTH)||0;
+  if(!t) return false; if(Date.now()-t > 10*60e3){ clearSignInPending(); return false; } return true; }catch(_){ return false; } }
 function getOwner(){ try{ return JSON.parse(localStorage.getItem(K_OWNER)||'null'); }catch(_){ return null; } }
 function setOwner(u){ try{ localStorage.setItem(K_OWNER, JSON.stringify(u?{uid:u.uid,email:u.email||'',name:u.displayName||'',ts:Date.now()}:null)); }catch(_){} }
 function localDataCount(){ return entries.length + sessions.length + Object.keys((plan&&plan.done)||{}).length; }
@@ -5384,11 +5398,19 @@ async function initSync(){
      default can fall back to a session-scoped login, which is what silently signs you out. */
   try{ await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL); }catch(_){}
   try{
-    firebase.auth().onAuthStateChanged(u=>onAuth(u));
+    /* only a real user ends the attempt: this fires with null on every load, and clearing there
+       would wipe the marker before the redirect ever got back */
+    firebase.auth().onAuthStateChanged(u=>{ if(u) clearSignInPending(); onAuth(u); });
     /* a redirect sign-in finishes here on the way back in — surface failures instead of
        swallowing them, otherwise a failed login just looks like nothing happened */
     if(firebase.auth().getRedirectResult) firebase.auth().getRedirectResult()
-      .catch(e=>{ if(e&&e.code&&e.code!=='auth/no-auth-event'){ fbError=authHint(e); renderCloudSync(); } });
+      .then(r=>{ if(r && r.user){ clearSignInPending(); return; }
+        /* came back with no user: the attempt was cancelled or dropped. Say so rather than
+           sitting on a spinner forever. */
+        if(signInPending()){ clearSignInPending(); fbStatus='signedout';
+          fbError='That sign-in did not come back. Tap Sign in with Google to try again.'; renderCloudSync(); } })
+      .catch(e=>{ clearSignInPending();
+        if(e&&e.code&&e.code!=='auth/no-auth-event'){ fbError=authHint(e); fbStatus='signedout'; renderCloudSync(); } });
   }
   catch(e){ fbStatus='error'; fbError=(e&&e.message)||(''+e); renderCloudSync(); }
 }
@@ -5456,15 +5478,17 @@ async function signInCloud(){
   /* installed from the home screen, a popup often opens detached or is blocked outright, which
      is what made signing back in a fight. There, go straight to the redirect flow. */
   if(isStandalone()){
+    markSignInPending(); /* the page is about to be replaced — leave a note for the trip back */
     try{ await firebase.auth().signInWithRedirect(provider); }
-    catch(e){ fbError=authHint(e); renderCloudSync(); toast(fbError); }
+    catch(e){ clearSignInPending(); fbError=authHint(e); renderCloudSync(); toast(fbError); }
     return;
   }
   try{ await firebase.auth().signInWithPopup(provider); }
   catch(e){
     const c=e&&e.code||'';
     if(c==='auth/popup-blocked'||c==='auth/cancelled-popup-request'||c==='auth/operation-not-supported-in-this-environment'){
-      try{ await firebase.auth().signInWithRedirect(provider); }catch(e2){ fbError=authHint(e2); renderCloudSync(); toast(fbError); }
+      markSignInPending();
+      try{ await firebase.auth().signInWithRedirect(provider); }catch(e2){ clearSignInPending(); fbError=authHint(e2); renderCloudSync(); toast(fbError); }
     } else if(c!=='auth/popup-closed-by-user'){ fbError=authHint(e); renderCloudSync(); toast('Sign-in failed — see Data screen'); }
   }
 }
@@ -5627,6 +5651,12 @@ function renderCloudSync(){
       <svg class="ic" viewBox="0 0 24 24" style="stroke:var(--amber)"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
       <div><div class="tt">Waiting on your choice</div><div class="dd">This device holds ${esc(o.email||o.name||'another account')}'s ledger. Nothing is syncing until you decide.</div></div></div>
       <button class="databtn sync" id="cloudResolve"><div><div class="tt">Choose what to do ›</div><div class="dd">Keep them separate, or combine.</div></div></button>`;
+  } else if(signInPending() && fbStatus!=='error'){
+    /* mid-redirect: the page came back and we are collecting the result. Never a blank screen. */
+    html=`<div class="databtn" style="cursor:default;border-color:color-mix(in srgb,var(--accent) 45%,transparent);background:color-mix(in srgb,var(--accent) 7%,var(--surface))">
+      <span class="acc-spin"></span>
+      <div><div class="tt">Finishing sign-in…</div><div class="dd">Coming back from Google. This takes a second.</div></div></div>
+      <button class="databtn" id="cloudSignIn"><div><div class="tt">Taking too long? Tap to retry</div><div class="dd">Nothing on this device has been changed.</div></div></button>`;
   } else {
     const busy=fbStatus==='loading';
     const back = fbStatus==='signedout';
