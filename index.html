@@ -1640,7 +1640,7 @@ const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.st
 async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } try{return localStorage.getItem(k)}catch(_){return null} }
 async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v);return true}catch(e){return false} } try{localStorage.setItem(k,v);return true}catch(_){return false} }
 const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
-const APP_VERSION='v57'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
+const APP_VERSION='v58'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
 
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 
@@ -5708,7 +5708,7 @@ async function initSync(){
         /* no user AND we genuinely came back from a redirect: the attempt was cancelled or
            dropped. Only wasReturning may decide this — never a live read of the marker. */
         if(wasReturning){ clearSignInPending(); fbStatus='signedout';
-          fbError='That sign-in did not finish. Tap Sign in with Google to try again.'; renderCloudSync(); } })
+          fbError='Google sent you back without finishing. Tap Sign in with Google — it now opens a small window instead, which works around this.'; renderCloudSync(); } })
       .catch(e=>{ if(wasReturning) clearSignInPending();
         if(e&&e.code&&e.code!=='auth/no-auth-event'){ fbError=authHint(e); fbStatus='signedout'; renderCloudSync(); } });
   }
@@ -5774,22 +5774,24 @@ async function signInCloud(){
   /* stay signed in on this device — set before the sign-in so the very first session sticks */
   try{ await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL); }catch(_){}
   const provider=new firebase.auth.GoogleAuthProvider();
-  /* no forced account chooser: with one Google session this signs you straight back in */
-  /* installed from the home screen, a popup often opens detached or is blocked outright, which
-     is what made signing back in a fight. There, go straight to the redirect flow. */
-  if(isStandalone()){
-    markSignInPending(); /* the page is about to be replaced — leave a note for the trip back */
-    try{ await firebase.auth().signInWithRedirect(provider); }
-    catch(e){ clearSignInPending(); fbError=authHint(e); renderCloudSync(); toast(fbError); }
-    return;
-  }
-  try{ await firebase.auth().signInWithPopup(provider); }
+  /* POPUP FIRST, on every platform — including installed-to-home-screen.
+     This page is served from a different origin than the Firebase authDomain, and
+     signInWithRedirect keeps its pending state in storage belonging to that auth origin.
+     Chrome 115+ and Safari partition third-party storage, so on the way back the SDK cannot
+     read that state and hands back NO USER — a sign-in that visibly succeeds and then reports
+     failure. A popup carries the credential back by postMessage and needs none of that storage,
+     which is why it is now the primary path and redirect is only the last resort. */
+  try{ await firebase.auth().signInWithPopup(provider); return; }
   catch(e){
     const c=e&&e.code||'';
-    if(c==='auth/popup-blocked'||c==='auth/cancelled-popup-request'||c==='auth/operation-not-supported-in-this-environment'){
-      markSignInPending();
-      try{ await firebase.auth().signInWithRedirect(provider); }catch(e2){ clearSignInPending(); fbError=authHint(e2); renderCloudSync(); toast(fbError); }
-    } else if(c!=='auth/popup-closed-by-user'){ fbError=authHint(e); renderCloudSync(); toast('Sign-in failed — see Data screen'); }
+    if(c==='auth/popup-closed-by-user'||c==='auth/cancelled-popup-request'){ renderCloudSync(); return; }
+    if(c!=='auth/popup-blocked' && c!=='auth/operation-not-supported-in-this-environment'){
+      fbError=authHint(e); renderCloudSync(); toast('Sign-in failed — see Data screen'); return;
+    }
+    /* the popup genuinely could not open — redirect is all that is left, caveats and all */
+    markSignInPending();
+    try{ await firebase.auth().signInWithRedirect(provider); }
+    catch(e2){ clearSignInPending(); fbError=authHint(e2); renderCloudSync(); toast(fbError); }
   }
 }
 async function signOutCloud(){
