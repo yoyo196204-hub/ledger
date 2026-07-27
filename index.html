@@ -1127,6 +1127,7 @@
   .riv-what b{display:block;font-size:12.5px;font-weight:800;margin-bottom:4px}
   .riv-what span{font-size:12.5px;line-height:1.55;color:var(--muted)}
   .riv-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+  #rivalsBody.riv-loading{opacity:.55;transition:opacity .2s}
   .riv-code{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;padding:11px 15px;border-radius:15px;
     background:linear-gradient(150deg,color-mix(in srgb,var(--accent) 11%,var(--surface)),var(--surface));
     border:1px solid color-mix(in srgb,var(--accent) 26%,transparent);cursor:pointer}
@@ -1215,6 +1216,30 @@
   }
   .rvr{width:208px;height:208px;display:block;margin:6px auto 2px;overflow:visible}
   .rvr-note{margin-top:8px}
+  /* floor / ceiling range */
+  .flr-wrap{margin-top:4px}
+  .flr-track{position:relative;height:14px;border-radius:8px;background:var(--surface2);overflow:hidden}
+  .flr-band{position:absolute;top:0;bottom:0;border-radius:8px;
+    background:linear-gradient(90deg,color-mix(in srgb,var(--rose) 42%,transparent),color-mix(in srgb,var(--sage) 52%,transparent));
+    animation:flrIn .7s var(--ease) both}
+  @keyframes flrIn{from{transform:scaleX(.3);opacity:0}to{transform:none;opacity:1}}
+  .flr-tick{position:absolute;top:-3px;width:3px;height:20px;border-radius:2px;background:var(--ink);opacity:.7}
+  .flr-ends{display:flex;justify-content:space-between;align-items:baseline;margin-top:9px;font-size:11.5px;font-weight:650;color:var(--faint)}
+  .flr-ends b{font-size:17px;font-weight:850;color:var(--ink);font-variant-numeric:tabular-nums}
+  .flr-mid{color:var(--muted);font-weight:700}
+  .flr-mid b{font-size:13px;color:var(--ink)}
+  /* repeats */
+  .rp-row{display:flex;align-items:center;gap:11px;width:100%;text-align:left;padding:10px 0;border-top:1px solid var(--edge);background:none;border-left:none;border-right:none;border-bottom:none}
+  .rp-row:first-of-type{border-top:none}
+  .rp-n{flex:none;min-width:30px;font-size:17px;font-weight:850;color:var(--accent-ink);font-variant-numeric:tabular-nums}
+  .rp-n i{font-size:11px;font-style:normal;opacity:.7}
+  .rp-mid{flex:1;min-width:0}
+  .rp-t{display:block;font-size:13.5px;font-weight:700;color:var(--ink);line-height:1.35}
+  .rp-d{display:block;font-size:11.5px;color:var(--muted);font-weight:600;margin-top:2px}
+  .rp-st{flex:none;font-size:11px;font-weight:800;padding:4px 9px;border-radius:8px}
+  .rp-st.open{color:var(--rose);background:color-mix(in srgb,var(--rose) 12%,transparent)}
+  .rp-st.done{color:var(--sage-ink);background:color-mix(in srgb,var(--sage) 18%,transparent)}
+  @media(prefers-reduced-motion:reduce){ .flr-band{animation:none} }
   .rvr-sh{transform-origin:104px 104px;transform:scale(.72);opacity:0;animation:rvGrow .7s var(--spring) forwards}
   @keyframes rvGrow{to{transform:scale(1);opacity:1}}
   .rvr-lab{font-size:9px;font-weight:800;fill:var(--faint);letter-spacing:.02em}
@@ -1708,7 +1733,7 @@ const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.st
 async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } try{return localStorage.getItem(k)}catch(_){return null} }
 async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v);return true}catch(e){return false} } try{localStorage.setItem(k,v);return true}catch(_){return false} }
 const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
-const APP_VERSION='v60'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
+const APP_VERSION='v61'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
 
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 
@@ -2180,7 +2205,7 @@ function renderViewByName(v){
   else if(v==='book'){ renderBook(); _dirty.book=false; }
   else if(v==='review'){ renderReview(); _dirty.review=false; }
   else if(v==='insights'){ renderInsights(); _dirty.insights=false; }
-  else if(v==='rivals'){ renderRivals(); _dirty.rivals=false; }
+  else if(v==='rivals'){ renderRivals(); refreshRivals(); _dirty.rivals=false; }
 }
 function daysToExam(){
   if(!settings.examDate)return null;
@@ -4574,6 +4599,63 @@ function calibrationCard(){
     <p class="tlab" style="margin-top:12px">${calVerdict}</p>
     ${evBlock}</div>`;
 }
+/* ---- your floor, not your ceiling ----
+   A single best score flatters; the exam is one draw from your whole distribution, and a bad
+   draw is the one that hurts. This reports the order statistics of your scored GTs: the worst
+   you have actually produced, the middle, the best, and the band you land in four times out of
+   five. No model, no fit — just your own results, sorted. */
+function floorCard(){
+  const gts=scopedSessions().filter(s=>(s.testType||'gt')==='gt' && scoreStats(s))
+    .map(s=>scoreStats(s).pct100).sort((a,b)=>a-b);
+  if(gts.length<4) return '';
+  const q=p=>{ const i=(gts.length-1)*p, lo=Math.floor(i), hi=Math.ceil(i);
+    return lo===hi ? gts[lo] : gts[lo]+(gts[hi]-gts[lo])*(i-lo); };
+  const lo=q(0.10), mid=q(0.50), hi=q(0.90), worst=gts[0], best=gts[gts.length-1];
+  const span=Math.max(1,best-worst);
+  const pos=v=>Math.round((v-worst)/span*100);
+  const spread=Math.round(hi-lo);
+  const read = spread<=6
+    ? `Tight. Your bad days and good days are only <b>${spread}</b> points apart — what you know is what you score, reliably.`
+    : spread<=14
+      ? `A <b>${spread}</b>-point swing between a bad day and a good one. Normal, but the low end is what a single exam can hand you.`
+      : `A <b>${spread}</b>-point swing is wide. Your score depends heavily on the day, so the floor — not the best — is the honest planning number.`;
+  return `<div class="card"><h3><span class="accent"></span>Your floor, not your ceiling <span class="h3-hint">${gts.length} scored GTs</span><button class="cardq" data-help="floor">?</button></h3>
+    <div class="flr-wrap">
+      <div class="flr-track">
+        <span class="flr-band" style="left:${pos(lo)}%;right:${100-pos(hi)}%"></span>
+        <span class="flr-tick mid" style="left:${pos(mid)}%"></span>
+      </div>
+      <div class="flr-ends"><span><b data-cu="${Math.round(worst)}">${Math.round(worst)}</b>% worst</span>
+        <span class="flr-mid">median <b>${Math.round(mid)}%</b></span>
+        <span><b data-cu="${Math.round(best)}">${Math.round(best)}</b>% best</span></div>
+    </div>
+    <p class="tlab" style="margin-top:12px">Four times in five you land between <b>${Math.round(lo)}%</b> and <b>${Math.round(hi)}%</b>. ${read}</p></div>`;
+}
+/* ---- what keeps coming back ----
+   The recurrence engine already groups near-identical concepts. A concept you have got wrong
+   more than once is worth more than a dozen one-offs, and it is the clearest signal the app
+   holds. Surfaced here instead of only inside the Book. */
+function repeatCard(){
+  const groups=buildGroups().filter(g=>g.length>=2);
+  if(!groups.length) return '';
+  const ranked=groups.map(g=>{
+    const open=g.filter(e=>e.status!=='fixed').length;
+    const last=Math.max(...g.map(e=>e.ts||0));
+    const blind=g.filter(isBlind).length;
+    return { g, n:g.length, open, last, blind, sub:g[0].subject||'', label:(g.find(e=>e.status!=='fixed')||g[0]).concept||'' };
+  }).sort((a,b)=> (b.n-a.n) || (b.open-a.open) || (b.last-a.last)).slice(0,5);
+  const rows=ranked.map(r=>`<button class="rp-row" data-rpsub="${esc(r.sub)}">
+      <span class="rp-n">${r.n}<i>×</i></span>
+      <span class="rp-mid"><span class="rp-t">${esc(r.label.length>52?r.label.slice(0,51)+'…':r.label)}</span>
+        <span class="rp-d">${esc(r.sub||'untagged')}${r.blind?` · <b class="bl">${r.blind} blind</b>`:''} · last ${relTime(r.last)}</span></span>
+      <span class="rp-st ${r.open?'open':'done'}">${r.open?r.open+' open':'✓'}</span></button>`).join('');
+  const stillOpen=ranked.filter(r=>r.open).length;
+  return `<div class="card"><h3><span class="accent"></span>Keeps coming back <span class="h3-hint">same idea, more than once</span><button class="cardq" data-help="repeat">?</button></h3>
+    ${rows}
+    <p class="tlab" style="margin-top:12px">${stillOpen
+      ? `<b>${stillOpen}</b> of these ${stillOpen===1?'is':'are'} still unfixed. A concept that has beaten you twice will beat you a third time — these are worth more than any number of one-offs.`
+      : `All of your repeats are marked fixed. Re-test them once more near the exam to be sure it stuck.`}</p></div>`;
+}
 /* EBM triage of your own errors: not every wrong costs the same to fix.
    RF + TE = marks you already own (a cue/process fix). KG + CC = real learning.
    Telling them apart is where the fastest points hide. */
@@ -4715,6 +4797,14 @@ const METRIC_HELP={
     is:'Your wrong answers divided by your right ones. 0.25 means one wrong per four right.',
     why:'On +4/−1 each wrong cancels a quarter of a right, so this — not your raw score — is what negative marking actually costs you. Falling means sharper, even if your total sits still.',
     do:'Below ~0.30 is strong. If it climbs while your score holds, you are attempting looser, not knowing less.'},
+  floor:{t:'Your floor, not your ceiling',
+    is:'Your scored GTs sorted low to high: the worst you have produced, the middle, the best, and the band you land in four times out of five.',
+    why:'The exam is one draw from that spread, and a bad draw is the one that costs you. Planning off your best score plans for a day you might not get.',
+    do:'Judge progress by the floor rising, not the best. A wide spread means the fix is consistency, not new topics.'},
+  repeat:{t:'Concepts that keep coming back',
+    is:'Mistakes the app recognises as the same idea, met more than once.',
+    why:'A concept that has beaten you twice is far more likely to appear against you again than any single new one.',
+    do:'Clear the open ones first. Tap a row to open that subject.'},
   blindrate:{t:'Wrongs you never saw coming',
     is:'The share of wrongs you felt sure about — the ones re-reading can\'t catch.',
     why:'They repeat in the exam because your gut still says the wrong thing.',
@@ -4777,7 +4867,7 @@ function renderInsights(){
   };
   const detailed = entries.length ? secWrap('logs','From your detailed logs',[nextCard(map),masteryCard(),statStrip(),leakCard(),typeSplitCard()]) : '';
   const deep = secWrap('deep','The whole picture — every subject, every test',[heatmapCard(),weakAreasCard(),numbersCard(),testListCard()]);
-  box.innerHTML = scopeRow + typeRow + vitalsStrip() + forecastCard() + pulseCard() + leverCard() + threeMovesCard() + recoverableCard() + calibrationCard() + scoreTrendCard() + triageInsightsCard()
+  box.innerHTML = scopeRow + typeRow + vitalsStrip() + forecastCard() + pulseCard() + leverCard() + threeMovesCard() + recoverableCard() + floorCard() + calibrationCard() + repeatCard() + scoreTrendCard() + triageInsightsCard()
     + deep + detailed;
   box.querySelectorAll('.cardq[data-help]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); buzz(5); metricHelp(b.dataset.help); });
   /* fold-outs animate in place (grid-rows 0fr → 1fr) — no re-render, so the motion is real */
@@ -4809,6 +4899,7 @@ function renderInsights(){
   const ul=document.getElementById('uncLine'); if(ul) ul.onclick=uncertainSheet;
   box.querySelectorAll('[data-test]').forEach(b=>b.onclick=()=>{buzz(6);testDetailSheet(b.dataset.test)});
   box.querySelectorAll('[data-sub]:not([data-e])').forEach(b=>b.onclick=()=>{buzz(6);subjectSheet(b.dataset.sub)});
+  box.querySelectorAll('[data-rpsub]').forEach(b=>b.onclick=()=>{buzz(6); const s=b.dataset.rpsub; if(s) subjectSheet(s); else switchView('book');});
   box.querySelectorAll('.hm-c.tapc').forEach(b=>b.onclick=()=>{buzz(6);bucketFixSheet(b.dataset.e, b.dataset.sub, +b.dataset.n)});
   box.querySelectorAll('.mixbar .mx-seg, .mx-keys .mx-key, .rec-chip').forEach(b=>b.onclick=()=>{buzz(6);bucketFixSheet(b.dataset.e)});
   box.querySelectorAll('.st-tap').forEach(r=>r.onclick=()=>{buzz(6);testDetailSheet(r.dataset.stest)});
@@ -4990,7 +5081,13 @@ function rivMomentum(a,b){
    marks in the same place; a lone spike = that subject is your problem alone. */
 function rivSubjectRadar(all){
   const withSubs=all.filter(m=>(m.subs||[]).length>=3);
-  if(withSubs.length<1) return '';
+  /* say why it is empty rather than disappearing — silently rendering nothing is how a shipped
+     change looks like it never arrived */
+  if(withSubs.length<1){
+    const waiting=all.filter(m=>!(m.subs||[]).length).map(m=>(m.name||'').split(' ')[0]).filter(Boolean);
+    return `<div class="card"><h3><span class="accent"></span>Where the mistakes land <span class="h3-hint">by subject</span></h3>
+      <p class="tlab">Waiting on subject data${waiting.length?' from '+waiting.map(esc).join(' and '):''}. It is sent the next time each person opens the app, once they have sorted a handful of mistakes with subjects tagged.</p></div>`;
+  }
   const score={};
   withSubs.forEach(m=>(m.subs||[]).forEach(x=>{ score[x.s]=Math.max(score[x.s]||0, x.pc); }));
   const AX=Object.keys(score).sort((a,b)=>score[b]-score[a]).slice(0,7);
@@ -5076,8 +5173,7 @@ function bindRivals(){
   };
   if(g('rivCopy')) g('rivCopy').onclick=()=>{ buzz(6); copyText(lb.gid,'Code copied — send it to your study partner'); };
   if(g('rivRefresh')) g('rivRefresh').onclick=async()=>{ buzz(6); const b=g('rivRefresh'); b.classList.add('spin');
-    try{ await publishRivalStats(); await pullRivals(); }catch(e){ toast(fsHint(e)); }
-    b.classList.remove('spin'); renderRivals(); };
+    await refreshRivals(true); const b2=document.getElementById('rivRefresh'); if(b2) b2.classList.remove('spin'); };
   if(g('rivWhat')) g('rivWhat').onclick=()=>openSheet(`<h3>What Rivals shares</h3>
     <p>A single small row, separate from your ledger, readable only by people who have your group code.</p>
     <div class="mh-row"><span class="mh-k">Shared</span><span class="mh-v">Your Google name and picture · GT percentages (latest, best, average, last 8) · wrong-per-right · day streak · mistakes sorted · share of blind spots handled · the share of your wrongs falling in each subject.</span></div>
@@ -6036,6 +6132,21 @@ async function pullRivals(){
   const out=[]; snap.forEach(d=>{ const s=sanitizeRival(d.id, d.data()); if(s) out.push(s); });
   lb.members=out; lb.pulled=Date.now(); saveLB();
   return out;
+}
+/* Opening the tab used to render whatever was cached the last time you tapped refresh, so a
+   row written by an older version — one without subject shares, say — stayed frozen and the
+   new visuals silently had nothing to draw. Opening the tab now republishes your own row and
+   pulls everyone else's, throttled, and repaints when it lands. */
+let _rivBusy=false;
+async function refreshRivals(force){
+  if(!fbUser || !lb.gid || _rivBusy) return;
+  if(!force && lb.pulled && Date.now()-lb.pulled < 20000) return;
+  _rivBusy=true;
+  const box=document.getElementById('rivalsBody');
+  if(box) box.classList.add('riv-loading');
+  try{ await publishRivalStats(); await pullRivals(); renderRivals(); }
+  catch(e){ if(box) box.classList.remove('riv-loading'); if(force) toast(fsHint(e)); }
+  finally{ _rivBusy=false; const b=document.getElementById('rivalsBody'); if(b) b.classList.remove('riv-loading'); }
 }
 async function leaveRivals(){
   const gid=lb.gid;
