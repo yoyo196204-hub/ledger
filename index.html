@@ -694,6 +694,11 @@
     background:color-mix(in srgb, var(--accent) calc(var(--i,0) * 46%), var(--surface2))}
   .hm-mk b{font-size:12px;font-weight:850;color:var(--ink);font-variant-numeric:tabular-nums}
   .hm-mk.hd{background:none;height:auto;font-size:10.5px;font-weight:800;letter-spacing:.03em;color:var(--faint)}
+  /* the four column codes, spelled out once so they stop being an in-joke */
+  .hm-key{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:11px}
+  .hm-key span{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:650;color:var(--muted)}
+  .hm-key i{width:8px;height:8px;border-radius:3px;flex:none}
+  .hm-key b{font-weight:850;color:var(--ink2);letter-spacing:.02em}
   /* smart set picker */
   .setnew{display:flex;align-items:center;gap:13px;width:100%;text-align:left;color:#fff;background:var(--grad);border-radius:16px;padding:14px 16px;margin-bottom:8px;
     box-shadow:0 8px 20px -9px rgba(193,80,45,.55);transition:transform .09s}
@@ -879,6 +884,25 @@
   .thd.plan:active{transform:scale(.96);border-color:var(--accent)}
   .thd .thd-t{font-size:15px;font-weight:800;letter-spacing:-.01em;color:var(--accent-ink);max-width:100%;
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  /* the queue: what is actually waiting, one row each, gone when empty */
+  .th-queue{background:var(--surface);border:var(--cardborder);border-radius:var(--r);box-shadow:var(--shadow);padding:14px 16px;margin-bottom:14px}
+  .th-qh{font-size:10px;font-weight:850;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);margin-bottom:4px}
+  .th-q{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:13px;width:100%;text-align:left;
+    padding:11px 0;border:none;border-bottom:1px solid var(--edge);background:none;cursor:pointer;border-radius:11px;
+    transition:transform .18s var(--spring),background .18s}
+  .th-q:last-child{border-bottom:none;padding-bottom:2px}
+  .th-q:hover{background:var(--surface2);transform:translateX(2px)}
+  .th-q:active{transform:scale(.985)}
+  .th-qn{min-width:34px;font-size:23px;font-weight:850;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1}
+  .th-q.hot .th-qn{color:var(--rose)} .th-q.warn .th-qn{color:var(--accent-ink)}
+  .th-qm{min-width:0}
+  .th-qm b{display:block;font-size:14px;font-weight:750;color:var(--ink);line-height:1.3}
+  .th-qm i{display:block;font-style:normal;font-size:11.5px;font-weight:600;color:var(--muted);margin-top:2px}
+  .th-queue.clear{display:flex;align-items:center;gap:13px}
+  .th-qtick{width:32px;height:32px;flex:none;border-radius:11px;display:grid;place-items:center;font-size:16px;font-weight:800;
+    color:var(--sage-ink);background:color-mix(in srgb,var(--sage) 18%,transparent)}
+  .th-queue.clear b{display:block;font-size:14px;font-weight:800;color:var(--ink)}
+  .th-queue.clear span{display:block;font-size:12px;color:var(--muted);font-weight:600;margin-top:2px;line-height:1.45}
   .th-foot{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:14px;padding-top:2px}
   /* the score-trend flash when a vitals tile glides you to it */
   .st-card.flash{animation:stflash 1.1s var(--ease)}
@@ -1112,9 +1136,38 @@
   .pl-covkey{display:flex;gap:14px;margin-top:9px;font-size:10.5px;font-weight:650;color:var(--muted)}
   .pl-covkey span{display:inline-flex;align-items:center;gap:5px}
   .pl-covkey i{width:9px;height:9px;border-radius:3px;flex:none}
-  .pl-covkey .k-on{background:var(--sage-soft);border:1.5px solid color-mix(in srgb,var(--sage) 45%,transparent)}
-  .pl-covkey .k-sch{background:var(--surface2);border:1.5px solid var(--border2)}
-  .pl-covkey .k-off{border:1.5px dashed var(--faint)}
+  /* the key swatches are the strip's own fills, so the legend cannot drift from the picture */
+  .pl-covkey .k-on{background:linear-gradient(180deg,var(--sage),var(--sage-ink))}
+  .pl-covkey .k-sch{background:color-mix(in srgb,var(--accent) 30%,var(--surface2))}
+  .pl-covkey .k-off{background:repeating-linear-gradient(135deg,var(--border) 0 3px,transparent 3px 6px);border:1px solid var(--edge)}
+  /* coverage weighted by how many questions each subject carries */
+  .pl-cov2{margin-top:2px}
+  .pl-covtop{display:flex;align-items:baseline;gap:7px;margin-bottom:9px}
+  .pl-covtop b{font-size:30px;font-weight:850;letter-spacing:-.03em;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1}
+  .pl-covtop span{font-size:12px;font-weight:650;color:var(--muted)}
+  .pl-strip{display:flex;gap:2px;height:26px;border-radius:9px;overflow:hidden;background:var(--surface2)}
+  .pl-seg{border:none;padding:0;min-width:3px;cursor:pointer;background:var(--surface2);
+    transition:transform .16s var(--spring),filter .16s,opacity .2s}
+  .pl-seg.done{background:linear-gradient(180deg,var(--sage),var(--sage-ink))}
+  .pl-seg.sched{background:color-mix(in srgb,var(--accent) 30%,var(--surface2))}
+  .pl-seg.off{background:repeating-linear-gradient(135deg,var(--border) 0 3px,transparent 3px 6px)}
+  .pl-seg:hover,.pl-seg.on{transform:scaleY(1.16);filter:brightness(1.08);z-index:2}
+  .pl-covread{margin-top:8px;font-size:11.5px;font-weight:650;color:var(--muted);min-height:16px}
+  .pl-covread b{color:var(--ink);font-weight:800}
+  /* pace: what you are ticking against what finishing needs */
+  .pl-pace{margin-top:14px;padding:11px 13px;border-radius:13px;background:var(--surface2)}
+  .pl-pace.good{background:color-mix(in srgb,var(--sage) 12%,var(--surface2))}
+  .pl-pace.warn{background:color-mix(in srgb,var(--amber) 12%,var(--surface2))}
+  .pl-pace.bad{background:color-mix(in srgb,var(--rose) 10%,var(--surface2))}
+  .pl-pgrid{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:6px 10px;margin-bottom:8px}
+  .pl-plab{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
+  .pl-ptrack{height:8px;border-radius:5px;background:var(--surface);overflow:hidden}
+  .pl-ptrack i{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .55s cubic-bezier(.4,0,.2,1)}
+  .pl-ptrack.need i{background:var(--border2)}
+  .pl-pgrid b{font-size:13px;font-weight:850;color:var(--ink);font-variant-numeric:tabular-nums;min-width:24px;text-align:right}
+  .pl-hrow2{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:12px;font-size:11.5px;font-weight:650;color:var(--muted)}
+  .pl-hrow2 b{font-size:14px;font-weight:850;color:var(--ink);font-variant-numeric:tabular-nums;margin-right:3px}
+  .pl-hrow2 .miss b{color:var(--rose)}
   .pl-next{margin-bottom:14px;background:linear-gradient(155deg,color-mix(in srgb,var(--accent) 8%,var(--surface)),var(--surface));border:1.5px solid color-mix(in srgb,var(--accent) 22%,transparent)}
   .pl-next.done-all{background:linear-gradient(155deg,var(--sage-soft),var(--surface));border-color:color-mix(in srgb,var(--sage) 30%,transparent)}
   .pl-next-eye{font-size:10.5px;font-weight:850;letter-spacing:.1em;color:var(--accent-ink);margin-bottom:6px}
@@ -2012,7 +2065,7 @@ const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.st
 async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } try{return localStorage.getItem(k)}catch(_){return null} }
 async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v);return true}catch(e){return false} } try{localStorage.setItem(k,v);return true}catch(_){return false} }
 const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
-const APP_VERSION='v63'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
+const APP_VERSION='v64'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
 
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 /* Roughly how a 200-question NEET-PG paper is split by subject — an average of recent years,
@@ -2021,19 +2074,19 @@ const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology"
 const PAPER_MIX={"Anatomy":12,"Physiology":10,"Biochemistry":10,"Pathology":17,"Pharmacology":15,"Microbiology":13,"Forensic Medicine":8,"PSM / Community Med":15,"Medicine":24,"Surgery":20,"OBGYN":17,"Pediatrics":9,"Orthopaedics":6,"ENT":6,"Ophthalmology":6,"Anaesthesia":4,"Radiology":4,"Dermatology":2,"Psychiatry":2};
 
 const ERRORS=[
-  {id:'knowledge', code:'KG', t:"Didn't know it",
+  {id:'knowledge', short:'New to you', code:'KG', t:"Didn't know it",
    d:"the content was new or unread — you had nothing to retrieve",
    c:'var(--rose)',
    test:"Was the correct answer new information to you?"},
-  {id:'retrieval', code:'RF', t:"Knew it, didn't fire",
+  {id:'retrieval', short:'Blanked', code:'RF', t:"Knew it, didn't fire",
    d:"you owned this — it just didn't surface under the clock",
    c:'var(--amber)',
    test:"Can you say why your option is wrong, right now, without the explanation?"},
-  {id:'reasoning', code:'CC', t:"Confidently wrong",
+  {id:'reasoning', short:'Felt right', code:'CC', t:"Confidently wrong",
    d:"you held a belief that turned out to be false",
    c:'var(--violet)',
    test:"Would you have bet money on your answer?"},
-  {id:'execution', code:'TE', t:"Misread it",
+  {id:'execution', short:'Misread', code:'TE', t:"Misread it",
    d:"nothing to do with knowing — a negation missed, or the wrong bubble",
    c:'var(--teal)',
    test:"Was there an EXCEPT/NOT, or did you tick an option you didn't mean?"},
@@ -2836,7 +2889,7 @@ function renderTriHome(box){
       <div class="th-lhead"><span class="th-eyebrow">last read</span><span class="th-when">${relTime(last.ts)}</span></div>
       <div class="th-lset">${esc(last.set)}</div>
       ${mixBar(cc.c,cc.total||1)}
-      <div class="th-lmeta">${cc.total} sorted${cc.blind?` · <b class="bl">${cc.blind} blind</b>`:''}${cp.noidea?` · ${cp.noidea} no-read`:''}<span class="th-go">›</span></div>
+      <div class="th-lmeta">${cc.total} sorted${cc.blind?` · <b class="bl">${cc.blind} felt right</b>`:''}${cp.noidea?` · ${cp.noidea} pure guess`:''}<span class="th-go">›</span></div>
     </button>`;
   }
   /* the mini dashboard: streak · wrongs this week · next plan item — real numbers, one row */
@@ -2852,9 +2905,32 @@ function renderTriHome(box){
         || plan.rows.filter(r=>!plan.done[r.id]).sort((a,b)=>a.d<b.d?-1:1)[0];
   const dash=`<div class="th-dash">
     <div class="thd"><b data-cu="${streak}">${streak}</b><span>day streak</span></div>
-    <div class="thd"><b data-cu="${w7}">${w7}</b><span>wrongs · 7d</span></div>
+    <div class="thd"><b data-cu="${w7}">${w7}</b><span>wrongs this week</span></div>
     <button class="thd plan" id="thdPlan">${nx?`<b class="thd-t">${esc(nx.t.length>16?nx.t.slice(0,15)+'…':nx.t)}</b><span>${nx.d===today?'plan · today':'plan · '+fmtShort(nx.d)}</span>`:`<b class="thd-t">—</b><span>plan clear</span>`}</button>
   </div>`;
+  /* ---- what is actually waiting for you ----
+     The screen used to end after the last read and leave half a page of nothing. These are the
+     three real queues, each with a count and a way in, and each one disappears when it is empty
+     rather than sitting there as a zero. */
+  const openN=entries.filter(e=>e.status==='open').length;
+  const dueN=(typeof dueCount==='function')?dueCount():0;
+  let unwritten=0, unwrittenSes=null;
+  sessions.forEach(sn=>{ const q=triageCounts(sn.items);
+    if(q.blind>0 && (Date.now()-sn.ts)>48*3600e3){ const miss=Math.max(0,q.blind-writtenCount(sn.id));
+      if(miss>0){ unwritten+=miss; if(!unwrittenSes) unwrittenSes=sn; } } });
+  const rvq=(typeof revisitQueue==='function')?revisitQueue().filter(x=>x.overdue).length:0;
+  const queue=[];
+  if(unwritten) queue.push({k:'fix', n:unwritten, t:'Write the fix', d:'you were sure, and still wrong', tone:'hot'});
+  if(dueN) queue.push({k:'recall', n:dueN, t:'Test yourself', d:'due for recall today', tone:'warn'});
+  if(openN) queue.push({k:'open', n:openN, t:'Still open in your book', d:'not marked fixed yet', tone:''});
+  if(rvq) queue.push({k:'revisit', n:rvq, t:'Come back to a subject', d:'overdue in your plan', tone:'warn'});
+  const queueCard = queue.length
+    ? `<div class="th-queue"><div class="th-qh">Waiting for you</div>${queue.map(q=>
+        `<button class="th-q ${q.tone}" data-thq="${q.k}"><span class="th-qn">${q.n}</span>
+          <span class="th-qm"><b>${q.t}</b><i>${q.d}</i></span><span class="th-go">›</span></button>`).join('')}</div>`
+    : (sessions.length||entries.length)
+      ? `<div class="th-queue clear"><span class="th-qtick">✓</span><div><b>Nothing waiting</b><span>Every wrong you sorted has a fix written and nothing is due. Sit the next test.</span></div></div>`
+      : '';
   box.innerHTML=`<div class="tri-home">
     <div class="sec-title"><h2>Triage</h2><div class="hint">after a test — sort every wrong question, ~2 min</div></div>
     <div class="th-card ember">
@@ -2866,14 +2942,21 @@ function renderTriHome(box){
       <button class="th-start" id="triageLaunch"><span>${(()=>{const p=mergeTarget(curSet(),curType());return p?`Continue today’s read <b class="th-cont">· ${p.items.length} in</b>`:'Start sorting';})()}</span><span class="th-play">▶</span></button>
     </div>
     ${dash}
+    ${queueCard}
     ${lastCard}
     <div class="th-foot">
       ${sessions.length>1?`<button class="linkish" id="thAll">All reads (${sessions.length}) ›</button>`:''}
-      <button class="linkish" id="thGuide">How the buckets work ›</button>
+      <button class="linkish" id="thGuide">What the four kinds mean ›</button>
     </div>
     <div class="ses-list" id="thReads" hidden></div>
   </div>`;
   document.getElementById('triageLaunch').onclick=startTriage;
+  box.querySelectorAll('[data-thq]').forEach(b=>b.onclick=()=>{ buzz(6);
+    const k=b.dataset.thq;
+    if(k==='fix'){ if(unwrittenSes) writeFixComposer(unwrittenSes.id); else switchView('book'); return; }
+    if(k==='revisit'){ switchView('plan'); return; }
+    switchView('book');
+  });
   document.getElementById('thChange').onclick=renameSet;
   document.getElementById('thGuide').onclick=triGuideSheet;
   const tp=document.getElementById('thdPlan'); if(tp) tp.onclick=()=>{ buzz(6); switchView('plan'); };
@@ -2985,8 +3068,8 @@ function pass4Rows(){
   push(D+'08-25','Autopsy + '+top3[1],'read',[top3[1]],{weak:1});
   push(D+'08-26',top3.map(s=>s.split(' ')[0]).join(' + ')+' — recall only','read',top3,{x2:1});
   push(D+'08-27','GT-'+(gtN++)+' + analysis (last)','test');
-  push(D+'08-28','Autopsy + parked mistakes','buffer');
-  push(D+'08-29','Full ledger skim — every written fix','buffer');
+  push(D+'08-28','Go through every mistake you never sorted','buffer');
+  push(D+'08-29','Read every fix you have written','buffer');
   push(D+'08-30','Light: images + formulas, sleep early','buffer');
   rows.sort((a,b)=>a.d<b.d?-1:1);
   return rows;
@@ -3027,28 +3110,53 @@ function renderPlan(){
     document.getElementById('planAdd').onclick=()=>planEditSheet(null);
     return;
   }
-  /* header */
+  /* ---- header ----
+     Two questions, answered as pictures instead of a row of numbers:
+       how much of the actual paper have I covered, and am I keeping up.
+     Coverage is weighted by how many questions each subject carries, because reading
+     Dermatology (2Q) and reading Medicine (24Q) are not the same day's work. */
   const pct=total?Math.round(doneN/total*100):0;
-  let html=`<div class="sec-title"><h2>Plan</h2><div class="hint">Pass 3 · tap a day when it's done</div></div>
+  const covQ=SUBJECTS.reduce((a,x)=>a+(doneSubs.has(x)?(PAPER_MIX[x]||0):0),0);
+  const schQ=SUBJECTS.reduce((a,x)=>a+(!doneSubs.has(x)&&schedSubs.has(x)?(PAPER_MIX[x]||0):0),0);
+  const covPc=Math.round(covQ/EXAM_Q*100);
+  const strip=SUBJECTS.slice().sort((a,b)=>(PAPER_MIX[b]||0)-(PAPER_MIX[a]||0)).map(x=>{
+    const st=doneSubs.has(x)?'done':schedSubs.has(x)?'sched':'off';
+    return `<button class="pl-seg ${st}" style="flex:${PAPER_MIX[x]||1}" data-plsub="${esc(x)}" title="${esc(x)} · ${PAPER_MIX[x]}Q"></button>`;
+  }).join('');
+  /* pace: what you have actually been ticking against what finishing on time needs */
+  const left=total-doneN;
+  const t7=Object.values(plan.done).filter(x=>x&&Date.now()-x.ts<7*864e5).length;
+  const rate=t7/7, need=(left&&d2e&&d2e>0)?left/d2e:0;
+  const paceMax=Math.max(rate,need,0.15);
+  const behind = need>0 ? Math.max(0, Math.round(left/Math.max(rate,0.01) - d2e)) : 0;
+  const paceLine = !left ? 'Every day is ticked.'
+    : need<=0 ? 'No days left before the exam.'
+    : rate<=0.01 ? `Nothing ticked in the last week. You need <b>${need<0.95?need.toFixed(1):Math.ceil(need)} a day</b> to finish.`
+    : rate>=need ? `Keeping up — you're doing <b>${rate.toFixed(1)} a day</b> and you need <b>${need.toFixed(1)}</b>.`
+    : `At <b>${rate.toFixed(1)} a day</b> you finish about <b>${behind} day${behind===1?'':'s'}</b> after the exam. You need <b>${need.toFixed(1)} a day</b>.`;
+  const paceCls = !left||rate>=need ? 'good' : behind>7 ? 'bad' : 'warn';
+  let html=`<div class="sec-title"><h2>Plan</h2><div class="hint">tap a day when it's done</div></div>
     <div class="pl-head card thin">
-      <div class="pl-hrow"><b>Pass 3</b><span><b>${doneN}</b> done · <b>${total-doneN}</b> left</span><span>${d2e!=null?'<b>'+d2e+'</b> days to exam':''}</span></div>
-      <div class="pl-bar"><i style="width:0" data-gw="${pct}"></i></div>
-      <div class="pl-hsub">${pct}% through${slipped?` · <b class="bl">${slipped} slipped</b>`:''}${buffers?` · ${buffers} buffer left`:''}${(()=>{
-        /* the honest pace read: what you actually ticked this week vs what finishing on time needs */
-        const left=total-doneN; if(!left||d2e==null||d2e<=0) return '';
-        const t7=Object.values(plan.done).filter(x=>x&&Date.now()-x.ts<7*864e5).length;
-        const need=left/d2e;
-        return ` · <b>${t7}</b> ticked in 7d · need <b>${need<0.95?need.toFixed(1):Math.ceil(need)}/day</b> to finish`;})()}</div>
-      <div class="pl-cov" id="plCov">${SUBJECTS.map(x=>{
-        const cls=doneSubs.has(x)?'on':schedSubs.has(x)?'':'off';
-        return `<span class="pl-chip ${cls}" title="${esc(x)}">${esc(x.split(' ')[0].slice(0,5))}</span>`;}).join('')}</div>
-      <div class="pl-covkey"><span><i class="k-on"></i>read</span><span><i class="k-sch"></i>planned</span><span><i class="k-off"></i>not in cycle</span></div>
-      ${missing.length?`<button class="pl-missing" id="planMissing">Not scheduled this cycle: <b>${missing.map(esc).join(' · ')}</b> — add a day ›</button>`:''}
+      <div class="pl-cov2">
+        <div class="pl-covtop"><b data-cu="${covPc}">${covPc}</b><span>% of the paper read this cycle</span></div>
+        <div class="pl-strip" id="plStrip">${strip}</div>
+        <div class="pl-covread" id="plCovRead">${covQ} of ${EXAM_Q} questions covered${schQ?` · ${schQ} more planned`:''}</div>
+        <div class="pl-covkey"><span><i class="k-on"></i>read</span><span><i class="k-sch"></i>planned</span><span><i class="k-off"></i>not in this cycle</span></div>
+      </div>
+      <div class="pl-pace ${paceCls}">
+        <div class="pl-pgrid">
+          <span class="pl-plab">you</span><span class="pl-ptrack"><i style="width:0" data-gw="${Math.round(rate/paceMax*100)}"></i></span><b>${rate.toFixed(1)}</b>
+          <span class="pl-plab">needed</span><span class="pl-ptrack need"><i style="width:0" data-gw="${Math.round(need/paceMax*100)}"></i></span><b>${need?need.toFixed(1):'—'}</b>
+        </div>
+        <p class="tlab">${paceLine}</p>
+      </div>
+      <div class="pl-hrow2"><span><b>${doneN}</b> done</span><span><b>${left}</b> left</span>${slipped?`<span class="miss"><b>${slipped}</b> missed</span>`:''}${buffers?`<span><b>${buffers}</b> catch-up day${buffers>1?'s':''}</span>`:''}${d2e!=null?`<span><b>${d2e}</b> days to exam</span>`:''}</div>
+      ${missing.length?`<button class="pl-missing" id="planMissing">Never scheduled: <b>${missing.map(x=>esc(shortSubj(x))).join(' · ')}</b> — add a day ›</button>`:''}
       ${(()=>{ /* the plan reacts to your trajectory: a plateau/dip means change WHAT, not how much */
         const mom=formMomentum(); if(!mom) return '';
-        if(mom.verdict==='plateau') return `<div class="pl-mom warn">Your GTs have plateaued — more reading of the same won't move it. This cycle, lead with your weak clusters &amp; blind spots (see Insights).</div>`;
-        if(mom.verdict==='declining') return `<div class="pl-mom bad">Scores are slipping beyond noise — check Insights for which error type is rising before adding more hours.</div>`;
-        if(mom.verdict==='accelerating'||mom.verdict==='surge') return `<div class="pl-mom good">You're accelerating — the current mix is working. Protect it: keep the cadence, don't cram new material late.</div>`;
+        if(mom.verdict==='plateau') return `<div class="pl-mom warn">Your test scores have stopped moving. Reading more of the same won't shift them — lead with your weakest subjects and the ones you get wrong while feeling sure.</div>`;
+        if(mom.verdict==='declining') return `<div class="pl-mom bad">Your scores are falling by more than the usual test-to-test wobble. Check Insights for what kind of mistake is rising before adding hours.</div>`;
+        if(mom.verdict==='accelerating'||mom.verdict==='surge') return `<div class="pl-mom good">Your scores are climbing — what you're doing is working. Keep the same rhythm and don't cram new material late.</div>`;
         return ''; })()}
     </div>`;
   /* NEXT UP — the single clear next action: today's undone day, else the nearest one ahead, else the oldest slip */
@@ -3063,8 +3171,8 @@ function renderPlan(){
     const when = nextRow.d===today?'Today' : nextRow.d<today?('Overdue · was '+fmtShort(nextRow.d)) : fmtShort(nextRow.d);
     const subs=buildSubjects();
     const stat=(nextRow.s||[]).map(x=>{ const t=subs[x], sg=hot[x];
-      const base=t&&t.n?`${esc(x)} · <b>${t.n}</b> mark${t.n>1?'s':''} lost${t.sure?` · <b class="bl">${t.sure} blind</b>`:''}`:esc(x);
-      return sg?base+` · <b class="hotword">${sg.kind==='blind'?'blind cluster':ERR_MAP[sg.kind].code+' cluster'} ${Math.round(sg.rate*100)}%</b>`:base;
+      const base=t&&t.n?`${esc(x)} · <b>${t.n}</b> mark${t.n>1?'s':''} lost${t.sure?` · <b class="bl">${t.sure}</b> you felt sure about`:''}`:esc(x);
+      return sg?base+` · <b class="hotword">${sg.kind==='blind'?'a lot of these feel right and are wrong':'mostly '+ERR_MAP[sg.kind].t.toLowerCase()}</b>`:base;
     }).join('<br>');
     const ts=isTest?planTestStat(nextRow):null;
     html+=`<div class="pl-next card"><div class="pl-next-eye">NEXT UP · ${when}${nextRow.d<today?'':''}</div>
@@ -3077,16 +3185,16 @@ function renderPlan(){
       ${ts&&ts.marks!=null?`<div class="pl-next-res">Last time: <b>${ts.marks}</b> marks · ${ts.triaged} wrongs triaged${ts.blind?` · <b class="bl">${ts.blind} blind</b>`:''}</div>`:''}
     </div>`;
   } else {
-    html+=`<div class="pl-next card done-all"><div class="pl-next-eye">ALL DONE</div><div class="pl-next-t">Pass 3 complete 🎉</div><div class="pl-next-stat">Every scheduled day is ticked. Keep the revisits ticking over below.</div></div>`;
+    html+=`<div class="pl-next card done-all"><div class="pl-next-eye">ALL DONE</div><div class="pl-next-t">This cycle is finished 🎉</div><div class="pl-next-stat">Every day you planned is ticked off. Keep the come-back list below moving.</div></div>`;
   }
   /* revisit queue — explicit: skim or full read, and the date */
   const q=revisitQueue();
-  html+=`<div class="card thin"><h3><span class="accent"></span>Revisit when due <span class="h3-hint">recall beats re-reading</span></h3>
+  html+=`<div class="card thin"><h3><span class="accent"></span>Come back to these <span class="h3-hint">testing yourself beats re-reading</span></h3>
     ${q.length? q.map(x=>{ const rec=revisitDepth(x.passes);
       return `<div class="rv-row${x.stale?' stale':''}"><div class="rv-mid"><div class="rv-t">${x.stale?'<span class="rv-dot"></span>':''}${esc(x.row.t)}</div>
-      <div class="rv-d">${x.overdue?'<b class="bl">due now</b>':'due '+fmtShort(x.due)} · ${x.passes?x.passes+' done · ':''}do a <b>${rec==='full'?'full read':'quick skim'}</b></div></div>
+      <div class="rv-d">${x.overdue?'<b class="bl">due now</b>':'due '+fmtShort(x.due)} · ${x.passes?x.passes+' look'+(x.passes>1?'s':'')+' so far · ':''}${rec==='full'?'read it properly this time':'a quick look is enough'}</div></div>
       <button class="rv-btn${rec==='skim'?' rec':''}" data-skim="${esc(x.row.id)}">skim</button><button class="rv-btn full${rec==='full'?' rec':''}" data-full="${esc(x.row.id)}">full</button></div>`;}).join('')
-    : `<div class="tlab">Nothing due yet. Finish a reading day and its first revisit lands in 3 days.</div>`}</div>`;
+    : `<div class="tlab">Nothing due yet. Tick a reading day off and it comes back here in 3 days.</div>`}</div>`;
   /* weeks */
   planWeeks().forEach(week=>{
     const a=week[0].d, b=week[week.length-1].d;
@@ -3100,12 +3208,12 @@ function renderPlan(){
       /* one tag slot, priority: real marks > slipped > read-effect verdict > live hotspot > static weak/×2 */
       let tag='';
       if(ts&&ts.marks!=null) tag=`<span class="pl-tag marks">${ts.marks} marks · ${ts.triaged} wrong</span>`;
-      else if(slip) tag='<span class="pl-tag slipped">slipped</span>';
+      else if(slip) tag='<span class="pl-tag slipped">missed</span>';
       else if(r.k==='test') tag='<span class="pl-tag nr">test</span>';
       else if(dn && r.k==='read'){ const ef=readEffect(r.id);
-        if(ef&&ef.p>=0.9) tag='<span class="pl-tag eff good">working ✓</span>';
-        else if(ef&&ef.p<=0.15) tag='<span class="pl-tag eff bad">not landing</span>'; }
-      else if((r.s||[]).some(x=>hot[x])) tag='<span class="pl-tag hot">hotspot</span>';
+        if(ef&&ef.p>=0.9) tag='<span class="pl-tag eff good">it helped ✓</span>';
+        else if(ef&&ef.p<=0.15) tag='<span class="pl-tag eff bad">didn\u2019t help yet</span>'; }
+      else if((r.s||[]).some(x=>hot[x])) tag='<span class="pl-tag hot">weak spot</span>';
       else if(r.weak) tag='<span class="pl-tag weak">weak</span>';
       else if(r.x2) tag='<span class="pl-tag x2">×2</span>';
       return `<div class="pl-row ${r.k} ${dn?'done':''} ${slip?'slip':''} ${isToday?'today':''}" data-row="${esc(r.id)}">
@@ -3120,7 +3228,7 @@ function renderPlan(){
   const lastD=plan.rows[plan.rows.length-1].d;
   const hasP4=plan.rows.some(r=>/^p4/.test(r.id));
   if(!hasP4 && lastD<'2026-08-20'){
-    html+=`<button class="pl-unplanned" id="p4Btn" style="border-color:color-mix(in srgb,var(--accent) 40%,transparent)">Pass 4 proposal — <b>two go-throughs + final 10</b>, built from your results<span class="chg">Preview ›</span></button>`;
+    html+=`<button class="pl-unplanned" id="p4Btn" style="border-color:color-mix(in srgb,var(--accent) 40%,transparent)">Fill the rest of the run-up — <b>two more passes plus the last 10 days</b>, ordered by your own results<span class="chg">Preview ›</span></button>`;
   }
   if(lastD<'2026-08-30'){
     const days=Math.round((new Date('2026-08-30T12:00:00')-new Date(lastD+'T12:00:00'))/864e5);
@@ -3131,6 +3239,23 @@ function renderPlan(){
   box.innerHTML=html;
   /* bindings */
   const mBtn=document.getElementById('planMissing'); if(mBtn) mBtn.onclick=()=>planEditSheet(null, planMissingSubjects());
+  /* the coverage strip names what you are pointing at — nineteen blocks with no labels is a
+     picture you cannot interrogate */
+  const covStrip=document.getElementById('plStrip'), cread=document.getElementById('plCovRead');
+  if(covStrip && cread){
+    const base=cread.textContent;
+    const segs=[].slice.call(covStrip.querySelectorAll('[data-plsub]'));
+    segs.forEach(sg=>{ const sub=sg.dataset.plsub;
+      const say=()=>{ const st=sg.classList.contains('done')?'read this cycle'
+          :sg.classList.contains('sched')?'planned, not read yet':'not in this cycle';
+        cread.innerHTML=`<b>${esc(sub)}</b> · ${PAPER_MIX[sub]} questions · ${st}`;
+        segs.forEach(o=>o.classList.toggle('on',o===sg)); };
+      sg.addEventListener('mouseenter',say);
+      sg.addEventListener('focus',say);
+      sg.addEventListener('click',()=>{ buzz(5); say(); });
+    });
+    covStrip.addEventListener('mouseleave',()=>{ cread.textContent=base; segs.forEach(o=>o.classList.remove('on')); });
+  }
   const aBtn=document.getElementById('planAdd'); if(aBtn) aBtn.onclick=()=>planEditSheet(null);
   const p4B=document.getElementById('p4Btn'); if(p4B) p4B.onclick=()=>{ buzz(6); pass4Sheet(); };
   box.querySelectorAll('[data-plandone]').forEach(b=>b.onclick=()=>togglePlanDone(b.dataset.plandone));
@@ -3223,7 +3348,7 @@ function planEditSheet(id, prefillSubs){
     <div class="sp-lab">date</div><input type="date" id="peD" value="${r?r.d:todayISO()}" min="2026-07-01" max="2026-08-30">
     <div class="sp-lab" style="margin-top:12px">title</div><input type="text" id="peT" value="${r?esc(r.t):''}" placeholder="e.g. Biochemistry" maxlength="80">
     <div class="sp-lab" style="margin-top:12px">kind</div>
-    <div class="seg c3" id="peK">${['read','test','buffer'].map(k=>`<button class="opt center ${((r&&r.k)||'read')===k?'on':''}" data-k="${k}"><div class="t">${k}</div></button>`).join('')}</div>
+    <div class="seg c3" id="peK">${['read','test','buffer'].map(k=>`<button class="opt center ${((r&&r.k)||'read')===k?'on':''}" data-k="${k}"><div class="t">${k==='buffer'?'catch-up':k}</div></button>`).join('')}</div>
     <div class="sp-lab" style="margin-top:12px">subjects</div>
     <div class="subgrid" id="peS">${SUBJECTS.map(x=>`<button class="chip ${subs.includes(x)?'on':''}" data-s="${esc(x)}">${esc(x)}</button>`).join('')}</div>
     <div class="actions" style="margin-top:12px">
@@ -3969,7 +4094,7 @@ function vitalsStrip(){
       ${tile(cc.nm,'near-miss','','trend',true)}
       ${tile(cc.nr,'no-read','','trend',true)}
       ${tile(ss.length,'reads','','trend',true)}
-    </div><p class="vt-note">Enter correct / wrong when you save a read to unlock right, wrong and W ÷ R here.</p>`;
+    </div><p class="vt-note">Enter correct / wrong when you save a read and the rest of these fill in.</p>`;
   }
   let R=0,W=0; scored.forEach(s=>{ const k=scoreStats(s); R+=Math.max(0,+s.score.c||0); W+=Math.max(0,+s.score.w||0); });
   const wr=R? (W/R) : null;
@@ -3983,7 +4108,7 @@ function vitalsStrip(){
   return `<div class="vitals">
     ${tile(R,'right','good','trend',true)}
     ${tile(W,'wrong','bad','trend',true)}
-    ${tile(wr!=null?wr.toFixed(2):null,'W ÷ R','','ratio')}
+    ${tile(wr!=null?wr.toFixed(2):null,'wrong per right','','ratio')}
     ${tile(last+'%','last %','','trend')}
     ${tile(B?B.live:0,'blind',B&&B.live?'bad':'good','blind',true)}
   </div>${note}`;
@@ -4452,7 +4577,7 @@ function mixBar(agg,total){
   /* glanceable: a wide-enough segment shows its % right on the bar; the legend carries counts + % */
   const segs=ERRORS.map(e=>{ const n=agg[e.id]||0; if(!n) return ''; const pc=Math.round(n/tot*100);
     return `<span class="mx-seg" data-e="${e.id}" title="${esc(e.t+' — '+pc+'%, tap for the fix')}" style="flex:${n};background:${e.c}">${pc>=12?`<span class="mx-pc">${pc}%</span>`:''}</span>`;}).join('');
-  const keys=ERRORS.map(e=>{ const n=agg[e.id]||0; return `<span class="mx-key" data-e="${e.id}"><i style="background:${e.c}"></i>${e.code}<b>${n}</b><span class="mx-kp">${Math.round(n/tot*100)}%</span></span>`;}).join('');
+  const keys=ERRORS.map(e=>{ const n=agg[e.id]||0; return `<span class="mx-key" data-e="${e.id}"><i style="background:${e.c}"></i>${e.short}<b>${n}</b><span class="mx-kp">${Math.round(n/tot*100)}%</span></span>`;}).join('');
   return `<div class="mixbar">${segs}</div><div class="mx-keys">${keys}</div>`;
 }
 /* tap any mark → what it means and exactly what to do about it */
@@ -4654,7 +4779,7 @@ function weightCard(){
   const zx=X0(10), zy=Y(1.15);
   const zone=`<rect class="wg-zone" x="${zx.toFixed(1)}" y="${y0}" width="${(x1-zx).toFixed(1)}" height="${Math.max(0,zy-y0).toFixed(1)}" rx="8"/>
     <text class="wg-zlab" x="${(zx+6).toFixed(1)}" y="${(y0-7).toFixed(1)}">fix these first</text>`;
-  const ticks=[[2,'2× weight'],[1,'on par'],[0.5,'half']].filter(t=>Math.abs(lg(t[0]))<=span+0.01)
+  const ticks=[[2,'twice its size'],[1,'as expected'],[0.5,'half']].filter(t=>Math.abs(lg(t[0]))<=span+0.01)
     .map(([v,lab])=>`<g class="wg-tick"><line x1="${x0-4}" y1="${Y(v).toFixed(1)}" x2="${x1}" y2="${Y(v).toFixed(1)}"${v===1?' class="wg-mid"':''}/>
       <text x="${x0-8}" y="${(Y(v)+3).toFixed(1)}" text-anchor="end">${lab}</text></g>`).join('');
   const zeroLane=zero.length?`<text class="wg-zt" x="${x0-8}" y="${(yz+3).toFixed(1)}" text-anchor="end">none yet</text>`:'';
@@ -4722,10 +4847,10 @@ function weightCard(){
   _wgRead={};
   rows.forEach(r=>{
     const lk=r.leak==null?null:r.leak;
-    const verdict = !r.n ? `Nothing lost here yet across ${totN} tagged mistakes.`
-      : lk>=1.25 ? `Bleeding <b>${lk.toFixed(1)}×</b> what its size predicts.`
-      : lk<=0.8  ? `Holding — <b>${lk.toFixed(1)}×</b> its size, below par for you.`
-      : `Right in proportion (<b>${lk.toFixed(1)}×</b>).`;
+    const verdict = !r.n ? `You have not lost a mark here yet.`
+      : lk>=1.25 ? `You lose <b>${lk.toFixed(1)}× more</b> here than a subject this size should cost you.`
+      : lk<=0.8  ? `You lose <b>less</b> here than a subject this size normally costs — this one is holding.`
+      : `About what a subject this size normally costs you.`;
     _wgRead[r.s]=`<div class="wg-rt"><button class="wg-step" data-wstep="-1" aria-label="Previous subject">‹</button>
       <b>${esc(shortSubj(r.s))}</b><span class="wg-q">${r.q} Q per paper</span>
       <button class="wg-step" data-wstep="1" aria-label="Next subject">›</button></div>
@@ -4773,7 +4898,7 @@ function weakAreasCard(){
     return `<button class="wk-row" data-sub="${esc(x.s)}"><span class="wk-rank${i===0?' worst':''}">${i+1}</span>
       <div class="wk-mid"><div class="wk-t">${esc(shortSubj(x.s))}<span class="wk-q">${x.q}Q</span>${nxChip}${tr}</div>
       <div class="wk-mag"><i style="width:0" data-gw="${magW}">${mini}</i></div>
-      <div class="wk-d">${canMarks?`<b>≈${Math.round(x.swing)}</b> marks a paper`:`<b>${x.n}</b> lost`}${x.blind?` · <b class="bl">${x.blind}</b> blind`:''} ${lk}<span class="wk-dom" style="--c:${dom.c}">${dom.code}</span></div></div>
+      <div class="wk-d">${canMarks?`<b>≈${Math.round(x.swing)}</b> marks a paper`:`<b>${x.n}</b> lost`}${x.blind?` · <b class="bl">${x.blind}</b> blind`:''} ${lk}<span class="wk-dom" style="--c:${dom.c}">${dom.short}</span></div></div>
       <span class="th-go">›</span></button>`;}).join('');
   const sortRow=canMarks?`<div class="wk-sort" role="tablist">
     <button class="wk-sb ${wkSort==='marks'?'on':''}" data-wks="marks">Marks at risk</button>
@@ -4877,7 +5002,7 @@ function triageInsightsCard(){
   return `<div class="card"><h3><span class="accent"></span>Triage — long-term read<button class="cardq" data-help="buckets">?</button></h3>
     <div class="tlab" style="margin:-6px 0 14px">${total} mistake${total>1?'s':''} across ${ss.length} test${ss.length>1?'s':''}${blind?` · <b class="bl">${blind} blind spot${blind>1?'s':''}</b>`:''}.</div>
     ${waffleChart(agg,total)}
-    <div class="mx-keys" style="margin-top:10px">${ERRORS.map(e=>`<span class="mx-key" data-e="${e.id}"><i style="background:${e.c}"></i>${e.code}<b>${agg[e.id]||0}</b><span class="mx-kp">${Math.round((agg[e.id]||0)/total*100)}%</span></span>`).join('')}</div>
+    <div class="mx-keys" style="margin-top:10px">${ERRORS.map(e=>`<span class="mx-key" data-e="${e.id}"><i style="background:${e.c}"></i>${e.short}<b>${agg[e.id]||0}</b><span class="mx-kp">${Math.round((agg[e.id]||0)/total*100)}%</span></span>`).join('')}</div>
     ${recent.length>=2?`<div class="leak-sub" style="margin-top:20px">How the mix flows, test by test <span class="h3-hint">tap a test</span></div><div class="chartwrap" style="margin-top:2px">${streamChart(recent)}</div>`:''}
     ${trends}
     ${(()=>{ let nm=0,im=0,un=0; ss.forEach(x=>{const q=triageCounts(x.items); nm+=q.nearMiss; im+=q.img; un+=q.uncertain;});
@@ -5341,7 +5466,9 @@ function heatmapCard(){
   const more=order.length>8?`<button class="linkish" id="hmMore" style="margin-top:10px">${hmAll?'Show top 8 only ‹':'Show all '+order.length+' subjects ›'}</button>`:'';
   const hint=ex.canRisk?'ordered by marks at risk':'tap a cell';
   return `<div class="card"><h3><span class="accent"></span>Subject × mistake map <span class="h3-hint">${hint}</span><button class="cardq" data-help="buckets">?</button><button class="hm-mode" id="hmMode">${hmPct?'%':'#'}</button></h3>
-    <div class="heatmap" id="heatmap">${head}${rows}</div>${more}${note}${tagNote}</div>`;
+    <div class="heatmap" id="heatmap">${head}${rows}</div>
+    <div class="hm-key">${ERRORS.map(e=>`<span><i style="background:${e.c}"></i><b>${e.code}</b>${e.short.toLowerCase()}</span>`).join('')}</div>
+    ${more}${note}${tagNote}</div>`;
 }
 /* a grid is scanned in two directions, so both must answer the pointer */
 function bindHeatmap(box){
@@ -5416,7 +5543,7 @@ const METRIC_HELP={
     is:'Percentage score, accuracy when you attempted, and wrongs per right. GTs and modules stay on separate lines.',
     why:'A rising score with a falling wrong-per-right means genuinely sharper, not just lucky.',
     do:'Toggle GTs / Modules; tap any point for its numbers.'},
-  ratio:{t:'Wrong for every right (W ÷ R)',
+  ratio:{t:'Wrong for every right',
     is:'Your wrong answers divided by your right ones. 0.25 means one wrong per four right.',
     why:'On +4/−1 each wrong cancels a quarter of a right, so this — not your raw score — is what negative marking actually costs you. Falling means sharper, even if your total sits still.',
     do:'Below ~0.30 is strong. If it climbs while your score holds, you are attempting looser, not knowing less.'},
@@ -5578,7 +5705,7 @@ function renderInsights(){
 const RIV_METRICS=[
   {k:'last',   t:'Latest GT',      s:'%',  hi:true,  hint:'your most recent full test'},
   {k:'best',   t:'Best GT',        s:'%',  hi:true,  hint:'your ceiling so far'},
-  {k:'wr',     t:'Wrong per right',s:'',   hi:false, hint:'lower is sharper'},
+  {k:'wr',     t:'Wrong per right',s:'',   hi:false, hint:'lower is better'},
   {k:'streak', t:'Day streak',     s:'d',  hi:true,  hint:'days in a row you showed up'},
   {k:'sorted', t:'Mistakes sorted',s:'',   hi:true,  hint:'the work itself'},
   {k:'handledPc',t:'Blind spots handled',s:'%',hi:true,hint:'how much of what you cannot feel is dealt with'}
@@ -5787,7 +5914,7 @@ function rivSubjectRadar(all){
   const ringAt=f=>`<polygon class="rvr-ring" points="${AX.map((_,i)=>pt(i,R*f).map(v=>v.toFixed(1)).join(',')).join(' ')}" fill="none"/>`;
   const grid=[0.25,0.5,0.75,1].map(ringAt).join('')
     + (rvrMode==='par'?`<polygon class="rvr-par" points="${AX.map((_,i)=>pt(i,R*0.5).map(v=>v.toFixed(1)).join(',')).join(' ')}" fill="none"/>
-       <text class="rvr-parlab" x="${C+3}" y="${(C-R*0.5-4).toFixed(1)}">par</text>`:'');
+       <text class="rvr-parlab" x="${C+3}" y="${(C-R*0.5-4).toFixed(1)}">normal</text>`:'');
   const spokes=AX.map((_,i)=>{ const q=pt(i,R); return `<line class="rvr-spoke" x1="${C}" y1="${C}" x2="${q[0].toFixed(1)}" y2="${q[1].toFixed(1)}"/>`; }).join('');
   /* the three exam blocks marked as coloured arcs on the rim. Their names go in a legend below —
      text out at the rim gets clipped by the card on a narrow phone, which is how labels disappear. */
@@ -5823,15 +5950,15 @@ function rivSubjectRadar(all){
     <text class="rvr-ctr2" id="rvrCtr2" x="${C}" y="${C+11}" text-anchor="middle"></text>`;
   const key=people.map((m,i)=>`<button class="rvr-k" data-riv="${i}"><i style="background:${COL[i]}"></i>${esc((m.name||'').split(' ')[0])}</button>`).join('');
   const modes=`<div class="rvr-modes" role="tablist">
-    <button class="rvr-m ${rvrMode==='share'?'on':''}" data-rvm="share">Share of wrongs</button>
-    <button class="rvr-m ${rvrMode==='par'?'on':''}" data-rvm="par">Against paper weight</button></div>`;
+    <button class="rvr-m ${rvrMode==='share'?'on':''}" data-rvm="share">Where wrongs land</button>
+    <button class="rvr-m ${rvrMode==='par'?'on':''}" data-rvm="par">Vs subject size</button></div>`;
   /* readout + the full nineteen-subject grid, grouped by block, sorted inside a block by paper size */
   _rvrRead={}; _rvrRows={};
   AX.forEach((s,i)=>{
     const line=people.map((m,mi)=>({m,mi,v:val(m,s),sh:share(m,s)})).sort((a,b)=>b.v-a.v);
     const mx=Math.max(0.0001,...line.map(x=>x.v));
     const anyone=line.some(x=>x.sh>0);
-    _rvrRead[i]=`<div class="rvr-rt"><b>${esc(shortSubj(s))}</b><span>${PAPER_MIX[s]} Q per paper</span></div>
+    _rvrRead[i]=`<div class="rvr-rt"><b>${esc(shortSubj(s))}</b><span>worth ${PAPER_MIX[s]} questions</span></div>
       ${anyone?line.map(x=>`<div class="rvr-rr"><span class="rvr-rn">${esc((x.m.name||'').split(' ')[0])}</span>
         <span class="rvr-rb"><i style="width:${Math.round(Math.min(1,x.v/mx)*100)}%;background:${COL[x.mi]}"></i></span>
         <b>${rvrMode==='share'?fmtPc(x.sh):(x.sh>0?x.v.toFixed(1)+'×':'—')}</b></div>`).join('')
@@ -5866,8 +5993,8 @@ function rivSubjectRadar(all){
     <div class="rvr-read" id="rvrRead">${_rvrRead[_rvrFirst]||''}</div>
     <div class="rvg" id="rvgGrid">${gridRows}</div>
     <p class="tlab rvr-note">${rvrMode==='share'
-      ? 'Reach is a share of that person’s own total, so a heavy tester and a light one compare fairly.'
-      : 'Reach is that share divided by the subject’s size on a 200-Q paper. The dashed ring is par; the rim is 2×, so anything worse than that touches the edge — read the exact figure below.'}</p></div>`;
+      ? 'How far a shape reaches is the share of that person’s own wrongs, so someone who sits more tests does not look worse for it.'
+      : 'Each share compared with how many questions that subject is worth. The dashed ring is normal; the rim is twice normal, so anything worse sits on the edge — the exact figure is in the list.'}</p></div>`;
 }
 function fmtPc(v){ return v>=10?Math.round(v)+'%' : v>0 ? (Math.round(v*10)/10)+'%' : '0%'; }
 /* two subject names are long enough to force a truncation everywhere they appear */
@@ -6631,7 +6758,7 @@ const PLAN_SEED=[
  {id:'p0723',d:'2026-07-23',t:'Physiology',k:'read',s:['Physiology']},
  {id:'p0724',d:'2026-07-24',t:'Dermatology + Psychiatry',k:'read',s:['Dermatology','Psychiatry'],x2:1},
  {id:'p0725',d:'2026-07-25',t:'Radiology + Orthopaedics',k:'read',s:['Radiology','Orthopaedics'],x2:1},
- {id:'p0726',d:'2026-07-26',t:'Buffer — catch up any slip',k:'buffer'},
+ {id:'p0726',d:'2026-07-26',t:'Catch-up day — anything you missed',k:'buffer'},
  {id:'p0727',d:'2026-07-27',t:'GT-21 → Pass 4 starts',k:'test'},
 ];
 /* one sanitizer for every path sessions enter by (storage, cloud merge, import):
