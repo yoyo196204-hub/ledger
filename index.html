@@ -1640,7 +1640,7 @@ const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.st
 async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } try{return localStorage.getItem(k)}catch(_){return null} }
 async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v);return true}catch(e){return false} } try{localStorage.setItem(k,v);return true}catch(_){return false} }
 const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
-const APP_VERSION='v56'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
+const APP_VERSION='v57'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
 
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 
@@ -5677,6 +5677,13 @@ let fbInited=false;
 async function initSync(){
   const cfg=getFbCfg(); if(!cfg){ fbStatus='off'; renderCloudSync(); return; }
   fbInited=true;
+  /* Was a redirect already in flight when this page load began? Snapshot it NOW.
+     Asking later is wrong: tapping Sign in sets the marker a moment after this function starts,
+     and the getRedirectResult promise registered below then resolves with "no user" — because
+     no redirect happened on THIS load — and reads that fresh marker as a failed return. The
+     result was an error thrown the instant you tapped, which also wiped the marker and broke
+     the genuine trip back. */
+  const wasReturning = signInPending();
   if(typeof navigator!=='undefined' && navigator.onLine===false){ fbStatus='offline'; renderCloudSync(); return; }
   fbStatus='loading'; fbError=''; renderCloudSync();
   const ok=await loadFirebase();
@@ -5698,11 +5705,11 @@ async function initSync(){
        swallowing them, otherwise a failed login just looks like nothing happened */
     if(firebase.auth().getRedirectResult) firebase.auth().getRedirectResult()
       .then(r=>{ if(r && r.user){ clearSignInPending(); return; }
-        /* came back with no user: the attempt was cancelled or dropped. Say so rather than
-           sitting on a spinner forever. */
-        if(signInPending()){ clearSignInPending(); fbStatus='signedout';
-          fbError='That sign-in did not come back. Tap Sign in with Google to try again.'; renderCloudSync(); } })
-      .catch(e=>{ clearSignInPending();
+        /* no user AND we genuinely came back from a redirect: the attempt was cancelled or
+           dropped. Only wasReturning may decide this — never a live read of the marker. */
+        if(wasReturning){ clearSignInPending(); fbStatus='signedout';
+          fbError='That sign-in did not finish. Tap Sign in with Google to try again.'; renderCloudSync(); } })
+      .catch(e=>{ if(wasReturning) clearSignInPending();
         if(e&&e.code&&e.code!=='auth/no-auth-event'){ fbError=authHint(e); fbStatus='signedout'; renderCloudSync(); } });
   }
   catch(e){ fbStatus='error'; fbError=(e&&e.message)||(''+e); renderCloudSync(); }
