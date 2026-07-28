@@ -498,6 +498,55 @@
   .tri-help{width:34px;height:34px;flex:none;border-radius:11px;background:var(--surface2);color:var(--accent-ink);font-size:15px;font-weight:800}
   .tri-done{font-weight:750;font-size:14px;color:var(--accent-ink);padding:8px 14px;border-radius:11px;background:var(--accent-soft);flex:none}
   .tri-done:disabled{opacity:.4}
+  /* ---- the subject tracker: where you are in this paper ---- */
+  .tri-track{display:flex;align-items:center;gap:10px;margin:9px 0 2px;min-height:44px}
+  .tri-track:empty{display:none}
+  .tt-sub{flex:1;min-width:0;display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:14px;
+    border:1px solid var(--edge);background:var(--surface);cursor:pointer;text-align:left;
+    transition:transform .16s var(--spring),border-color .16s,background .16s}
+  .tt-sub:hover{transform:translateY(-1px);border-color:var(--border2)} .tt-sub:active{transform:scale(.98)}
+  .tt-ring{position:relative;width:32px;height:32px;flex:none;border-radius:50%;display:grid;place-items:center;
+    background:conic-gradient(var(--accent) calc(var(--p,0)*1%), var(--surface2) 0)}
+  .tt-ring::after{content:'';position:absolute;inset:3px;border-radius:50%;background:var(--surface)}
+  .tt-ring.empty{background:var(--surface2)}
+  .tt-ring i{position:relative;z-index:1;font-style:normal;font-size:10.5px;font-weight:850;color:var(--ink);font-variant-numeric:tabular-nums}
+  .tt-nm{min-width:0;flex:1}
+  .tt-nm b{display:block;font-size:13.5px;font-weight:800;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .tt-nm i{display:block;font-style:normal;font-size:10.5px;font-weight:650;color:var(--muted);margin-top:1px}
+  .tt-set{flex:none;font-size:9.5px;font-weight:850;letter-spacing:.05em;text-transform:uppercase;color:var(--accent-ink);
+    background:var(--accent-soft);padding:3px 7px;border-radius:7px}
+  .tt-open{flex:none;display:flex;flex-direction:column;align-items:center;gap:1px;padding:7px 11px;border-radius:14px;
+    border:1px solid color-mix(in srgb,var(--rose) 32%,transparent);background:color-mix(in srgb,var(--rose) 9%,var(--surface));
+    cursor:pointer;transition:transform .16s var(--spring)}
+  .tt-open.plain{border-color:var(--edge);background:var(--surface)}
+  .tt-open:hover{transform:translateY(-1px)} .tt-open:active{transform:scale(.96)}
+  .tt-open b{font-size:16px;font-weight:850;color:var(--rose);line-height:1;font-variant-numeric:tabular-nums}
+  .tt-open.plain b{color:var(--ink)}
+  .tt-open span{font-size:9px;font-weight:700;color:var(--muted);white-space:nowrap}
+  /* the count question */
+  .sq-wrap{display:flex;align-items:center;gap:10px}
+  .sq-wrap input{flex:1;min-width:0;text-align:center;font-size:26px;font-weight:850}
+  .sq-btn{width:52px;height:52px;flex:none;border-radius:15px;border:1.5px solid var(--border2);background:var(--surface2);
+    font-size:24px;font-weight:800;color:var(--ink2);cursor:pointer;transition:transform .14s var(--spring)}
+  .sq-btn:active{transform:scale(.9)}
+  /* the whole-read tracker rows */
+  .tk-row{display:grid;grid-template-columns:minmax(72px,1fr) minmax(48px,1.2fr) auto auto;align-items:center;gap:10px;
+    width:100%;text-align:left;padding:10px 8px;margin:0 -8px;border:none;border-bottom:1px solid var(--edge);
+    background:none;border-radius:10px;cursor:pointer;transition:background .16s,transform .16s var(--spring)}
+  .tk-row:last-of-type{border-bottom:none}
+  .tk-row:hover{background:var(--surface2)} .tk-row:active{transform:scale(.99)}
+  .tk-row.cur{background:var(--accent-soft)}
+  .tk-nm{font-size:13px;font-weight:750;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .tk-bar{height:7px;border-radius:5px;background:var(--surface2);overflow:hidden}
+  .tk-bar i{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,var(--accent),var(--accent2));
+    transition:width .5s cubic-bezier(.4,0,.2,1)}
+  .tk-row.done .tk-bar i{background:linear-gradient(90deg,var(--sage),var(--sage-ink))}
+  .tk-n{font-size:13px;font-weight:850;color:var(--ink);font-variant-numeric:tabular-nums;min-width:40px;text-align:right}
+  .tk-st{font-size:10.5px;font-weight:700;color:var(--muted);min-width:52px;text-align:right}
+  .tk-row.done .tk-st{color:var(--sage-ink)}
+  .subgrid .chip .n{margin-left:6px;font-size:10px;font-weight:850;color:var(--accent-ink);background:var(--accent-soft);
+    padding:1px 5px;border-radius:6px;font-variant-numeric:tabular-nums}
+  .subgrid .chip .n.ok{color:var(--sage-ink);background:color-mix(in srgb,var(--sage) 20%,transparent)}
   .tri-tally{display:flex;justify-content:center;align-items:center;gap:7px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}
   .tri-tally .tt-total{font-weight:600}
   .tri-tally .tt-total b{display:inline-block;font-size:15px;color:var(--ink);font-variant-numeric:tabular-nums}
@@ -711,6 +760,12 @@
   .sp-cur b{color:var(--ink)}
   .sp-lab{font-size:11px;font-weight:750;letter-spacing:.07em;text-transform:uppercase;color:var(--faint);margin:16px 0 9px 2px}
   .sp-chips{display:flex;flex-wrap:wrap;gap:8px}
+  .exq-row{display:flex;gap:8px;align-items:center}
+  .exq-preset{flex:none;min-width:62px;padding:11px 0;border-radius:12px;border:1.5px solid var(--border2);background:var(--surface2);
+    font-size:15px;font-weight:800;color:var(--ink2);cursor:pointer;transition:transform .16s var(--spring),background .16s,color .16s,border-color .16s}
+  .exq-preset:hover{transform:translateY(-1px)} .exq-preset:active{transform:scale(.96)}
+  .exq-preset.on{background:var(--accent-soft);color:var(--accent-ink);border-color:color-mix(in srgb,var(--accent) 45%,transparent)}
+  .exq-row input{flex:1;min-width:0}
   .sp-custom{display:flex;gap:8px;margin-top:2px}
   .sp-custom input{flex:1}
   .sp-custom .btn{flex:none;padding:0 20px}
@@ -2065,7 +2120,7 @@ const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.st
 async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } try{return localStorage.getItem(k)}catch(_){return null} }
 async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v);return true}catch(e){return false} } try{localStorage.setItem(k,v);return true}catch(_){return false} }
 const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
-const APP_VERSION='v64'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
+const APP_VERSION='v65'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
 
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 /* Roughly how a 200-question NEET-PG paper is split by subject — an average of recent years,
@@ -2755,10 +2810,33 @@ function mergeTarget(set,type){
   const cut=Date.now()-(type==='gt'?72:20)*3600e3;
   return sessions.find(s=>s && s.set===set && s.testType===type && (s.ts||0)>=cut)||null;
 }
+/* ---- keeping count, per subject ----
+   Sorting a paper subject by subject is where it is easiest to lose the thread: you finish
+   Medicine, wander into Surgery, come back the next day and cannot tell what you already did.
+   So a read can carry a declared number of wrongs per subject, and the board keeps a running
+   "3 of 8" against it. Declaring is entirely optional — nothing below assumes it exists. */
+function subjTallyOf(items){ const t={}; (items||[]).forEach(it=>{ if(it&&it.subj) t[it.subj]=(t[it.subj]||0)+1; }); return t; }
+/* what this read has logged so far, counting every sitting of the same paper */
+function triTally(){
+  const t=subjTallyOf(triage.items);
+  const pv=triage.prevTally||{};
+  Object.keys(pv).forEach(k=>t[k]=(t[k]||0)+pv[k]);
+  return t;
+}
+function triTarget(sub){ const v=triage.subjPlan&&triage.subjPlan[sub]; return (typeof v==='number'&&v>0)?v:null; }
+/* subjects still owing work: declared more than has been logged */
+function triOwing(){
+  const t=triTally(), out=[];
+  Object.keys(triage.subjPlan||{}).forEach(sub=>{ const want=triTarget(sub); if(!want) return;
+    const have=t[sub]||0; if(have<want) out.push({sub, have, want, left:want-have}); });
+  return out.sort((a,b)=>b.left-a.left);
+}
 function startTriage(){
   const prev=mergeTarget(curSet(),curType());
   triage={ active:true, set:curSet(), testType:curType(), conf:null, subj:null, img:false, items:[], saved:false, done:false, decide:null,
-    base:prev?prev.items.length:0 }; /* ticket numbers continue across sittings */
+    base:prev?prev.items.length:0,                       /* ticket numbers continue across sittings */
+    prevTally: prev?subjTallyOf(prev.items):{},          /* …and so does the per-subject count */
+    subjPlan: (prev&&prev.subjPlan&&typeof prev.subjPlan==='object')?Object.assign({},prev.subjPlan):{} };
   showTriageView(); renderTriage();
 }
 /* a live board survives backgrounding, floating-window and app kills —
@@ -2771,9 +2849,17 @@ function persistLiveTriage(){
   try{
     if(triage.active && !triage.done && !triage.saved)
       localStorage.setItem(K_LIVETRI, JSON.stringify({ set:triage.set, testType:triage.testType,
-        conf:triage.conf||null, subj:triage.subj||null, img:!!triage.img, items:triage.items, base:triage.base||0, ts:Date.now() }));
+        conf:triage.conf||null, subj:triage.subj||null, img:!!triage.img, items:triage.items, base:triage.base||0,
+        subjPlan:triage.subjPlan||{}, prevTally:triage.prevTally||{}, ts:Date.now() }));
     else localStorage.removeItem(K_LIVETRI);
   }catch(_){}
+}
+/* a stored plan came off disk and may be anything — keep only known subjects and sane counts */
+function sanePlan(o){
+  const out={}; if(!o||typeof o!=='object') return out;
+  Object.keys(o).forEach(k=>{ if(!SUBJECTS.includes(k)) return;
+    const v=Math.round(+o[k]); if(isFinite(v)&&v>0&&v<=500) out[k]=v; });
+  return out;
 }
 function restoreLiveTriage(){
   try{
@@ -2791,7 +2877,10 @@ function restoreLiveTriage(){
     const prev=mergeTarget(s.set, type);
     triage={ active:true, set:s.set, testType:type,
       conf:['high','twoish','noidea'].includes(s.conf)?s.conf:null, subj:(s.subj&&SUBJECTS.includes(s.subj))?s.subj:null,
-      img:!!s.img, items, saved:false, done:false, decide:null, base:prev?prev.items.length:(+s.base||0) };
+      img:!!s.img, items, saved:false, done:false, decide:null, base:prev?prev.items.length:(+s.base||0),
+      /* the declared counts are restored too, or the tracker would come back blank after a kill */
+      prevTally: prev?subjTallyOf(prev.items):(s.prevTally&&typeof s.prevTally==='object'?sanePlan(s.prevTally):{}),
+      subjPlan: sanePlan(s.subjPlan) };
     return true;
   }catch(_){ try{localStorage.removeItem(K_LIVETRI)}catch(__){} return false; }
 }
@@ -3116,12 +3205,12 @@ function renderPlan(){
      Coverage is weighted by how many questions each subject carries, because reading
      Dermatology (2Q) and reading Medicine (24Q) are not the same day's work. */
   const pct=total?Math.round(doneN/total*100):0;
-  const covQ=SUBJECTS.reduce((a,x)=>a+(doneSubs.has(x)?(PAPER_MIX[x]||0):0),0);
-  const schQ=SUBJECTS.reduce((a,x)=>a+(!doneSubs.has(x)&&schedSubs.has(x)?(PAPER_MIX[x]||0):0),0);
-  const covPc=Math.round(covQ/EXAM_Q*100);
-  const strip=SUBJECTS.slice().sort((a,b)=>(PAPER_MIX[b]||0)-(PAPER_MIX[a]||0)).map(x=>{
+  const covQ=SUBJECTS.reduce((a,x)=>a+(doneSubs.has(x)?paperQ(x):0),0);
+  const schQ=SUBJECTS.reduce((a,x)=>a+(!doneSubs.has(x)&&schedSubs.has(x)?paperQ(x):0),0);
+  const covPc=Math.round(covQ/examQ()*100);
+  const strip=SUBJECTS.slice().sort((a,b)=>paperQ(b)-paperQ(a)).map(x=>{
     const st=doneSubs.has(x)?'done':schedSubs.has(x)?'sched':'off';
-    return `<button class="pl-seg ${st}" style="flex:${PAPER_MIX[x]||1}" data-plsub="${esc(x)}" title="${esc(x)} · ${PAPER_MIX[x]}Q"></button>`;
+    return `<button class="pl-seg ${st}" style="flex:${paperQ(x)||1}" data-plsub="${esc(x)}" title="${esc(x)} · ${paperQ(x)}Q"></button>`;
   }).join('');
   /* pace: what you have actually been ticking against what finishing on time needs */
   const left=total-doneN;
@@ -3140,7 +3229,7 @@ function renderPlan(){
       <div class="pl-cov2">
         <div class="pl-covtop"><b data-cu="${covPc}">${covPc}</b><span>% of the paper read this cycle</span></div>
         <div class="pl-strip" id="plStrip">${strip}</div>
-        <div class="pl-covread" id="plCovRead">${covQ} of ${EXAM_Q} questions covered${schQ?` · ${schQ} more planned`:''}</div>
+        <div class="pl-covread" id="plCovRead">${covQ} of ${examQ()} questions covered${schQ?` · ${schQ} more planned`:''}</div>
         <div class="pl-covkey"><span><i class="k-on"></i>read</span><span><i class="k-sch"></i>planned</span><span><i class="k-off"></i>not in this cycle</span></div>
       </div>
       <div class="pl-pace ${paceCls}">
@@ -3248,7 +3337,7 @@ function renderPlan(){
     segs.forEach(sg=>{ const sub=sg.dataset.plsub;
       const say=()=>{ const st=sg.classList.contains('done')?'read this cycle'
           :sg.classList.contains('sched')?'planned, not read yet':'not in this cycle';
-        cread.innerHTML=`<b>${esc(sub)}</b> · ${PAPER_MIX[sub]} questions · ${st}`;
+        cread.innerHTML=`<b>${esc(sub)}</b> · ${paperQ(sub)} questions · ${st}`;
         segs.forEach(o=>o.classList.toggle('on',o===sg)); };
       sg.addEventListener('mouseenter',say);
       sg.addEventListener('focus',say);
@@ -3484,6 +3573,7 @@ function renderTriage(){
       <span class="tt-total"><b id="triN">${total}</b> sorted</span><span id="triNL">${blind?`· <b class="bl">${blind} blind spot${blind>1?'s':''}</b>`:''}</span>
       ${ERRORS.map(e=>`<span class="tt-chip" style="--bc:${e.c}"><b>${e.code}</b><span data-count="${e.id}">${c[e.id]}</span></span>`).join('')}
     </div>
+    <div class="tri-track" id="triTrack">${triTrackHTML()}</div>
     <div class="tri-mid"><div id="triChipWrap">${triChipHTML(total)}</div>
       <div class="tri-prompt" id="triPrompt">${triage.conf?'drop it in its bucket ↓':'pick how it felt in the exam ↑'}</div></div>
     <div class="tri-buckets" id="triBuckets">
@@ -3499,7 +3589,7 @@ function renderTriage(){
   document.getElementById('triHelp').onclick=triGuideSheet;
   document.getElementById('triDone').onclick=triageFinish;
   document.querySelectorAll('#triBuckets .bucket').forEach(b=>b.onclick=()=>{ if(triage.decide==null) triageAdd(b.dataset.b,b); });
-  bindTriChip(); bindTriUndo();
+  bindTriChip(); bindTriUndo(); bindTriTracker();
 }
 /* the ticket: carries the number, the sure/not-sure state, and the bucket-finder */
 function triChipHTML(total){
@@ -3521,6 +3611,66 @@ function triChipHTML(total){
     <div class="chip-meta"><button class="chip-subj ${triage.subj?'set':''}" id="triSubj">${triage.subj?esc(triage.subj):'+ subject'}</button>
       <button class="chip-subj ${triage.img?'set':''}" id="triImg">${triage.img?'📷 image':'📷 image Q'}</button>
       <button class="chip-help sm ${triage.conf?'':'locked'}" id="triPick">which bucket?</button></div></div>`;
+}
+/* the running count for whatever subject you are on, plus a way into the whole picture.
+   With nothing declared it still shows how many you have sorted here, which alone answers
+   "did I already do Medicine?" */
+function triTrackHTML(){
+  const tally=triTally();
+  const owing=triOwing();
+  const sub=triage.subj;
+  if(!sub && !owing.length && !Object.keys(tally).length) return '';
+  let left='';
+  if(sub){
+    const have=tally[sub]||0, want=triTarget(sub);
+    const pc = want ? Math.min(100,Math.round(have/want*100)) : 0;
+    left = `<button class="tt-sub" id="ttSub">
+      <span class="tt-ring" style="--p:${pc}"><i>${want?have+'/'+want:have}</i></span>
+      <span class="tt-nm"><b>${esc(shortSubj(sub))}</b><i>${want? (have>=want?'all sorted':`${want-have} to go`) : `${have} sorted here`}</i></span>
+      ${want?'':'<span class="tt-set">set count</span>'}</button>`;
+  } else {
+    left = `<button class="tt-sub none" id="ttSub"><span class="tt-ring empty"><i>+</i></span>
+      <span class="tt-nm"><b>Pick a subject</b><i>so the count can follow you</i></span></button>`;
+  }
+  const owingN=owing.reduce((a,x)=>a+x.left,0);
+  const right = owing.length
+    ? `<button class="tt-open" id="ttOpen"><b>${owingN}</b><span>left over ${owing.length} subject${owing.length>1?'s':''}</span></button>`
+    : (Object.keys(tally).length>1 ? `<button class="tt-open plain" id="ttOpen"><b>${Object.keys(tally).length}</b><span>subjects touched</span></button>` : '');
+  return left+right;
+}
+function updateTriTracker(){ const t=document.getElementById('triTrack');
+  if(t){ t.innerHTML=triTrackHTML(); bindTriTracker(); } persistLiveTriageSoon(); }
+function bindTriTracker(){
+  const a=document.getElementById('ttSub'); if(a) a.onclick=()=>{ buzz(5);
+    if(triage.subj && triTarget(triage.subj)==null) askSubjCount(triage.subj); else triSubjSheet(); };
+  const b=document.getElementById('ttOpen'); if(b) b.onclick=()=>{ buzz(6); triTrackerSheet(); };
+}
+/* the whole read at a glance: what is done, what is owed, and what has not been touched */
+function triTrackerSheet(){
+  const tally=triTally();
+  const rows=SUBJECTS.map(sub=>({sub, have:tally[sub]||0, want:triTarget(sub)}))
+    .filter(r=>r.have>0 || r.want)
+    .sort((a,b)=>{ const la=a.want?Math.max(0,a.want-a.have):-1, lb=b.want?Math.max(0,b.want-b.have):-1;
+      return lb-la || b.have-a.have; });
+  const untouched=SUBJECTS.filter(x=>!tally[x] && !triTarget(x));
+  const body=rows.length?rows.map(r=>{
+    const done=r.want?r.have>=r.want:false;
+    const pc=r.want?Math.min(100,Math.round(r.have/r.want*100)):100;
+    return `<button class="tk-row${done?' done':''}${r.sub===triage.subj?' cur':''}" data-tk="${esc(r.sub)}">
+      <span class="tk-nm">${esc(shortSubj(r.sub))}</span>
+      <span class="tk-bar"><i style="width:${pc}%"></i></span>
+      <b class="tk-n">${r.want?`${r.have}/${r.want}`:r.have}</b>
+      <span class="tk-st">${r.want?(done?'✓':`${r.want-r.have} left`):'no count set'}</span></button>`;}).join('')
+    : `<p class="tlab">Nothing tagged with a subject yet.</p>`;
+  openSheet(`<h3>Where you are</h3>
+    <p>Everything you have sorted in ${esc(triage.set)}, including earlier sittings. Tap a subject to switch to it.</p>
+    ${body}
+    ${untouched.length?`<div class="sp-lab" style="margin-top:16px">not started</div>
+      <div class="sp-chips">${untouched.map(x=>`<button class="chip" data-tk="${esc(x)}">${esc(shortSubj(x))}</button>`).join('')}</div>`:''}
+    <div class="actions" style="margin-top:16px"><button class="btn primary" onclick="closeSheet()">Back to sorting</button></div>`);
+  document.querySelectorAll('[data-tk]').forEach(b=>b.onclick=()=>{ buzz(6);
+    triage.subj=b.dataset.tk; redrawChip(); updateTriTracker();
+    if(triTarget(triage.subj)==null) askSubjCount(triage.subj); else closeSheet(); });
 }
 function lockUI(){
   const locked=!triage.conf;
@@ -3553,12 +3703,48 @@ function bindTriChip(){
     updateTriageUI(); flyToken(btn,'knowledge',false); buzz(9);
     toast('Parked. It won’t count as a blind spot until you sort it.'); };
 }
-function redrawChip(){ const w=document.getElementById('triChipWrap'); if(w){ w.innerHTML=triChipHTML(triageCounts(triage.items).total); bindTriChip(); } persistLiveTriageSoon(); }
+function redrawChip(){ const w=document.getElementById('triChipWrap'); if(w){ w.innerHTML=triChipHTML(triageCounts(triage.items).total); bindTriChip(); } updateTriTracker(); persistLiveTriageSoon(); }
 /* sticky subject on the ticket — set it once when you move to a new subject's questions; it feeds the subject × mistake map */
+/* sticky subject on the ticket. Picking one also asks — once, and skippably — how many wrongs
+   that subject had on this paper, which is what turns "I think I did Medicine" into "3 of 8". */
 function triSubjSheet(){
-  openSheet(`<h3>Subject for these</h3><p>Optional — tag which subject you're triaging so the map can show where each mistake type clusters. It sticks until you change it.</p>
-    <div class="subgrid">${triage.subj?`<button class="chip on" data-s="">✕ clear</button>`:''}${SUBJECTS.map(s=>`<button class="chip ${s===triage.subj?'on':''}" data-s="${esc(s)}">${esc(s)}</button>`).join('')}</div>`);
-  document.querySelectorAll('.subgrid .chip').forEach(b=>b.onclick=()=>{ triage.subj=b.dataset.s||null; closeSheet(); redrawChip(); });
+  const tally=triTally();
+  const body=()=>`<h3>Which subject?</h3><p>Tag what you are sorting so the map knows where each kind of mistake clusters. It sticks until you change it.</p>
+    <div class="subgrid">${triage.subj?`<button class="chip on" data-s="">✕ clear</button>`:''}${SUBJECTS.map(s=>{
+      const have=tally[s]||0, want=triTarget(s);
+      const badge = want ? `<span class="n${have>=want?' ok':''}">${have}/${want}</span>` : (have?`<span class="n">${have}</span>`:'');
+      return `<button class="chip ${s===triage.subj?'on':''}" data-s="${esc(s)}">${esc(shortSubj(s))}${badge}</button>`;}).join('')}</div>
+    <p class="tlab" style="margin-top:12px">The number on a subject is how many you have already sorted in it${Object.keys(triage.subjPlan||{}).length?', against how many you said it had':''}.</p>`;
+  openSheet(body());
+  const bind=()=>document.querySelectorAll('#sheet .subgrid .chip').forEach(b=>b.onclick=()=>{
+    buzz(6); const picked=b.dataset.s||null;
+    triage.subj=picked; redrawChip(); updateTriTracker();
+    if(picked && triTarget(picked)==null) askSubjCount(picked); else closeSheet();
+  });
+  bind();
+}
+/* the count step: one stepper, one skip, never a blocker */
+function askSubjCount(sub){
+  const tally=triTally(), have=tally[sub]||0;
+  openSheet(`<h3>How many wrongs in ${esc(sub)}?</h3>
+    <p>On this paper. It just lets the board count you down while you sort, so you can stop and come back without losing your place.</p>
+    <div class="sq-wrap"><button class="sq-btn" data-sq="-1">−</button>
+      <input type="number" id="sqN" inputmode="numeric" min="0" max="500" value="${have||''}" placeholder="—">
+      <button class="sq-btn" data-sq="1">+</button></div>
+    ${have?`<p class="tlab" style="margin-top:10px">You have already sorted <b>${have}</b> in ${esc(sub)}.</p>`:''}
+    <div class="actions" style="margin-top:16px"><button class="btn primary" id="sqSave">Set it</button>
+      <button class="btn ghost" id="sqSkip">Not now</button></div>`);
+  const inp=document.getElementById('sqN');
+  document.querySelectorAll('[data-sq]').forEach(b=>b.onclick=()=>{ buzz(4);
+    const v=Math.max(0,(Math.round(+inp.value)||0)+ +b.dataset.sq); inp.value=v||''; });
+  document.getElementById('sqSkip').onclick=()=>closeSheet();
+  document.getElementById('sqSave').onclick=()=>{
+    const v=Math.round(+inp.value);
+    if(isFinite(v)&&v>0&&v<=500){ triage.subjPlan=triage.subjPlan||{}; triage.subjPlan[sub]=v; }
+    else if(inp.value.trim()==='' ){ if(triage.subjPlan) delete triage.subjPlan[sub]; }
+    persistLiveTriage(); updateTriTracker(); closeSheet();
+    if(isFinite(v)&&v>0) toast(`${esc(sub)}: counting down from ${v}`);
+  };
 }
 function renderTriIntro(box){
   box.innerHTML=`<div class="tri-intro">
@@ -3714,6 +3900,26 @@ function triageBack(){
 }
 function triageFinish(){
   if(!triage.items.length){ exitTriage(); return; }
+  /* the whole point of declaring counts: being told what is missing before you walk away,
+     while the paper is still open in front of you. Never blocks — "save anyway" is right there. */
+  const owing=triOwing();
+  if(owing.length){
+    const total=owing.reduce((a,x)=>a+x.left,0);
+    openSheet(`<h3>${total} still to sort</h3>
+      <p>You said these subjects had more wrongs than you have logged. Sort them now while the paper is in front of you, or save and come back — this read stays open for the rest of the day.</p>
+      ${owing.map(x=>`<button class="tk-row" data-fin="${esc(x.sub)}">
+        <span class="tk-nm">${esc(shortSubj(x.sub))}</span>
+        <span class="tk-bar"><i style="width:${Math.round(x.have/x.want*100)}%"></i></span>
+        <b class="tk-n">${x.have}/${x.want}</b><span class="tk-st">${x.left} left</span></button>`).join('')}
+      <div class="actions" style="margin-top:16px"><button class="btn primary" id="finBack">Keep sorting</button>
+        <button class="btn ghost" id="finAnyway">Save anyway</button></div>`);
+    document.querySelectorAll('[data-fin]').forEach(b=>b.onclick=()=>{ buzz(6);
+      triage.subj=b.dataset.fin; redrawChip(); updateTriTracker(); closeSheet(); });
+    document.getElementById('finBack').onclick=()=>{ const first=owing[0];
+      if(first){ triage.subj=first.sub; redrawChip(); updateTriTracker(); } closeSheet(); };
+    document.getElementById('finAnyway').onclick=()=>{ closeSheet(); setTimeout(scoreSheet,180); };
+    return;
+  }
   scoreSheet();
 }
 /* skippable one-screen score capture — three integers unlock accuracy + W:C */
@@ -3728,7 +3934,7 @@ function scoreSheet(){
       <div class="sc-cell"><label>Skipped</label>${stp('scS','—')}</div>
     </div>
     <div class="sc-tot"><label for="scT">Questions on the paper</label>
-      <input type="number" id="scT" inputmode="numeric" min="1" value="${isGT?EXAM_Q:''}" placeholder="${isGT?EXAM_Q:'—'}"></div>
+      <input type="number" id="scT" inputmode="numeric" min="1" value="${isGT?examQ():''}" placeholder="${isGT?examQ():'—'}"></div>
     <div class="tlab" id="scTotal" style="margin-top:8px"></div>
     <div class="sc-warn" id="scWarn" hidden></div>
     <div class="sp-lab" style="margin-top:14px">blind attempts <span style="text-transform:none;letter-spacing:0">(optional — of your wrong ones, how many were pure guesses; leave blank if you didn't count)</span></div>
@@ -3740,7 +3946,7 @@ function scoreSheet(){
   /* the denominator is the PAPER, not what you happened to attempt. Leaving Skipped blank used to
      shrink the total and silently inflate every % (and the exam forecast built on it) — now the
      paper size is its own field, skipped is inferred from it, and a nonsense total is refused. */
-  const paper=()=>{ const t=val('scT'); return t!=null&&t>0 ? t : (isGT?EXAM_Q:null); };
+  const paper=()=>{ const t=val('scT'); return t!=null&&t>0 ? t : (isGT?examQ():null); };
   const refresh=()=>{
     const c=val('scC'), w=val('scW'), sk=val('scS'), att=(c||0)+(w||0), P=paper();
     const skAuto = (sk==null && P!=null) ? Math.max(0, P-att) : null;
@@ -3752,7 +3958,7 @@ function scoreSheet(){
     const totalTri=(triage.base||0)+n; /* across all sittings of this read */
     if(w!=null && Math.abs(w-totalTri)>2) msgs.push(`You triaged ${totalTri} but logged ${w} wrong — sort the rest before you trust the mix.`);
     if(P!=null && att>P) msgs.push(`${att} answered is more than the ${P} questions on the paper.`);
-    if(isGT && P!=null && Math.abs(P-EXAM_Q)>40) msgs.push(`${P} questions is unusual for a GT — the exam is ${EXAM_Q}.`);
+    if(isGT && P!=null && Math.abs(P-examQ())>40) msgs.push(`${P} questions is a long way from your exam's ${examQ()} — check it, or change the paper size in Data.`);
     if(msgs.length){ warn.hidden=false; warn.textContent=msgs.join(' '); } else warn.hidden=true;
   };
   document.querySelectorAll('.stp [data-up],[data-dn]').forEach(b=>b.onclick=()=>{
@@ -3779,9 +3985,22 @@ function scoreSheet(){
   };
   g('scSkip').onclick=()=>{ closeSheet(); saveSession(null); triage.done=true; renderTriage(); };
 }
-/* the exam basis: NEET-PG is a 200-question, +4/-1 paper → 800 marks. Everything projects to this
+/* the exam basis: a +4/-1 paper of whatever size the user set. Everything projects to this
    so a 50-Q module and a 180-Q GT become comparable. */
-const EXAM_Q=200, EXAM_MAX=EXAM_Q*4;
+/* ---- how big the paper is ----
+   NEET-PG has not always been 200 questions and is not 200 for everyone taking mock papers, so
+   this is a setting rather than a constant. Everything that used to hardcode 200 now asks.
+   PAPER_MIX stays written as counts out of 200 because that is how the published analyses read;
+   it is used as a distribution and scaled to whatever size the paper actually is. */
+const EXAM_Q_DEFAULT=200, PAPER_MIX_BASE=200;
+function examQ(){ const v=+(settings&&settings.examQ); return (isFinite(v)&&v>=20&&v<=500)?Math.round(v):EXAM_Q_DEFAULT; }
+function examMax(){ return examQ()*4; }
+/* how many questions a subject carries on a paper of the current size */
+function paperQ(sub){ const w=PAPER_MIX[sub]; return w?Math.round(w/PAPER_MIX_BASE*examQ()):0; }
+/* its share of the paper, which is size-independent and what the maths actually wants */
+function paperShare(sub){ const w=PAPER_MIX[sub]; return w?w/PAPER_MIX_BASE:0; }
+/* the size of one particular test: what you told us when you scored it, else the exam's size */
+function sessionQ(s){ const t=s&&s.score&&+s.score.total; return (isFinite(t)&&t>0)?t:examQ(); }
 function scoreStats(sn){
   const k=sn&&sn.score; if(!k || k.c==null || k.w==null) return null;
   /* clamp before any arithmetic: a doctored cloud doc carrying 1e308 turned 4c−w into Infinity
@@ -3793,11 +4012,11 @@ function scoreStats(sn){
   const claimed=(k.total&&num(k.total)>0)?num(k.total) : (att + num(k.s)) || att || 1;
   const total=Math.max(claimed, att, 1);
   const marks=4*c-w, maxMarks=4*total;
-  /* pct of the maximum — the one number comparable across a 50-Q module and a 200-Q GT */
+  /* pct of the maximum — the one number comparable across a 50-question module and a full GT */
   const pct = maxMarks>0 ? marks/maxMarks : 0;
   return { marks, maxMarks, total, type:sn.testType||'gt',
     pct, pct100:Math.round(pct*100),
-    examMarks:Math.round(pct*EXAM_MAX), /* what this % would score on the full 200-Q paper */
+    examMarks:Math.round(pct*examMax()), /* what this % would score on a full paper of the exam's size */
     attemptRate:total?att/total:null, accuracy:att?c/att:0, wc:c?w/c:null };
 }
 /* ============ EBM engine: (optionally weighted) least-squares fit + honest prediction band ============
@@ -3868,10 +4087,10 @@ function examMarkForecast(){
   const pi=fit.Sxx>0 ? fit.se*Math.sqrt(1+1/fit.n+Math.pow(x0-fit.xbar,2)/fit.Sxx) : fit.se;
   const band=tCrit(fit.n-2)*pi; /* logit space */
   const midP=invlogit(yhat), loP=invlogit(yhat-band), hiP=invlogit(yhat+band);
-  const toMarks=p=>Math.round(p*EXAM_MAX), pc=p=>Math.round(p*100);
+  const toMarks=p=>Math.round(p*examMax()), pc=p=>Math.round(p*100);
   /* weekly gain in % space (accounts for the curve flattening near the ceiling) */
   const perWeekPc=Math.round((invlogit(fit.m*xNow+fit.b)-invlogit(fit.m*(xNow-7)+fit.b))*1000)/10;
-  return { pts:disp, fit, x0, d2e, examQ:EXAM_Q, max:EXAM_MAX, model:'logistic',
+  return { pts:disp, fit, x0, d2e, examQ:examQ(), max:examMax(), model:'logistic',
     midPc:pc(midP), loPc:pc(loP), hiPc:pc(hiP), mid:toMarks(midP), lo:toMarks(loP), hi:toMarks(hiP),
     perWeekPc, perDayPc:perWeekPc/7, lastPc:disp[disp.length-1].y, n:scored.length,
     conf:Math.round((1-Math.min(1,(hiP-loP)))*100) /* rough confidence: tighter band = higher */ };
@@ -3896,7 +4115,7 @@ function leverAnalysis(){ return _memo('lever:'+insScopeVal()+':'+insType, funct
   let bTried=0, bHit=0;
   gts.forEach(s=>{ if(s.score&&s.score.blindTried!=null){ const noidea=(s.comp&&s.comp.noidea)||sessComp(s).noidea; const t=+s.score.blindTried||0, miss=Math.min(noidea,t); bTried+=t; bHit+=Math.max(0,t-miss); } });
   const haveBlind=bTried>=4, h=haveBlind?bHit/bTried:null;
-  /* marks per +1 percentage-point, on the full 200-Q / 800-mark paper */
+  /* marks per +1 percentage-point, on a full paper of the exam's size */
   const accVal=10*A;                                   /* ∂(exam marks)/∂accuracy */
   const attVal=haveBlind?2*(5*h-1):null;               /* only priced once guessing is measured */
   /* realistic headroom: accuracy target = your own best recent form; attempts → ~92% if +EV to try */
@@ -4172,6 +4391,13 @@ function saveSession(score){
     const cc2=triageCounts(prev.items);
     prev.comp={sure:cc2.sure, twoish:cc2.twoish, noidea:cc2.noidea};
     if(score && score.c!=null && score.w!=null) prev.score=score; /* the latest full score is the truest one */
+    /* declared per-subject counts carry onto the read they belong to; the larger declaration
+       wins, because you only ever revise one upward when you find more wrongs */
+    if(triage.subjPlan && Object.keys(triage.subjPlan).length){
+      const merged=Object.assign({}, prev.subjPlan||{});
+      Object.keys(triage.subjPlan).forEach(k=>{ merged[k]=Math.max(merged[k]||0, triage.subjPlan[k]); });
+      prev.subjPlan=merged;
+    }
     prev.upd=Date.now(); /* lets the cloud merge know this copy is newer than any stale twin */
     triage.sessionId=prev.id;
     toast('Added to today’s '+prev.set+' read — '+prev.items.length+' total');
@@ -4181,6 +4407,7 @@ function saveSession(score){
       comp:{sure:cc.sure, twoish:cc.twoish, noidea:cc.noidea}, /* wrong-composition, for per-GT trends */
       items };
     if(score && score.c!=null && score.w!=null) sess.score=score;
+    if(triage.subjPlan && Object.keys(triage.subjPlan).length) sess.subjPlan=Object.assign({},triage.subjPlan);
     triage.sessionId=sess.id;
     sessions.unshift(sess);
     sessions=sessions.slice(0,300); /* months of reads; the 900 KB payload warning guards the real Firestore limit */
@@ -4506,7 +4733,7 @@ function testListCard(){
   const inScope=new Set(scopedSessions().map(s=>s.testType+'|'+s.set).concat(scopedEntries().map(e=>e.testType+'|'+e.set)));
   const keys=Object.keys(tests).filter(k=>inScope.has(k)).sort((a,b)=>tests[b].ts-tests[a].ts).slice(0,15);
   if(!keys.length) return '';
-  /* % score, not raw marks — the column has to compare a 50-Q module and a 200-Q GT fairly */
+  /* % score, not raw marks — the column has to compare a short module and a full GT fairly */
   const pcBySet={}; sessions.forEach(sn=>{ const k2=sn.testType+'|'+sn.set; const st=scoreStats(sn); if(st&&pcBySet[k2]==null) pcBySet[k2]=st.pct100; });
   const rows=keys.map(k=>{ const t=tests[k], tot=t.logged+t.tri;
     const mini=ERRORS.map(e=>t.errs[e.id]?`<span style="flex:${t.errs[e.id]};background:${e.c}"></span>`:'').join('');
@@ -4699,7 +4926,7 @@ function subjectTrend(sub){
 }
 /* ============ subject weightage ============
    Two facts per subject, on one picture:
-     across  → how many questions it typically carries on a 200-Q paper (what it is WORTH)
+     across  → how many questions it typically carries on a full paper (what it is WORTH)
      up      → leak index = your share of mistakes there ÷ its share of the paper
                (1.0 = exactly in proportion; 2.0 = you bleed twice what its size predicts)
      size    → how many of your wrongs landed there
@@ -4709,7 +4936,7 @@ let _wgRead={}, _wgFirst='', _wgOrder=[];
 /* ============ one exam-impact engine, shared by every card that talks about subjects ============
    Everything downstream — the weightage scatter, weak areas, the subject x mistake map — reads
    from here, so those three can never quietly disagree about the same subject.
-     q        questions that subject typically carries on a 200-Q paper
+     q        questions that subject typically carries on a full paper
      n        your wrongs in it, in the active scope
      mShare   its share of your wrongs        pShare  its share of the paper
      leak     mShare / pShare — 1.0 is exactly par, 2.0 is twice what its size predicts
@@ -4717,23 +4944,53 @@ let _wgRead={}, _wgFirst='', _wgOrder=[];
    leak needs 12 tagged mistakes and marks needs 2 scored GTs; below either, the field is null
    rather than a number that would look real. */
 function examImpact(){ return _memo('exi:'+insScopeVal()+':'+insType, _examImpact); }
+/* How many wrongs a subject really had in a read, versus how many reached the ledger.
+   A declared count is the truth about the paper; the logged items are the truth about what you
+   sorted. When you declared more than you sorted, the extra are real marks that would otherwise
+   be invisible — counted toward the subject's size, never toward its mistake mix, because we do
+   not know what kind they were. Reads with no declaration behave exactly as they always did. */
+function sessionSubjTruth(s){
+  const logged=subjTallyOf(s.items);
+  const plan=(s.subjPlan&&typeof s.subjPlan==='object')?s.subjPlan:null;
+  const out={};
+  Object.keys(logged).forEach(k=>out[k]={logged:logged[k], declared:null});
+  if(plan) Object.keys(plan).forEach(k=>{
+    const d=+plan[k]; if(!(d>0)) return;
+    out[k]=out[k]||{logged:0, declared:null};
+    /* a declaration below what you actually sorted is stale, not authoritative */
+    out[k].declared=Math.max(d, out[k].logged);
+  });
+  return out;
+}
 function _examImpact(){
   const m=buildSubjects(scopedSessions(), scopedEntries());
   const gtSets=new Set();
   scopedSessions().forEach(x=>{ if((x.testType||'gt')==='gt') gtSets.add(x.set); });
   scopedEntries().forEach(e=>{ if((e.testType||'gt')==='gt') gtSets.add(e.set); });
   const nT=gtSets.size, canRisk = insType!=='module' && nT>=2;
-  let totN=0; Object.keys(m).forEach(k=>{ if(PAPER_MIX[k]>0) totN+=m[k].n; });
-  const haveMine = totN>=12;
+  /* wrongs nobody ever sorted, per subject, from the declared counts */
+  const unsorted={}; let unsortedTot=0;
+  scopedSessions().forEach(x=>{ const truth=sessionSubjTruth(x);
+    Object.keys(truth).forEach(k=>{ const t=truth[k];
+      if(t.declared!=null && t.declared>t.logged){ const gap=t.declared-t.logged;
+        unsorted[k]=(unsorted[k]||0)+gap; unsortedTot+=gap; } }); });
+  let totN=0; Object.keys(m).forEach(k=>{ if(paperQ(k)>0) totN+=m[k].n; });
+  /* the true size of each subject's problem = what you sorted plus what you told us you missed */
+  const trueTot=totN+unsortedTot;
+  const haveMine = trueTot>=12;
   const rows=Object.keys(PAPER_MIX).map(k=>{
-    const t=m[k]||null, q=PAPER_MIX[k], n=t?t.n:0, pShare=q/EXAM_Q;
-    return { s:k, q, n, blind:t?t.sure:0, wgt:t?t.wgt:0, errs:(t&&t.errs)||{knowledge:0,retrieval:0,reasoning:0,execution:0},
-             pShare, mShare: totN?n/totN:0,
-             leak: haveMine ? (n/totN)/pShare : null,
-             perPaper: canRisk ? n/nT : null,
-             swing: canRisk ? n/nT*5 : null };
+    const t=m[k]||null, q=paperQ(k), n=t?t.n:0, miss=unsorted[k]||0, all=n+miss;
+    return { s:k, q, n, miss, all, blind:t?t.sure:0, wgt:t?t.wgt:0,
+             errs:(t&&t.errs)||{knowledge:0,retrieval:0,reasoning:0,execution:0},
+             pShare:paperShare(k), mShare: trueTot?all/trueTot:0,
+             leak: haveMine ? (all/trueTot)/paperShare(k) : null,
+             perPaper: canRisk ? all/nT : null,
+             swing: canRisk ? all/nT*5 : null };
   });
-  return { rows, totN, nT, canRisk, haveMine };
+  /* how much of the picture is actually sorted — every card that quotes a mistake mix is only
+     speaking for this share, and says so rather than implying it covers everything */
+  const coverage = trueTot ? totN/trueTot : 1;
+  return { rows, totN, trueTot, unsortedTot, coverage, nT, canRisk, haveMine };
 }
 /* the weightage scatter and weak areas read the same rows */
 function weightRows(){ return examImpact(); }
@@ -4749,11 +5006,11 @@ function weightCard(){
       <div class="track"><div class="fill" style="width:${Math.max(4,r.q/mx*100)}%;background:linear-gradient(90deg,var(--accent),var(--accent2))"></div></div>
       <span class="v">${r.q}Q</span></div>`).join('');
     return `<div class="card wg-card">${HEAD}<div class="hbars">${bars}</div>
-      <p class="tlab wg-note">Approximate mix of a 200-question paper. Your own leak overlays it once this window holds 12 subject-tagged mistakes — it has <b>${totN}</b>.</p></div>`;
+      <p class="tlab wg-note">Roughly how a ${examQ()}-question paper splits by subject. Your own leak overlays it once this window holds 12 subject-tagged mistakes — it has <b>${totN}</b>.</p></div>`;
   }
   /* ---- the scatter ---- */
-  const real=rows.filter(r=>r.n>0);
-  const zero=rows.filter(r=>!r.n && r.q>=10);      /* big subjects you have not missed yet: worth seeing */
+  const real=rows.filter(r=>r.all>0);
+  const zero=rows.filter(r=>!r.all && r.q>=10);    /* big subjects you have not missed yet: worth seeing */
   const shown=real.concat(zero);
   const W=344,H=218,x0=50,x1=W-14,y0=26,y1=H-38;
   const yz=y1-7;                                   /* the "none yet" lane, clear of the axis line */
@@ -4772,9 +5029,9 @@ function weightCard(){
      has no leak ratio at all, so it sits in its own lane instead of stretching the axis to -inf */
   const span=Math.max(1, ...real.map(r=>Math.abs(lg(Math.max(0.3,Math.min(4,r.leak))))));
   const Y=v=>((y0+y1)/2) - (lg(Math.max(0.3,Math.min(4,v)))/span)*((y1-y0)/2);
-  const posOf=r=>({x:X(r), y:r.n?Y(r.leak):yz});
-  const nmax=Math.max(1,...shown.map(r=>r.n));
-  const RAD=r=>r.n?4+7*Math.sqrt(r.n/nmax):3;
+  const posOf=r=>({x:X(r), y:r.all?Y(r.leak):yz});
+  const nmax=Math.max(1,...shown.map(r=>r.all));
+  const RAD=r=>r.all?4+7*Math.sqrt(r.all/nmax):3;
   /* the zone worth acting on: a subject that carries real marks AND bleeds above its weight */
   const zx=X0(10), zy=Y(1.15);
   const zone=`<rect class="wg-zone" x="${zx.toFixed(1)}" y="${y0}" width="${(x1-zx).toFixed(1)}" height="${Math.max(0,zy-y0).toFixed(1)}" rx="8"/>
@@ -4783,7 +5040,7 @@ function weightCard(){
     .map(([v,lab])=>`<g class="wg-tick"><line x1="${x0-4}" y1="${Y(v).toFixed(1)}" x2="${x1}" y2="${Y(v).toFixed(1)}"${v===1?' class="wg-mid"':''}/>
       <text x="${x0-8}" y="${(Y(v)+3).toFixed(1)}" text-anchor="end">${lab}</text></g>`).join('');
   const zeroLane=zero.length?`<text class="wg-zt" x="${x0-8}" y="${(yz+3).toFixed(1)}" text-anchor="end">none yet</text>`:'';
-  const tone=r=>!r.n?'zero':(r.leak>=1.25?'hot':r.leak<=0.8?'safe':'even');
+  const tone=r=>!r.all?'zero':(r.leak>=1.25?'hot':r.leak<=0.8?'safe':'even');
   /* Each mark's touch target grows to a comfortable size but never past half the distance to its
      closest neighbour — so no bubble can ever sit on top of another one's centre and swallow the
      tap meant for it. Whatever is left over is covered by the steppers in the readout. */
@@ -4800,11 +5057,11 @@ function weightCard(){
       const push=(MINSEP-d)/2/d;
       /* a subject with no wrongs has no ratio, so it must stay pinned to its own lane —
          nudge those sideways only, never up into a scale that does not apply to them */
-      const vi=shown[i].n?0.5:0, vj=shown[j].n?0.5:0;
+      const vi=shown[i].all?0.5:0, vj=shown[j].all?0.5:0;
       P[i].x-=dx*push; P[i].y-=dy*push*vi; P[j].x+=dx*push; P[j].y+=dy*push*vj;
     }
     P.forEach((q,i)=>{ q.x=Math.max(x0+8,Math.min(x1-8,q.x));
-      q.y = shown[i].n ? Math.max(y0+4,Math.min(y1-3,q.y)) : yz; });
+      q.y = shown[i].all ? Math.max(y0+4,Math.min(y1-3,q.y)) : yz; });
   }
   const hitR=shown.map((r,i)=>{ let near=1e9;
     P.forEach((q,j)=>{ if(i===j) return; const d=Math.hypot(P[i].x-q.x, P[i].y-q.y); if(d<near) near=d; });
@@ -4814,7 +5071,7 @@ function weightCard(){
     return Math.max(8, Math.min(17, near-1));
   });
   const dots=shown.map((r,i)=>({r,i}))
-    .sort((a,b)=>b.r.n-a.r.n)   /* biggest painted first, so the small ones stay visible on top */
+    .sort((a,b)=>b.r.all-a.r.all)   /* biggest painted first, so the small ones stay visible on top */
     .map(({r,i})=>{
       const cx=P[i].x, cy=P[i].y, rad=RAD(r);
       return `<g class="wg-g ${tone(r)}"><circle class="wg-dot" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${rad.toFixed(1)}"/>
@@ -4823,7 +5080,7 @@ function weightCard(){
   /* name only the few that matter, and only where the name will not land on another one */
   const taken=[{a:zx,b:zx+62,c:y0-16,d:y0-2}];   /* the zone caption holds its own space */
   const fits=(a,b,y)=>!taken.some(t=>a<t.b&&b>t.a&&y-9<t.d&&y+3>t.c);
-  const named=real.slice().sort((a,b)=>b.n-a.n).slice(0,3);
+  const named=real.slice().sort((a,b)=>b.all-a.all).slice(0,3);
   const labs=named.map(r=>{ const pos=posOf(r), cx=pos.x, cy=pos.y, rad=RAD(r);
     const txt=r.s.split(' /')[0], wpx=txt.length*5.6;
     const anchor = cx>x1-wpx/2 ? 'end' : cx<x0+wpx/2 ? 'start' : 'middle';
@@ -4847,21 +5104,21 @@ function weightCard(){
   _wgRead={};
   rows.forEach(r=>{
     const lk=r.leak==null?null:r.leak;
-    const verdict = !r.n ? `You have not lost a mark here yet.`
+    const verdict = !r.all ? `You have not lost a mark here yet.`
       : lk>=1.25 ? `You lose <b>${lk.toFixed(1)}× more</b> here than a subject this size should cost you.`
       : lk<=0.8  ? `You lose <b>less</b> here than a subject this size normally costs — this one is holding.`
       : `About what a subject this size normally costs you.`;
     _wgRead[r.s]=`<div class="wg-rt"><button class="wg-step" data-wstep="-1" aria-label="Previous subject">‹</button>
       <b>${esc(shortSubj(r.s))}</b><span class="wg-q">${r.q} Q per paper</span>
       <button class="wg-step" data-wstep="1" aria-label="Next subject">›</button></div>
-      <div class="wg-rb"><span class="wg-m"><b>${r.n}</b>your wrongs</span><span class="wg-m"><b>${Math.round(r.mShare*100)}%</b>of your total</span><span class="wg-m"><b>${Math.round(r.pShare*100)}%</b>of the paper</span>${r.blind?`<span class="wg-m bl"><b>${r.blind}</b>blind</span>`:''}</div>
+      <div class="wg-rb"><span class="wg-m"><b>${r.all}</b>your wrongs</span>${r.miss?`<span class="wg-m"><b>${r.miss}</b>not sorted</span>`:''}<span class="wg-m"><b>${Math.round(r.mShare*100)}%</b>of your total</span><span class="wg-m"><b>${Math.round(r.pShare*100)}%</b>of the paper</span>${r.blind?`<span class="wg-m bl"><b>${r.blind}</b>blind</span>`:''}</div>
       <p class="tlab wg-v">${verdict}${r.swing!=null&&r.n?` About <b>${Math.round(r.swing)}</b> marks a paper ride on it.`:''}</p>
-      ${r.n?`<button class="linkish" data-wgo="${esc(r.s)}">Open ${esc(r.s.split(' /')[0])} ›</button>`:''}`;
+      ${r.all?`<button class="linkish" data-wgo="${esc(r.s)}">Open ${esc(r.s.split(' /')[0])} ›</button>`:''}`;
   });
   const first=named[0]||rows.slice().sort((a,b)=>b.q-a.q)[0];
   _wgFirst=first.s;
   _wgOrder=shown.slice().sort((a,b)=>(b.q-a.q)||(a.s<b.s?-1:1)).map(r=>r.s);
-  const hot=rows.filter(r=>r.n>0 && r.leak>=1.25 && r.q>=10).sort((a,b)=>b.n-a.n).slice(0,3);
+  const hot=rows.filter(r=>r.all>0 && r.leak>=1.25 && r.q>=10).sort((a,b)=>b.all-a.all).slice(0,3);
   const chips=hot.length?`<div class="wg-chips">${hot.map(r=>`<button class="wg-chip" data-wsub2="${esc(r.s)}">${esc(r.s.split(' /')[0])}<b>${r.leak.toFixed(1)}×</b></button>`).join('')}</div>`:'';
   return `<div class="card wg-card">${HEAD}
     ${chart}
@@ -4870,41 +5127,41 @@ function weightCard(){
     <p class="tlab wg-note">Paper mix is a recent-years average, not an official blueprint${canRisk?` · marks-per-paper from your ${nT} scored GT${nT>1?'s':''}`:''}.</p></div>`;
 }
 /* Weak areas, ranked the way the exam would rank them: marks you are on track to lose in that
-   subject on a 200-question paper. Volume alone over-rates a subject you sit a lot of questions
+   subject on a full paper. Volume alone over-rates a subject you sit a lot of questions
    in; the leak multiple next to it says whether the bleed is out of proportion to its size.
    Falls back to the recency-weighted count when there are not yet two scored GTs to rate from. */
 let wkSort='marks';
 function weakAreasCard(){
   const ex=examImpact();
-  const live=ex.rows.filter(r=>r.n>0);
-  if(live.length<2 || ex.totN<4) return '';
+  const live=ex.rows.filter(r=>r.all>0);
+  if(live.length<2 || ex.trueTot<4) return '';
   const canMarks = ex.canRisk;
   const byMarks = canMarks && wkSort==='marks';
-  const subs=live.slice().sort((a,b)=> byMarks ? (b.swing-a.swing)||(b.n-a.n) : (b.wgt-a.wgt)||(b.n-a.n));
+  const subs=live.slice().sort((a,b)=> byMarks ? (b.swing-a.swing)||(b.all-a.all) : (b.wgt-a.wgt)||(b.all-a.all));
   const today=todayISO();
   const shown=wkAll?subs:subs.slice(0,5);
   const trArrow={up:'<span class="wk-tr up" title="more mistakes recently — worsening">▲ worsening</span>',down:'<span class="wk-tr down" title="fewer mistakes recently — improving">▼ improving</span>',flat:''};
-  const top=Math.max(0.0001,...shown.map(x=>byMarks?x.swing:x.n));
+  const top=Math.max(0.0001,...shown.map(x=>byMarks?x.swing:x.all));
   const rows=shown.map((x,i)=>{ const dom=ERRORS.slice().sort((a,b)=>x.errs[b.id]-x.errs[a.id])[0];
     const mini=ERRORS.map(e=>x.errs[e.id]?`<span style="flex:${x.errs[e.id]};background:${e.c}"></span>`:'').join('');
     const nx=subjectNextTouch(x.s);
     const nxChip=nx?`<span class="wk-next${nx.d<=today?' now':''}">${nx.kind==='revisit'?'revisit':'read'} ${nx.d<=today?'today':fmtShort(nx.d)}</span>`:'';
     const tr=trArrow[subjectTrend(x.s)]||'';
     const lk = x.leak==null?'' : `<span class="wk-lk ${x.leak>=1.25?'hot':x.leak<=0.8?'ok':''}">${x.leak.toFixed(1)}×</span>`;
-    const magW=Math.round(Math.min(1,(byMarks?x.swing:x.n)/top)*100);
+    const magW=Math.round(Math.min(1,(byMarks?x.swing:x.all)/top)*100);
     /* One bar, two readings: its length is how much this subject costs against the worst one,
        and the colours inside it are which kinds of mistake made up that cost. Two separate bars
        said the same thing twice and read as clutter. */
     return `<button class="wk-row" data-sub="${esc(x.s)}"><span class="wk-rank${i===0?' worst':''}">${i+1}</span>
       <div class="wk-mid"><div class="wk-t">${esc(shortSubj(x.s))}<span class="wk-q">${x.q}Q</span>${nxChip}${tr}</div>
       <div class="wk-mag"><i style="width:0" data-gw="${magW}">${mini}</i></div>
-      <div class="wk-d">${canMarks?`<b>≈${Math.round(x.swing)}</b> marks a paper`:`<b>${x.n}</b> lost`}${x.blind?` · <b class="bl">${x.blind}</b> blind`:''} ${lk}<span class="wk-dom" style="--c:${dom.c}">${dom.short}</span></div></div>
+      <div class="wk-d">${canMarks?`<b>≈${Math.round(x.swing)}</b> marks a paper`:`<b>${x.all}</b> lost`}${x.miss?` · <b>${x.miss}</b> not sorted yet`:''}${x.blind?` · <b class="bl">${x.blind}</b> felt right`:''} ${lk}<span class="wk-dom" style="--c:${dom.c}">${dom.short}</span></div></div>
       <span class="th-go">›</span></button>`;}).join('');
   const sortRow=canMarks?`<div class="wk-sort" role="tablist">
     <button class="wk-sb ${wkSort==='marks'?'on':''}" data-wks="marks">Marks at risk</button>
     <button class="wk-sb ${wkSort==='recent'?'on':''}" data-wks="recent">Most recent</button></div>`:'';
   const more=subs.length>5?`<button class="linkish" id="wkMore" style="margin-top:10px">${wkAll?'Show top 5 only ‹':'Show all '+subs.length+' subjects ›'}</button>`:'';
-  const hint=canMarks?`≈ marks per 200-Q paper`:`recent tests count more`;
+  const hint=canMarks?`≈ marks per ${examQ()}-question paper`:`recent tests count more`;
   return `<div class="card"><h3><span class="accent"></span>Weak areas — study these first <span class="h3-hint">${hint}</span><button class="cardq" data-help="weak">?</button></h3>${sortRow}${rows}${more}</div>`;
 }
 function subjectSheet(sub){
@@ -5435,6 +5692,9 @@ const FIXNEAR="Down to two and lost it. These are the closest marks you have. Re
    you are genuinely scanning in two directions at once. */
 function heatmapCard(){
   const ex=examImpact();
+  /* deliberately the SORTED counts: this grid is about what kind of mistake each one was, and an
+     unsorted wrong has no kind. Weak areas counts the unsorted ones because that card is about
+     marks, not kinds — the note below keeps the difference visible instead of hiding it. */
   const live=ex.rows.filter(r=>r.n>0);
   const total=live.reduce((a,r)=>a+r.n,0);
   if(live.length<2 || total<4) return '';
@@ -5461,6 +5721,7 @@ function heatmapCard(){
   const sig=subjectSignals()[0];
   const note=sig?`<p class="tlab" style="margin-top:13px">Signal: <b style="color:${sig.kind==='blind'?'var(--rose)':ERR_MAP[sig.kind].c}">${sig.kind==='blind'?'blind spots':ERR_MAP[sig.kind].t.toLowerCase()}</b> cluster in <b>${esc(sig.sub)}</b> — ${Math.round(sig.rate*100)}% of its ${sig.n} wrongs vs ${Math.round(sig.base*100)}% baseline.</p>`
     :`<p class="tlab" style="margin-top:13px;color:var(--faint)">No abnormal cluster in this window — spread is even.</p>`;
+  const gap=ex.unsortedTot?`<p class="tlab" style="margin-top:10px;color:var(--faint)">${ex.unsortedTot} wrong${ex.unsortedTot>1?'s you counted but have':' you counted but has'} not been sorted yet, so ${ex.unsortedTot>1?'they are':'it is'} not on this map — sort ${ex.unsortedTot>1?'them':'it'} to see what kind ${ex.unsortedTot>1?'they were':'it was'}.</p>`:'';
   let untagged=0; sessions.forEach(x=>x.items.forEach(it=>{ if(!it.subj) untagged++; }));
   const tagNote=untagged?`<p class="tlab" style="margin-top:10px;color:var(--faint)">${untagged} triaged mistake${untagged>1?'s':''} ha${untagged>1?'ve':'s'} no subject — tap “+ subject” on the ticket to put them on this map.</p>`:'';
   const more=order.length>8?`<button class="linkish" id="hmMore" style="margin-top:10px">${hmAll?'Show top 8 only ‹':'Show all '+order.length+' subjects ›'}</button>`:'';
@@ -5468,7 +5729,7 @@ function heatmapCard(){
   return `<div class="card"><h3><span class="accent"></span>Subject × mistake map <span class="h3-hint">${hint}</span><button class="cardq" data-help="buckets">?</button><button class="hm-mode" id="hmMode">${hmPct?'%':'#'}</button></h3>
     <div class="heatmap" id="heatmap">${head}${rows}</div>
     <div class="hm-key">${ERRORS.map(e=>`<span><i style="background:${e.c}"></i><b>${e.code}</b>${e.short.toLowerCase()}</span>`).join('')}</div>
-    ${more}${note}${tagNote}</div>`;
+    ${more}${note}${gap}${tagNote}</div>`;
 }
 /* a grid is scanned in two directions, so both must answer the pointer */
 function bindHeatmap(box){
@@ -5512,7 +5773,7 @@ const METRIC_HELP={
     why:'A fixed set of axes means your shape and theirs are directly comparable, and a subject can never quietly drop off the picture. "Against paper weight" divides each share by how big that subject is on a 200-question paper, so the ring itself becomes par — outside it you bleed more than the paper\'s own weighting predicts.',
     do:'Hover or tap any spoke, or any row in the list below, to see everyone\'s number on that subject. Tap a name to isolate one shape.'},
   weak:{t:'Weak areas',
-    is:'Your subjects ranked by the marks you are on track to lose in each on a 200-question paper — your wrongs per GT in that subject, times five, because a wrong costs the four you did not get plus the one deducted.',
+    is:'Your subjects ranked by the marks you are on track to lose in each on a full paper — your wrongs per GT in that subject, times five, because a wrong costs the four you did not get plus the one deducted.',
     why:'Volume alone flatters a subject the paper simply asks a lot about. The multiple beside each row is your share of mistakes there divided by that subject\'s share of the paper, so 2.0× means you bleed twice what its size predicts.',
     do:'Work the top of the list. Switch to "Most recent" when you want to see what has gone wrong lately rather than what costs most.'},
   weight:{t:'What the paper is worth',
@@ -5902,7 +6163,7 @@ function rivSubjectRadar(all){
   const people=withSubs.slice(0,4);
   const AX=RADAR_AX;
   const share=(m,s)=>{ const f=(m.subs||[]).find(x=>x.s===s); return f?f.pc:0; };
-  const leak=(m,s)=>{ const w=PAPER_MIX[s]; if(!w) return 0; return share(m,s)/(w/EXAM_Q*100); };
+  const leak=(m,s)=>{ const ps=paperShare(s); if(!ps) return 0; return share(m,s)/(ps*100); };
   const val=(m,s)=>rvrMode==='share'?share(m,s):leak(m,s);
   /* share mode scales to the biggest single share on the board; par mode pins 2x to the rim so
      the mid ring always means "level with your own average" */
@@ -5958,7 +6219,7 @@ function rivSubjectRadar(all){
     const line=people.map((m,mi)=>({m,mi,v:val(m,s),sh:share(m,s)})).sort((a,b)=>b.v-a.v);
     const mx=Math.max(0.0001,...line.map(x=>x.v));
     const anyone=line.some(x=>x.sh>0);
-    _rvrRead[i]=`<div class="rvr-rt"><b>${esc(shortSubj(s))}</b><span>worth ${PAPER_MIX[s]} questions</span></div>
+    _rvrRead[i]=`<div class="rvr-rt"><b>${esc(shortSubj(s))}</b><span>worth ${paperQ(s)} questions</span></div>
       ${anyone?line.map(x=>`<div class="rvr-rr"><span class="rvr-rn">${esc((x.m.name||'').split(' ')[0])}</span>
         <span class="rvr-rb"><i style="width:${Math.round(Math.min(1,x.v/mx)*100)}%;background:${COL[x.mi]}"></i></span>
         <b>${rvrMode==='share'?fmtPc(x.sh):(x.sh>0?x.v.toFixed(1)+'×':'—')}</b></div>`).join('')
@@ -5977,7 +6238,7 @@ function rivSubjectRadar(all){
       people.forEach((m,mi)=>{ const v=val(m,s); if(v>lead){ lead=v; leadMi=mi; leadSh=share(m,s); } });
       const txt = leadSh>0 ? (rvrMode==='share'?fmtPc(lead):lead.toFixed(1)+'\u00d7') : '';
       return `<button class="rvg-row${leadSh>0?'':' none'}" data-axrow="${i}" style="animation-delay:${(gi++)*14}ms">
-        <span class="rvg-s">${esc(shortSubj(s))}</span><span class="rvg-q">${PAPER_MIX[s]}Q</span>
+        <span class="rvg-s">${esc(shortSubj(s))}</span><span class="rvg-q">${paperQ(s)}Q</span>
         <span class="rvg-bars">${cells}</span>
         <b class="rvg-v">${txt?`<i style="background:${COL[leadMi]}"></i>${txt}`:'—'}</b></button>`; }).join('');
     return `<div class="rvg-blk"><span>${esc(b.t)}</span><i></i></div>${rows}`;
@@ -6020,7 +6281,7 @@ function bindRadar(box){
     read.innerHTML=_rvrRead[i];
     const s=RADAR_AX[i];
     if(ctr){ ctr.textContent = s.length>13 ? s.split(' /')[0] : s; }
-    if(ctr2){ ctr2.textContent = PAPER_MIX[s] ? PAPER_MIX[s]+' Q per paper' : ''; }
+    if(ctr2){ ctr2.textContent = paperQ(s) ? paperQ(s)+' Q per paper' : ''; }
     svg.querySelectorAll('.rvr-hit,.rvr-v').forEach(el=>el.classList.toggle('on', +el.dataset.ax===+i));
     svg.querySelectorAll('.rvr-spoke').forEach((el,k)=>el.classList.toggle('on', k===+i));
     rows.forEach(r=>r.classList.toggle('on', +r.dataset.axrow===+i));
@@ -6233,11 +6494,30 @@ async function onPhotoPick(ev){
 }
 
 function examSheet(){
-  openSheet(`<h3>Exam date</h3><p>The countdown up top runs to this day. Everything here aims at walking in with no repeat mistakes.</p>
+  openSheet(`<h3>Your exam</h3><p>The countdown up top runs to this date, and every projection is scaled to a paper of this size.</p>
+    <div class="sp-lab">Exam date</div>
     <input type="date" id="examInput" value="${esc(settings.examDate||'')}">
-    <div class="actions" style="margin-top:16px"><button class="btn primary" id="examSave">Set date</button>
+    <div class="sp-lab" style="margin-top:16px">Questions on the paper</div>
+    <div class="exq-row">
+      ${[180,200].map(n=>`<button class="exq-preset ${examQ()===n?'on':''}" data-exq="${n}">${n}</button>`).join('')}
+      <input type="number" id="exqInput" inputmode="numeric" min="20" max="500" value="${examQ()}">
+    </div>
+    <p class="tlab" style="margin-top:8px">NEET-PG has been 200 and is currently 180. Changing this rescales the projected score, the subject weightings and every "marks a paper" figure — it never edits a test you have already scored.</p>
+    <div class="actions" style="margin-top:16px"><button class="btn primary" id="examSave">Save</button>
       <button class="btn ghost" onclick="document.getElementById('backdrop').classList.remove('show')">Cancel</button></div>`);
-  document.getElementById('examSave').onclick=async()=>{const v=document.getElementById('examInput').value;if(v){settings.examDate=v;await persistSettings();render()}closeSheet();};
+  const qi=document.getElementById('exqInput');
+  document.querySelectorAll('[data-exq]').forEach(b=>b.onclick=()=>{ buzz(5); qi.value=b.dataset.exq;
+    document.querySelectorAll('[data-exq]').forEach(o=>o.classList.toggle('on',o===b)); });
+  qi.oninput=()=>document.querySelectorAll('[data-exq]').forEach(o=>o.classList.toggle('on',o.dataset.exq===qi.value));
+  document.getElementById('examSave').onclick=async()=>{
+    const v=document.getElementById('examInput').value;
+    if(v) settings.examDate=v;
+    /* out-of-range or nonsense leaves the old value alone rather than poisoning every projection */
+    const q=Math.round(+qi.value);
+    if(isFinite(q) && q>=20 && q<=500) settings.examQ=q;
+    else if(qi.value!=='') toast('Paper size must be between 20 and 500 — left it at '+examQ());
+    await persistSettings(); memoClear(); render(); closeSheet();
+  };
 }
 function recentSets(type){
   const seen=new Set(), out=[];
@@ -6781,6 +7061,10 @@ function sanitizeSessions(arr){
       out.score={c:+x.score.c||0, w:+x.score.w||0, s:x.score.s!=null?+x.score.s||0:null, total:x.score.total!=null?+x.score.total||null:null};
       if(x.score.blindTried!=null) out.score.blindTried=+x.score.blindTried||0;
     } else delete out.score;
+    /* declared per-subject counts arrive from other devices too, so they get the same scrub as
+       everything else: known subjects only, sane numbers only, absent rather than empty */
+    const sp=sanePlan(x.subjPlan);
+    if(Object.keys(sp).length) out.subjPlan=sp; else delete out.subjPlan;
     return out;
   });
 }
