@@ -2215,7 +2215,7 @@ const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.st
 async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } try{return localStorage.getItem(k)}catch(_){return null} }
 async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v);return true}catch(e){return false} } try{localStorage.setItem(k,v);return true}catch(_){return false} }
 const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
-const APP_VERSION='v67'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
+const APP_VERSION='v68'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
 
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 /* Roughly how a 200-question NEET-PG paper is split by subject — an average of recent years,
@@ -3055,9 +3055,21 @@ function donutChart(segs,label,sub){
   return `<div class="donut-wrap"><svg viewBox="0 0 100 100" class="donut" aria-hidden="true">${parts}</svg>
     <div class="donut-c"><b>${label}</b><span>${sub}</span></div></div>`;
 }
-function miniLine(vals,color){
+/* Every line chart here used to stretch its own min..max across the full height. That draws
+   68→69→70 as the same mountain as 20→45→70 — a two-point wobble made to look like a climb.
+   Floor the window in the metric's OWN units and centre the data in it, so a small move is
+   drawn small. minSpan is "how much change deserves the full height". */
+function spanWin(vals,minSpan,clampLo,clampHi){
+  let lo=Math.min(...vals), hi=Math.max(...vals);
+  const need=Math.max(minSpan||0, 1e-9), span=hi-lo;
+  if(span<need){ const mid=(lo+hi)/2; lo=mid-need/2; hi=mid+need/2; }
+  if(clampLo!=null && lo<clampLo){ hi+=clampLo-lo; lo=clampLo; }
+  if(clampHi!=null && hi>clampHi){ lo-=hi-clampHi; hi=clampHi; if(clampLo!=null&&lo<clampLo) lo=clampLo; }
+  return {lo, hi, sp:(hi-lo)||1};
+}
+function miniLine(vals,color,minSpan){
   if(!vals||vals.length<2) return '';
-  const W=64,H=20,lo=Math.min(...vals),hi=Math.max(...vals),sp=(hi-lo)||1;
+  const W=64,H=20,w=spanWin(vals, minSpan!=null?minSpan:3), lo=w.lo, sp=w.sp;
   const pts=vals.map((v,i)=>`${(3+i*(W-6)/(vals.length-1)).toFixed(1)} ${(H-3-((v-lo)/sp)*(H-6)).toFixed(1)}`);
   return `<svg class="miniln" viewBox="0 0 ${W} ${H}"><path d="M ${pts.join(' L ')}" fill="none" stroke="${color||'var(--accent)'}" stroke-width="2" stroke-linecap="round"/><circle cx="${pts[pts.length-1].split(' ')[0]}" cy="${pts[pts.length-1].split(' ')[1]}" r="2.6" fill="${color||'var(--accent)'}"/></svg>`;
 }
@@ -4453,7 +4465,7 @@ function pulseCard(){
   if(!D && !B) return '';
   const left = D
     ? (D.nScored>=2
-      ? `<button class="ph" id="pulseDr"><span class="ph-k">Drill accuracy</span>${miniLine(D.accSeries,'var(--sage-ink)')}<b>${D.lastAcc}%</b>${D.accDir?`<span class="ph-ar ${D.accDir==='up'?'good':D.accDir==='down'?'bad':''}">${D.accDir==='up'?'▲':D.accDir==='down'?'▼':'→'}</span>`:''}</button>`
+      ? `<button class="ph" id="pulseDr"><span class="ph-k">Drill accuracy</span>${miniLine(D.accSeries,'var(--sage-ink)',10)}<b>${D.lastAcc}%</b>${D.accDir?`<span class="ph-ar ${D.accDir==='up'?'good':D.accDir==='down'?'bad':''}">${D.accDir==='up'?'▲':D.accDir==='down'?'▼':'→'}</span>`:''}</button>`
       : `<button class="ph dim" id="pulseDr"><span class="ph-k">Drills</span><span class="ph-sub">${D.n} logged — score them for the trend</span></button>`)
     : '';
   const right = B
@@ -5332,7 +5344,9 @@ function subjectSheet(sub){
 function sparkRow(label,color,vals,o){
   o=o||{};
   const W=150,H=34,x0=4,x1=W-4,y0=6,y1=H-6;
-  const lo=Math.min(...vals), hi=Math.max(...vals), span=(hi-lo)||1;
+  /* o.minSpan = how much movement earns the full height, in this metric's units */
+  const win=spanWin(vals, o.minSpan!=null?o.minSpan:0, o.clampLo, o.clampHi);
+  const lo=win.lo, span=win.sp;
   const pts=vals.map((v,i)=>({x: vals.length===1?(x0+x1)/2 : x0+i*(x1-x0)/(vals.length-1), y: y1-((v-lo)/span)*(y1-y0)}));
   const last=pts[pts.length-1];
   const line=smoothPath(pts);
@@ -5458,7 +5472,7 @@ function threeMovesCard(){
         :dir==='down'?'The count is falling. The discipline is working — keep skipping the no-reads.'
         :'The count is holding. Hold the line and keep skipping the ones you cannot narrow.'}</p>`;
     wrap('disc',true,`<div class="tm-h"><span class="tm-k">Discipline</span><b>${c2} blind attempt${c2===1?'':'s'}</b><span class="tm-delta ${dir}">${dir==='up'?'▲':dir==='down'?'▼':'—'} ${Math.abs(c2-a)||'flat'}</span></div>
-      <div class="tm-spark">${miniLine(last3, dir==='down'?'var(--sage-ink)':dir==='up'?'var(--rose)':'var(--muted)')}<span class="tm-seq">${a} → ${b2} → ${c2}</span></div>`);
+      <div class="tm-spark">${miniLine(last3, dir==='down'?'var(--sage-ink)':dir==='up'?'var(--rose)':'var(--muted)', 3)}<span class="tm-seq">${a} → ${b2} → ${c2}</span></div>`);
   }
   /* 3 — unfinished */
   let unWritten=0, offender=null, parked=0, blindTot=0, written=0;
@@ -5587,7 +5601,8 @@ function forecastCard(){
   /* plot on the normalised %-of-max axis, but label the reader in exam marks */
   const xs=f.pts.map(p=>p.x).concat([f.x0]), ys=[f.loPc,f.hiPc,f.midPc].concat(f.pts.map(p=>p.y));
   const xmin=Math.min(...xs), xmax=Math.max(...xs)||1;
-  const ymin=Math.min(...ys), ymax=Math.max(...ys), yr=(ymax-ymin)||1;
+  /* at least 12 points of %-axis: a projection that barely moves must not look like a launch */
+  const wy=spanWin(ys, 12, 0, 100), ymin=wy.lo, yr=wy.sp;
   const X=x=>x0+(x-xmin)/((xmax-xmin)||1)*(x1-x0);
   const Y=y=>y1-(y-ymin)/yr*(y1-y0);
   const ppts=f.pts.map(p=>({x:X(p.x),y:Y(p.y)}));
@@ -5799,9 +5814,9 @@ function scoreTrendCard(){
   }
   const labs=scored.map(x=>x.set);
   return `<div class="card thin st-card"><h3><span class="accent"></span>Score trend <span class="h3-hint">${tlab} · tap a line</span>${toggle}<button class="cardq" data-help="scoretrend">?</button></h3><div class="sparks">
-    ${sparkRow('% score','var(--accent-ink)',st.map(k=>k.pct100),{labels:labs,goodDown:false,disp:st.map(k=>k.pct100+'%')})}
-    ${sparkRow('Accuracy %','var(--sage-ink)',st.map(k=>Math.round(k.accuracy*100)),{labels:labs,goodDown:false,disp:st.map(k=>Math.round(k.accuracy*100)+'%')})}
-    ${sparkRow('Wrong : correct','var(--rose)',st.map(k=>k.wc!=null?Math.round(k.wc*100):0),{labels:labs,goodDown:true,dscale:100,disp:st.map(k=>k.wc!=null?k.wc.toFixed(2):'—')})}
+    ${sparkRow('% score','var(--accent-ink)',st.map(k=>k.pct100),{labels:labs,goodDown:false,disp:st.map(k=>k.pct100+'%'),minSpan:10,clampLo:0,clampHi:100})}
+    ${sparkRow('Accuracy %','var(--sage-ink)',st.map(k=>Math.round(k.accuracy*100)),{labels:labs,goodDown:false,disp:st.map(k=>Math.round(k.accuracy*100)+'%'),minSpan:10,clampLo:0,clampHi:100})}
+    ${sparkRow('Wrong : correct','var(--rose)',st.map(k=>k.wc!=null?Math.round(k.wc*100):0),{labels:labs,goodDown:true,dscale:100,disp:st.map(k=>k.wc!=null?k.wc.toFixed(2):'—'),minSpan:25,clampLo:0})}
   </div>${cap}</div>`;
 }
 /* what to DO about each bucket — concrete actions, biggest leak first */
@@ -6169,7 +6184,7 @@ function rivDuel(a,b){
         <div class="dl-side b ${lead==='b'?'win':''}"><i style="width:0" data-gw="${wb}"></i><b>${fmtRiv(b,d.k)}</b></div>
       </div></div>`;
   }).join('');
-  const spark=(m,c)=>m.series&&m.series.length>1?miniLine(m.series,c):'';
+  const spark=(m,c)=>m.series&&m.series.length>1?miniLine(m.series,c,10):'';
   return `<div class="card duel">
     <div class="dl-heads">
       <div class="dl-who a">${rivAvatar(a)}<span>${esc(a.name)}</span>${spark(a,'var(--accent)')}</div>
@@ -6199,8 +6214,10 @@ function rivTrajectory(a,b){
   if(A.length<2 && B.length<2) return '';
   const W=320,H=118,PL=8,PR=8,PT=10,PB=18;
   const n=Math.max(A.length,B.length);
-  const all=A.concat(B); const lo=Math.min(...all), hi=Math.max(...all);
-  const pad=Math.max(3,(hi-lo)*0.18), Y0=Math.max(0,lo-pad), Y1=Math.min(100,hi+pad)||1;
+  /* at least 12 percentage points of axis, so a two-point gap is not drawn as a chasm */
+  const all=A.concat(B); const pad=(Math.max(...all)-Math.min(...all))*0.18;
+  const wv=spanWin(all, Math.max(12,(Math.max(...all)-Math.min(...all))+2*pad), 0, 100);
+  const Y0=wv.lo, Y1=wv.hi||1;
   /* right-align both series so the newest test of each sits at the right edge */
   const X=(i,len)=>PL+((i+(n-len))/(n-1||1))*(W-PL-PR);
   const Y=v=>H-PB-((v-Y0)/((Y1-Y0)||1))*(H-PT-PB);
@@ -6460,7 +6477,7 @@ function rivBoard(all,me){
         <div class="riv-gap"><i style="width:0" data-gw="${w}"></i></div>
         <div class="riv-sub">${m.tests||0} GT${(m.tests||0)===1?'':'s'} · ${m.sorted||0} sorted · ${m.streak||0}d streak${stale?' · <i>stale</i>':''}</div></div>
       <div class="riv-big"><b${m.last==null?'':` data-cu="${m.last}"`}>${m.last==null?'—':m.last}</b><span>${m.last==null?'no GT yet':'latest'}</span>
-        ${m.series&&m.series.length>1?miniLine(m.series,mine?'var(--accent)':'var(--violet)'):''}</div>
+        ${m.series&&m.series.length>1?miniLine(m.series,mine?'var(--accent)':'var(--violet)',10):''}</div>
       <span class="th-go">›</span>
     </button>`;}).join('');
   return `<div class="card"><h3><span class="accent"></span>The board <span class="h3-hint">tap a row</span></h3>${rows}</div>`;
