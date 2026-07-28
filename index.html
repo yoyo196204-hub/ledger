@@ -510,7 +510,7 @@
   .tri-done:disabled{opacity:.4}
   /* ---- the subject tracker: where you are in this paper ---- */
   /* one short row — the board has to fit the screen, so this cannot cost a card's worth of height */
-  .tri-track{display:flex;align-items:center;gap:8px;margin:7px 0 1px;min-height:36px}
+  .tri-track{position:relative;display:flex;align-items:center;gap:8px;margin:7px 0 1px;min-height:36px}
   .tri-track:empty{display:none}
   .tt-sub{flex:1;min-width:0;display:flex;align-items:center;gap:9px;padding:4px 9px;border-radius:12px;
     border:1px solid var(--edge);background:var(--surface);cursor:pointer;text-align:left;
@@ -533,6 +533,22 @@
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .tt-set{flex:none;font-size:9.5px;font-weight:850;letter-spacing:.05em;text-transform:uppercase;color:var(--accent-ink);
     background:var(--accent-soft);padding:3px 7px;border-radius:7px}
+  /* one tap to the subject that still owes the most, once this one is finished */
+  .tt-next{flex:none;display:flex;align-items:center;gap:6px;padding:5px 9px;border-radius:12px;cursor:pointer;
+    border:1px solid color-mix(in srgb,var(--sage) 45%,transparent);
+    background:color-mix(in srgb,var(--sage) 12%,var(--surface));
+    transition:transform .16s var(--spring),background .16s}
+  .tt-next:hover{transform:translateY(-1px);background:color-mix(in srgb,var(--sage) 18%,var(--surface))}
+  .tt-next:active{transform:scale(.97)}
+  .tt-next .tn-k{font-size:8.5px;font-weight:850;letter-spacing:.08em;text-transform:uppercase;color:var(--sage-ink);opacity:.85}
+  .tt-next b{font-size:12px;font-weight:850;color:var(--ink);max-width:88px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .tt-next .tn-n{font-size:10px;font-weight:850;color:var(--surface);background:var(--sage-ink);
+    min-width:17px;height:17px;border-radius:9px;display:grid;place-items:center;padding:0 4px;font-variant-numeric:tabular-nums}
+  /* whole-read progress, on the row's bottom edge — costs no height */
+  .tt-prog{position:absolute;left:0;right:0;bottom:-1px;height:2.5px;border-radius:2px;background:var(--surface2);overflow:hidden}
+  .tt-prog i{display:block;height:100%;border-radius:2px;background:linear-gradient(90deg,var(--accent2,var(--accent)),var(--accent));
+    transition:width .55s var(--ease)}
+  @media(prefers-reduced-motion:reduce){ .tt-prog i{transition:none} }
   .tt-open{flex:none;display:flex;flex-direction:column;align-items:center;gap:0;padding:4px 10px;border-radius:12px;
     border:1px solid color-mix(in srgb,var(--rose) 32%,transparent);background:color-mix(in srgb,var(--rose) 9%,var(--surface));
     cursor:pointer;transition:transform .16s var(--spring)}
@@ -666,7 +682,32 @@
   .bucket .b-test{position:relative;font-size:10.5px;color:var(--muted);line-height:1.35;margin-top:3px;display:block}
   .tri-foot{margin-top:13px;text-align:center;min-height:36px}
   .tri-hint{font-size:11.5px;color:var(--faint);line-height:1.5;display:inline-block;max-width:38ch}
-  .tri-undo{font-size:13px;color:var(--muted);font-weight:600;padding:9px 16px;border-radius:11px;background:var(--surface2)}
+  .tri-undo{font-size:13px;color:var(--muted);font-weight:600;padding:9px 14px;border-radius:11px;background:var(--surface2)}
+  /* re-file: keep the question, move it. Sits beside undo, same row, no extra height. */
+  .tri-fix{font-size:12px;font-weight:700;color:var(--ink2);padding:9px 12px;border-radius:11px;
+    background:var(--surface);border:1px solid var(--edge);margin-left:7px;cursor:pointer;
+    max-width:58%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    transition:transform .16s var(--spring),border-color .16s}
+  .tri-fix:hover{transform:translateY(-1px);border-color:var(--border2)} .tri-fix:active{transform:scale(.97)}
+  .tri-fix i{font-style:normal;color:var(--accent-ink);font-weight:800}
+  .rf-conf{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+  .rf-c{padding:11px 8px;border-radius:11px;border:1px solid var(--edge);background:var(--surface);
+    font-size:12.5px;font-weight:750;color:var(--ink2);cursor:pointer;transition:transform .16s var(--spring),border-color .16s,background .16s}
+  .rf-c:hover{transform:translateY(-1px)} .rf-c:active{transform:scale(.97)}
+  .rf-c.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-ink)}
+  .rf-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  @media(min-width:560px){ .rf-grid{grid-template-columns:repeat(4,minmax(0,1fr))} }
+  .rf-b{display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:12px 11px;border-radius:13px;
+    border:1px solid var(--edge);background:var(--surface);cursor:pointer;text-align:left;min-width:0;
+    transition:transform .16s var(--spring),border-color .16s,background .16s}
+  .rf-b:hover{transform:translateY(-2px);border-color:var(--bc)} .rf-b:active{transform:scale(.97)}
+  .rf-b b{font-size:15px;font-weight:850;color:var(--bc)}
+  .rf-b span{font-size:11px;font-weight:700;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+  .rf-b.on{border-color:var(--bc);background:color-mix(in srgb,var(--bc) 10%,var(--surface))}
+  .rf-subj{width:100%;padding:12px 13px;border-radius:12px;border:1px solid var(--edge);background:var(--surface);
+    font-size:13px;font-weight:750;color:var(--ink2);text-align:left;cursor:pointer}
+  .rf-subj i{font-style:normal;float:right;color:var(--accent-ink);font-weight:800}
+  .rf-subj:active{transform:scale(.99)}
   .autosv{margin-left:10px;font-size:11px;font-weight:700;color:var(--sage-ink);opacity:0;animation:autosv 1.6s ease .1s forwards}
   @keyframes autosv{0%{opacity:0}18%{opacity:.85}100%{opacity:.4}}
   /* the flying ticket: X moves linear, Y eases in — a real arc, with spin */
@@ -1413,6 +1454,11 @@
   .riv-you{font-size:9.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--accent-ink);
     background:color-mix(in srgb,var(--accent) 14%,transparent);padding:2px 6px;border-radius:6px;flex:none}
   .riv-sub{font-size:11.5px;color:var(--muted);font-weight:600;margin-top:2px}
+  /* the gap to the leader, priced in marks — shown only on your own row, and only when there is one */
+  .riv-behind{display:inline-flex;align-items:baseline;gap:4px;margin-top:5px;padding:3px 8px;border-radius:8px;
+    font-size:10.5px;font-weight:750;color:var(--rose);background:color-mix(in srgb,var(--rose) 11%,transparent);
+    font-variant-numeric:tabular-nums}
+  .riv-behind b{font-size:12px;font-weight:850}
   .riv-sub i{color:var(--amber);font-style:normal}
   .riv-big{flex:none;text-align:right;min-width:56px}
   .riv-big b{display:block;font-size:22px;font-weight:850;letter-spacing:-.03em;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1}
@@ -1563,18 +1609,27 @@
     border:1.5px solid var(--surface);margin-left:-3.5px;transform:translateY(calc(-50% - var(--r,0px))) scale(0);
     animation:flrDot .42s var(--spring) both}
   @keyframes flrDot{to{transform:translateY(calc(-50% - var(--r,0px))) scale(1)}}
-  .flr-band-row{display:flex;align-items:baseline;gap:9px;margin-top:12px;padding:10px 13px;border-radius:13px;background:var(--surface2)}
+  /* headline marks and the verdict share the first line; what they are out of drops below, so a
+     narrow phone wraps instead of pushing the verdict pill off the right edge */
+  .flr-band-row{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 9px;margin-top:12px;padding:10px 13px;border-radius:13px;background:var(--surface2)}
   .flr-band-row span{font-size:11.5px;font-weight:650;color:var(--muted)}
-  .flr-band-row b{flex:1;font-size:17px;font-weight:850;color:var(--ink);font-variant-numeric:tabular-nums}
+  .flr-band-row b{flex:1 1 auto;min-width:0;font-size:17px;font-weight:850;color:var(--ink);font-variant-numeric:tabular-nums}
+  .flr-band-row .flr-sub{flex:1 0 100%;order:3;white-space:normal}
+  .flr-band-row .flr-v{order:2}
   .flr-v{font-style:normal;font-size:10px;font-weight:850;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:7px;white-space:nowrap}
   .flr-v.tight{color:var(--sage-ink);background:color-mix(in srgb,var(--sage) 18%,transparent)}
   .flr-v.normal{color:var(--muted);background:var(--surface)}
   .flr-v.wide{color:var(--rose);background:color-mix(in srgb,var(--rose) 13%,transparent)}
   @media(prefers-reduced-motion:reduce){ .flr-dot{animation:none;transform:translateY(calc(-50% - var(--r,0px))) scale(1)} }
-  .flr-ends{display:flex;justify-content:space-between;align-items:baseline;margin-top:9px;font-size:11.5px;font-weight:650;color:var(--faint)}
+  /* marks are the headline; the percentage they came from sits under each one */
+  .flr-ends{display:flex;justify-content:space-between;align-items:flex-start;margin-top:9px;font-size:11.5px;font-weight:650;color:var(--faint)}
+  .flr-ends > span{display:flex;flex-direction:column;gap:1px;line-height:1.15}
+  .flr-ends > span:last-child{align-items:flex-end;text-align:right}
   .flr-ends b{font-size:17px;font-weight:850;color:var(--ink);font-variant-numeric:tabular-nums}
-  .flr-mid{color:var(--muted);font-weight:700}
+  .flr-ends i{font-size:10px;font-style:normal;font-weight:700;color:var(--faint);opacity:.85}
+  .flr-mid{color:var(--muted);font-weight:700;align-items:center;text-align:center}
   .flr-mid b{font-size:13px;color:var(--ink)}
+  .flr-sub{font-size:10.5px;font-style:normal;font-weight:700;color:var(--faint)}
   /* repeats */
   .rp-row{display:flex;align-items:center;gap:11px;width:100%;text-align:left;padding:10px 0;border-top:1px solid var(--edge);background:none;border-left:none;border-right:none;border-bottom:none}
   .rp-row:first-of-type{border-top:none}
@@ -1695,7 +1750,10 @@
   .rb-track{position:relative;height:12px;border-radius:7px;background:var(--surface2);overflow:hidden}
   .rb-track i{position:absolute;left:0;top:0;height:100%;border-radius:7px;transition:width .7s var(--ease)}
   .rb-best{background:color-mix(in srgb,var(--accent) 22%,transparent)}
-  .rb-mine{background:var(--accent)}
+  .rb-mine{background:linear-gradient(90deg,var(--accent2,var(--accent)),var(--accent))}
+  .rb-dir{display:block;font-size:9.5px;font-style:normal;font-weight:700;color:var(--faint);letter-spacing:.02em;margin-top:1px}
+  .rb-nums{display:flex;justify-content:space-between;margin-top:6px;font-size:10.5px;font-weight:700;color:var(--faint);font-variant-numeric:tabular-nums}
+  .rb-nums b{color:var(--ink2);font-weight:850}
   @media(prefers-reduced-motion:reduce){ .riv-ref.spin{animation-duration:2.4s} }
   .cfg-live{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--sage-ink);
     background:color-mix(in srgb,var(--sage) 16%,transparent);padding:7px 13px;border-radius:999px;margin-bottom:12px}
@@ -1715,7 +1773,11 @@
   .sm-score{margin-top:8px;font-size:13.5px;font-weight:700;color:var(--ink2)}
   .fixcta{width:100%;margin-top:12px;background:linear-gradient(135deg,#8A5CA8,#6E4390);box-shadow:0 8px 20px -9px rgba(110,67,144,.6),0 3px 0 0 #4E2F66;font-size:14px;line-height:1.35;padding:13px 16px}
   .linkish{font-size:inherit;color:var(--accent-ink);font-weight:700;text-align:left;display:inline}
-  .gtsc{flex:none;width:34px;text-align:right;font-size:12px;font-weight:750;color:var(--ink2);font-variant-numeric:tabular-nums}
+  /* marks lead, the percentage sits under them — same column, two lines, still one tap target */
+  .gtsc{flex:none;width:52px;text-align:right;font-size:12px;font-weight:750;color:var(--ink2);
+    font-variant-numeric:tabular-nums;display:flex;flex-direction:column;align-items:flex-end;gap:1px;line-height:1.1}
+  .gtsc b{font-size:13.5px;font-weight:850;color:var(--ink)}
+  .gtsc i{font-size:10px;font-style:normal;font-weight:700;color:var(--faint)}
   /* bucket-finder escape */
   .dq-esc{display:block;margin:10px auto 0;font-size:12px;font-weight:650;color:var(--muted);padding:7px 14px;border-radius:20px;
     border:1px dashed var(--border2);background:var(--surface2);transition:all .12s}
@@ -2215,7 +2277,7 @@ const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.st
 async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } try{return localStorage.getItem(k)}catch(_){return null} }
 async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v);return true}catch(e){return false} } try{localStorage.setItem(k,v);return true}catch(_){return false} }
 const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
-const APP_VERSION='v68'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
+const APP_VERSION='v69'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
 
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 /* Roughly how a 200-question NEET-PG paper is split by subject — an average of recent years,
@@ -3747,10 +3809,28 @@ function triTrackHTML(){
       <span class="tt-nm"><b>Pick a subject</b><i>so the count can follow you</i></span></button>`;
   }
   const owingN=owing.reduce((a,x)=>a+x.left,0);
-  const right = owing.length
-    ? `<button class="tt-open" id="ttOpen"><b>${owingN}</b><span>left</span></button>`
-    : (Object.keys(tally).length>1 ? `<button class="tt-open plain" id="ttOpen"><b>${Object.keys(tally).length}</b><span>subjects</span></button>` : '');
-  return left+right;
+  /* When the subject you are on is finished, the useful next tap is the subject that still owes
+     the most — not a sheet. One tap moves you there and the count follows. */
+  const cur=sub?triTarget(sub):null;
+  const curDone = cur && (tally[sub]||0)>=cur;
+  const nextUp = (curDone||!sub) ? owing.find(o=>o.sub!==sub) : null;
+  const right = nextUp
+    ? `<button class="tt-next" id="ttNext" data-next="${esc(nextUp.sub)}">
+         <span class="tn-k">next</span><b>${esc(shortSubj(nextUp.sub))}</b><span class="tn-n">${nextUp.left}</span></button>`
+    : owing.length
+      ? `<button class="tt-open" id="ttOpen"><b>${owingN}</b><span>left</span></button>`
+      : (Object.keys(tally).length>1 ? `<button class="tt-open plain" id="ttOpen"><b>${Object.keys(tally).length}</b><span>subjects</span></button>` : '');
+  /* whole-read progress: how much of everything you declared is sorted. Sits on the row's bottom
+     edge so it costs no height on a board that is already tight. */
+  let bar='';
+  const declared=Object.keys(triage.subjPlan||{}).reduce((n,k)=>n+(triTarget(k)||0),0);
+  if(declared>0){
+    const done=Object.keys(triage.subjPlan||{}).reduce((n,k)=>n+Math.min(triTarget(k)||0, tally[k]||0),0);
+    const pc=Math.round(done/declared*100);
+    bar=`<span class="tt-prog" role="img" aria-label="${done} of ${declared} declared wrongs sorted"
+      title="${done} of ${declared} sorted across every subject you counted"><i style="width:${pc}%"></i></span>`;
+  }
+  return left+right+bar;
 }
 function updateTriTracker(){ const t=document.getElementById('triTrack');
   if(t){ t.innerHTML=triTrackHTML(); bindTriTracker(); } persistLiveTriageSoon(); }
@@ -3758,6 +3838,10 @@ function bindTriTracker(){
   const a=document.getElementById('ttSub'); if(a) a.onclick=()=>{ buzz(5);
     if(triage.subj && triTarget(triage.subj)==null) askSubjCount(triage.subj); else triSubjSheet(); };
   const b=document.getElementById('ttOpen'); if(b) b.onclick=()=>{ buzz(6); triTrackerSheet(); };
+  const n=document.getElementById('ttNext'); if(n) n.onclick=()=>{ buzz(7);
+    triage.subj=n.dataset.next; triage.conf=null;
+    redrawChip(); updateTriageUI();
+    toast(`On ${shortSubj(triage.subj)} now — ${triOwing().find(o=>o.sub===triage.subj)?.left||0} to sort.`); };
 }
 /* the whole read at a glance: what is done, what is owed, and what has not been touched */
 function triTrackerSheet(){
@@ -3821,7 +3905,8 @@ function redrawChip(){ const w=document.getElementById('triChipWrap'); if(w){ w.
 /* sticky subject on the ticket — set it once when you move to a new subject's questions; it feeds the subject × mistake map */
 /* sticky subject on the ticket. Picking one also asks — once, and skippably — how many wrongs
    that subject had on this paper, which is what turns "I think I did Medicine" into "3 of 8". */
-function triSubjSheet(){
+/* forItem: pick the subject for the ONE question being re-filed, not for the run of sorting */
+function triSubjSheet(forItem){
   const tally=triTally();
   const body=()=>`<h3>Which subject?</h3><p>Tag what you are sorting so the map knows where each kind of mistake clusters. It sticks until you change it.</p>
     <div class="subgrid">${triage.subj?`<button class="chip on" data-s="">✕ clear</button>`:''}${SUBJECTS.map(s=>{
@@ -3832,6 +3917,12 @@ function triSubjSheet(){
   openSheet(body());
   const bind=()=>document.querySelectorAll('#sheet .subgrid .chip').forEach(b=>b.onclick=()=>{
     buzz(6); const picked=b.dataset.s||null;
+    if(forItem && _rfIdx!=null && triage.items[_rfIdx]){
+      triage.items[_rfIdx].subj=picked;
+      updateTriageUI();
+      triRefileSheet();                 /* straight back to what you were fixing */
+      return;
+    }
     triage.subj=picked; redrawChip(); updateTriTracker();
     if(picked && triTarget(picked)==null) askSubjCount(picked); else closeSheet();
   });
@@ -3885,10 +3976,59 @@ function triFootHTML(){
   if(!last) return '<span class="tri-hint">Confidence first, then the bucket. Sure + didn’t-know auto-flips to a CC blind spot.</span>';
   const em=ERR_MAP[last.error];
   const cl={high:' sure', twoish:' down-to-2', noidea:' no-read', low:' down-to-2'}[last.conf]||'';
-  /* the tick replays its fade on every rebuild — quiet proof each tap is already on disk */
-  return `<button class="tri-undo" id="triUndo">↶ undo last · <b style="color:${em.c}">${em.code}</b>${cl}</button><span class="autosv">✓ saved</span>`;
+  /* Undo throws the question away; a wrong tap usually needs the question KEPT and re-filed, so
+     both are offered. The tick replays its fade on every rebuild — quiet proof it is on disk. */
+  return `<button class="tri-undo" id="triUndo">↶ undo</button>
+    <button class="tri-fix" id="triFix">last: <b style="color:${em.c}">${em.code}</b>${cl}${last.subj?' · '+esc(shortSubj(last.subj)):''} <i>change ›</i></button>
+    <span class="autosv">✓ saved</span>`;
 }
-function bindTriUndo(){ const u=document.getElementById('triUndo'); if(u) u.onclick=triageUndo; }
+function bindTriUndo(){ const u=document.getElementById('triUndo'); if(u) u.onclick=triageUndo;
+  const f=document.getElementById('triFix'); if(f) f.onclick=()=>{ buzz(5); triRefileSheet(); }; }
+/* Put the last one where it actually belongs, without losing it. Re-files in place, so every
+   count, the tracker and the declared totals move with it. */
+function triRefileSheet(){
+  const i=triage.items.length-1, last=triage.items[i];
+  if(!last){ closeSheet(); return; }
+  _rfIdx=i;
+  const draw=()=>{
+    const it=triage.items[i];
+    const em=ERR_MAP[it.error];
+    return `<h3>Move that one</h3>
+      <p>It went in as <b style="color:${em.c}">${esc(em.t)}</b>${it.subj?` in <b>${esc(shortSubj(it.subj))}</b>`:''}. Change it here and every count follows — nothing is thrown away.</p>
+      <div class="sp-lab">how it felt in the exam</div>
+      <div class="rf-conf">${[['high','Sure in exam'],['twoish','Down to 2'],['noidea','No read']]
+        .map(([k,t])=>`<button class="rf-c ${it.conf===k?'on':''}" data-rfc="${k}">${t}</button>`).join('')}</div>
+      <div class="sp-lab" style="margin-top:14px">which bucket</div>
+      <div class="rf-grid">${ERRORS.map(e=>`<button class="rf-b ${e.id===it.error?'on':''}" data-rf="${e.id}" style="--bc:${e.c}">
+        <b>${e.code}</b><span>${esc(e.t)}</span></button>`).join('')}</div>
+      ${it.subj?`<div class="sp-lab" style="margin-top:14px">subject</div>
+        <button class="rf-subj" id="rfSubj">${esc(it.subj)} <i>change ›</i></button>`:
+        `<button class="rf-subj" id="rfSubj" style="margin-top:14px">+ add a subject</button>`}
+      <div class="actions" style="margin-top:16px">
+        <button class="btn ghost danger" id="rfDel">Remove it</button>
+        <button class="btn primary" onclick="closeSheet()">Done</button></div>`;
+  };
+  const wire=()=>{
+    const sh=document.getElementById('sheet');
+    sh.querySelectorAll('[data-rfc]').forEach(b=>b.onclick=()=>{ buzz(5);
+      const it=triage.items[i];
+      it.conf=b.dataset.rfc;
+      /* the same rule the board uses: "sure" plus "didn't know it" is a blind spot, not knowledge */
+      it.error=normalizeErr(it.error, it.conf);
+      after(); });
+    sh.querySelectorAll('[data-rf]').forEach(b=>b.onclick=()=>{ buzz(6);
+      const it=triage.items[i];
+      it.error=normalizeErr(b.dataset.rf, it.conf);
+      after(); });
+    const sb=sh.querySelector('#rfSubj'); if(sb) sb.onclick=()=>{ buzz(5); _rfIdx=i; triSubjSheet(true); };
+    const dl=sh.querySelector('#rfDel'); if(dl) dl.onclick=()=>{ buzz(9);
+      triage.items.splice(i,1); closeSheet(); updateTriageUI();
+      toast('Removed.', {label:'Undo', fn:()=>{ triage.items.splice(i,0,last); updateTriageUI(); }}); };
+  };
+  const after=()=>{ updateTriageUI(); document.getElementById('sheet').innerHTML='<div class="grip"></div>'+draw(); wire(); };
+  openSheet(draw()); wire();
+}
+let _rfIdx=null;
 function paintTriConf(){
   document.querySelectorAll('#triConf .tc').forEach(x=>x.classList.toggle('on',!!triage.conf && x.dataset.c===triage.conf));
   const chip=document.getElementById('triChip'); if(chip) chip.classList.toggle('sure',triage.conf==='high');
@@ -3936,6 +4076,9 @@ function updateTriageUI(){
   const d=document.getElementById('triDone'); if(d) d.disabled=!total;
   const f=document.getElementById('triFoot'); if(f){ f.innerHTML=triFootHTML(); bindTriUndo(); }
   paintTriConf(); lockUI();
+  /* the subject ring is part of the running state, not the page frame: without this it only
+     refreshed on a full re-render, so it sat stale for the whole time you were actually sorting */
+  updateTriTracker();
   const imgBtn=document.getElementById('triImg'); if(imgBtn){ imgBtn.classList.toggle('set',!!triage.img); imgBtn.textContent=triage.img?'📷 image':'📷 image Q'; }
   if(total && total%10===0){ const ty=document.getElementById('triTally'); if(ty){ ty.classList.remove('milestone'); void ty.offsetWidth; ty.classList.add('milestone'); } }
   persistLiveTriageSoon();
@@ -4188,9 +4331,12 @@ function gammp(a,x){ if(x<=0) return 0;
 }
 /* P(A < B) for A~Gamma(aA,bA), B~Gamma(aB,bB): ∫ pdfA(x)·(1−cdfB(x)) dx, trapezoid grid */
 function pGammaLess(aA,bA,aB,bB){
-  const mA=aA/bA, mB=aB/bB, sd=Math.sqrt(aA)/bA+Math.sqrt(aB)/bB;
-  const hi=Math.max(mA,mB)+4*sd+1e-6, n=240, dx=hi/n; let p=0;
-  for(let i=1;i<=n;i++){ const x=i*dx;
+  const mA=aA/bA, mB=aB/bB, sdA=Math.sqrt(aA)/bA, sdB=Math.sqrt(aB)/bB;
+  /* Right-endpoint rectangles on a decaying density undercount, and a 4-sigma cut throws away
+     real tail: two identical Gammas came out at 0.481 instead of an exact 0.5. Midpoint rule
+     (second order) over a 12-sigma range fixes both — identical inputs now give 0.5 to 1e-4. */
+  const hi=Math.max(mA+12*sdA, mB+12*sdB)+1e-6, n=480, dx=hi/n; let p=0;
+  for(let i=0;i<n;i++){ const x=(i+0.5)*dx;
     const pdfA=Math.exp((aA-1)*Math.log(x)-bA*x+aA*Math.log(bA)-lgamma(aA));
     p+=pdfA*(1-gammp(aB,bB*x))*dx; }
   return Math.min(1,Math.max(0,p));
@@ -4199,6 +4345,17 @@ function pGammaLess(aA,bA,aB,bB){
 /* projected exam-day score from your FULL GTs only, on a LOGISTIC (bounded) growth model:
    we fit % on the logit scale so the projection saturates near 100% instead of shooting past it,
    weight recent GTs more (exponential half-life), and put a Student-t prediction band around it. */
+/* Test-to-test noise you would see even from a student whose ability had not moved at all.
+   +-5 percentage points around mid-range is about 0.20 in logit units; NU0 says how many
+   "pseudo-tests" of belief that carries. Three real GTs can fit a near-perfect line by luck and
+   report a residual spread of zero — this prior is what stops that becoming false certainty. */
+const FC_SIG0=0.20, FC_NU0=4;
+/* Prior on how fast a real candidate's ability actually moves. Sustained improvement of about
+   3.5 percentage points a week at mid-range is 0.02 in logit units per day — generous for a
+   strong improver, and nowhere near the 9-points-a-DAY a three-test fit can throw out by luck.
+   The posterior slope is the fitted slope times tau^2/(tau^2 + SE^2), so a well-evidenced trend
+   passes through untouched while a slope the data cannot pin down collapses toward flat. */
+const FC_TAU=0.02;
 function examMarkForecast(){
   const scored=timeScopedSessions().filter(x=>x.testType==='gt' && scoreStats(x)).slice().sort((a,b)=>(a.ts||0)-(b.ts||0));
   if(scored.length<3) return null;
@@ -4209,17 +4366,47 @@ function examMarkForecast(){
   const fit=linReg(fitPts); if(!fit) return null;
   const d2e=daysToExam(); if(d2e==null || d2e<0) return null;
   const xNow=(now-t0)/864e5, x0=xNow+d2e;
-  const yhat=fit.m*x0+fit.b; /* logit space */
-  const pi=fit.Sxx>0 ? fit.se*Math.sqrt(1+1/fit.n+Math.pow(x0-fit.xbar,2)/fit.Sxx) : fit.se;
-  const band=tCrit(fit.n-2)*pi; /* logit space */
+  const xLast=disp[disp.length-1].x, span=xLast-disp[0].x;
+
+  /* residual scale, shrunk toward the prior: sigma^2 = (nu0*sig0^2 + nu*s^2) / (nu0 + nu) */
+  const nu=Math.max(1, fit.n-2), s2=fit.se*fit.se;
+  const sig=Math.sqrt((FC_NU0*FC_SIG0*FC_SIG0 + nu*s2)/(FC_NU0+nu));
+
+  /* slope, shrunk toward flat by how well the data actually pins it down */
+  const seM=fit.Sxx>0 ? sig/Math.sqrt(fit.Sxx) : Infinity;
+  const shrink=isFinite(seM) ? (FC_TAU*FC_TAU)/(FC_TAU*FC_TAU+seM*seM) : 0;
+  const mHat=fit.m*shrink;
+
+  /* You may extrapolate about as far forward as you can see backward. Beyond your own data span
+     the slope decays instead of running away: total further movement is m*span*(1-e^(-h/span)),
+     which is m*h while h is short and never exceeds one span's worth. Fitting three tests over
+     nine days used to project sixty days ahead at full slope and land on a perfect paper. */
+  const fwd=h=>{ const H=Math.max(0,h); return span>0 ? span*(1-Math.exp(-H/span)) : 0; };
+  const yFit=fit.m*xLast+fit.b;                            /* the fit at the last real test */
+  const yAt=h=>yFit + mHat*fwd(h);                         /* logit space, h days past the last test */
+  const hExam=Math.max(0, x0-xLast), effX=xLast+fwd(hExam);
+  /* "materially damped": the gap to the exam is far enough past your history that the projection
+     is deliberately holding back, and the card should say so rather than imply full extrapolation */
+  const damped=fwd(hExam) < hExam*0.75;
+
+  const yhat=yAt(hExam);
+  const pi=fit.Sxx>0 ? sig*Math.sqrt(1+1/fit.n+Math.pow(effX-fit.xbar,2)/fit.Sxx) : sig;
+  const band=tCrit(fit.n-2)*pi;                            /* logit space */
   const midP=invlogit(yhat), loP=invlogit(yhat-band), hiP=invlogit(yhat+band);
   const toMarks=p=>Math.round(p*examMax()), pc=p=>Math.round(p*100);
-  /* weekly gain in % space (accounts for the curve flattening near the ceiling) */
-  const perWeekPc=Math.round((invlogit(fit.m*xNow+fit.b)-invlogit(fit.m*(xNow-7)+fit.b))*1000)/10;
+  /* the curve the card draws, sampled from the SAME damped model, so the line and the endpoint
+     can never disagree — it ends exactly on midPc */
+  const proj=[]; for(let i=0;i<=12;i++){ const h=hExam*i/12;
+    proj.push({x:xLast+ (x0-xLast)*i/12, y:invlogit(yAt(h))*100}); }
+  proj[proj.length-1].y=midP*100;
+  /* current weekly gain in % space, read at the last test — inside the data, so undamped */
+  const wk=(invlogit(yFit)-invlogit(yFit-mHat*7))*100;
+  const perWeekPc=Math.round(wk*10)/10;
   return { pts:disp, fit, x0, d2e, examQ:examQ(), max:examMax(), model:'logistic',
+    sig, span, damped, effDays:Math.round(fwd(hExam)), proj,
+    mRaw:fit.m, m:mHat, shrink, seM,
     midPc:pc(midP), loPc:pc(loP), hiPc:pc(hiP), mid:toMarks(midP), lo:toMarks(loP), hi:toMarks(hiP),
-    perWeekPc, perDayPc:perWeekPc/7, lastPc:disp[disp.length-1].y, n:scored.length,
-    conf:Math.round((1-Math.min(1,(hiP-loP)))*100) /* rough confidence: tighter band = higher */ };
+    perWeekPc, perDayPc:perWeekPc/7, lastPc:disp[disp.length-1].y, n:scored.length };
 }
 /* ============ marks-lever decomposition — the "what actually moves my score" engine ============
    On a +4/−1 paper, marks = attempts × (5·accuracy − 1). So every mark you gain comes from exactly
@@ -4443,7 +4630,8 @@ function vitalsStrip(){
   }
   let R=0,W=0; scored.forEach(s=>{ const k=scoreStats(s); R+=Math.max(0,+s.score.c||0); W+=Math.max(0,+s.score.w||0); });
   const wr=R? (W/R) : null;
-  const last=scoreStats(scored[scored.length-1]).pct100;
+  const lastSt=scoreStats(scored[scored.length-1]);
+  const last=lastSt.pct100, lastMk=lastSt.marks;
   /* coverage: how much of what you got wrong you have actually sorted. A real gap is worth
      saying out loud — an unsorted wrong is a fix you never made. */
   const cov = W>0 ? Math.round(Math.min(1,sorted/W)*100) : null;
@@ -4454,7 +4642,7 @@ function vitalsStrip(){
     ${tile(R,'right','good','trend',true)}
     ${tile(W,'wrong','bad','trend',true)}
     ${tile(wr!=null?wr.toFixed(2):null,'wrong per right','','ratio')}
-    ${tile(last+'%','last %','','trend')}
+    ${tile(lastMk,'last marks · '+last+'%','','trend',true)}
     ${tile(B?B.live:0,'blind',B&&B.live?'bad':'good','blind',true)}
   </div>${note}`;
 }
@@ -4860,12 +5048,14 @@ function testListCard(){
   const keys=Object.keys(tests).filter(k=>inScope.has(k)).sort((a,b)=>tests[b].ts-tests[a].ts).slice(0,15);
   if(!keys.length) return '';
   /* % score, not raw marks — the column has to compare a short module and a full GT fairly */
-  const pcBySet={}; sessions.forEach(sn=>{ const k2=sn.testType+'|'+sn.set; const st=scoreStats(sn); if(st&&pcBySet[k2]==null) pcBySet[k2]=st.pct100; });
+  const pcBySet={}, mkBySet={};
+  sessions.forEach(sn=>{ const k2=sn.testType+'|'+sn.set; const st=scoreStats(sn);
+    if(st&&pcBySet[k2]==null){ pcBySet[k2]=st.pct100; mkBySet[k2]=st.marks; } });
   const rows=keys.map(k=>{ const t=tests[k], tot=t.logged+t.tri;
     const mini=ERRORS.map(e=>t.errs[e.id]?`<span style="flex:${t.errs[e.id]};background:${e.c}"></span>`:'').join('');
     return `<button class="gtrow tap" data-test="${esc(k)}"><span class="gtn ${t.type==='module'?'mod':''}">${esc(t.set)}</span>
-      <span class="gtmini">${tot?mini:'<i class="gt-score-only">score only</i>'}</span><span class="gtsc">${pcBySet[k]!=null?pcBySet[k]+'%':'—'}</span><span class="gtc">${tot||'—'}</span><span class="gtgo">›</span></button>`;}).join('');
-  return `<div class="card gtlist"><h3><span class="accent"></span>Every test — tap one to open it <span class="h3-hint">% score</span></h3>${rows}</div>`;
+      <span class="gtmini">${tot?mini:'<i class="gt-score-only">score only</i>'}</span><span class="gtsc">${mkBySet[k]!=null?`<b>${mkBySet[k]}</b><i>${pcBySet[k]}%</i>`:'—'}</span><span class="gtc">${tot||'—'}</span><span class="gtgo">›</span></button>`;}).join('');
+  return `<div class="card gtlist"><h3><span class="accent"></span>Every test — tap one to open it <span class="h3-hint">marks · %</span></h3>${rows}</div>`;
 }
 /* the per-test deep dive: its own mix, confidence trio, and subject hits */
 function testDetailSheet(key){
@@ -5533,9 +5723,10 @@ function fcSheet(){
     <p class="tlab" style="margin-top:6px">Pull = recency weight (21-day half-life) — today's GT counts about ×2 one from three weeks ago.</p>
     <div class="sp-lab" style="margin-top:14px">how it's built</div>
     <div class="tlab" style="line-height:1.65">
-      · The trend is fitted on the <b>logit</b> scale, so it bends near the ceiling instead of promising 800/800.<br>
-      · You're moving about <b>${f.perWeekPc>=0?'+':''}${(+f.perWeekPc).toFixed(1)}%/week</b> right now.<br>
-      · The band is Student-t on <b>${f.n}</b> tests (t = ${tCrit(f.n-2).toFixed(2)}) → about <b>±${bandW} marks</b>. Every extra GT tightens it.</div>
+      · The trend is fitted on the <b>logit</b> scale, so it bends near the ceiling instead of promising ${f.max}/${f.max}.<br>
+      · You're moving about <b>${f.perWeekPc>=0?'+':''}${(+f.perWeekPc).toFixed(1)}%/week</b>. That rate is the fitted one pulled <b>${Math.round(f.shrink*100)}%</b> of the way toward the raw trend — with few tests a lucky straight line can imply a rate nobody sustains, so the further your data is from pinning it down, the flatter this gets.<br>
+      · The band is Student-t on <b>${f.n}</b> tests (t = ${tCrit(f.n-2).toFixed(2)}) → about <b>±${bandW} marks</b>. Every extra GT tightens it.<br>
+      ${f.damped?`· Your history covers <b>${Math.round(f.span)}</b> days and the exam is <b>${f.d2e}</b> away, so beyond about <b>${f.effDays}</b> more days the line deliberately flattens — projecting further than you can see backwards is guessing.`:'· The exam is close enough to your run of tests to project the trend straight through.'}</div>
     <div class="actions" style="margin-top:14px"><button class="btn primary" onclick="closeSheet()">Close</button></div>`);
   growBars(document.getElementById('sheet'));
 }
@@ -5611,10 +5802,9 @@ function forecastCard(){
   const bandTop=Y(f.hiPc), bandBot=Y(f.loPc);
   const dots=ppts.map((p,i)=>`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="2.6" fill="var(--accent-ink)"><title>${esc(f.pts[i].set)}: ${f.pts[i].marks}/${4*f.pts[i].total} (${f.pts[i].y}%)</title></circle>`).join('');
   const dir=f.perWeekPc>0.3?'up':f.perWeekPc<-0.3?'down':'flat';
-  /* curved projection: sample the fitted logistic so the line visibly bends toward its ceiling */
-  const lastX=f.pts[f.pts.length-1].x, projPts=[];
-  for(let i=0;i<=12;i++){ const xi=lastX+(f.x0-lastX)*i/12; projPts.push({x:X(xi),y:Y(invlogit(f.fit.m*xi+f.fit.b)*100)}); }
-  const projPath=smoothPath(projPts);
+  /* the projection curve comes from the engine, already damped — drawing it from the raw fit
+     would make the line disagree with the number printed at its end */
+  const projPath=smoothPath(f.proj.map(q=>({x:X(q.x),y:Y(q.y)})));
   const mom=formMomentum(), fm=mom?FORM_META[mom.verdict]:null;
   const formPill=fm?`<span class="fc-form ${fm.cls}">${fm.ic} ${fm.lab}</span>`:'';
   const bandW=Math.round((f.hi-f.lo)/2);
@@ -5698,6 +5888,7 @@ function calSheet(){
    of them fall, and the notch is the median — so the distribution is the picture, not a sentence
    about the distribution. The reading behind it is one tap away. */
 let _flrDetail='';
+let _flrMarks='';
 function floorCard(){
   const gts=scopedSessions().filter(s=>(s.testType||'gt')==='gt' && scoreStats(s))
     .map(s=>scoreStats(s).pct100).sort((a,b)=>a-b);
@@ -5710,7 +5901,10 @@ function floorCard(){
   /* inset the scale so the worst and best marks sit inside the track instead of half off its ends */
   const pos=v=>Math.round(3+(v-worst)/span*94);
   const spread=Math.round(hi-lo);
+  /* the same percentages priced in marks on the paper he is actually sitting */
+  const mk=v=>Math.round(v/100*examMax());
   const verdict = spread<=6 ? {k:'tight', t:'tight'} : spread<=14 ? {k:'normal', t:'normal swing'} : {k:'wide', t:'wide swing'};
+  _flrMarks = `On a ${examQ()}-question paper that is <b>${mk(lo)}–${mk(hi)}</b> out of ${examMax()} marks — a <b>${mk(hi)-mk(lo)}</b>-mark spread between a bad day and a good one.`;
   _flrDetail = spread<=6
     ? `Your bad days and good days are only <b>${spread}</b> points apart — what you know is what you score, reliably. Plan on the median.`
     : spread<=14
@@ -5727,16 +5921,17 @@ function floorCard(){
         <span class="flr-tick mid" style="left:${pos(mid)}%"></span>
         ${dots}
       </div>
-      <div class="flr-ends"><span><b data-cu="${Math.round(worst)}">${Math.round(worst)}</b>% worst</span>
-        <span class="flr-mid">median <b>${Math.round(mid)}%</b></span>
-        <span><b data-cu="${Math.round(best)}">${Math.round(best)}</b>% best</span></div>
+      <div class="flr-ends"><span><b data-cu="${mk(worst)}">${mk(worst)}</b> worst<i>${Math.round(worst)}%</i></span>
+        <span class="flr-mid">median <b>${mk(mid)}</b><i>${Math.round(mid)}%</i></span>
+        <span><b data-cu="${mk(best)}">${mk(best)}</b> best<i>${Math.round(best)}%</i></span></div>
     </div>
-    <div class="flr-band-row"><span>4 in 5 land between</span><b>${Math.round(lo)}–${Math.round(hi)}%</b><i class="flr-v ${verdict.k}">${verdict.t}</i></div></div>`;
+    <div class="flr-band-row"><span>4 in 5 land between</span><b>${mk(lo)}–${mk(hi)}</b><i class="flr-sub">of ${examMax()} · ${Math.round(lo)}–${Math.round(hi)}%</i><i class="flr-v ${verdict.k}">${verdict.t}</i></div></div>`;
 }
 function floorSheet(){
   if(!_flrDetail){ metricHelp('floor'); return; }
   openSheet(`<h3>Your floor, not your ceiling</h3><p>${_flrDetail}</p>
     <p class="tlab" style="margin-top:10px">These are order statistics of your scored GTs — the actual sorted values, not a model. The band is the 10th to the 90th percentile, so one freak test cannot define either end.</p>
+    ${_flrMarks?`<p class="tlab" style="margin-top:10px">${_flrMarks}</p>`:''}
     <div class="actions" style="margin-top:16px"><button class="btn primary" onclick="closeSheet()">Close</button></div>`);
 }
 /* ---- what keeps coming back ----
@@ -5810,11 +6005,12 @@ function scoreTrendCard(){
   let cap='';
   if(scored.length>=3){
     const f=st[0].pct100, l=st[st.length-1].pct100, d=l-f, dir=d>1?'up':d<-1?'down':'flat';
-    cap=`<p class="tlab" style="margin-top:12px">Your % score is trending <b>${dir}</b> — <b>${l}%</b> now vs ${f}% a few ${type==='gt'?'GTs':'modules'} back${dir==='up'?'. Keep it.':dir==='down'?'. Dig into the buckets below.':', holding.'} Sizes are evened out to %, so a ${type==='gt'?'180-Q and a 200-Q GT':'50-Q and a 100-Q module'} compare fairly.</p>`;
+    cap=`<p class="tlab" style="margin-top:12px">You are trending <b>${dir}</b> — <b>${st[st.length-1].marks}/${st[st.length-1].maxMarks}</b> (${l}%) now vs ${f}% a few ${type==='gt'?'GTs':'modules'} back${dir==='up'?'. Keep it.':dir==='down'?'. Dig into the buckets below.':', holding.'} Sizes are evened out to %, so a ${type==='gt'?'180-Q and a 200-Q GT':'50-Q and a 100-Q module'} compare fairly.</p>`;
   }
   const labs=scored.map(x=>x.set);
   return `<div class="card thin st-card"><h3><span class="accent"></span>Score trend <span class="h3-hint">${tlab} · tap a line</span>${toggle}<button class="cardq" data-help="scoretrend">?</button></h3><div class="sparks">
-    ${sparkRow('% score','var(--accent-ink)',st.map(k=>k.pct100),{labels:labs,goodDown:false,disp:st.map(k=>k.pct100+'%'),minSpan:10,clampLo:0,clampHi:100})}
+    ${sparkRow('Marks','var(--accent-ink)',st.map(k=>k.marks),{labels:labs,goodDown:false,disp:st.map(k=>k.marks+'/'+k.maxMarks),minSpan:Math.round(examMax()*0.08)})}
+    ${sparkRow('% score','var(--ink2)',st.map(k=>k.pct100),{labels:labs,goodDown:false,disp:st.map(k=>k.pct100+'%'),minSpan:10,clampLo:0,clampHi:100})}
     ${sparkRow('Accuracy %','var(--sage-ink)',st.map(k=>Math.round(k.accuracy*100)),{labels:labs,goodDown:false,disp:st.map(k=>Math.round(k.accuracy*100)+'%'),minSpan:10,clampLo:0,clampHi:100})}
     ${sparkRow('Wrong : correct','var(--rose)',st.map(k=>k.wc!=null?Math.round(k.wc*100):0),{labels:labs,goodDown:true,dscale:100,disp:st.map(k=>k.wc!=null?k.wc.toFixed(2):'—'),minSpan:25,clampLo:0})}
   </div>${cap}</div>`;
@@ -6107,8 +6303,10 @@ function renderInsights(){
 
 /* ---- Rivals view ---- */
 const RIV_METRICS=[
-  {k:'last',   t:'Latest GT',      s:'%',  hi:true,  hint:'your most recent full test'},
-  {k:'best',   t:'Best GT',        s:'%',  hi:true,  hint:'your ceiling so far'},
+  {k:'lastMk', t:'Latest GT',      s:'',   hi:true,  mk:true, hint:'marks on your most recent full test'},
+  {k:'last',   t:'Latest GT %',    s:'%',  hi:true,  hint:'the same test as a percentage, so different paper sizes compare'},
+  {k:'bestMk', t:'Best GT',        s:'',   hi:true,  mk:true, hint:'your ceiling so far, in marks'},
+  {k:'best',   t:'Best GT %',      s:'%',  hi:true,  hint:'your ceiling as a percentage'},
   {k:'wr',     t:'Wrong per right',s:'',   hi:false, hint:'lower is better'},
   {k:'streak', t:'Day streak',     s:'d',  hi:true,  hint:'days in a row you showed up'},
   {k:'sorted', t:'Mistakes sorted',s:'',   hi:true,  hint:'the work itself'},
@@ -6470,13 +6668,21 @@ function rivBoard(all,me){
        and not just arithmetic; the whole row opens that person's card */
     const top=rank[0] && rank[0].last!=null ? rank[0].last : 0;
     const w=(m.last!=null && top>0) ? Math.round(m.last/top*100) : 0;
+    /* how far behind the leader, in marks on your own paper — the number that actually stings */
+    const lead=rank[0];
+    const behind=(!mine && m.last!=null && lead && lead.last!=null && lead.uid!==m.uid)
+      ? Math.round((lead.last-m.last)/100*examMax()) : null;
+    const meBehind=(mine && lead && lead.uid!==m.uid && m.last!=null && lead.last!=null)
+      ? Math.round((lead.last-m.last)/100*examMax()) : null;
     return `<button class="riv-row${mine?' me':''}" data-rivu="${esc(m.uid)}">
       <span class="riv-rank">${i<3?medal[i]:i+1}</span>
       ${rivAvatar(m,'sm')}
       <div class="riv-mid"><div class="riv-nm">${esc(m.name)}${mine?'<span class="riv-you">you</span>':''}</div>
         <div class="riv-gap"><i style="width:0" data-gw="${w}"></i></div>
-        <div class="riv-sub">${m.tests||0} GT${(m.tests||0)===1?'':'s'} · ${m.sorted||0} sorted · ${m.streak||0}d streak${stale?' · <i>stale</i>':''}</div></div>
-      <div class="riv-big"><b${m.last==null?'':` data-cu="${m.last}"`}>${m.last==null?'—':m.last}</b><span>${m.last==null?'no GT yet':'latest'}</span>
+        <div class="riv-sub">${m.tests||0} GT${(m.tests||0)===1?'':'s'} · ${m.sorted||0} sorted · ${m.streak||0}d streak${stale?' · <i>stale</i>':''}</div>
+        ${meBehind>0?`<div class="riv-behind"><b>${meBehind}</b> marks behind ${esc(lead.name.split(' ')[0])}</div>`:''}</div>
+      <div class="riv-big"><b${m.lastMk==null?'':` data-cu="${m.lastMk}"`}>${m.lastMk!=null?m.lastMk:(m.last==null?'—':m.last+'%')}</b>
+        <span>${m.last==null?'no GT yet':(m.lastMk!=null?'latest · '+m.last+'%':'latest')}</span>
         ${m.series&&m.series.length>1?miniLine(m.series,mine?'var(--accent)':'var(--violet)',10):''}</div>
       <span class="th-go">›</span>
     </button>`;}).join('');
@@ -6512,7 +6718,9 @@ function rivalSheet(uid){
 /* a compact percentage area line, reused for a rival's GT series */
 function areaPct(vals){
   const W=320,H=110,x0=10,x1=W-10,y0=12,y1=H-16;
-  const lo=Math.min.apply(null,vals), hi=Math.max.apply(null,vals), sp=(hi-lo)||1;
+  /* at least 12 points of axis, same rule as every other line in the app: a two-point wobble
+     must not be drawn as a climb */
+  const wv=spanWin(vals,12,0,100), lo=wv.lo, sp=wv.sp;
   const pts=vals.map((v,i)=>({x: vals.length===1?(x0+x1)/2 : x0+i*(x1-x0)/(vals.length-1), y: y1-((v-lo)/sp)*(y1-y0)}));
   const line=smoothPath(pts), last=pts[pts.length-1];
   return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="their grand test percentages">
@@ -6524,22 +6732,35 @@ function areaPct(vals){
 }
 /* where you actually stand: your value against the group's best on each metric */
 function rivBars(all,me){
+  /* Raw marks only compare if everyone sat the same size paper. If the group is mixed, the marks
+     lines are dropped here and the percentages carry the comparison — comparing 560/800 against
+     540/720 as if they were the same number would be a straight lie. */
+  const sizes=new Set(all.map(m=>m.lastMax).filter(v=>v!=null));
+  const sameSize = sizes.size<=1;
   const rows=RIV_METRICS.map(d=>{
+    if(d.mk && !sameSize) return '';
     const vals=all.map(m=>m[d.k]).filter(v=>v!=null);
     if(vals.length<2 || me[d.k]==null) return '';
     const best=d.hi?Math.max(...vals):Math.min(...vals);
     const mine=me[d.k];
     const ahead = d.hi ? mine>=best : mine<=best;
-    const max=Math.max(...vals.map(Math.abs))||1;
-    const pc=Math.round(Math.abs(mine)/max*100), bp=Math.round(Math.abs(best)/max*100);
+    /* "wrong per right" is better when SMALLER, and used to be drawn as a longer bar — so the
+       worst number in the group looked like the fullest one. Every bar now reads the same way:
+       full = the group's best on that line, whichever direction better happens to be. */
+    const share=v=>{ const q=d.hi ? (best>0? v/best : (v===0?1:0))
+                                  : (v>0 ? best/v : 1);
+      return Math.round(Math.max(0,Math.min(1,q))*100); };
+    const pc=share(mine), bp=100;
     const gap = mine===best ? '' : (d.k==='wr' ? Math.abs(mine-best).toFixed(2) : Math.abs(Math.round(mine-best))+ (d.s||''));
-    return `<div class="rb-row"><div class="rb-top"><span>${d.t}</span>
+    return `<div class="rb-row"><div class="rb-top"><span>${d.t}<i class="rb-dir">${d.hi?'higher is better':'lower is better'}</i></span>
       <b class="${ahead?'good':''}">${ahead?'leading':gap+' behind'}</b></div>
-      <div class="rb-track"><i class="rb-best" style="width:0" data-gw="${bp}"></i><i class="rb-mine" style="width:0" data-gw="${pc}"></i></div></div>`;
+      <div class="rb-track"><i class="rb-best" style="width:0" data-gw="${bp}"></i><i class="rb-mine" style="width:0" data-gw="${pc}"></i></div>
+      <div class="rb-nums"><span>you <b>${fmtRiv(me,d.k)}</b></span><span>best <b>${d.k==='wr'?best.toFixed(2):Math.round(best)}${d.s||''}</b></span></div></div>`;
   }).filter(Boolean).join('');
   if(!rows) return '';
   return `<div class="card"><h3><span class="accent"></span>You vs the best in the group</h3>${rows}
-    <p class="tlab" style="margin-top:12px">The pale bar is the group's best on each line; the solid one is you.</p></div>`;
+    ${sizes.size>1?`<p class="tlab" style="margin-top:10px">Your group has sat papers of different sizes, so marks are not lined up here — the percentages are the fair comparison.</p>`:''}
+    <p class="tlab" style="margin-top:12px">The pale bar is the group's best on each line and is always full; the solid one is you as a share of it. A full solid bar means you hold the best number in the group.</p></div>`;
 }
 function bindRivals(){
   const g=id=>document.getElementById(id);
@@ -7380,6 +7601,11 @@ function myRivalStats(){
     photo:(fbUser&&fbUser.photoURL)||'',
     last: pcts.length?pcts[pcts.length-1]:null,
     best: pcts.length?Math.max(...pcts):null,
+    /* the same scores in marks, on the paper each test was actually sat. Rows published by an
+       older build simply do not carry these, so every reader must treat them as optional. */
+    lastMk: gts.length?scoreStats(gts[gts.length-1]).marks:null,
+    lastMax: gts.length?scoreStats(gts[gts.length-1]).maxMarks:null,
+    bestMk: gts.length?Math.max(...gts.map(x=>scoreStats(x).marks)):null,
     avg:  pcts.length?Math.round(pcts.reduce((a,b)=>a+b,0)/pcts.length):null,
     series: pcts.slice(-8),
     tests: gts.length,
