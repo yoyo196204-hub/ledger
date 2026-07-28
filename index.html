@@ -227,7 +227,8 @@
   #bookList .entry:nth-child(6){animation-delay:.14s}#bookList .entry:nth-child(7){animation-delay:.16s}
   #bookList .entry:nth-child(8){animation-delay:.18s}
   /* one quiet meta line instead of a pile of pills */
-  .entry .ehead{display:flex;align-items:center;gap:7px;margin-bottom:9px;font-size:12px}
+  .entry .ehead{display:flex;align-items:center;flex-wrap:wrap;gap:5px 7px;margin-bottom:9px;font-size:12px;min-width:0}
+  .entry .esub{overflow:hidden;text-overflow:ellipsis}
   .entry .edot{width:8px;height:8px;border-radius:50%;background:var(--et,var(--faint));flex:none}
   .entry .esub{font-weight:700;color:var(--ink)}
   .entry .esep{color:var(--faint)}
@@ -253,9 +254,13 @@
   .entry .notebtn{font-size:12px;color:var(--accent);font-weight:600;margin-top:7px;display:inline-block}
   .entry .trap{font-size:12.5px;color:var(--muted);margin-top:6px}
   .entry .trap b{color:var(--amber);font-weight:600}
-  .entry .foot{display:flex;align-items:center;gap:16px;margin-top:11px;padding-top:10px;border-top:1px solid var(--border)}
-  .entry .foot button{font-size:12.5px;color:var(--muted);font-weight:500}
-  .entry .foot button:active{color:var(--ink)}
+  .entry .foot{display:flex;align-items:center;gap:8px;margin-top:9px;padding-top:6px;border-top:1px solid var(--border)}
+  /* these were 17px tall — under a fingertip. Padding makes them real targets without
+     turning the row into a toolbar. */
+  .entry .foot button{font-size:12.5px;color:var(--muted);font-weight:500;min-height:30px;padding:6px 9px;
+    margin:0 -1px;border-radius:9px;transition:background .16s,color .16s,transform .16s var(--spring)}
+  .entry .foot button:hover{background:var(--surface2);color:var(--ink2)}
+  .entry .foot button:active{color:var(--ink);transform:scale(.94)}
   .entry .foot .fix.done{color:var(--emerald)}
   .entry .foot .src{font-size:11px;color:var(--faint);margin-left:auto}
 
@@ -358,6 +363,7 @@
   .gtlist .gtrow{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--border);font-size:13px}
   .gtlist .gtrow:last-child{border:none;padding-bottom:0}
   .gtlist .gtn{color:var(--indigo);font-weight:640;min-width:66px}
+  .gt-score-only{font-style:italic;font-size:10.5px;font-weight:650;color:var(--faint);white-space:nowrap}
   .gtlist .gtn.mod{color:var(--pink)}
   .gtlist .gtd{color:var(--muted);flex:1;font-size:12.5px}
   .gtlist .gtc{color:var(--ink);font-variant-numeric:tabular-nums}
@@ -1283,6 +1289,9 @@
   .rv-btn{flex:none;font-size:12px;font-weight:750;padding:7px 12px;border-radius:9px;background:var(--surface2);color:var(--ink2)}
   .rv-btn.full{background:var(--accent-soft);color:var(--accent-ink)}
   /* score capture */
+  .pt-row{display:grid;grid-template-columns:1fr auto;gap:9px}
+  .pt-row input[type="text"]{min-width:0}
+  .databtn.past .ic{stroke:var(--violet);background:color-mix(in srgb,var(--violet) 12%,transparent)}
   .sc-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
   .sc-cell{min-width:0}
   .sc-cell label{display:block;font-size:11px;font-weight:750;letter-spacing:.05em;text-transform:uppercase;color:var(--faint);margin-bottom:6px;text-align:center}
@@ -1395,7 +1404,9 @@
   .view.on{animation:viewIn .34s cubic-bezier(.22,1,.36,1) both}
   @keyframes viewIn{from{opacity:0;transform:translateY(9px) scale(.994)}to{opacity:1;transform:none}}
   .view.on .card,.view.on .databtn,.view.on .riv-head,.view.on .vitals,.view.on .th-dash,
-  .view.on .pl-week,.view.on .th-card,.view.on .acc-card,.view.on .acc-stats{
+  .view.on .pl-week,.view.on .th-card,.view.on .acc-card,.view.on .acc-stats,
+  .view.on .th-queue,.view.on .th-last,.view.on .pl-head,.view.on .pl-next,.view.on .sec-title,
+  .view.on .entry,.view.on .revhero,.view.on .datahead,.view.on .segbar,.view.on .scope-row{
     animation:cardIn .42s cubic-bezier(.22,1,.36,1) both}
   @keyframes cardIn{from{opacity:0;transform:translateY(13px)}to{opacity:1;transform:none}}
   .view.on > *:nth-child(2){animation-delay:.03s}
@@ -1412,6 +1423,27 @@
   .view.on #rivalsBody > *:nth-child(2){animation-delay:.07s}
   .view.on #rivalsBody > *:nth-child(3){animation-delay:.14s}
   .view.on #rivalsBody > *:nth-child(n+4){animation-delay:.20s}
+  /* the tabs that never got the same treatment: Triage, Plan, Book and Data now land in
+     sequence exactly like Insights and Rivals, so no screen feels flatter than another */
+  .view.on #triageBody > .tri-home > *:nth-child(2){animation-delay:.05s}
+  .view.on #triageBody > .tri-home > *:nth-child(3){animation-delay:.10s}
+  .view.on #triageBody > .tri-home > *:nth-child(4){animation-delay:.15s}
+  .view.on #triageBody > .tri-home > *:nth-child(n+5){animation-delay:.19s}
+  .view.on #planBody > *:nth-child(2){animation-delay:.05s}
+  .view.on #planBody > *:nth-child(3){animation-delay:.10s}
+  .view.on #planBody > *:nth-child(n+4){animation-delay:.14s}
+  .view.on #bookList > .entry:nth-child(-n+8){animation:cardIn .4s cubic-bezier(.22,1,.36,1) both}
+  .view.on #bookList > .entry:nth-child(2){animation-delay:.04s}
+  .view.on #bookList > .entry:nth-child(3){animation-delay:.08s}
+  .view.on #bookList > .entry:nth-child(4){animation-delay:.11s}
+  .view.on #bookList > .entry:nth-child(n+5){animation-delay:.14s}
+  /* on a pointer device a card lifts very slightly under the cursor — enough to feel alive,
+     not enough to be a distraction while reading. Never on touch, where there is no hover. */
+  @media (hover:hover) and (pointer:fine){
+    .card,.databtn,.th-queue,.th-last{transition:transform .2s var(--ease),box-shadow .2s var(--ease)}
+    .card:hover,.databtn:hover,.th-last:hover{transform:translateY(-2px);box-shadow:0 10px 26px -14px rgba(20,28,45,.34)}
+    .card:has(.wgc):hover,.card:has(.rvr):hover,.card:has(.heatmap):hover{transform:none;box-shadow:var(--shadow)}
+  }
   /* press physics: everything tappable dips under the finger and springs back */
   .card,.databtn,.riv-row,.ses-row,.pl-row,.wk-row,.vt,.thd,.acs,.tab{
     -webkit-tap-highlight-color:transparent}
@@ -1426,6 +1458,9 @@
   @media(prefers-reduced-motion:reduce){
     .view.on,.view.on .card,.view.on .databtn,.view.on #insightsBody > *,.view.on #rivalsBody > *,
     .view.on .vitals,.view.on .th-dash,.view.on .th-card,.view.on .acc-card,.view.on .acc-stats,
+    .view.on .th-queue,.view.on .th-last,.view.on .pl-head,.view.on .pl-next,.view.on .sec-title,
+    .view.on .entry,.view.on .revhero,.view.on .datahead,.view.on .segbar,.view.on .scope-row,
+    .view.on #bookList > .entry,
     .tab.on svg{animation:none}
   }
   .rvr{width:100%;max-width:300px;height:auto;display:block;margin:10px auto 4px;overflow:visible;touch-action:manipulation}
@@ -1763,7 +1798,7 @@
   .chart .xlab{fill:var(--muted);font-size:9.5px;font-weight:600}
   .hbars{display:flex;flex-direction:column;gap:13px}
   .hbar{display:grid;grid-template-columns:112px 1fr auto;align-items:center;gap:11px}
-  .lk-bar{width:100%;text-align:left;background:none;border:none;padding:2px 0;margin:-2px 0;cursor:pointer;border-radius:9px;
+  .lk-bar{width:100%;text-align:left;background:none;border:none;padding:5px 0;margin:-5px 0;min-height:26px;cursor:pointer;border-radius:9px;
     transition:transform .16s var(--spring),background .16s}
   .lk-bar:hover{background:var(--surface2);transform:translateX(2px)}
   .lk-bar:active{transform:scale(.985)}
@@ -1844,7 +1879,7 @@
   @media (min-width:820px){
     .wrap{max-width:860px}
     .kpis{grid-template-columns:repeat(4,1fr)}
-    #bookList{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;align-items:start}
+    #bookList{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}
     #bookList .entry{margin-bottom:0}
     #bookList .empty{grid-column:1 / -1}
     /* bottom tab bar becomes a left sidebar rail */
@@ -1874,6 +1909,19 @@
     /* the two tall ones read better full width than squeezed into half of it */
     .sec-inner > .card:has(.heatmap),.sec-inner > .card.gtlist{grid-column:1 / -1}
     .rvr{max-width:340px}
+    /* Triage, Plan and Data were still a single narrow column on a tablet while Insights and
+       Rivals used both. Same treatment: page-level things span, the rest pairs up. */
+    #triageBody > .tri-home{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 16px;align-items:start;min-width:0}
+    #triageBody > .tri-home > .sec-title,#triageBody > .tri-home > .th-card,
+    #triageBody > .tri-home > .th-foot,#triageBody > .tri-home > .ses-list{grid-column:1 / -1}
+    #planBody{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 16px;align-items:start;min-width:0}
+    #planBody > .sec-title,#planBody > .pl-head,#planBody > .pl-next,#planBody > .pl-wk,
+    #planBody > .pl-row,#planBody > .pl-unplanned,#planBody > .actions,#planBody > .empty{grid-column:1 / -1}
+    #v-data{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 16px;align-items:start;min-width:0}
+    #v-data > .sec-title,#v-data > .datahead,#v-data > #cloudSync,#v-data > .segbar,
+    #v-data > .seg,#v-data > #installWrap,#v-data > .verline,#v-data > .tlab{grid-column:1 / -1}
+    /* the plan's day rows stay one per line — a two-column diary is unreadable */
+    .pl-head,.pl-next{margin-bottom:14px}
   }
   @media (min-width:1100px){ .wrap{max-width:940px} }
 </style>
@@ -2036,6 +2084,11 @@ try{ var _s=JSON.parse(localStorage.getItem('ml_settings_v2')||'{}'); if(_s&&(_s
     <div class="datahead">Cloud sync</div>
     <div id="cloudSync"></div>
     <div class="datahead">Manage</div>
+    <button class="databtn past" id="pastBtn">
+      <svg class="ic" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4M12 7v5l3 2"/></svg>
+      <div><div class="tt">Add a test you already took</div><div class="dd">Scored a GT before you started using this? Enter its numbers and it joins your trend and projection.</div></div>
+      <span class="arrow">›</span>
+    </button>
     <button class="databtn" id="manageTriBtn">
       <svg class="ic" viewBox="0 0 24 24"><path d="M3 6h18M7 12h10M10 18h4"/></svg>
       <div><div class="tt">Triage reads</div><div class="dd" id="manageTriSub">Review or delete individual triage sessions.</div></div>
@@ -2120,7 +2173,7 @@ const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.st
 async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } try{return localStorage.getItem(k)}catch(_){return null} }
 async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v);return true}catch(e){return false} } try{localStorage.setItem(k,v);return true}catch(_){return false} }
 const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
-const APP_VERSION='v65'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
+const APP_VERSION='v66'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
 
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 /* Roughly how a 200-question NEET-PG paper is split by subject — an average of recent years,
@@ -4738,13 +4791,20 @@ function testListCard(){
   const rows=keys.map(k=>{ const t=tests[k], tot=t.logged+t.tri;
     const mini=ERRORS.map(e=>t.errs[e.id]?`<span style="flex:${t.errs[e.id]};background:${e.c}"></span>`:'').join('');
     return `<button class="gtrow tap" data-test="${esc(k)}"><span class="gtn ${t.type==='module'?'mod':''}">${esc(t.set)}</span>
-      <span class="gtmini">${mini}</span><span class="gtsc">${pcBySet[k]!=null?pcBySet[k]+'%':'—'}</span><span class="gtc">${tot}</span><span class="gtgo">›</span></button>`;}).join('');
+      <span class="gtmini">${tot?mini:'<i class="gt-score-only">score only</i>'}</span><span class="gtsc">${pcBySet[k]!=null?pcBySet[k]+'%':'—'}</span><span class="gtc">${tot||'—'}</span><span class="gtgo">›</span></button>`;}).join('');
   return `<div class="card gtlist"><h3><span class="accent"></span>Every test — tap one to open it <span class="h3-hint">% score</span></h3>${rows}</div>`;
 }
 /* the per-test deep dive: its own mix, confidence trio, and subject hits */
 function testDetailSheet(key){
   const t=buildTests()[key]; if(!t) return;
-  const tot=t.logged+t.tri; if(!tot) return;
+  const tot=t.logged+t.tri;
+  /* a test entered from memory has a score and no mistakes — there is no breakdown to show,
+     so open the thing you can actually change: its numbers */
+  if(!tot){
+    const sess=sessions.find(x=>(x.testType+'|'+x.set)===key);
+    if(sess) pastTestSheet(sess);
+    return;
+  }
   const dom=ERRORS.slice().sort((a,b)=>t.errs[b.id]-t.errs[a.id])[0];
   const subs=Object.entries(t.subs).sort((a,b)=>b[1]-a[1]).slice(0,5);
   const trio=(t.comp.sure||t.comp.twoish||t.comp.noidea)?`<div class="trio">
@@ -4964,9 +5024,16 @@ function sessionSubjTruth(s){
 }
 function _examImpact(){
   const m=buildSubjects(scopedSessions(), scopedEntries());
+  /* The divisor for "wrongs a paper" is how many papers you actually SORTED, not how many you
+     have a score for. A past test entered from memory has a score and no mistakes; counting it
+     here would divide the same wrongs across more papers and quietly halve every subject's
+     marks-at-risk. It still feeds the score trend and the projection, where it belongs. */
   const gtSets=new Set();
-  scopedSessions().forEach(x=>{ if((x.testType||'gt')==='gt') gtSets.add(x.set); });
-  scopedEntries().forEach(e=>{ if((e.testType||'gt')==='gt') gtSets.add(e.set); });
+  scopedSessions().forEach(x=>{ if((x.testType||'gt')!=='gt') return;
+    const sorted=(x.items||[]).some(it=>it&&it.subj);
+    const declared=x.subjPlan && Object.keys(x.subjPlan).length;
+    if(sorted||declared) gtSets.add(x.set); });
+  scopedEntries().forEach(e=>{ if((e.testType||'gt')==='gt' && e.subject) gtSets.add(e.set); });
   const nT=gtSets.size, canRisk = insType!=='module' && nT>=2;
   /* wrongs nobody ever sorted, per subject, from the declared counts */
   const unsorted={}; let unsortedTot=0;
@@ -6460,6 +6527,7 @@ function bindActions(){
   document.getElementById('snapBtn').onclick=()=>{ buzz(5); snapSheet(); };
   document.getElementById('bulkBtn').onclick=bulkImportSheet;
   document.getElementById('manageTriBtn').onclick=manageTriage;
+  document.getElementById('pastBtn').onclick=()=>pastTestSheet();
   document.querySelectorAll('#themeSeg .opt').forEach(b=>b.onclick=()=>setTheme(b.dataset.theme));
   document.getElementById('addDetailBtn').onclick=()=>switchView('log');
   document.getElementById('revEntry').onclick=()=>switchView('review');
@@ -6493,6 +6561,107 @@ async function onPhotoPick(ev){
   catch(_){ toast("Couldn't read that image"); }
 }
 
+/* ---- a test you sat before any of this existed ----
+   You know the score even though you never triaged it. Entering it gives the trend, the
+   projection and the floor real history to work with. It deliberately carries no mistakes,
+   so nothing that talks about *kinds* of mistake counts it, and the per-paper rates skip it
+   too — those divide by papers you actually sorted. */
+function pastTestSheet(edit){
+  const isEdit=!!edit;
+  const cur=isEdit?edit:null;
+  const type=cur?(cur.testType||'gt'):'gt';
+  /* a sensible default name: one below the lowest GT you have, so back-filling runs backwards */
+  const nums=sessions.filter(x=>(x.testType||'gt')==='gt').map(x=>{ const m=/(\d+)/.exec(x.set||''); return m?+m[1]:null; }).filter(v=>v!=null);
+  const suggest = nums.length ? 'GT-'+Math.max(1,Math.min.apply(null,nums)-1) : 'GT-1';
+  const d=cur?new Date(cur.ts||Date.now()):new Date(Date.now()-7*864e5);
+  const iso=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  const sc=(cur&&cur.score)||{};
+  const stp=(id,ph,v)=>`<div class="stp"><button data-dn="${id}">−</button><input type="number" id="${id}" inputmode="numeric" min="0" placeholder="${ph}" value="${v!=null?v:''}"><button data-up="${id}">+</button></div>`;
+  openSheet(`<h3>${isEdit?'Edit this test':'A test you already took'}</h3>
+    <p>${isEdit?'Change the numbers you entered for this one.':'Enter what you scored. It joins your score trend, your projection and your best/worst range straight away.'}</p>
+    <div class="sp-lab">Which test</div>
+    <div class="pt-row">
+      <input type="text" id="ptSet" maxlength="24" placeholder="${esc(suggest)}" value="${esc(cur?cur.set:'')}">
+      <input type="date" id="ptDate" value="${iso}">
+    </div>
+    <div class="seg c2" id="ptType" style="margin-top:10px">
+      <button class="opt center ${type==='gt'?'on':''}" data-pt="gt"><div class="t">Full GT</div></button>
+      <button class="opt center ${type==='module'?'on':''}" data-pt="module"><div class="t">Module</div></button>
+    </div>
+    <div class="sc-grid" style="margin-top:14px">
+      <div class="sc-cell"><label>Correct</label>${stp('ptC','—',sc.c)}</div>
+      <div class="sc-cell"><label>Wrong</label>${stp('ptW','—',sc.w)}</div>
+      <div class="sc-cell"><label>Skipped</label>${stp('ptS','—',sc.s)}</div>
+    </div>
+    <div class="sc-tot"><label for="ptT">Questions on the paper</label>
+      <input type="number" id="ptT" inputmode="numeric" min="1" value="${sc.total||examQ()}"></div>
+    <div class="tlab" id="ptTotal" style="margin-top:8px"></div>
+    <div class="sc-warn" id="ptWarn" hidden></div>
+    <div class="actions" style="margin-top:16px"><button class="btn primary" id="ptSave">${isEdit?'Save changes':'Add this test'}</button>
+      ${isEdit?'<button class="btn danger" id="ptDel">Delete</button>':''}
+      <button class="btn ghost" onclick="closeSheet()">Cancel</button></div>
+    <p class="tlab" style="margin-top:12px">It carries a score but no mistakes, so it never appears in the subject map or the mistake mix — only where a score belongs.</p>`);
+  const g=id=>document.getElementById(id);
+  const val=id=>{ const v=g(id).value.trim(); return v===''?null:Math.max(0,Math.round(+v)||0); };
+  let ptType=type;
+  document.querySelectorAll('[data-pt]').forEach(b=>b.onclick=()=>{ buzz(5); ptType=b.dataset.pt;
+    document.querySelectorAll('[data-pt]').forEach(o=>o.classList.toggle('on',o===b));
+    if(ptType==='gt' && !g('ptT').value) g('ptT').value=examQ(); refresh(); });
+  document.querySelectorAll('[data-up],[data-dn]').forEach(b=>b.onclick=()=>{ buzz(4);
+    const id=b.dataset.up||b.dataset.dn, el=g(id);
+    el.value=Math.max(0,(Math.round(+el.value)||0)+(b.dataset.up?1:-1)); refresh(); });
+  const refresh=()=>{
+    const c=val('ptC'), w=val('ptW'), sk=val('ptS'), P=val('ptT');
+    const att=(c||0)+(w||0);
+    const msgs=[];
+    if(P!=null && att>P) msgs.push(`${att} answered is more than the ${P} questions on the paper.`);
+    if(P!=null && sk!=null && att+sk>P) msgs.push(`${att} answered plus ${sk} skipped is more than ${P}.`);
+    if(ptType==='gt' && P!=null && Math.abs(P-examQ())>40) msgs.push(`${P} is a long way from your exam's ${examQ()}.`);
+    const wr=g('ptWarn'); wr.hidden=!msgs.length; wr.innerHTML=msgs.join('<br>');
+    const t=g('ptTotal');
+    if(c!=null&&w!=null&&P){ const marks=4*c-w, inferred=Math.max(0,P-att);
+      t.innerHTML=`<b>${marks}</b> marks out of <b>${4*P}</b> · ${Math.round(marks/(4*P)*1000)/10}% · skipped <b>${sk!=null?sk:inferred}</b>${sk==null?' (worked out)':''}`; }
+    else t.textContent='Fill in correct, wrong and the paper size to see the score.';
+    g('ptSave').disabled = !(c!=null && w!=null && P>0 && att<=P);
+  };
+  ['ptC','ptW','ptS','ptT'].forEach(id=>g(id).oninput=refresh);
+  refresh();
+  if(isEdit && g('ptDel')) g('ptDel').onclick=()=>{
+    openSheet(`<h3>Delete ${esc(cur.set)}?</h3><p>This removes the test and its score. Anything you triaged in it goes too.</p>
+      <div class="actions" style="margin-top:14px"><button class="btn danger" id="ptDelGo">Delete</button>
+      <button class="btn ghost" onclick="closeSheet()">Cancel</button></div>`);
+    document.getElementById('ptDelGo').onclick=()=>{
+      const i=sessions.findIndex(x=>x.id===cur.id);
+      if(i>=0){ tombstones[cur.id]=Date.now(); persistTombstones(); sessions.splice(i,1); persistSessions(); }
+      memoClear(); closeSheet(); render(); toast('Deleted');
+    };
+  };
+  g('ptSave').onclick=()=>{
+    const c=val('ptC'), w=val('ptW'), sk=val('ptS'), P=val('ptT');
+    if(!(c!=null && w!=null && P>0)) return;
+    const set=(g('ptSet').value.trim()||suggest).slice(0,24);
+    const dv=g('ptDate').value;
+    const ts=dv?new Date(dv+'T12:00:00').getTime():Date.now();
+    const score={c, w, s:sk!=null?sk:Math.max(0,P-(c+w)), total:P};
+    if(isEdit){
+      cur.set=set; cur.ts=ts; cur.testType=ptType; cur.score=score; cur.upd=Date.now();
+    } else {
+      /* a name that already exists is the same test, not a twin — update it rather than
+         quietly creating a second copy that would double-count in every trend */
+      const dupe=sessions.find(x=>x.set===set && (x.testType||'gt')===ptType);
+      if(dupe){
+        dupe.score=score; dupe.ts=ts; dupe.upd=Date.now();
+        toast(`Updated ${set} — it was already in your ledger`);
+      } else {
+        sessions.unshift({ id:newId(), ts, upd:Date.now(), testType:ptType, set,
+          items:[], comp:{sure:0,twoish:0,noidea:0}, score, backfill:1 });
+        toast(`${set} added`);
+      }
+    }
+    sessions.sort((a,b)=>(b.ts||0)-(a.ts||0));
+    persistSessions(); memoClear(); closeSheet(); render();
+  };
+}
 function examSheet(){
   openSheet(`<h3>Your exam</h3><p>The countdown up top runs to this date, and every projection is scaled to a paper of this size.</p>
     <div class="sp-lab">Exam date</div>
@@ -7061,6 +7230,7 @@ function sanitizeSessions(arr){
       out.score={c:+x.score.c||0, w:+x.score.w||0, s:x.score.s!=null?+x.score.s||0:null, total:x.score.total!=null?+x.score.total||null:null};
       if(x.score.blindTried!=null) out.score.blindTried=+x.score.blindTried||0;
     } else delete out.score;
+    if(x.backfill) out.backfill=1; else delete out.backfill;
     /* declared per-subject counts arrive from other devices too, so they get the same scrub as
        everything else: known subjects only, sane numbers only, absent rather than empty */
     const sp=sanePlan(x.subjPlan);
