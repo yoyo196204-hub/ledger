@@ -497,7 +497,11 @@
   .ordiv::before,.ordiv::after{content:"";flex:1;height:1px;background:var(--border)}
 
   /* board fills the screen — buckets live at the bottom, in thumb reach */
-  .tri-board{display:flex;flex-direction:column;min-height:calc(100vh - 235px);min-height:calc(100dvh - 235px)}
+  /* The board is exactly the height of what is left of the screen — not "at least", which let
+     a tall ticket push the buckets under the tab bar and made the whole page scroll. The ticket
+     area takes the slack, and on a cramped phone it scrolls inside itself rather than shoving
+     its neighbours around. */
+  .tri-board{display:flex;flex-direction:column;height:calc(100vh - 235px);height:calc(100dvh - 235px)}
   .tri-top{display:flex;align-items:center;gap:9px;margin:2px 0 10px}
   .tri-x{width:34px;height:34px;flex:none;border-radius:11px;background:var(--surface2);color:var(--muted);font-size:16px;font-weight:700}
   .tri-set{font-weight:750;font-size:14px;letter-spacing:.02em;color:var(--ink2);flex:1;text-align:center}
@@ -505,30 +509,38 @@
   .tri-done{font-weight:750;font-size:14px;color:var(--accent-ink);padding:8px 14px;border-radius:11px;background:var(--accent-soft);flex:none}
   .tri-done:disabled{opacity:.4}
   /* ---- the subject tracker: where you are in this paper ---- */
-  .tri-track{display:flex;align-items:center;gap:10px;margin:9px 0 2px;min-height:44px}
+  /* one short row — the board has to fit the screen, so this cannot cost a card's worth of height */
+  .tri-track{display:flex;align-items:center;gap:8px;margin:7px 0 1px;min-height:36px}
   .tri-track:empty{display:none}
-  .tt-sub{flex:1;min-width:0;display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:14px;
+  .tt-sub{flex:1;min-width:0;display:flex;align-items:center;gap:9px;padding:4px 9px;border-radius:12px;
     border:1px solid var(--edge);background:var(--surface);cursor:pointer;text-align:left;
     transition:transform .16s var(--spring),border-color .16s,background .16s}
   .tt-sub:hover{transform:translateY(-1px);border-color:var(--border2)} .tt-sub:active{transform:scale(.98)}
-  .tt-ring{position:relative;width:32px;height:32px;flex:none;border-radius:50%;display:grid;place-items:center;
+  .tt-sub.done{border-color:color-mix(in srgb,var(--sage) 45%,transparent);background:color-mix(in srgb,var(--sage) 8%,var(--surface))}
+  .tt-sub.over{border-color:color-mix(in srgb,var(--rose) 50%,transparent);background:color-mix(in srgb,var(--rose) 8%,var(--surface))}
+  .tt-ring{position:relative;width:28px;height:28px;flex:none;border-radius:50%;display:grid;place-items:center;
     background:conic-gradient(var(--accent) calc(var(--p,0)*1%), var(--surface2) 0)}
+  .tt-ring.done{background:conic-gradient(var(--sage-ink) 100%, var(--sage-ink) 0)}
+  .tt-ring.over{background:conic-gradient(var(--rose) 100%, var(--rose) 0);animation:ttOver .5s var(--spring)}
+  @keyframes ttOver{0%{transform:scale(1)}45%{transform:scale(1.18)}100%{transform:scale(1)}}
   .tt-ring::after{content:'';position:absolute;inset:3px;border-radius:50%;background:var(--surface)}
   .tt-ring.empty{background:var(--surface2)}
-  .tt-ring i{position:relative;z-index:1;font-style:normal;font-size:10.5px;font-weight:850;color:var(--ink);font-variant-numeric:tabular-nums}
+  .tt-ring i{position:relative;z-index:1;font-style:normal;font-size:9.5px;font-weight:850;color:var(--ink);font-variant-numeric:tabular-nums}
+  .tt-over{color:var(--rose)}
   .tt-nm{min-width:0;flex:1}
-  .tt-nm b{display:block;font-size:13.5px;font-weight:800;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .tt-nm i{display:block;font-style:normal;font-size:10.5px;font-weight:650;color:var(--muted);margin-top:1px}
+  .tt-nm b{display:block;font-size:12.5px;font-weight:800;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.2}
+  .tt-nm i{display:block;font-style:normal;font-size:10px;font-weight:650;color:var(--muted);margin-top:1px;line-height:1.2;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .tt-set{flex:none;font-size:9.5px;font-weight:850;letter-spacing:.05em;text-transform:uppercase;color:var(--accent-ink);
     background:var(--accent-soft);padding:3px 7px;border-radius:7px}
-  .tt-open{flex:none;display:flex;flex-direction:column;align-items:center;gap:1px;padding:7px 11px;border-radius:14px;
+  .tt-open{flex:none;display:flex;flex-direction:column;align-items:center;gap:0;padding:4px 10px;border-radius:12px;
     border:1px solid color-mix(in srgb,var(--rose) 32%,transparent);background:color-mix(in srgb,var(--rose) 9%,var(--surface));
     cursor:pointer;transition:transform .16s var(--spring)}
   .tt-open.plain{border-color:var(--edge);background:var(--surface)}
   .tt-open:hover{transform:translateY(-1px)} .tt-open:active{transform:scale(.96)}
-  .tt-open b{font-size:16px;font-weight:850;color:var(--rose);line-height:1;font-variant-numeric:tabular-nums}
+  .tt-open b{font-size:15px;font-weight:850;color:var(--rose);line-height:1.1;font-variant-numeric:tabular-nums}
   .tt-open.plain b{color:var(--ink)}
-  .tt-open span{font-size:9px;font-weight:700;color:var(--muted);white-space:nowrap}
+  .tt-open span{font-size:8.5px;font-weight:700;color:var(--muted);white-space:nowrap}
   /* the count question */
   .sq-wrap{display:flex;align-items:center;gap:10px}
   .sq-wrap input{flex:1;min-width:0;text-align:center;font-size:26px;font-weight:850}
@@ -564,7 +576,11 @@
   .tt-chip b{color:var(--bc);font-size:10.5px}
   .bl{color:var(--rose);font-weight:750}
   /* the question ticket — pluck it into a bucket */
-  .tri-mid{flex:1;display:flex;flex-direction:column;justify-content:center;padding:14px 0 10px}
+  /* auto margins rather than justify-content:center — with a scrollable box, centring this way
+     keeps the top of the ticket reachable instead of clipping it above the scroll origin */
+  .tri-mid{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;
+    display:flex;flex-direction:column;justify-content:flex-start;padding:12px 0 8px}
+  .tri-mid > *{margin-top:auto;margin-bottom:auto}
   .tri-chip{position:relative;max-width:330px;width:100%;margin:0 auto;text-align:center;background:var(--surface);
     border:1.5px dashed var(--border2);border-radius:20px;padding:18px 16px 15px;box-shadow:var(--shadow);transition:border-color .2s,box-shadow .2s}
   /* ticket notches */
@@ -671,15 +687,39 @@
     border-radius:12px;padding:10px 13px;line-height:1.5;margin:14px 0 18px;animation:rise .34s .25s cubic-bezier(.22,1,.36,1) both}
   /* wide screens: 4 buckets across, board uses the taller viewport */
   @media (min-width:820px){
-    .tri-board{min-height:calc(100vh - 170px);min-height:calc(100dvh - 170px)}
+    .tri-board{height:calc(100vh - 170px);height:calc(100dvh - 170px)}
     .tri-buckets{grid-template-columns:repeat(4,1fr)}
     .tri-chip{max-width:380px}
     .chip-n{font-size:54px}
     .bucket .b-test{font-size:11px}
   }
+  /* a short phone (a 360x780 or anything under ~800 tall): compress the ticket so the board
+     still fits without the page scrolling and the buckets stay above the tab bar */
+  @media (max-height:1000px) and (min-height:561px){
+    .tri-mid{padding:6px 0 4px}
+    .tri-chip{padding:12px 14px 13px}
+    .chip-n{font-size:38px;margin:0 0 8px}
+    .dq{font-size:14.5px;min-height:38px;margin:8px auto 10px}
+    .bucket{padding:10px 11px 11px}
+    /* the prompt under each bucket costs about sixty pixels a row. On a phone that is the
+       difference between the whole ticket being visible and its bottom being cut off — and the
+       same question is right there in the bucket finder when you actually need it. */
+    .bucket .b-test{display:none}
+    .bucket .b-name{font-size:12.5px}
+    .tri-foot{margin-top:6px}
+  }
+  /* the smallest phones still in use need one more notch of compression */
+  @media (max-height:800px) and (min-height:561px){
+    .chip-n{font-size:32px;margin:0 0 6px}
+    .chip-eyebrow{font-size:9px;letter-spacing:.1em}
+    .tri-conf{padding:2px;gap:2px}
+    .tri-conf .tc{padding:8px 9px;font-size:12px}
+    .chip-meta{margin-top:8px;gap:6px}
+    .tri-chip{padding:10px 12px 11px}
+  }
   /* short landscape: compress the ticket, keep buckets reachable */
   @media (max-height:560px){
-    .tri-board{min-height:0}
+    .tri-board{height:auto;min-height:0}
     .tri-mid{padding:6px 0}
     .tri-chip{padding:10px 14px 11px}
     .chip-n{font-size:28px;margin:0 0 6px}
@@ -1917,9 +1957,11 @@
     #planBody{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 16px;align-items:start;min-width:0}
     #planBody > .sec-title,#planBody > .pl-head,#planBody > .pl-next,#planBody > .pl-wk,
     #planBody > .pl-row,#planBody > .pl-unplanned,#planBody > .actions,#planBody > .empty{grid-column:1 / -1}
-    #v-data{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 16px;align-items:start;min-width:0}
-    #v-data > .sec-title,#v-data > .datahead,#v-data > #cloudSync,#v-data > .segbar,
-    #v-data > .seg,#v-data > #installWrap,#v-data > .verline,#v-data > .tlab{grid-column:1 / -1}
+    /* .on matters: a bare #v-data selector outranks .view{display:none} and leaves the whole
+       Data page rendered underneath every other tab. */
+    #v-data.on{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 16px;align-items:start;min-width:0}
+    #v-data.on > .sec-title,#v-data.on > .datahead,#v-data.on > #cloudSync,#v-data.on > .segbar,
+    #v-data.on > .seg,#v-data.on > #installWrap,#v-data.on > .verline,#v-data.on > .tlab{grid-column:1 / -1}
     /* the plan's day rows stay one per line — a two-column diary is unreadable */
     .pl-head,.pl-next{margin-bottom:14px}
   }
@@ -2173,7 +2215,7 @@ const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.st
 async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } try{return localStorage.getItem(k)}catch(_){return null} }
 async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v);return true}catch(e){return false} } try{localStorage.setItem(k,v);return true}catch(_){return false} }
 const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
-const APP_VERSION='v66'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
+const APP_VERSION='v67'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
 
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 /* Roughly how a 200-question NEET-PG paper is split by subject — an average of recent years,
@@ -3676,19 +3718,26 @@ function triTrackHTML(){
   let left='';
   if(sub){
     const have=tally[sub]||0, want=triTarget(sub);
+    const over = want ? have-want : 0;
+    /* the ring is the count, not decoration: filled = logged, empty = still to go, red = past it */
     const pc = want ? Math.min(100,Math.round(have/want*100)) : 0;
-    left = `<button class="tt-sub" id="ttSub">
-      <span class="tt-ring" style="--p:${pc}"><i>${want?have+'/'+want:have}</i></span>
-      <span class="tt-nm"><b>${esc(shortSubj(sub))}</b><i>${want? (have>=want?'all sorted':`${want-have} to go`) : `${have} sorted here`}</i></span>
-      ${want?'':'<span class="tt-set">set count</span>'}</button>`;
+    const state = !want ? '' : over>0 ? 'over' : have>=want ? 'done' : '';
+    const say = !want ? `${have} sorted here`
+      : over>0 ? `<b class="tt-over">${over} past the ${want} you said</b>`
+      : have>=want ? 'all of them sorted'
+      : `<b>${want-have}</b> still to go`;
+    left = `<button class="tt-sub ${state}" id="ttSub">
+      <span class="tt-ring ${state}" style="--p:${pc}"><i>${want?have+'/'+want:have}</i></span>
+      <span class="tt-nm"><b>${esc(shortSubj(sub))}</b><i>${say}</i></span>
+      ${want?'':'<span class="tt-set">count it</span>'}</button>`;
   } else {
     left = `<button class="tt-sub none" id="ttSub"><span class="tt-ring empty"><i>+</i></span>
       <span class="tt-nm"><b>Pick a subject</b><i>so the count can follow you</i></span></button>`;
   }
   const owingN=owing.reduce((a,x)=>a+x.left,0);
   const right = owing.length
-    ? `<button class="tt-open" id="ttOpen"><b>${owingN}</b><span>left over ${owing.length} subject${owing.length>1?'s':''}</span></button>`
-    : (Object.keys(tally).length>1 ? `<button class="tt-open plain" id="ttOpen"><b>${Object.keys(tally).length}</b><span>subjects touched</span></button>` : '');
+    ? `<button class="tt-open" id="ttOpen"><b>${owingN}</b><span>left</span></button>`
+    : (Object.keys(tally).length>1 ? `<button class="tt-open plain" id="ttOpen"><b>${Object.keys(tally).length}</b><span>subjects</span></button>` : '');
   return left+right;
 }
 function updateTriTracker(){ const t=document.getElementById('triTrack');
@@ -3844,6 +3893,18 @@ function triageAdd(bucket, btnEl){
   if(triage.img) it.img=true;
   triage.items.push(it);
   triage.conf=null; triage.img=false; /* no carry-over: one forgotten tap must not fake the next blind spot */
+  /* the moment you go past what you said the subject had, say so — the usual cause is sorting
+     the same question twice, and finding that out ten questions later is useless */
+  if(it.subj){
+    const want=triTarget(it.subj);
+    if(want){
+      const have=triTally()[it.subj]||0;
+      if(have===want+1){ buzz([12,40,12]);
+        toast(`That is ${have} in ${shortSubj(it.subj)}, past the ${want} you said. Sorted one twice?`,
+          {label:'Undo', fn:()=>{ triageUndo(); }}); }
+      else if(have===want){ toast(`${shortSubj(it.subj)} done — all ${want} sorted.`); }
+    }
+  }
   updateTriageUI();
   flyToken(btnEl, error, blind);
   buzz(blind?[14,45,14]:9);
