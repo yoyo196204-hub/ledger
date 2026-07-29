@@ -143,7 +143,7 @@
   .sec-title .hint{font-family:var(--serif);font-style:italic;font-size:14.5px;color:var(--accent-ink);margin-top:0}
 
   .segbar{display:flex;background:var(--surface2);border:1.5px solid var(--edge);border-radius:16px;padding:5px;gap:4px;margin-bottom:16px}
-  .segbar button{flex:1;padding:9px 6px;border-radius:11px;font-weight:700;font-size:13.5px;color:var(--muted);border:1.5px solid transparent;
+  .segbar button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:42px;padding:6px;border-radius:12px;font-weight:700;font-size:13.5px;color:var(--muted);border:1.5px solid transparent;
     display:flex;flex-direction:column;align-items:center;gap:1px;transition:all .12s}
   .segbar button .sub{font-size:10.5px;font-weight:500;color:var(--faint)}
   .segbar button.on{background:var(--surface);color:var(--ink);border:1.5px solid var(--edge);box-shadow:0 2px 0 0 var(--edge)}
@@ -512,10 +512,10 @@
      its neighbours around. */
   .tri-board{display:flex;flex-direction:column;height:calc(100vh - 235px);height:calc(100dvh - 235px)}
   .tri-top{display:flex;align-items:center;gap:9px;margin:2px 0 10px}
-  .tri-x{width:34px;height:34px;flex:none;border-radius:11px;background:var(--surface2);color:var(--muted);font-size:16px;font-weight:700}
+  .tri-x{width:40px;height:40px;flex:none;border-radius:12px;background:var(--surface2);color:var(--muted);font-size:16px;font-weight:700}
   .tri-set{font-weight:750;font-size:14px;letter-spacing:.02em;color:var(--ink2);flex:1;text-align:center}
-  .tri-help{width:34px;height:34px;flex:none;border-radius:11px;background:var(--surface2);color:var(--accent-ink);font-size:15px;font-weight:800}
-  .tri-done{font-weight:750;font-size:14px;color:var(--accent-ink);padding:8px 14px;border-radius:11px;background:var(--accent-soft);flex:none}
+  .tri-help{width:40px;height:40px;flex:none;border-radius:12px;background:var(--surface2);color:var(--accent-ink);font-size:15px;font-weight:800}
+  .tri-done{display:inline-flex;align-items:center;min-height:40px;font-weight:750;font-size:14px;color:var(--accent-ink);padding:0 14px;border-radius:12px;background:var(--accent-soft);flex:none}
   .tri-done:disabled{opacity:.4}
   /* ---- the subject tracker: where you are in this paper ---- */
   /* one short row — the board has to fit the screen, so this cannot cost a card's worth of height */
@@ -558,7 +558,7 @@
   .tt-prog i{display:block;height:100%;border-radius:2px;background:linear-gradient(90deg,var(--accent2,var(--accent)),var(--accent));
     transition:width .55s var(--ease)}
   @media(prefers-reduced-motion:reduce){ .tt-prog i{transition:none} }
-  .tt-open{flex:none;display:flex;flex-direction:column;align-items:center;gap:0;padding:4px 10px;border-radius:12px;
+  .tt-open{flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;min-height:40px;padding:3px 10px;border-radius:12px;
     border:1px solid color-mix(in srgb,var(--rose) 32%,transparent);background:color-mix(in srgb,var(--rose) 9%,var(--surface));
     cursor:pointer;transition:transform .16s var(--spring)}
   .tt-open.plain{border-color:var(--edge);background:var(--surface)}
@@ -623,11 +623,11 @@
   .chip-eyebrow{font-size:10.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
   .chip-n{display:block;font-size:46px;font-weight:900;line-height:1.05;letter-spacing:-.03em;font-variant-numeric:tabular-nums;color:var(--ink);margin:2px 0 10px}
   .tri-conf{display:inline-flex;background:var(--surface2);border-radius:13px;padding:3px;gap:3px;max-width:100%}
-  .tri-conf .tc{padding:8px 11px;border-radius:10px;font-weight:700;font-size:12.5px;color:var(--muted);transition:all .13s;white-space:nowrap}
+  .tri-conf .tc{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 13px;border-radius:11px;font-weight:700;font-size:12.5px;color:var(--muted);transition:all .13s;white-space:nowrap}
   .tri-conf .tc.sure.on{background:color-mix(in srgb,var(--rose) 13%,#fff);color:var(--rose);box-shadow:var(--shadow)}
   .tri-conf .tc.twoish.on{background:color-mix(in srgb,var(--amber) 15%,#fff);color:var(--amber);box-shadow:var(--shadow)}
   .tri-conf .tc.noidea.on{background:#fff;color:var(--ink2);box-shadow:var(--shadow)}
-  .chip-help{display:block;margin:12px auto 0;font-size:12.5px;font-weight:700;color:var(--accent-ink);padding:7px 13px;border-radius:10px;background:var(--accent-soft)}
+  .chip-help{display:flex;align-items:center;justify-content:center;min-height:40px;margin:10px auto 0;font-size:12.5px;font-weight:700;color:var(--accent-ink);padding:0 14px;border-radius:12px;background:var(--accent-soft)}
   /* bucket-finder: the honest tests as yes/no prompts */
   .dq{font-size:15.5px;font-weight:700;line-height:1.4;margin:10px auto 14px;max-width:30ch;color:var(--ink);min-height:44px;display:flex;align-items:center;justify-content:center}
   .dbtns{display:flex;gap:9px;justify-content:center}
@@ -678,6 +678,24 @@
   /* every tap answers back: confidence chips press like real buttons */
   .tc{transition:transform .22s var(--spring),background .15s var(--ease),color .15s var(--ease)}
   .tc:active{transform:scale(.94)}
+  /* ---- every remaining control on the sorting page presses back ---- */
+  .tri-x,.tri-help,.tri-done,.tri-undo,.chip-subj,.chip-help,.th-switch,.thd.plan,.segbar button{
+    transition:transform .16s var(--spring),background .15s var(--ease),color .15s var(--ease),
+               border-color .15s var(--ease),box-shadow .15s var(--ease)}
+  .tri-x:active,.tri-help:active,.tri-undo:active,.chip-subj:active,.chip-help:not(.locked):active,
+  .segbar button:active{transform:scale(.94)}
+  .tri-done:not(:disabled):active{transform:scale(.95)}
+  @media (hover:hover) and (pointer:fine){
+    .tri-x:hover,.tri-help:hover,.tri-undo:hover{background:var(--surface3);color:var(--ink2)}
+    .tri-done:not(:disabled):hover{background:color-mix(in srgb,var(--accent) 20%,var(--surface))}
+    .tri-conf .tc:hover:not(.on){background:var(--surface3);color:var(--ink2)}
+    .chip-subj:hover{border-color:var(--accent);border-style:solid;color:var(--accent-ink)}
+    .chip-help:not(.locked):hover{background:color-mix(in srgb,var(--accent) 20%,var(--surface))}
+    .th-switch:hover{background:var(--surface3)}
+    .th-start:hover{filter:brightness(1.04)}
+    .thd.plan:hover{border-color:var(--accent)}
+    .segbar button:not(.on):hover{color:var(--ink2);background:color-mix(in srgb,var(--ink) 5%,transparent)}
+  }
   /* confidence picked → buckets lift and warm up, pointing at the next tap */
   #triBuckets .bucket{transition:transform .28s var(--spring),box-shadow .28s var(--ease),border-color .2s var(--ease)}
   #triBuckets.armed .bucket{transform:translateY(-3px);border-color:color-mix(in srgb,var(--bc) 48%,var(--border2));box-shadow:0 7px 18px -8px color-mix(in srgb,var(--bc) 45%,transparent)}
@@ -691,14 +709,16 @@
   .bucket .b-test{position:relative;font-size:10.5px;color:var(--muted);line-height:1.35;margin-top:3px;display:block}
   .tri-foot{margin-top:13px;text-align:center;min-height:36px}
   .tri-hint{font-size:11.5px;color:var(--faint);line-height:1.5;display:inline-block;max-width:38ch}
-  .tri-undo{font-size:13px;color:var(--muted);font-weight:600;padding:9px 14px;border-radius:11px;background:var(--surface2)}
+  .tri-undo{display:inline-flex;align-items:center;min-height:40px;font-size:13px;color:var(--muted);font-weight:600;padding:0 14px;border-radius:12px;background:var(--surface2)}
   /* re-file: keep the question, move it. Sits beside undo, same row, no extra height. */
-  .tri-fix{font-size:12px;font-weight:700;color:var(--ink2);padding:9px 12px;border-radius:11px;
+  /* the label truncates; the "change" affordance never does, or the control looks broken */
+  .tri-fix{display:inline-flex;align-items:center;min-height:40px;gap:6px;min-width:0;max-width:60%;
+    font-size:12px;font-weight:700;color:var(--ink2);padding:0 12px;border-radius:12px;
     background:var(--surface);border:1px solid var(--edge);margin-left:7px;cursor:pointer;
-    max-width:58%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-    transition:transform .16s var(--spring),border-color .16s}
+    white-space:nowrap;transition:transform .16s var(--spring),border-color .16s}
+  .tri-fix .tf-lab{min-width:0;overflow:hidden;text-overflow:ellipsis}
   .tri-fix:hover{transform:translateY(-1px);border-color:var(--border2)} .tri-fix:active{transform:scale(.97)}
-  .tri-fix i{font-style:normal;color:var(--accent-ink);font-weight:800}
+  .tri-fix i{flex:none;font-style:normal;color:var(--accent-ink);font-weight:800}
   .rf-conf{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
   .rf-c{padding:11px 8px;border-radius:11px;border:1px solid var(--edge);background:var(--surface);
     font-size:12.5px;font-weight:750;color:var(--ink2);cursor:pointer;transition:transform .16s var(--spring),border-color .16s,background .16s}
@@ -763,7 +783,7 @@
     .chip-n{font-size:32px;margin:0 0 6px}
     .chip-eyebrow{font-size:9px;letter-spacing:.1em}
     .tri-conf{padding:2px;gap:2px}
-    .tri-conf .tc{padding:8px 9px;font-size:12px}
+    .tri-conf .tc{padding:0 10px;font-size:12px}
     .chip-meta{margin-top:8px;gap:6px}
     .tri-chip{padding:10px 12px 11px}
   }
@@ -799,9 +819,9 @@
   .ses-c{font-size:10px;color:var(--faint);font-weight:700;margin-top:-3px}
   /* ticket subject chip + finder meta row */
   .chip-meta{display:flex;gap:8px;justify-content:center;align-items:center;margin-top:12px;flex-wrap:wrap}
-  .chip-subj{font-size:12px;font-weight:650;color:var(--muted);padding:6px 12px;border-radius:20px;background:var(--surface2);border:1px dashed var(--border2);transition:all .13s}
+  .chip-subj{display:inline-flex;align-items:center;min-height:40px;font-size:12px;font-weight:650;color:var(--muted);padding:0 14px;border-radius:20px;background:var(--surface2);border:1px dashed var(--border2);transition:all .13s}
   .chip-subj.set{color:var(--accent-ink);background:var(--accent-soft);border-style:solid;border-color:transparent}
-  .chip-help.sm{margin:0;font-size:12px;padding:6px 12px}
+  .chip-help.sm{display:inline-flex;margin:0;font-size:12px;padding:0 14px}
   .subgrid{display:flex;flex-wrap:wrap;gap:8px}
   .subgrid .chip{flex:none}
   /* mistake-mix DNA bar */
@@ -1030,7 +1050,7 @@
   .cal-band.good b,.cal-band.good i{color:var(--sage-ink)} .cal-band.good{background:color-mix(in srgb,var(--sage) 12%,var(--surface2))} .cal-band.good i{background:color-mix(in srgb,var(--sage) 18%,transparent)}
   .cal-ev-foot{display:flex;justify-content:space-between;align-items:baseline;margin-top:8px;font-size:11px;font-weight:700;color:var(--ink2)}
   .cal-ev-foot b{font-size:13px;font-weight:850;color:var(--ink);font-variant-numeric:tabular-nums}
-  .cal-ev-foot b.good{color:var(--sage-ink)} .cal-ev-foot b.bad{color:var(--rose)}
+  .cal-ev-foot b.good{color:var(--emerald-ink)} .cal-ev-foot b.bad{color:var(--rose-ink)}
   .cal-flex{display:flex;align-items:center;gap:18px;margin-top:4px}
   .donut-wrap{position:relative;width:104px;height:104px;flex:none}
   .donut{width:100%;height:100%;display:block;transform-origin:50% 50%;animation:donutIn .7s var(--spring)}
@@ -1073,7 +1093,9 @@
     color:var(--sage-ink);background:color-mix(in srgb,var(--sage) 18%,transparent)}
   .th-queue.clear b{display:block;font-size:14px;font-weight:800;color:var(--ink)}
   .th-queue.clear span{display:block;font-size:12px;color:var(--muted);font-weight:600;margin-top:2px;line-height:1.45}
-  .th-foot{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:14px;padding-top:2px}
+  /* when these two links wrap onto separate lines the row gap has to clear their tap areas,
+     which reach 13px above and below the text — at 6px the two hit boxes sat on each other. */
+  .th-foot{display:flex;flex-wrap:wrap;gap:26px 18px;margin-top:14px;padding-top:2px}
   /* the score-trend flash when a vitals tile glides you to it */
   .st-card.flash{animation:stflash 1.1s var(--ease)}
   @keyframes stflash{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 45%,transparent)}
@@ -1236,7 +1258,7 @@
   /* ---- triage home ---- */
   .th-card{background:var(--surface);border:var(--cardborder);border-radius:var(--r);padding:15px;box-shadow:var(--shadow);margin-bottom:14px}
   .segbar.mini{margin-bottom:12px}
-  .segbar.mini button{padding:9px 6px}
+  .segbar.mini button{padding:6px}
   .th-switch{display:flex;align-items:center;gap:9px;width:100%;text-align:left;background:var(--surface2);border-radius:13px;padding:12px 14px;
     font-weight:750;font-size:15px;color:var(--ink);margin-bottom:12px;transition:background .12s}
   .th-switch:active{background:var(--surface3)}
@@ -1271,7 +1293,9 @@
   .leak-sub{font-family:var(--serif);font-style:italic;letter-spacing:0;text-transform:none;font-size:16px;color:var(--ink2)}
   /* ============ the signature "ember" hero card: a dark, glowing spotlight that floats on the warm page.
      Works by locally overriding the colour vars, so every descendant adapts with no per-element edits. ============ */
-  .ember{position:relative;overflow:hidden;color:#f7ecdc;border-radius:24px;
+  /* the ember card had its own 24px corner while every neighbouring card used the 22px token —
+     a two-pixel mismatch you feel rather than see */
+  .ember{position:relative;overflow:hidden;color:#f7ecdc;border-radius:var(--r);
     --ink:#f7ecdc;--ink2:#e6cfb2;--muted:#c6ac8c;--faint:#a68d70;
     --surface:#241a12;--surface2:#31261c;--surface3:#3f3123;--border:#4a3a2b;--border2:#57452f;
     --accent:#e0955f;--accent2:#f0a05a;--accent-ink:#f4a468;--accent-soft:#3a281d;
@@ -1844,8 +1868,31 @@
   #scTotal b{color:var(--ink);font-variant-numeric:tabular-nums}
   .sm-score{margin-top:8px;font-size:13.5px;font-weight:700;color:var(--ink2)}
   .fixcta{width:100%;margin-top:12px;background:linear-gradient(135deg,#8A5CA8,#6E4390);box-shadow:0 8px 20px -9px rgba(110,67,144,.6),0 3px 0 0 #4E2F66;font-size:14px;line-height:1.35;padding:13px 16px}
-  .linkish{font-size:inherit;color:var(--accent-ink);font-weight:700;text-align:left;display:inline}
+  .linkish{font-size:inherit;color:var(--accent-ink);font-weight:700;text-align:left;display:inline;
+    padding-block:13px;margin-block:-13px}
   /* marks lead, the percentage sits under them — same column, two lines, still one tap target */
+  /* the list's controls: a find box and a sort row that stay out of the way until wanted */
+  .gt-tools{display:flex;align-items:center;gap:8px;margin:2px 0 10px;flex-wrap:wrap}
+  .gt-find{flex:1 1 130px;min-width:0;display:flex;align-items:center;gap:6px;padding:7px 10px;border-radius:10px;
+    border:1px solid var(--edge);background:var(--surface2);transition:border-color .16s var(--ease)}
+  .gt-find:focus-within{border-color:var(--accent)}
+  .gt-mag{flex:none;font-size:14px;color:var(--muted);line-height:1}
+  .gt-find input{flex:1;min-width:0;border:0;background:none;font-size:13px;font-weight:650;color:var(--ink);outline:none}
+  .gt-find input::placeholder{color:var(--faint);font-weight:600}
+  .gt-sorts{flex:0 1 auto;min-width:0;display:flex;justify-content:center;gap:4px;background:var(--surface2);padding:3px;border-radius:10px;flex-wrap:wrap}
+  .gt-sb{flex:none;display:inline-flex;align-items:center;min-height:30px;font-size:10.5px;font-weight:800;padding:0 10px;border-radius:8px;color:var(--muted);cursor:pointer;
+    background:none;border:0;transition:background .16s var(--ease),color .16s var(--ease),transform .16s var(--spring)}
+  .gt-sb:active{transform:scale(.95)}
+  .gt-sb.on{background:var(--surface);color:var(--accent-ink);box-shadow:var(--shadow)}
+  @media (hover:hover) and (pointer:fine){ .gt-sb:hover:not(.on){color:var(--ink2)} }
+  .gt-count{font-size:11.5px;font-weight:700;color:var(--muted);margin:0 0 6px 2px}
+  .gt-more{width:100%;margin-top:8px;padding:10px;border-radius:11px;border:1px dashed var(--border2);
+    background:none;font-size:12.5px;font-weight:750;color:var(--accent-ink);cursor:pointer;
+    display:flex;align-items:center;justify-content:center;gap:7px;
+    transition:background .16s var(--ease),transform .16s var(--spring)}
+  .gt-more:active{transform:scale(.99)}
+  @media (hover:hover) and (pointer:fine){ .gt-more:hover{background:var(--surface2)} }
+  .gt-more span{font-size:11px;opacity:.8}
   .gtsc{flex:none;width:52px;text-align:right;font-size:12px;font-weight:750;color:var(--ink2);
     font-variant-numeric:tabular-nums;display:flex;flex-direction:column;align-items:flex-end;gap:1px;line-height:1.1}
   .gtsc b{font-size:13.5px;font-weight:850;color:var(--ink)}
@@ -2065,7 +2112,9 @@
 
   /* keyboard focus + reduced motion */
   *:focus{outline:none}
-  *:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+  /* the outline follows the element's own corner radius — never restate it, or a 22px card
+     snaps to square corners the moment it takes keyboard focus */
+  *:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
   .kbdhint{font-size:11px;color:var(--faint);text-align:center;margin-top:12px}
   .kbdhint kbd{font-family:var(--mono);background:var(--surface2);border:1px solid var(--border2);border-radius:5px;padding:1px 5px;font-size:10.5px;color:var(--ink2)}
   @media (prefers-reduced-motion: reduce){
@@ -2120,7 +2169,11 @@
     /* Triage, Plan and Data were still a single narrow column on a tablet while Insights and
        Rivals used both. Same treatment: page-level things span, the rest pairs up. */
     #triageBody > .tri-home{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 16px;align-items:start;min-width:0}
+    /* the stats strip is a wide, short row — parking it in one column left a hole beside the
+       tall queue card and made the two columns ragged. It spans, so the two cards that DO have
+       comparable height sit side by side and the columns end together. */
     #triageBody > .tri-home > .sec-title,#triageBody > .tri-home > .th-card,
+    #triageBody > .tri-home > .th-dash,
     #triageBody > .tri-home > .th-foot,#triageBody > .tri-home > .ses-list{grid-column:1 / -1}
     #planBody{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 16px;align-items:start;min-width:0}
     #planBody > .sec-title,#planBody > .pl-head,#planBody > .pl-next,#planBody > .pl-wk,
@@ -2383,7 +2436,7 @@ const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.st
 async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } try{return localStorage.getItem(k)}catch(_){return null} }
 async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v);return true}catch(e){return false} } try{localStorage.setItem(k,v);return true}catch(_){return false} }
 const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
-const APP_VERSION='v71'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
+const APP_VERSION='v72'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
 
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 /* Roughly how a 200-question NEET-PG paper is split by subject — an average of recent years,
@@ -3648,6 +3701,9 @@ function renderPlan(){
   if(covStrip && cread){
     const base=cread.textContent;
     const segs=[].slice.call(covStrip.querySelectorAll('[data-plsub]'));
+    /* sliding along the strip previews each subject; tapping one keeps it, so you can read the
+       line without holding the pointer still on a 4px sliver */
+    let pinned=null;
     segs.forEach(sg=>{ const sub=sg.dataset.plsub;
       const say=()=>{ const st=sg.classList.contains('done')?'read this cycle'
           :sg.classList.contains('sched')?'planned, not read yet':'not in this cycle';
@@ -3655,9 +3711,10 @@ function renderPlan(){
         segs.forEach(o=>o.classList.toggle('on',o===sg)); };
       sg.addEventListener('mouseenter',say);
       sg.addEventListener('focus',say);
-      sg.addEventListener('click',()=>{ buzz(5); say(); });
+      sg.addEventListener('click',()=>{ buzz(5); pinned=say; say(); });
     });
-    covStrip.addEventListener('mouseleave',()=>{ cread.textContent=base; segs.forEach(o=>o.classList.remove('on')); });
+    covStrip.addEventListener('mouseleave',()=>{ if(pinned){ pinned(); return; }
+      cread.textContent=base; segs.forEach(o=>o.classList.remove('on')); });
   }
   const aBtn=document.getElementById('planAdd'); if(aBtn) aBtn.onclick=()=>planEditSheet(null);
   const p4B=document.getElementById('p4Btn'); if(p4B) p4B.onclick=()=>{ buzz(6); pass4Sheet(); };
@@ -4347,7 +4404,7 @@ function triFootHTML(){
   /* Undo throws the question away; a wrong tap usually needs the question KEPT and re-filed, so
      both are offered. The tick replays its fade on every rebuild — quiet proof it is on disk. */
   return `<button class="tri-undo" id="triUndo">↶ undo</button>
-    <button class="tri-fix" id="triFix">last: <b style="color:${em.ct||em.c}">${em.code}</b>${cl}${last.subj?' · '+esc(shortSubj(last.subj)):''} <i>change ›</i></button>
+    <button class="tri-fix" id="triFix"><span class="tf-lab">last: <b style="color:${em.ct||em.c}">${em.code}</b>${cl}${last.subj?' · '+esc(shortSubj(last.subj)):''}</span><i>change ›</i></button>
     <span class="autosv">✓ saved</span>`;
 }
 function bindTriUndo(){ const u=document.getElementById('triUndo'); if(u) u.onclick=triageUndo;
@@ -5423,20 +5480,48 @@ function _buildTests(){
     t.ts=Math.max(t.ts,s.ts||0); });
   return tests;
 }
+/* With ninety tests behind you, a card headed "Every test" that shows fifteen of them is a
+   false promise. It now IS every test: searchable, sortable, and openable in full — while still
+   opening on a short, calm list so the page does not turn into a wall. */
+let gtQuery='', gtSort='new', gtAll=false;
+const GT_SORTS=[
+  {k:'new',   t:'Newest',      f:(a,b,T)=>T[b].ts-T[a].ts},
+  {k:'best',  t:'Best score',  f:(a,b,T,P)=>(P[b]==null?-1e9:P[b])-(P[a]==null?-1e9:P[a])},
+  {k:'worst', t:'Worst score', f:(a,b,T,P)=>(P[a]==null?1e9:P[a])-(P[b]==null?1e9:P[b])},
+  {k:'most',  t:'Most sorted', f:(a,b,T)=>(T[b].logged+T[b].tri)-(T[a].logged+T[a].tri)}
+];
 function testListCard(){
   const tests=buildTests();
   const inScope=new Set(scopedSessions().map(s=>s.testType+'|'+s.set).concat(scopedEntries().map(e=>e.testType+'|'+e.set)));
-  const keys=Object.keys(tests).filter(k=>inScope.has(k)).sort((a,b)=>tests[b].ts-tests[a].ts).slice(0,15);
-  if(!keys.length) return '';
+  let keys=Object.keys(tests).filter(k=>inScope.has(k));
+  const totalInScope=keys.length;
+  if(!totalInScope) return '';
   /* % score, not raw marks — the column has to compare a short module and a full GT fairly */
   const pcBySet={}, mkBySet={};
   sessions.forEach(sn=>{ const k2=sn.testType+'|'+sn.set; const st=scoreStats(sn);
     if(st&&pcBySet[k2]==null){ pcBySet[k2]=st.pct100; mkBySet[k2]=st.marks; } });
-  const rows=keys.map(k=>{ const t=tests[k], tot=t.logged+t.tri;
+  const q=gtQuery.trim().toLowerCase();
+  if(q) keys=keys.filter(k=>String(tests[k].set).toLowerCase().indexOf(q)>=0);
+  const matched=keys.length;
+  const sorter=(GT_SORTS.find(x=>x.k===gtSort)||GT_SORTS[0]).f;
+  keys.sort((a,b)=>sorter(a,b,tests,pcBySet));
+  const CAP=15, shown=(gtAll||q)?keys:keys.slice(0,CAP);
+  const rows=shown.map(k=>{ const t=tests[k], tot=t.logged+t.tri;
     const mini=ERRORS.map(e=>t.errs[e.id]?`<span style="flex:${t.errs[e.id]};background:${e.c}"></span>`:'').join('');
     return `<button class="gtrow tap" data-test="${esc(k)}"><span class="gtn ${t.type==='module'?'mod':''}">${esc(t.set)}</span>
-      <span class="gtmini">${tot?mini:'<i class="gt-score-only">score only</i>'}</span><span class="gtsc">${mkBySet[k]!=null?`<b>${mkBySet[k]}</b><i>${pcBySet[k]}%</i>`:'—'}</span><span class="gtc">${tot||'—'}</span><span class="gtgo">›</span></button>`;}).join('');
-  return `<div class="card gtlist"><h3><span class="accent"></span>Every test — tap one to open it <span class="h3-hint">marks · %</span></h3>${rows}</div>`;
+      <span class="gtmini">${tot?mini:'<i class="gt-score-only">score only</i>'}</span><span class="gtsc">${mkBySet[k]!=null?`<b>${mkBySet[k]}</b><i>${pcBySet[k]}%</i>`:'—'}</span><span class="gtc">${tot||'—'}</span><span class="gtgo">›</span></button>`;}).join('')
+    || `<p class="tlab" style="padding:10px 2px">No test matches “${esc(gtQuery)}”.</p>`;
+  const sortBtns=GT_SORTS.map(x=>`<button class="gt-sb ${gtSort===x.k?'on':''}" data-gts="${x.k}">${x.t}</button>`).join('');
+  const more=(!q && keys.length>CAP)
+    ? `<button class="gt-more" id="gtMore">${gtAll?`Show the latest ${CAP}`:`Show all ${keys.length} tests`}<span>${gtAll?'▴':'▾'}</span></button>` : '';
+  return `<div class="card gtlist"><h3><span class="accent"></span>Every test <span class="h3-hint">${totalInScope} in view · marks · %</span></h3>
+    <div class="gt-tools">
+      <label class="gt-find"><span class="gt-mag" aria-hidden="true">⌕</span>
+        <input type="search" id="gtFind" value="${esc(gtQuery)}" placeholder="Find a test" autocomplete="off" aria-label="Find a test by name"></label>
+      <div class="gt-sorts" role="group" aria-label="Sort the tests">${sortBtns}</div>
+    </div>
+    ${q?`<p class="gt-count">${matched} of ${totalInScope} match</p>`:''}
+    ${rows}${more}</div>`;
 }
 /* the per-test deep dive: its own mix, confidence trio, and subject hits */
 function testDetailSheet(key){
@@ -6659,25 +6744,30 @@ function bindWeight(box){
   const read=box.querySelector('#wgRead'); if(!read) return;
   const hits=[].slice.call(box.querySelectorAll('.wg-hit'));
   const chips=[].slice.call(box.querySelectorAll('[data-wsub2]'));
-  let cur='';
+  /* Hovering the chart is a preview. Tapping a bubble, a chip, or a stepper is a choice — and a
+     choice has to survive the pointer wandering back over the chart. Before this, walking to a
+     subject and letting the cursor drift across the bubbles threw the walk away and snapped the
+     readout back to the biggest subject, so every other stepper press looked like a dead button. */
+  let cur='', pinned='';
   const wire=()=>{ const b=read.querySelector('[data-wgo]');
     if(b) b.onclick=e=>{ e.stopPropagation(); buzz(6); subjectSheet(b.dataset.wgo); };
     /* the steppers walk every subject in paper-weight order, so a mark too small or too crowded
        to tap is never a subject you cannot reach */
     read.querySelectorAll('[data-wstep]').forEach(s=>s.onclick=e=>{ e.stopPropagation(); buzz(5);
       const i=_wgOrder.indexOf(cur); if(i<0||!_wgOrder.length) return;
-      show(_wgOrder[(i + (+s.dataset.wstep) + _wgOrder.length) % _wgOrder.length]); }); };
+      pick(_wgOrder[(i + (+s.dataset.wstep) + _wgOrder.length) % _wgOrder.length]); }); };
   const show=sub=>{ if(!_wgRead[sub]) return; cur=sub; read.innerHTML=_wgRead[sub]; wire();
     hits.forEach(h=>h.parentNode.classList.toggle('on', h.dataset.wsub===sub));
     chips.forEach(c=>c.classList.toggle('on', c.dataset.wsub2===sub)); };
+  const pick=sub=>{ if(!_wgRead[sub]) return; pinned=sub; show(sub); };
   hits.forEach(h=>{ const s=h.dataset.wsub;
     h.addEventListener('mouseenter',()=>show(s));
     h.addEventListener('focus',()=>show(s));
-    h.addEventListener('click',()=>{ buzz(5); show(s); });
+    h.addEventListener('click',()=>{ buzz(5); pick(s); });
   });
-  chips.forEach(c=>c.onclick=()=>{ buzz(5); show(c.dataset.wsub2); });
+  chips.forEach(c=>c.onclick=()=>{ buzz(5); pick(c.dataset.wsub2); });
   const svg=box.querySelector('.wgc');
-  if(svg) svg.addEventListener('mouseleave',()=>show(_wgFirst));
+  if(svg) svg.addEventListener('mouseleave',()=>show(pinned||_wgFirst));
   show(_wgFirst);
 }
 function renderInsights(){
@@ -6738,6 +6828,12 @@ function renderInsights(){
   const hmM=document.getElementById('hmMode'); if(hmM) hmM.onclick=()=>{ buzz(5); hmPct=!hmPct; renderInsights(); };
   box.querySelectorAll('#stSeg button').forEach(b=>b.onclick=e=>{ e.stopPropagation(); buzz(5); stType=b.dataset.t; renderInsights(); });
   const wk=document.getElementById('wkMore'); if(wk) wk.onclick=()=>{ buzz(5); wkAll=!wkAll; renderInsights(); };
+  /* the test list's own controls: search re-renders in place and keeps the caret where it was */
+  const gf=document.getElementById('gtFind');
+  if(gf) gf.oninput=()=>{ const pos=gf.selectionStart; gtQuery=gf.value; gtAll=false; renderInsights();
+    const n=document.getElementById('gtFind'); if(n){ n.focus(); try{ n.setSelectionRange(pos,pos); }catch(_){} } };
+  box.querySelectorAll('[data-gts]').forEach(bt=>bt.onclick=()=>{ buzz(5); gtSort=bt.dataset.gts; renderInsights(); });
+  const gm=document.getElementById('gtMore'); if(gm) gm.onclick=()=>{ buzz(5); gtAll=!gtAll; renderInsights(); };
   box.querySelectorAll('[data-wks]').forEach(b=>b.onclick=()=>{ buzz(5); wkSort=b.dataset.wks; renderInsights(); });
   /* physical spring count-ups on the display numbers (raw-numbers grid + projected score) */
   box.querySelectorAll('.num b[data-cu], .neg-num b[data-cu], .vt b[data-cu]').forEach(el=>{ const to=+el.dataset.cu; if(to&&to<=9999) countUp(el,to); });
@@ -7083,19 +7179,21 @@ function bindRadar(box){
     svg.querySelectorAll('.rvr-spoke').forEach((el,k)=>el.classList.toggle('on', k===+i));
     rows.forEach(r=>r.classList.toggle('on', +r.dataset.axrow===+i));
   };
+  /* hover previews a spoke, a tap picks it — and a pick survives the pointer leaving the chart */
+  let pinned=null;
   svg.querySelectorAll('.rvr-hit').forEach(h=>{ const i=+h.dataset.ax;
     h.addEventListener('mouseenter',()=>show(i));
     h.addEventListener('focus',()=>show(i));
     /* a deliberate tap on a spoke does bring its row into view — that one was asked for */
-    h.addEventListener('click',()=>{ buzz(5); show(i);
+    h.addEventListener('click',()=>{ buzz(5); pinned=i; show(i);
       const hit=rows.filter(r=>+r.dataset.axrow===+i)[0];
       if(hit && hit.scrollIntoView) hit.scrollIntoView({block:'nearest', behavior:reducedMotion()?'auto':'smooth'}); });
   });
   rows.forEach(r=>{ const i=+r.dataset.axrow;
     r.addEventListener('mouseenter',()=>show(i));
-    r.addEventListener('click',()=>{ buzz(5); show(i); });
+    r.addEventListener('click',()=>{ buzz(5); pinned=i; show(i); });
   });
-  svg.addEventListener('mouseleave',()=>show(_rvrFirst));
+  svg.addEventListener('mouseleave',()=>show(pinned!=null?pinned:_rvrFirst));
   show(_rvrFirst);
   let solo=null;
   box.querySelectorAll('.rvr-k[data-riv]').forEach(k=>k.onclick=()=>{ buzz(5);
