@@ -884,6 +884,21 @@
   .spark-row:active{background:var(--surface2)}
   .sp-k{font-size:12px;color:var(--muted);font-weight:650;width:98px;flex:none}
   .spark{flex:1;height:34px;min-width:0}
+  /* inspecting a point: the readout becomes that test, with its name under the number */
+  .sp-hit{cursor:crosshair}
+  .ac-hit{cursor:crosshair}
+  .dn-seg{transition:stroke-width .18s var(--ease)}
+  @media (hover:hover) and (pointer:fine){ .dn-seg:hover{stroke-width:17.5} }
+  .sp-cur{transition:opacity .12s linear;pointer-events:none}
+  .sp-cur circle{transition:cx .1s var(--ease),cy .1s var(--ease)}
+  .sp-cur line{transition:x1 .1s var(--ease),x2 .1s var(--ease)}
+  .sp-vw{flex:none;display:flex;flex-direction:column;align-items:flex-end;min-width:40px;line-height:1.05}
+  .sp-when{font-size:9px;font-weight:750;color:var(--faint);letter-spacing:.02em;max-width:64px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;height:0;opacity:0;
+    transition:height .16s var(--ease),opacity .16s var(--ease)}
+  .spark-row.inspecting .sp-when{height:11px;opacity:1}
+  .spark-row.inspecting{background:var(--surface2)}
+  @media(prefers-reduced-motion:reduce){ .sp-cur circle,.sp-cur line,.sp-when{transition:none} }
   .spark .ln{stroke-dasharray:320;stroke-dashoffset:320;animation:dashin .9s .15s cubic-bezier(.4,0,.2,1) forwards}
   .sp-d{flex:none;font-size:10.5px;font-weight:800;padding:2.5px 6px;border-radius:7px;font-variant-numeric:tabular-nums;color:var(--muted);background:var(--surface2)}
   .sp-d.good{color:var(--sage-ink);background:color-mix(in srgb,var(--sage) 18%,transparent)}
@@ -1100,6 +1115,7 @@
   .fc-big b{font-family:var(--serif);font-size:52px;font-weight:500;letter-spacing:-.02em;color:var(--ink);line-height:.9}
   .fc-of{font-family:var(--serif)}
   .fc-of{font-size:14px;font-weight:750;color:var(--muted)}
+  .sr-sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
   .fc-band{margin-left:auto;font-size:11.5px;font-weight:750;color:var(--accent-ink);background:color-mix(in srgb,var(--accent) 11%,transparent);padding:4px 9px;border-radius:9px}
   /* the form / momentum pill + line */
   .fc-form{font-size:11px;font-weight:800;letter-spacing:.02em;padding:4px 9px;border-radius:9px;align-self:center;white-space:nowrap}
@@ -1190,7 +1206,8 @@
     .bucket:not(.locked):not([disabled]):hover{transform:translateY(-2px)}
   }
   @keyframes dashin{to{stroke-dashoffset:0}}
-  .sp-v{font-size:17px;font-weight:850;font-variant-numeric:tabular-nums;min-width:34px;text-align:right;flex:none}
+  .sp-v{font-size:17px;font-weight:850;font-variant-numeric:tabular-nums;min-width:34px;text-align:right;flex:none;
+    transition:color .14s var(--ease)}
   /* integrated test rows: name + its own mini mix + total, tappable */
   .gtrow.tap{width:100%;text-align:left;background:none;border-radius:10px;transition:background .12s}
   .gtrow.tap:active{background:var(--surface2)}
@@ -2013,6 +2030,39 @@
   .tile .vline b{color:var(--ink)}
   .tile.gtlist .gtrow:first-of-type{padding-top:0}
 
+  /* ============ one interaction language ============
+     Every surface you can act on answers the pointer the same way: it lifts a little under the
+     cursor, sinks under a press, and never moves without a transition to carry it. These were the
+     controls that had none of that and felt dead to the touch. */
+  .sc-chip,.vt,.ins-sec.tgl,.hm-mode,.wg-step,.linkish,.rp-row,.wg-hit,.cardq,.ph,
+  .flr-card,.cal-card,.lv-card,.fc-card,.tm-row.tap,.na-row,.hbar.lk-bar{
+    transition:transform .17s var(--spring), background-color .17s var(--ease),
+               border-color .17s var(--ease), box-shadow .17s var(--ease), filter .17s var(--ease);
+  }
+  @media (hover:hover) and (pointer:fine){
+    .sc-chip:hover:not(.on){background:var(--surface2);border-color:var(--border2)}
+    .vt:hover{transform:translateY(-2px);background:var(--surface2);box-shadow:var(--shadow)}
+    .ins-sec.tgl:hover{background:var(--surface2)}
+    .ins-sec.tgl:hover .chev{transform:translateY(1px)}
+    .hm-mode:hover,.wg-step:hover,.wk-sb:hover:not(.on){background:var(--surface2)}
+    .rp-row:hover{background:var(--surface2)}
+    .tm-row.tap:hover,.na-row:hover{background:var(--surface2)}
+    .hbar.lk-bar:hover{filter:brightness(1.04)}
+    .cardq:hover{background:var(--surface3);color:var(--ink2);transform:scale(1.12)}
+    .ph:hover{background:var(--surface2)}
+    /* a whole card that opens something lifts as one piece, so it reads as a single target */
+    .flr-card:hover,.cal-card:hover,.lv-card:hover,.fc-card:hover{
+      transform:translateY(-2px);box-shadow:0 10px 26px -12px rgba(90,60,35,.28)}
+    .rec-chip:hover{filter:brightness(1.08);transform:translateY(-1px)}
+    .gtrow.tap:hover .gtgo,.wk-row:hover .wk-go{transform:translateX(3px)}
+  }
+  /* press: everything sinks, nothing is exempt */
+  .sc-chip:active,.vt:active,.ins-sec.tgl:active,.hm-mode:active,.wg-step:active,
+  .rp-row:active,.tm-row.tap:active,.na-row:active,.wk-sb:active,.ph:active{transform:scale(.97)}
+  .flr-card:active,.cal-card:active,.lv-card:active,.fc-card:active{transform:scale(.995)}
+  .wg-hit:active + .wg-dot{r:11}
+  .gtgo,.wk-go{transition:transform .17s var(--spring)}
+
   /* keyboard focus + reduced motion */
   *:focus{outline:none}
   *:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
@@ -2333,7 +2383,7 @@ const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.st
 async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } try{return localStorage.getItem(k)}catch(_){return null} }
 async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v);return true}catch(e){return false} } try{localStorage.setItem(k,v);return true}catch(_){return false} }
 const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
-const APP_VERSION='v70'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
+const APP_VERSION='v71'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
 
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 /* Roughly how a 200-question NEET-PG paper is split by subject — an average of recent years,
@@ -3200,10 +3250,12 @@ function donutChart(segs,label,sub){
   const R=38, C=2*Math.PI*R, tot=segs.reduce((a,s)=>a+s.v,0)||1;
   let acc=0;
   const parts=segs.filter(s=>s.v>0).map(s=>{ const f=s.v/tot, len=Math.max(0,f*C-2.5);
-    const el=`<circle r="${R}" cx="50" cy="50" fill="none" stroke="${s.c}" stroke-width="15" stroke-linecap="butt"
-      stroke-dasharray="0 ${(acc*C/tot).toFixed(1)} ${len.toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 50 50)"/>`;
+    /* a slice with no name is a colour. Every slice says what it is and how much. */
+    const nm=s.t?`${esc(s.t)}: ${s.v} · ${Math.round(f*100)}%`:`${s.v} · ${Math.round(f*100)}%`;
+    const el=`<circle class="dn-seg" r="${R}" cx="50" cy="50" fill="none" stroke="${s.c}" stroke-width="15" stroke-linecap="butt"
+      stroke-dasharray="0 ${(acc*C/tot).toFixed(1)} ${len.toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 50 50)"><title>${nm}</title></circle>`;
     acc+=s.v; return el; }).join('');
-  return `<div class="donut-wrap"><svg viewBox="0 0 100 100" class="donut" aria-hidden="true">${parts}</svg>
+  return `<div class="donut-wrap"><svg viewBox="0 0 100 100" class="donut" role="img" aria-label="${esc(String(label)+' '+String(sub||''))}">${parts}</svg>
     <div class="donut-c"><b>${label}</b><span>${sub}</span></div></div>`;
 }
 /* Every line chart here used to stretch its own min..max across the full height. That draws
@@ -3222,7 +3274,7 @@ function miniLine(vals,color,minSpan){
   if(!vals||vals.length<2) return '';
   const W=64,H=20,w=spanWin(vals, minSpan!=null?minSpan:3), lo=w.lo, sp=w.sp;
   const pts=vals.map((v,i)=>`${(3+i*(W-6)/(vals.length-1)).toFixed(1)} ${(H-3-((v-lo)/sp)*(H-6)).toFixed(1)}`);
-  return `<svg class="miniln" viewBox="0 0 ${W} ${H}"><path d="M ${pts.join(' L ')}" fill="none" stroke="${color||'var(--accent)'}" stroke-width="2" stroke-linecap="round"/><circle cx="${pts[pts.length-1].split(' ')[0]}" cy="${pts[pts.length-1].split(' ')[1]}" r="2.6" fill="${color||'var(--accent)'}"/></svg>`;
+  return `<svg class="miniln" viewBox="0 0 ${W} ${H}" role="img" aria-label="${vals.join(', ')}"><title>${vals.join(' \u2192 ')}</title><path d="M ${pts.join(' L ')}" fill="none" stroke="${color||'var(--accent)'}" stroke-width="2" stroke-linecap="round"/><circle cx="${pts[pts.length-1].split(' ')[0]}" cy="${pts[pts.length-1].split(' ')[1]}" r="2.6" fill="${color||'var(--accent)'}"/></svg>`;
 }
 /* the app's front door: start a sort, glance at the damage, revisit reads */
 function renderTriHome(box){
@@ -4744,9 +4796,13 @@ function leverAnalysis(){ return _memo('lever:'+insScopeVal()+':'+insType, funct
   let bTried=0, bHit=0;
   gts.forEach(s=>{ if(s.score&&s.score.blindTried!=null){ const noidea=(s.comp&&s.comp.noidea)||sessComp(s).noidea; const t=+s.score.blindTried||0, miss=Math.min(noidea,t); bTried+=t; bHit+=Math.max(0,t-miss); } });
   const haveBlind=bTried>=4, h=haveBlind?bHit/bTried:null;
-  /* marks per +1 percentage-point, on a full paper of the exam's size */
-  const accVal=10*A;                                   /* ∂(exam marks)/∂accuracy */
-  const attVal=haveBlind?2*(5*h-1):null;               /* only priced once guessing is measured */
+  /* Marks per +1 percentage point, on a full paper of the exam's size.
+     marks = Q * A * (5*Acc - 1), so d(marks)/d(Acc) = 5*Q*A, and one percentage point is a
+     hundredth of that. These were pinned to a 200-question paper: on the 180-question GTs the
+     setting now allows, every marks figure on this card was 11% too big. */
+  const Qp=examQ();
+  const accVal=0.05*Qp*A;                              /* d(exam marks)/d(accuracy), per point */
+  const attVal=haveBlind?0.01*Qp*(5*h-1):null;         /* each extra attempt is a guess worth 5h-1 */
   /* realistic headroom: accuracy target = your own best recent form; attempts → ~92% if +EV to try */
   const bestAcc=Math.max(...rows.slice(-4).map(r=>r.Acc));
   const accHeadPp=Math.max(0, Math.min(bestAcc*100, Acc*100+6) - Acc*100);
@@ -4770,11 +4826,16 @@ function dualTrend(a,b,o){ o=o||{};
   const bandPath=band.map((p,i)=>(i?'L':'M')+X(p.i).toFixed(1)+' '+Y(p.hi).toFixed(1)).join(' ')
     +' '+band.slice().reverse().map(p=>'L'+X(p.i).toFixed(1)+' '+Y(p.lo).toFixed(1)).join(' ')+' Z';
   const dot=(arr,c)=>`<circle cx="${X(n-1).toFixed(1)}" cy="${Y(arr[n-1]).toFixed(1)}" r="3.4" fill="${c}"/>`;
-  return `<svg class="dual" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">
+  const labs=o.labels||[];
+  const bw=n>1?(x1-x0)/(n-1):(x1-x0);
+  /* clamp each band inside the chart box: an overhanging band pushes the page sideways */
+  const bandAt=i=>{ const L=Math.max(0,X(i)-bw/2), R=Math.min(W,X(i)+bw/2); return {L, w:Math.max(1,R-L)}; };
+  const taps=a.map((_,i)=>`<rect class="ac-hit" x="${bandAt(i).L.toFixed(1)}" y="0" width="${bandAt(i).w.toFixed(1)}" height="${H}" fill="transparent"><title>${esc(labs[i]||('test '+(i+1)))}: attempted ${Math.round(b[i])}% of the paper, got ${Math.round(a[i])}% of those right</title></rect>`).join('');
+  return `<svg class="dual" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Attempt rate against accuracy, test by test">
     <path d="${bandPath}" fill="var(--accent)" opacity="0.07"/>
     <path d="${pathOf(a)}" fill="none" stroke="${o.ca||'var(--sage-ink)'}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
     <path d="${pathOf(b)}" fill="none" stroke="${o.cb||'var(--accent)'}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" opacity=".92"/>
-    ${dot(a,o.ca||'var(--sage-ink)')}${dot(b,o.cb||'var(--accent)')}</svg>`;
+    ${dot(a,o.ca||'var(--sage-ink)')}${dot(b,o.cb||'var(--accent)')}${taps}</svg>`;
 }
 function leverCard(){
   if(insType==='module') return '';
@@ -4788,7 +4849,7 @@ function leverCard(){
   return `<div class="card lv-card"><h3><span class="accent"></span>What's moving your marks<span class="h3-hint">accuracy vs attempts · tap</span><button class="cardq" data-help="lever">?</button></h3>
     <div class="lv-keys"><span class="lv-k"><i style="background:var(--sage-ink)"></i>Accuracy <b>${Math.round(L.Acc*100)}%</b> ${arrow(L.accTrendPp)}</span>
       <span class="lv-k"><i style="background:var(--accent)"></i>Attempted <b>${Math.round(L.A*100)}%</b> ${arrow(L.attTrendPp)}</span></div>
-    <div class="lv-chart">${dualTrend(L.accSeries,L.attSeries)}</div>
+    <div class="lv-chart">${dualTrend(L.accSeries,L.attSeries,{labels:L.labels})}</div>
     <div class="lv-verdict ${V.c}"><span>${V.t}</span>${V.g>0?`<b>+${V.g}</b><i>marks</i>`:'<i>coverage next</i>'}</div>${foot}</div>`;
 }
 function leverSheet(){
@@ -4803,7 +4864,7 @@ function leverSheet(){
     ${L.attVal!=null?bar('Attempt more', L.A, L.attGain, L.attHeadPp, 'var(--accent-ink)', `You answer <b>${Math.round(L.A*100)}%</b>. Your blind guesses hit <b>${L.blindHitPc}%</b> (${L.blindN} logged) → each +1% attempted ≈ ${L.attVal>=0?'+':''}${L.attVal.toFixed(1)} marks.`)
       :`<div class="lvb-row"><div class="lvb-top"><span>Attempt more</span><b style="color:var(--faint)">not priced yet</b></div><div class="tlab" style="margin-top:4px">You answer <b>${Math.round(L.A*100)}%</b>. Log “blind tried” at scoring and we'll price the marks in the ones you skip.</div></div>`}
     <div class="sp-lab" style="margin-top:16px">accuracy vs attempts, test by test</div>
-    <div class="lv-chart big">${dualTrend(L.accSeries,L.attSeries)}</div>
+    <div class="lv-chart big">${dualTrend(L.accSeries,L.attSeries,{labels:L.labels})}</div>
     <div class="lv-legend"><span><i style="background:var(--sage-ink)"></i>accuracy</span><span><i style="background:var(--accent)"></i>attempted</span><span class="lv-gap">gap = skipped</span></div>
     <p class="tlab" style="margin-top:10px">The band between the lines is the marks you leave on the table by skipping. Closing it only helps where your guesses beat 20% — that's the break-even on +4/−1.</p>
     <div class="actions" style="margin-top:14px"><button class="btn primary" onclick="closeSheet()">Close</button></div>`);
@@ -5276,7 +5337,11 @@ function areaChart(seq){
   const line=smoothPath(pts);
   const last=pts[pts.length-1];
   const area=`${line} L ${last.x.toFixed(1)} ${y1} L ${pts[0].x.toFixed(1)} ${y1} Z`;
-  const mids=pts.slice(0,-1).map(p=>`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="2.4" fill="#DB8A54" opacity="0.6"/>`).join('');
+  const mids=pts.slice(0,-1).map(p=>`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="2.4" fill="#DB8A54" opacity="0.6"><title>${esc(p.s)}: ${p.n} sorted</title></circle>`).join('');
+  /* a full-height band per test so the whole column answers, not a 2px dot */
+  const bw=n>1?(x1-x0)/(n-1):(x1-x0);
+  const taps=pts.map(p=>{ const L=Math.max(0,p.x-bw/2), R=Math.min(W,p.x+bw/2);
+    return `<rect class="ac-hit" x="${L.toFixed(1)}" y="0" width="${Math.max(1,R-L).toFixed(1)}" height="${H}" fill="transparent"><title>${esc(p.s)}: ${p.n} sorted</title></rect>`; }).join('');
   const xl=pts.map(p=>`<text class="xlab" x="${p.x.toFixed(1)}" y="${H-6}" text-anchor="middle">${esc(p.s.replace(/^GT[\s-]*/i,'').slice(0,5))}</text>`).join('');
   return `<svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Mistakes logged per grand test, over time">
     <defs>
@@ -5287,9 +5352,9 @@ function areaChart(seq){
     <path d="${area}" fill="url(#areagrad)"/>
     <path class="line" d="${line}"/>
     ${mids}
-    <circle class="dot" cx="${last.x.toFixed(1)}" cy="${last.y.toFixed(1)}" r="4.6"/>
+    <circle class="dot" cx="${last.x.toFixed(1)}" cy="${last.y.toFixed(1)}" r="4.6"><title>${esc(last.s)}: ${last.n} sorted</title></circle>
     <text class="plab" x="${last.x.toFixed(1)}" y="${(last.y-10).toFixed(1)}" text-anchor="${last.x>W-30?'end':'middle'}">${last.n}</text>
-    ${xl}
+    ${xl}${taps}
   </svg>`;
 }
 
@@ -5301,10 +5366,10 @@ function masteryCard(){
   const due=dueCount();
   const gtSets={}; entries.filter(e=>e.testType==='gt').forEach(e=>{(gtSets[e.set]=gtSets[e.set]||[]).push(e)});
   const seq=Object.entries(gtSets).map(([s,a])=>({s,n:a.length,first:Math.min(...a.map(x=>x.ts||0))})).sort((a,b)=>a.first-b.first).slice(-8);
-  const ring=`<div class="ringwrap"><svg class="ring" viewBox="0 0 36 36">
+  const ring=`<div class="ringwrap"><svg class="ring" viewBox="0 0 36 36" role="img" aria-label="${fixed} of ${total} mistakes cleared, ${pct} percent">
     <defs><linearGradient id="ringgrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#DB8A54"/><stop offset="1" stop-color="#C1502D"/></linearGradient></defs>
-    <circle class="bg" cx="18" cy="18" r="15.9" pathLength="100"/>
-    <circle class="fg" cx="18" cy="18" r="15.9" pathLength="100" stroke-dasharray="${pct} 100"/></svg>
+    <circle class="bg" cx="18" cy="18" r="15.9" pathLength="100"><title>${total-fixed} still open</title></circle>
+    <circle class="fg" cx="18" cy="18" r="15.9" pathLength="100" stroke-dasharray="${pct} 100"><title>${fixed} cleared of ${total}</title></circle></svg>
     <div class="pctnum"><b>${pct}%</b><span>cleared</span></div></div>`;
   const head=`<div class="mastery">${ring}<div class="mtext"><div class="big">${fixed} of ${total} mistakes cleared</div>
     <div class="sm">${due?`<b style="color:var(--accent-ink)">${due} due for recall today</b> · `:''}${total-fixed} still open. A mistake clears once you recall its fix twice.</div></div></div>`;
@@ -5870,10 +5935,80 @@ function sparkRow(label,color,vals,o){
   }
   const shown=o.disp?o.disp[o.disp.length-1]:vals[vals.length-1];
   const payload=esc(JSON.stringify({label, vals, disp:o.disp||null, labels:o.labels||null, color}));
-  return `<button class="spark-row" data-sp="${payload}" aria-label="${esc(label)} trend — tap for per-test numbers"><span class="sp-k">${label}</span>
-    <svg class="spark" viewBox="0 0 ${W} ${H}" aria-hidden="true">${area}<path class="ln" d="${line}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round"/>${dots}
-    <circle cx="${last.x.toFixed(1)}" cy="${last.y.toFixed(1)}" r="3.4" fill="${color}"/></svg>
-    <span class="sp-v" style="color:${color}">${shown}</span>${delta}</button>`;
+  /* A line you cannot interrogate is decoration. One invisible full-height band per test: hover
+     it with a pointer, tap it on a phone, or arrow across it with a keyboard, and the readout to
+     the right becomes THAT test's number with its name underneath. Leaving puts the latest back. */
+  const bandW=vals.length>1?(x1-x0)/(vals.length-1):(x1-x0);
+  const bands=vals.map((v,i)=>{
+    const cx=pts[i].x, L=Math.max(0,cx-bandW/2), R=Math.min(W,cx+bandW/2);
+    return `<rect class="sp-hit" data-i="${i}" x="${L.toFixed(1)}" y="0" width="${Math.max(1,R-L).toFixed(1)}" height="${H}" fill="transparent"/>`;
+  }).join('');
+  const cursor=`<g class="sp-cur" opacity="0"><line x1="0" y1="2" x2="0" y2="${H-2}" stroke="${color}" stroke-width="1" opacity=".45" stroke-dasharray="2 3"/><circle cx="0" cy="0" r="4.2" fill="${color}" stroke="var(--surface)" stroke-width="1.6"/></g>`;
+  const xs=pts.map(p=>+p.x.toFixed(1)).join(','), ys=pts.map(p=>+p.y.toFixed(1)).join(',');
+  return `<button class="spark-row" data-sp="${payload}" data-xs="${xs}" data-ys="${ys}" aria-label="${esc(label)} trend — tap for per-test numbers"><span class="sp-k">${label}</span>
+    <svg class="spark" viewBox="0 0 ${W} ${H}">${area}<path class="ln" d="${line}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round"/>${dots}
+    <circle class="sp-last" cx="${last.x.toFixed(1)}" cy="${last.y.toFixed(1)}" r="3.4" fill="${color}"/>${cursor}${bands}</svg>
+    <span class="sp-vw"><span class="sp-v" style="color:${color}">${shown}</span><span class="sp-when"></span></span>${delta}</button>`;
+}
+/* Wire every sparkline in a container so a point can be inspected without leaving the card.
+   Pointer, touch and keyboard all drive the same one function, so none of them can drift. */
+function bindSparkInspect(box){
+  (box||document).querySelectorAll('.spark-row[data-xs]').forEach(row=>{
+    if(row._spWired) return; row._spWired=true;
+    let d=null; try{ d=JSON.parse(row.dataset.sp); }catch(_){ return; }
+    const xs=row.dataset.xs.split(',').map(Number), ys=row.dataset.ys.split(',').map(Number);
+    const svg=row.querySelector('svg.spark'), cur=row.querySelector('.sp-cur');
+    const vEl=row.querySelector('.sp-v'), whenEl=row.querySelector('.sp-when');
+    const lastEl=row.querySelector('.sp-last');
+    const restV=vEl.textContent;
+    const show=i=>{
+      if(i==null||!isFinite(xs[i])) return;
+      const line=cur.querySelector('line'), dot=cur.querySelector('circle');
+      line.setAttribute('x1',xs[i]); line.setAttribute('x2',xs[i]);
+      dot.setAttribute('cx',xs[i]); dot.setAttribute('cy',ys[i]);
+      cur.setAttribute('opacity','1');
+      if(lastEl) lastEl.setAttribute('opacity', i===xs.length-1?'0':'1');
+      vEl.textContent = d.disp ? d.disp[i] : d.vals[i];
+      whenEl.textContent = (d.labels && d.labels[i]) ? d.labels[i] : ('#'+(i+1));
+      row.classList.add('inspecting');
+    };
+    const clear=()=>{ cur.setAttribute('opacity','0'); if(lastEl) lastEl.setAttribute('opacity','1');
+      vEl.textContent=restV; whenEl.textContent=''; row.classList.remove('inspecting'); };
+    svg.querySelectorAll('.sp-hit').forEach(h=>{
+      const i=+h.dataset.i;
+      h.addEventListener('pointerenter',()=>show(i));
+      h.addEventListener('pointerdown',e=>{ e.stopPropagation(); show(i); buzz(4); });
+    });
+    /* On a phone the whole row is a button that opens the per-test numbers. A tap ON the chart
+       means "tell me about this point" — so it inspects and stops there. A tap on the label or
+       the value still opens the full list, which is where you go when you want all of them. */
+    svg.addEventListener('click',e=>{
+      if(e.target && e.target.classList && e.target.classList.contains('sp-hit')){
+        e.stopPropagation(); e.preventDefault();
+      }
+    });
+    /* A mouse leaving the chart means "done looking". A FINGER leaving means the tap ended —
+       pointerleave fires the instant you lift, which wiped the reading before you could read it.
+       So a touch reading stays until you tap somewhere else. */
+    svg.addEventListener('pointerleave',e=>{ if(!e.pointerType || e.pointerType==='mouse') clear(); });
+    let away=null;
+    svg.addEventListener('pointerdown',e=>{
+      if(e.pointerType==='mouse') return;
+      if(away) return;
+      away=ev=>{ if(svg.contains(ev.target)) return;
+        document.removeEventListener('pointerdown',away,true); away=null; clear(); };
+      setTimeout(()=>{ if(away) document.addEventListener('pointerdown',away,true); },0);
+    },true);
+    /* a keyboard walks the same points, so the card is usable without a pointer at all */
+    let k=null;
+    row.addEventListener('keydown',e=>{
+      if(e.key!=='ArrowLeft'&&e.key!=='ArrowRight') return;
+      e.preventDefault();
+      k = k==null ? xs.length-1 : k + (e.key==='ArrowRight'?1:-1);
+      k=Math.max(0,Math.min(xs.length-1,k)); show(k);
+    });
+    row.addEventListener('blur',()=>{ k=null; clear(); });
+  });
 }
 /* the numbers behind a sparkline, test by test, newest last */
 function sparkSheet(p){
@@ -6125,7 +6260,7 @@ function forecastCard(){
   const formPill=fm?`<span class="fc-form ${fm.cls}">${fm.ic} ${fm.lab}</span>`:'';
   const bandW=Math.round((f.hi-f.lo)/2);
   return `<div class="card fc-card ember"><h3><span class="accent"></span>Projected exam score<span class="h3-hint">GT-only · tap</span><button class="cardq" data-help="forecast">?</button></h3>
-    <div class="fc-big"><b data-cu="${f.mid}">${f.mid}</b><span class="fc-of">/ ${f.max}</span><span class="fc-band">${f.midPc}% · range ${f.lo}–${f.hi}</span>${formPill}</div>
+    <div class="fc-big"><b data-cu="${f.mid}">${f.mid}</b><span class="fc-of">/ ${f.max}</span><span class="fc-band"><span class="sr-sep"> · </span>${f.midPc}% · range ${f.lo}–${f.hi}</span>${formPill}</div>
     <div class="chartwrap"><svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Projected exam score, normalised">
       <path d="M ${last.x.toFixed(1)} ${last.y.toFixed(1)} L ${proj.x.toFixed(1)} ${bandTop.toFixed(1)} L ${proj.x.toFixed(1)} ${bandBot.toFixed(1)} Z" fill="var(--accent)" opacity=".13"/>
       <path class="fc-line" d="${histLine}" fill="none" stroke="var(--accent-ink)" stroke-width="2.4" stroke-linecap="round"/>
@@ -6153,7 +6288,9 @@ function calibrationCard(){
   const totW=sure+twoish+noidea; if(totW<5) return '';
   const blindRate=sure/totW;
   /* a donut you read in half a second — centre carries the number that matters */
-  const ring=donutChart([{v:sure,c:'var(--rose)'},{v:twoish,c:'var(--amber)'},{v:noidea,c:'var(--ink2)'}],
+  const ring=donutChart([{v:sure,c:'var(--rose)',t:'Felt sure and still wrong'},
+                         {v:twoish,c:'var(--amber)',t:'Down to two'},
+                         {v:noidea,c:'var(--ink2)',t:'No read at all'}],
     Math.round(blindRate*100)+'%','felt sure');
   const keys=[['felt sure',sure,'var(--rose)'],['down to 2',twoish,'var(--amber)'],['no read',noidea,'var(--ink2)']]
     .map(k=>`<span class="mx-key"><i style="background:${k[2]}"></i>${k[0]}<b>${k[1]}</b></span>`).join('');
@@ -6237,9 +6374,9 @@ function floorCard(){
         <span class="flr-tick mid" style="left:${pos(mid)}%"></span>
         ${dots}
       </div>
-      <div class="flr-ends"><span><b data-cu="${mk(worst)}">${mk(worst)}</b> worst<i>${Math.round(worst)}%</i></span>
-        <span class="flr-mid">median <b>${mk(mid)}</b><i>${Math.round(mid)}%</i></span>
-        <span><b data-cu="${mk(best)}">${mk(best)}</b> best<i>${Math.round(best)}%</i></span></div>
+      <div class="flr-ends"><span><b data-cu="${mk(worst)}">${mk(worst)}</b> worst<i><span class="sr-sep"> · </span>${Math.round(worst)}%</i></span>
+        <span class="flr-mid">median <b>${mk(mid)}</b><i><span class="sr-sep"> · </span>${Math.round(mid)}%</i></span>
+        <span><b data-cu="${mk(best)}">${mk(best)}</b> best<i><span class="sr-sep"> · </span>${Math.round(best)}%</i></span></div>
     </div>
     <div class="flr-band-row"><span>4 in 5 land between</span><b>${mk(lo)}–${mk(hi)}</b><i class="flr-sub">of ${examMax()} · ${Math.round(lo)}–${Math.round(hi)}%</i><i class="flr-v ${verdict.k}">${verdict.t}</i></div></div>`;
 }
@@ -6577,6 +6714,7 @@ function renderInsights(){
   /* the weightage scatter is live: hover or tap a bubble and the readout under it becomes that
      subject. The readout carries the link into the full subject sheet, so a tap never overshoots. */
   bindWeight(box);
+  bindSparkInspect(box);
   bindHeatmap(box);
   box.querySelectorAll('.cardq[data-help]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); buzz(5); metricHelp(b.dataset.help); });
   /* fold-outs animate in place (grid-rows 0fr → 1fr) — no re-render, so the motion is real */
@@ -7124,7 +7262,13 @@ function switchView(v){
   if(v==='triage') renderTriage();
   window.scrollTo({top:0});
 }
-function openSheet(html){if(typeof clearKbd==='function')clearKbd();document.getElementById('sheet').innerHTML='<div class="grip"></div>'+html;document.getElementById('backdrop').classList.add('show')}
+function openSheet(html){if(typeof clearKbd==='function')clearKbd();
+  const sh=document.getElementById('sheet');
+  sh.innerHTML='<div class="grip"></div>'+html;
+  document.getElementById('backdrop').classList.add('show');
+  /* sheets carry sparklines too — wire them here so no caller can forget */
+  try{ bindSparkInspect(sh); }catch(_){}
+}
 function closeSheet(){if(typeof clearKbd==='function')clearKbd();document.getElementById('backdrop').classList.remove('show')}
 document.getElementById('backdrop').onclick=e=>{if(e.target.id==='backdrop')closeSheet()};
 
