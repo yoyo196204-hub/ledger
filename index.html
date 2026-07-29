@@ -19,11 +19,18 @@
   :root{
     --bg:#F4EDE1; --bg2:#EFE6D6; --surface:#FDFAF4; --surface2:#F1E9DB; --surface3:#E9DFCC;
     --border:#E7DCC9; --border2:#DCCFB8;
-    --ink:#2C2620; --ink2:#63564A; --muted:#877A69; --faint:#A2937E;
+    /* muted and faint carry most of the small labels in the app. At 11-12px they were 4.0:1 and
+       2.9:1 against a card, which is a squint in daylight. Darkened to about 5.3:1 and 4.6:1 —
+       the hierarchy between them now rides on size and weight, which is where it belongs. */
+    --ink:#2C2620; --ink2:#5C5044; --muted:#635646; --faint:#706352;
     --accent:#C1502D; --accent2:#DB8A54; --accent-ink:#A9431F; --accent-soft:#F6E6D7;
     --spring:cubic-bezier(.34,1.56,.64,1); --ease:cubic-bezier(.22,1,.36,1); --ease-io:cubic-bezier(.4,0,.2,1);
     --sage:#6E8663; --sage-ink:#546B4A; --sage-soft:#E6ECDD;
     --rose:#C24634; --amber:#D4A017; --emerald:#5E7A54; --violet:#9E5CA8; --teal:#1F9E82; --pink:#B0688A; --indigo:#C1502D;
+    /* The mistake colours are tuned to be seen as FILLS. Used as small text on their own tint,
+       amber came out at 2.3:1 and teal at 3.2:1 — legible as a swatch, a squint as a label.
+       These are the same hues carried down to a readable weight, for text only. */
+    --rose-ink:#A3372A; --amber-ink:#7A5B08; --violet-ink:#7C3F86; --teal-ink:#116B58; --emerald-ink:#3F5A37;
     --grad:linear-gradient(135deg,#DB8A54,#C1502D);
     --grad-soft:linear-gradient(135deg,#F7E9D9,#F3E0D0);
     --sans:ui-rounded,"SF Pro Rounded","Hiragino Maru Gothic ProN",system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
@@ -42,10 +49,11 @@
   :root[data-theme="dark"]{
     --bg:#17130F; --bg2:#1E1813; --surface:#241D17; --surface2:#2C241C; --surface3:#372C22;
     --border:#33291F; --border2:#43362A;
-    --ink:#F3EADD; --ink2:#CDBFAD; --muted:#B0A08C; --faint:#8A7A66;
+    --ink:#F3EADD; --ink2:#D6C9B8; --muted:#BAAB98; --faint:#9E8E79;
     --accent:#E27A4C; --accent2:#F0A06A; --accent-ink:#F0A16C; --accent-soft:#3A281D;
     --sage:#8FA982; --sage-ink:#A9C09C; --sage-soft:#26301F;
     --rose:#E86A55; --amber:#E8B24A; --emerald:#8AAE7C; --violet:#C481CE; --teal:#3FBFA0; --pink:#D08AAC; --indigo:#E27A4C;
+    --rose-ink:#F08A76; --amber-ink:#F0C46E; --violet-ink:#D49BDC; --teal-ink:#63D0B4; --emerald-ink:#A2C295;
     --grad:linear-gradient(135deg,#E89A63,#D0602F);
     --grad-soft:linear-gradient(135deg,#31241A,#291E16);
     --shadow:0 1px 2px rgba(0,0,0,.30),0 8px 20px -10px rgba(0,0,0,.55);
@@ -59,10 +67,11 @@
     :root:not([data-theme="light"]){
       --bg:#17130F; --bg2:#1E1813; --surface:#241D17; --surface2:#2C241C; --surface3:#372C22;
       --border:#33291F; --border2:#43362A;
-      --ink:#F3EADD; --ink2:#CDBFAD; --muted:#B0A08C; --faint:#8A7A66;
+      --ink:#F3EADD; --ink2:#D6C9B8; --muted:#BAAB98; --faint:#9E8E79;
       --accent:#E27A4C; --accent2:#F0A06A; --accent-ink:#F0A16C; --accent-soft:#3A281D;
       --sage:#8FA982; --sage-ink:#A9C09C; --sage-soft:#26301F;
       --rose:#E86A55; --amber:#E8B24A; --emerald:#8AAE7C; --violet:#C481CE; --teal:#3FBFA0; --pink:#D08AAC; --indigo:#E27A4C;
+    --rose-ink:#F08A76; --amber-ink:#F0C46E; --violet-ink:#D49BDC; --teal-ink:#63D0B4; --emerald-ink:#A2C295;
       --grad:linear-gradient(135deg,#E89A63,#D0602F);
       --grad-soft:linear-gradient(135deg,#31241A,#291E16);
       --shadow:0 1px 2px rgba(0,0,0,.30),0 8px 20px -10px rgba(0,0,0,.55);
@@ -148,7 +157,7 @@
   .ctxline .dotc{width:9px;height:9px;border-radius:50%;flex:none}
   .ctxline .nm{font-weight:680;font-size:14.5px}
   .ctxline .mt{font-size:12px;color:var(--muted);margin-top:1px}
-  .ctxline .chg{margin-left:auto;font-size:12.5px;color:var(--accent);font-weight:650;flex:none}
+  .ctxline .chg{margin-left:auto;font-size:12.5px;color:var(--accent-ink);font-weight:750;flex:none}
 
   .field{margin-bottom:17px}
   .field > label{display:block;font-size:13px;font-weight:640;color:var(--ink);margin-bottom:8px}
@@ -589,7 +598,7 @@
   .tri-tally.milestone{animation:mspulse .5s cubic-bezier(.3,1.4,.5,1)}
   @keyframes mspulse{40%{transform:scale(1.12)}}
   .tt-chip{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:700;color:var(--ink2);background:var(--surface2);border-radius:20px;padding:3px 9px}
-  .tt-chip b{color:var(--bc);font-size:10.5px}
+  .tt-chip b{color:var(--bct,var(--bc));font-size:10.5px}
   .bl{color:var(--rose);font-weight:750}
   /* the question ticket — pluck it into a bucket */
   /* auto margins rather than justify-content:center — with a scrollable box, centring this way
@@ -701,7 +710,7 @@
     border:1px solid var(--edge);background:var(--surface);cursor:pointer;text-align:left;min-width:0;
     transition:transform .16s var(--spring),border-color .16s,background .16s}
   .rf-b:hover{transform:translateY(-2px);border-color:var(--bc)} .rf-b:active{transform:scale(.97)}
-  .rf-b b{font-size:15px;font-weight:850;color:var(--bc)}
+  .rf-b b{font-size:15px;font-weight:850;color:var(--bct,var(--bc))}
   .rf-b span{font-size:11px;font-weight:700;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
   .rf-b.on{border-color:var(--bc);background:color-mix(in srgb,var(--bc) 10%,var(--surface))}
   .rf-subj{width:100%;padding:12px 13px;border-radius:12px;border:1px solid var(--edge);background:var(--surface);
@@ -798,11 +807,14 @@
   /* mistake-mix DNA bar */
   .mixbar{display:flex;height:22px;border-radius:9px;overflow:hidden;background:var(--surface2);box-shadow:inset 0 1px 2px rgba(90,60,35,.06)}
   .mx-seg{min-width:3px;display:grid;place-items:center;transition:flex-grow .5s cubic-bezier(.4,0,.2,1)}
-  .mx-pc{font-size:10.5px;font-weight:800;color:#fff;letter-spacing:.02em;text-shadow:0 1px 1px rgba(0,0,0,.18)}
+  /* white reads on rose and violet but disappears on amber and teal (2.4:1). Each segment
+     carries the text weight that actually works on its own fill. */
+  .mx-pc{font-size:10.5px;font-weight:800;color:#fff;letter-spacing:.02em;text-shadow:0 1px 1.5px rgba(0,0,0,.32)}
+  .mx-seg[data-e="retrieval"] .mx-pc,.mx-seg[data-e="execution"] .mx-pc{color:#241B04;text-shadow:0 1px 1px rgba(255,255,255,.30)}
   .mx-kp{color:var(--muted);font-weight:700;font-variant-numeric:tabular-nums;margin-left:1px}
   .mx-seg:not(:last-child){border-right:1.5px solid var(--surface)}
   .mx-keys{display:flex;flex-wrap:wrap;gap:6px 15px;margin-top:11px}
-  .mx-key{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:650;color:var(--muted)}
+  .mx-key{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--ink2)}
   .mx-key i{width:9px;height:9px;border-radius:3px;flex:none}
   .mx-key b{color:var(--ink);font-variant-numeric:tabular-nums}
   /* subject × mistake heatmap */
@@ -911,7 +923,7 @@
   .lv-verdict{display:flex;align-items:baseline;gap:9px;margin-top:12px;padding:10px 13px;border-radius:13px;background:var(--surface2)}
   .lv-verdict span{flex:1;min-width:0;font-size:13.5px;font-weight:800;color:var(--ink);line-height:1.3}
   .lv-verdict b{font-size:20px;font-weight:850;font-variant-numeric:tabular-nums}
-  .lv-verdict i{font-style:normal;font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--faint)}
+  .lv-verdict i{font-style:normal;font-size:10.5px;font-weight:750;letter-spacing:.05em;text-transform:uppercase;color:var(--ink2)}
   .lv-verdict.acc{background:color-mix(in srgb,var(--sage) 13%,var(--surface2))} .lv-verdict.acc b{color:var(--sage-ink)}
   .lv-verdict.att{background:color-mix(in srgb,var(--accent) 11%,var(--surface2))} .lv-verdict.att b{color:var(--accent-ink)}
   .lv-keys{display:flex;gap:16px;margin:-2px 0 6px}
@@ -958,7 +970,7 @@
     box-shadow:0 1px 2px rgba(90,60,35,.05);transition:transform .16s var(--spring),border-color .16s,box-shadow .16s}
   .vt:active{transform:scale(.94);border-color:var(--accent)}
   .vt b{font-size:21px;font-weight:850;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums;color:var(--ink)}
-  .vt span{font-size:9px;font-weight:750;letter-spacing:.02em;color:var(--faint);text-align:center;line-height:1.2;
+  .vt span{font-size:9px;font-weight:800;letter-spacing:.02em;color:var(--muted);text-align:center;line-height:1.2;
     text-transform:uppercase;max-width:100%}
   .vt.good b{color:var(--sage-ink)} .vt.bad b{color:var(--rose)}
   .vt.good{border-color:color-mix(in srgb,var(--sage-ink) 26%,var(--border2));background:color-mix(in srgb,var(--sage) 6%,var(--surface))}
@@ -997,10 +1009,11 @@
   .cal-band b{font-size:22px;font-weight:850;font-variant-numeric:tabular-nums;line-height:1}
   .cal-band span{flex:1;min-width:0;font-size:13.5px;font-weight:750;color:var(--ink);line-height:1.35}
   .cal-band i{font-style:normal;font-size:10px;font-weight:850;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:7px;white-space:nowrap}
-  .cal-band.bad b,.cal-band.bad i{color:var(--rose)} .cal-band.bad{background:color-mix(in srgb,var(--rose) 10%,var(--surface2))} .cal-band.bad i{background:color-mix(in srgb,var(--rose) 14%,transparent)}
-  .cal-band.mid b,.cal-band.mid i{color:var(--amber)} .cal-band.mid i{background:color-mix(in srgb,var(--amber) 16%,transparent)}
+  .cal-band.bad b,.cal-band.bad i{color:var(--rose-ink)} .cal-band.bad{background:color-mix(in srgb,var(--rose) 10%,var(--surface2))} .cal-band.bad i{background:color-mix(in srgb,var(--rose) 14%,transparent)}
+  .cal-band.mid b,.cal-band.mid i{color:var(--amber-ink)} .cal-band.mid i{background:color-mix(in srgb,var(--amber) 16%,transparent)}
+  .cal-band.mid{background:color-mix(in srgb,var(--amber) 9%,var(--surface2))}
   .cal-band.good b,.cal-band.good i{color:var(--sage-ink)} .cal-band.good{background:color-mix(in srgb,var(--sage) 12%,var(--surface2))} .cal-band.good i{background:color-mix(in srgb,var(--sage) 18%,transparent)}
-  .cal-ev-foot{display:flex;justify-content:space-between;align-items:baseline;margin-top:8px;font-size:11px;font-weight:650;color:var(--faint)}
+  .cal-ev-foot{display:flex;justify-content:space-between;align-items:baseline;margin-top:8px;font-size:11px;font-weight:700;color:var(--ink2)}
   .cal-ev-foot b{font-size:13px;font-weight:850;color:var(--ink);font-variant-numeric:tabular-nums}
   .cal-ev-foot b.good{color:var(--sage-ink)} .cal-ev-foot b.bad{color:var(--rose)}
   .cal-flex{display:flex;align-items:center;gap:18px;margin-top:4px}
@@ -1191,7 +1204,7 @@
   .fp-row:last-child{border-bottom:0;padding-bottom:0}
   .fp-code{flex:none;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-weight:850;font-size:13px;color:#fff;background:var(--bc)}
   .fp-row .fp-t{font-weight:750;font-size:14px}
-  .fp-row .fp-t b{color:var(--bc)}
+  .fp-row .fp-t b{color:var(--bct,var(--bc))}
   .fp-row .fp-d{font-size:12.5px;color:var(--muted);margin-top:2px;line-height:1.45}
   .fp-row.hot .fp-t{font-size:15px}
   .fp-row.hot .fp-d{color:var(--ink2)}
@@ -1210,7 +1223,7 @@
   .th-switch{display:flex;align-items:center;gap:9px;width:100%;text-align:left;background:var(--surface2);border-radius:13px;padding:12px 14px;
     font-weight:750;font-size:15px;color:var(--ink);margin-bottom:12px;transition:background .12s}
   .th-switch:active{background:var(--surface3)}
-  .th-switch .chg{margin-left:auto;font-size:12.5px;font-weight:700;color:var(--accent)}
+  .th-switch .chg{margin-left:auto;font-size:12.5px;font-weight:750;color:var(--accent-ink)}
   .th-start{position:relative;display:flex;align-items:center;justify-content:center;gap:11px;width:100%;color:#fff;background:var(--grad);
     border-radius:16px;padding:16px;font-weight:800;font-size:17px;letter-spacing:-.01em;box-shadow:0 9px 24px -10px rgba(193,80,45,.55),0 3px 0 0 var(--edge-dk);
     top:0;transition:transform .09s ease,box-shadow .09s ease;overflow:hidden}
@@ -1302,7 +1315,7 @@
   .pl-pace.warn{background:color-mix(in srgb,var(--amber) 12%,var(--surface2))}
   .pl-pace.bad{background:color-mix(in srgb,var(--rose) 10%,var(--surface2))}
   .pl-pgrid{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:6px 10px;margin-bottom:8px}
-  .pl-plab{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
+  .pl-plab{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
   .pl-ptrack{height:8px;border-radius:5px;background:var(--surface);overflow:hidden}
   .pl-ptrack i{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .55s cubic-bezier(.4,0,.2,1)}
   .pl-ptrack.need i{background:var(--border2)}
@@ -1319,7 +1332,7 @@
   .pl-next-res{margin-top:11px;padding-top:11px;border-top:1px solid var(--border);font-size:12px;color:var(--muted)}
   .pl-tag.marks{color:var(--accent-ink);background:color-mix(in srgb,var(--accent) 13%,transparent);font-variant-numeric:tabular-nums}
   .rv-btn.rec{outline:2px solid color-mix(in srgb,var(--accent) 55%,transparent);outline-offset:1px}
-  .pl-wk{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin:18px 0 8px 3px;
+  .pl-wk{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:18px 0 8px 3px;
     display:flex;align-items:center;gap:9px}
   .pl-wk .wkq{flex:none;width:52px;height:4px;border-radius:3px;background:var(--surface2);overflow:hidden;margin-left:auto}
   .pl-wk .wkq i{display:block;height:100%;border-radius:3px;background:var(--grad);transition:width .7s cubic-bezier(.22,1,.36,1)}
@@ -1336,13 +1349,55 @@
   .pl-row.donepop{animation:bpulse .3s cubic-bezier(.3,1.4,.5,1)}
   .pl-date{flex:none;width:52px;font-size:11.5px;font-weight:650;color:var(--muted);font-variant-numeric:tabular-nums}
   .pl-row.today .pl-date{color:var(--accent-ink);font-weight:800}
-  .pl-t{flex:1;min-width:0;font-weight:700;font-size:13.5px;letter-spacing:-.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  /* the plan importer */
+  /* the one thing that must never be missable: saving has stopped working */
+  .save-banner{position:sticky;top:0;z-index:60;display:flex;flex-direction:column;gap:2px;width:100%;
+    padding:11px 14px;border:0;border-bottom:1px solid color-mix(in srgb,var(--rose) 40%,transparent);
+    background:color-mix(in srgb,var(--rose) 16%,var(--surface));color:var(--rose);text-align:left;cursor:pointer;
+    animation:sbIn .35s cubic-bezier(.3,1.2,.4,1) both}
+  .save-banner b{font-size:13px;font-weight:850;letter-spacing:-.01em}
+  .save-banner span{font-size:11.5px;font-weight:650;color:var(--ink2);opacity:.9}
+  @keyframes sbIn{from{transform:translateY(-100%);opacity:0}to{transform:none;opacity:1}}
+  @media(prefers-reduced-motion:reduce){ .save-banner{animation:none} }
+  .pi-preset{width:100%;display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:13px 14px;border-radius:13px;
+    border:1px solid color-mix(in srgb,var(--accent) 45%,transparent);background:var(--accent-soft);cursor:pointer;text-align:left;
+    font-size:13.5px;font-weight:800;color:var(--accent-ink);transition:transform .16s var(--spring)}
+  .pi-preset:hover{transform:translateY(-1px)} .pi-preset:active{transform:scale(.99)}
+  .pi-preset i{font-style:normal;font-size:11px;font-weight:650;color:var(--muted)}
+  .pi-text{width:100%;box-sizing:border-box;padding:11px 12px;border-radius:12px;border:1px solid var(--edge);
+    background:var(--surface);color:var(--ink);font-size:12.5px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    line-height:1.5;resize:vertical;min-height:96px}
+  .pi-sum{margin-top:10px;padding:9px 12px;border-radius:11px;font-size:12px;font-weight:700}
+  .pi-sum.ok{color:var(--sage-ink);background:color-mix(in srgb,var(--sage) 14%,transparent)}
+  .pi-sum.bad{color:var(--muted);background:var(--surface2)}
+  .pi-skip{margin-top:8px;font-size:11px;color:var(--muted)}
+  .pi-skip summary{cursor:pointer;font-weight:750}
+  .pi-skip div{padding:3px 0;font-family:ui-monospace,monospace;opacity:.8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .pi-list{margin-top:12px;max-height:230px;overflow-y:auto;overscroll-behavior:contain;
+    border:1px solid var(--edge);border-radius:12px;padding:4px}
+  .pi-row{display:flex;align-items:baseline;gap:9px;padding:6px 8px;border-radius:8px;font-size:12px;min-width:0}
+  .pi-row+.pi-row{border-top:1px solid var(--edge)}
+  .pi-row.test{background:color-mix(in srgb,#9DC3E6 15%,transparent)}
+  .pi-row.buffer{background:color-mix(in srgb,var(--sage) 11%,transparent)}
+  .pi-d{flex:none;width:48px;font-weight:750;color:var(--muted);font-variant-numeric:tabular-nums}
+  .pi-t{flex:1;min-width:0;font-weight:700;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .pi-tl{flex:none;max-width:34%;font-size:10.5px;font-weight:700;color:var(--accent-ink);
+    background:var(--accent-soft);padding:2px 7px;border-radius:7px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .pi-more{padding:7px 8px;font-size:11px;font-weight:700;color:var(--muted);text-align:center}
+  .pl-tw{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+  .pl-t{min-width:0;font-weight:700;font-size:13.5px;letter-spacing:-.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  /* the evening pairing: quieter than the anchor, never competing with it for the eye */
+  .pl-tail{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:700;color:var(--muted);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+  .pl-tail i{font-style:normal;font-size:8.5px;font-weight:850;letter-spacing:.07em;text-transform:uppercase;
+    color:var(--accent-ink);background:var(--accent-soft);padding:1.5px 5px;border-radius:5px;flex:none}
+  .pl-row.done .pl-tail{text-decoration:line-through;text-decoration-color:var(--sage-ink)}
   .pl-t .pl-part{font-style:normal;font-size:10px;color:var(--amber);font-weight:750}
   .pl-tag{flex:none;font-size:9.5px;font-weight:800;padding:2.5px 7px;border-radius:7px}
   .pl-tag.weak{color:var(--amber);background:color-mix(in srgb,var(--amber) 15%,transparent)}
   .pl-tag.x2{color:var(--violet);background:color-mix(in srgb,var(--violet) 13%,transparent)}
   .pl-tag.nr{color:var(--ink2);background:color-mix(in srgb,var(--surface2) 70%,transparent)}
-  .pl-tag.slipped{color:var(--amber);background:color-mix(in srgb,var(--amber) 15%,transparent)}
+  .pl-tag.slipped{color:var(--amber-ink);background:color-mix(in srgb,var(--amber) 15%,transparent)}
   .pl-tag.hot{color:var(--accent-ink);background:color-mix(in srgb,var(--accent) 16%,transparent);animation:hotpulse 2.8s ease infinite}
   @keyframes hotpulse{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 30%,transparent)}55%{box-shadow:0 0 0 4px transparent}}
   .pl-tag.eff.good{color:var(--sage-ink);background:color-mix(in srgb,var(--sage-ink) 14%,transparent)}
@@ -1360,7 +1415,7 @@
   .pl-more{flex:none;width:26px;height:26px;border-radius:8px;color:var(--accent);font-weight:800;font-size:15px;background:var(--surface2)}
   .pl-unplanned{display:flex;align-items:center;gap:8px;width:100%;text-align:left;border:1.5px dashed var(--border2);border-radius:14px;
     padding:13px 14px;margin-top:12px;color:var(--muted);font-size:13px;background:transparent}
-  .pl-unplanned .chg{margin-left:auto;color:var(--accent);font-weight:750;font-size:12.5px}
+  .pl-unplanned .chg{margin-left:auto;color:var(--accent-ink);font-weight:800;font-size:12.5px}
   .rv-row{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--border)}
   .rv-row:last-child{border-bottom:0;padding-bottom:0}
   .rv-row .rv-t{font-weight:700;font-size:13.5px}
@@ -1589,7 +1644,7 @@
   .wg-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
   .wg-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border-radius:11px;font-size:12px;font-weight:750;
     color:var(--ink2);background:var(--surface2);border:1px solid var(--edge);cursor:pointer;transition:transform .16s var(--spring),border-color .16s,background .16s}
-  .wg-chip b{font-size:12px;font-weight:850;color:var(--rose);font-variant-numeric:tabular-nums}
+  .wg-chip b{font-size:12px;font-weight:850;color:var(--rose-ink);font-variant-numeric:tabular-nums}
   .wg-chip:hover{transform:translateY(-1px);border-color:var(--border2)}
   .wg-chip:active{transform:scale(.96)}
   .wg-chip.on{background:color-mix(in srgb,var(--rose) 10%,var(--surface));border-color:color-mix(in srgb,var(--rose) 40%,var(--border))}
@@ -1619,7 +1674,7 @@
   .flr-v{font-style:normal;font-size:10px;font-weight:850;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:7px;white-space:nowrap}
   .flr-v.tight{color:var(--sage-ink);background:color-mix(in srgb,var(--sage) 18%,transparent)}
   .flr-v.normal{color:var(--muted);background:var(--surface)}
-  .flr-v.wide{color:var(--rose);background:color-mix(in srgb,var(--rose) 13%,transparent)}
+  .flr-v.wide{color:var(--rose-ink);background:color-mix(in srgb,var(--rose) 13%,transparent)}
   @media(prefers-reduced-motion:reduce){ .flr-dot{animation:none;transform:translateY(calc(-50% - var(--r,0px))) scale(1)} }
   /* marks are the headline; the percentage they came from sits under each one */
   .flr-ends{display:flex;justify-content:space-between;align-items:flex-start;margin-top:9px;font-size:11.5px;font-weight:650;color:var(--faint)}
@@ -1799,7 +1854,7 @@
     background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .55s cubic-bezier(.4,0,.2,1)}
   .wk-mag > i > span{min-width:2px}
   .wk-mag > i > span:not(:last-child){border-right:1px solid color-mix(in srgb,var(--surface) 70%,transparent)}
-  .wk-dom{font-size:9.5px;font-weight:850;letter-spacing:.04em;padding:2px 6px;border-radius:6px;color:var(--c);background:color-mix(in srgb,var(--c) 14%,transparent)}
+  .wk-dom{font-size:9.5px;font-weight:850;letter-spacing:.04em;padding:2px 6px;border-radius:6px;color:var(--ct,var(--c));background:color-mix(in srgb,var(--c) 14%,transparent)}
   .wk-q{font-size:9.5px;font-weight:800;color:var(--faint);background:var(--surface2);padding:2px 6px;border-radius:6px;flex:none}
   .wk-lk{font-size:10px;font-weight:850;color:var(--muted);font-variant-numeric:tabular-nums}
   .wk-lk.hot{color:var(--rose)} .wk-lk.ok{color:var(--sage-ink)}
@@ -1821,14 +1876,15 @@
   .rec-bar{display:flex;height:22px;border-radius:9px;overflow:hidden;background:var(--surface2);margin-bottom:14px}
   .rec-seg{display:grid;place-items:center;transition:flex-grow .5s cubic-bezier(.4,0,.2,1)}
   .rec-seg.q{background:var(--sage-ink)} .rec-seg.s{background:var(--accent)}
-  .rec-pc{font-size:10.5px;font-weight:800;color:#fff;text-shadow:0 1px 1px rgba(0,0,0,.18)}
+  .rec-pc{font-size:10.5px;font-weight:800;color:#fff;text-shadow:0 1px 1.5px rgba(0,0,0,.42)}
+  .rec-seg.q{background:var(--sage-ink)} .rec-seg.s .rec-pc{color:#fff}
   .rec-row{padding:11px 0;border-top:1px solid var(--border)}
   .rec-row:first-of-type{border-top:none}
   .rec-lab{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:4px}
   .rec-lab b{font-size:14.5px;font-weight:800}
   .rec-q{color:var(--sage-ink)} .rec-s{color:var(--accent-ink)}
   .rec-lab>span{margin-left:auto;display:inline-flex;gap:6px}
-  .rec-chip{position:relative;font-size:11px;font-weight:800;padding:7px 10px;border-radius:9px;color:var(--bc);background:color-mix(in srgb,var(--bc) 13%,transparent);font-variant-numeric:tabular-nums;transition:transform .15s var(--spring)}
+  .rec-chip{position:relative;font-size:11px;font-weight:800;padding:7px 10px;border-radius:9px;color:var(--bct,var(--bc));background:color-mix(in srgb,var(--bc) 13%,transparent);font-variant-numeric:tabular-nums;transition:transform .15s var(--spring)}
   .rec-chip::before{content:"";position:absolute;inset:-8px -4px}
   .rec-chip:active{transform:scale(.93)}
   .rec-chip:active{transform:scale(.94)}
@@ -1888,7 +1944,7 @@
   .mastery .mtext .big{font-size:17px;font-weight:750;letter-spacing:-.01em}
   .mastery .mtext .sm{font-size:12.5px;color:var(--muted);margin-top:5px;line-height:1.45}
   .tcaption{font-size:13px;margin-top:15px;padding-top:14px;border-top:1px solid var(--border);line-height:1.5;color:var(--ink2)}
-  .tcaption b.d{color:var(--emerald)} .tcaption b.u{color:var(--amber)}
+  .tcaption b.d{color:var(--emerald-ink)} .tcaption b.u{color:var(--amber-ink)}
 
   /* charts */
   .chartwrap{margin-top:16px}
@@ -2277,7 +2333,7 @@ const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.st
 async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } try{return localStorage.getItem(k)}catch(_){return null} }
 async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v);return true}catch(e){return false} } try{localStorage.setItem(k,v);return true}catch(_){return false} }
 const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
-const APP_VERSION='v69'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
+const APP_VERSION='v70'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
 
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 /* Roughly how a 200-question NEET-PG paper is split by subject — an average of recent years,
@@ -2288,19 +2344,19 @@ const PAPER_MIX={"Anatomy":12,"Physiology":10,"Biochemistry":10,"Pathology":17,"
 const ERRORS=[
   {id:'knowledge', short:'New to you', code:'KG', t:"Didn't know it",
    d:"the content was new or unread — you had nothing to retrieve",
-   c:'var(--rose)',
+   c:'var(--rose)', ct:'var(--rose-ink)',   /* ct = the same hue at a weight you can read as small text */
    test:"Was the correct answer new information to you?"},
   {id:'retrieval', short:'Blanked', code:'RF', t:"Knew it, didn't fire",
    d:"you owned this — it just didn't surface under the clock",
-   c:'var(--amber)',
+   c:'var(--amber)', ct:'var(--amber-ink)',   /* ct = the same hue at a weight you can read as small text */
    test:"Can you say why your option is wrong, right now, without the explanation?"},
   {id:'reasoning', short:'Felt right', code:'CC', t:"Confidently wrong",
    d:"you held a belief that turned out to be false",
-   c:'var(--violet)',
+   c:'var(--violet)', ct:'var(--violet-ink)',   /* ct = the same hue at a weight you can read as small text */
    test:"Would you have bet money on your answer?"},
   {id:'execution', short:'Misread', code:'TE', t:"Misread it",
    d:"nothing to do with knowing — a negation missed, or the wrong bubble",
-   c:'var(--teal)',
+   c:'var(--teal)', ct:'var(--teal-ink)',   /* ct = the same hue at a weight you can read as small text */
    test:"Was there an EXCEPT/NOT, or did you tick an option you didn't mean?"},
 ];
 const ERR_MAP=Object.fromEntries(ERRORS.map(e=>[e.id,e]));
@@ -2467,8 +2523,8 @@ let _saveWarned=false;
 async function persist(cloud){
   _grpCache=null; bumpData(); /* entries changed — drop the memoised recurrence groups + per-render cache */
   const ok=await sset(K_ENTRIES,JSON.stringify(entries));
-  if(!ok && !_saveWarned){ _saveWarned=true; toast('⚠ Couldn\'t save — storage may be full. Export a backup now.'); }
-  else if(ok) _saveWarned=false;
+  if(!ok){ if(!_saveWarned) saveFailed('notes'); }
+  else saveOK();
   if(cloud!==false) scheduleCloudPush();
   return ok;
 }
@@ -2478,8 +2534,20 @@ async function persist(cloud){
    against the real ones in your cloud copy. */
 async function persistSettings(cloud, keepStamp){
   if(!keepStamp) settings._upd=Date.now();
-  await sset(K_SET,JSON.stringify(settings));
+  const ok=await sset(K_SET,JSON.stringify(settings));
+  if(!ok && !_saveWarned) saveFailed('settings'); else if(ok) saveOK();
   if(cloud!==false) scheduleCloudPush();
+  return ok;
+}
+/* A toast is gone in four seconds. If saving is broken it has to stay on screen until it is
+   fixed, because every tap after that point is work that is not being kept. */
+function paintSaveBanner(){
+  let el=document.getElementById('saveBanner');
+  if(!_saveBroken){ if(el) el.remove(); return; }
+  if(!el){ el=document.createElement('button'); el.id='saveBanner'; el.className='save-banner';
+    el.onclick=()=>{ buzz(6); try{ syncSheet(); }catch(_){ try{ copyBackup(); }catch(__){} } };
+    (document.getElementById('app')||document.body).prepend(el); }
+  el.innerHTML='<b>Storage is full</b><span>Your '+esc(_saveBroken)+' stopped saving. Tap to back up, then free space.</span>';
 }
 async function requestPersistence(){ try{ if(navigator.storage && navigator.storage.persist){ const p=await navigator.storage.persisted(); if(!p) await navigator.storage.persist(); } }catch(_){} }
 
@@ -2703,16 +2771,37 @@ function updateEditUI(){
 
 function normalize(s){return (s||'').toLowerCase().replace(/[^a-z0-9 ]/g,'').replace(/\s+/g,' ').trim()}
 function sigWords(e){return new Set(normalize(e.concept).split(' ').filter(w=>w.length>2))}
+/* Two notes are the same mistake if they sit in the same subject and share enough significant
+   words. This used to compare every note with every other note - 200 million comparisons at
+   twenty thousand notes, which is two seconds of frozen screen on the Insights tab.
+   Same rule, same groups, reached through an index: for each note only the notes that actually
+   share a word with it are ever considered. */
 function buildGroups(){
   if(_grpCache) return _grpCache;
   const n=entries.length, parent=[...Array(n).keys()];
   const find=i=>parent[i]===i?i:(parent[i]=find(parent[i]));
   const sets=entries.map(sigWords);
-  for(let i=0;i<n;i++)for(let j=i+1;j<n;j++){
-    if(entries[i].subject!==entries[j].subject)continue;
-    const need=Math.min(2,sets[i].size,sets[j].size); if(!need)continue;
-    let shared=0; for(const w of sets[i]){if(sets[j].has(w)&&++shared>=need)break}
-    if(shared>=need)parent[find(i)]=find(j);
+  /* subject -> word -> the notes carrying it */
+  const idx=new Map();
+  for(let i=0;i<n;i++){
+    const sub=entries[i].subject;
+    let byWord=idx.get(sub); if(!byWord){ byWord=new Map(); idx.set(sub,byWord); }
+    for(const w of sets[i]){ let a=byWord.get(w); if(!a){ a=[]; byWord.set(w,a); } a.push(i); }
+  }
+  const shared=new Map();
+  for(let i=0;i<n;i++){
+    if(!sets[i].size) continue;
+    const byWord=idx.get(entries[i].subject); if(!byWord) continue;
+    shared.clear();
+    for(const w of sets[i]){
+      const a=byWord.get(w); if(!a) continue;
+      for(let k=0;k<a.length;k++){ const j=a[k]; if(j<=i) continue;
+        shared.set(j,(shared.get(j)||0)+1); }
+    }
+    for(const [j,c] of shared){
+      const need=Math.min(2,sets[i].size,sets[j].size);
+      if(need && c>=need) parent[find(i)]=find(j);
+    }
   }
   const groups={}; entries.forEach((e,i)=>{const r=find(i);(groups[r]=groups[r]||[]).push(e)}); _grpCache=Object.values(groups); return _grpCache;
 }
@@ -3364,8 +3453,10 @@ function renderPlan(){
   if(!total){
     box.innerHTML=`<div class="sec-title"><h2>Plan</h2><div class="hint">your reading grid</div></div>
       <div class="empty"><div class="big">No plan yet</div>Add your first day below.</div>
-      <div class="actions"><button class="btn primary" id="planAdd">+ Add days</button></div>`;
+      <div class="actions"><button class="btn primary" id="planLoad">Load a plan</button>
+        <button class="btn ghost" id="planAdd">+ Add one day</button></div>`;
     document.getElementById('planAdd').onclick=()=>planEditSheet(null);
+    document.getElementById('planLoad').onclick=()=>planImportSheet();
     return;
   }
   /* ---- header ----
@@ -3476,7 +3567,7 @@ function renderPlan(){
       else if(r.x2) tag='<span class="pl-tag x2">×2</span>';
       return `<div class="pl-row ${r.k} ${dn?'done':''} ${slip?'slip':''} ${isToday?'today':''}" data-row="${esc(r.id)}">
         <span class="pl-date">${fmtDay(r.d)}</span>
-        <span class="pl-t">${esc(r.t)}${dn&&dn.mode==='partial'?' <i class="pl-part">partial</i>':''}</span>
+        <span class="pl-tw"><span class="pl-t">${esc(r.t)}${dn&&dn.mode==='partial'?' <i class="pl-part">partial</i>':''}</span>${r.tl?`<span class="pl-tail" title="${esc(r.why||('evening: '+r.tl))}"><i>pm</i>${esc(r.tl)}</span>`:''}</span>
         ${tag}
         ${dn&&!(ts&&ts.marks!=null)?'<span class="pl-check">✓</span>':''}
         <button class="pl-more" data-more="${esc(r.id)}">›</button>
@@ -3485,18 +3576,20 @@ function renderPlan(){
   /* unplanned tail */
   const lastD=plan.rows[plan.rows.length-1].d;
   const hasP4=plan.rows.some(r=>/^p4/.test(r.id));
-  if(!hasP4 && lastD<'2026-08-20'){
+  if(!hasP4 && lastD<addDays(planEndISO(),-10)){
     html+=`<button class="pl-unplanned" id="p4Btn" style="border-color:color-mix(in srgb,var(--accent) 40%,transparent)">Fill the rest of the run-up — <b>two more passes plus the last 10 days</b>, ordered by your own results<span class="chg">Preview ›</span></button>`;
   }
-  if(lastD<'2026-08-30'){
-    const days=Math.round((new Date('2026-08-30T12:00:00')-new Date(lastD+'T12:00:00'))/864e5);
-    html+=`<button class="pl-unplanned" id="planAdd">${fmtShort(addDays(lastD,1))} → 30 Aug · <b>${days} days unplanned</b><span class="chg">+ Add days</span></button>`;
-  } else {
-    html+=`<div class="actions" style="margin-top:12px"><button class="btn ghost" id="planAdd">+ Add days</button></div>`;
+  if(lastD<planEndISO()){
+    const days=Math.round((new Date(planEndISO()+'T12:00:00')-new Date(lastD+'T12:00:00'))/864e5);
+    html+=`<button class="pl-unplanned" id="planAdd">${fmtShort(addDays(lastD,1))} → ${fmtShort(planEndISO())} · <b>${days} days unplanned</b><span class="chg">+ Add days</span></button>`;
   }
+  html+=`<div class="actions" style="margin-top:12px"><button class="btn ghost" id="planAdd2">+ Add a day</button>
+    <button class="btn ghost" id="planLoad">Load a plan</button></div>`;
   box.innerHTML=html;
   /* bindings */
   const mBtn=document.getElementById('planMissing'); if(mBtn) mBtn.onclick=()=>planEditSheet(null, planMissingSubjects());
+  const pL=document.getElementById('planLoad'); if(pL) pL.onclick=()=>{ buzz(6); planImportSheet(); };
+  const pA2=document.getElementById('planAdd2'); if(pA2) pA2.onclick=()=>{ buzz(5); planEditSheet(null); };
   /* the coverage strip names what you are pointing at — nineteen blocks with no labels is a
      picture you cannot interrogate */
   const covStrip=document.getElementById('plStrip'), cread=document.getElementById('plCovRead');
@@ -3599,11 +3692,234 @@ function planRowSheet(id){
   document.getElementById('prEdit').onclick=()=>planEditSheet(id);
   document.getElementById('prDel').onclick=()=>{ plan.rows=plan.rows.filter(x=>x.id!==id); delete plan.done[id]; delete plan.skims[id]; persistPlan(); closeSheet(); renderPlan(); toast('Day removed'); };
 }
+/* ============ loading a plan someone wrote for you ============
+   A schedule usually arrives as a table: a date, a morning anchor, an evening tail, and why the
+   two were paired. This reads that back into rows without you retyping eighteen days. It is
+   deliberately forgiving about format and deliberately strict about what it will accept as a
+   date, because a mis-parsed date silently schedules work on the wrong day. */
+const MONTHS={jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,sept:8,oct:9,nov:10,dec:11};
+/* longest names first so "Forensic Medicine" is not eaten by "Medicine", and "PSM / Community
+   Med" is not eaten by "Med" */
+const SUBJ_ALIAS=[
+  ['PSM / Community Med', ['psm','community med','community medicine','preventive']],
+  ['Forensic Medicine',   ['forensic medicine','forensic']],   /* the long form first, so "Medicine" is consumed with it */
+  ['Ophthalmology',       ['ophthal','eye']],
+  ['Orthopaedics',        ['orthopaed','ortho']],
+  ['Anaesthesia',         ['anaesth','anesth']],
+  ['Dermatology',         ['dermat','skin']],
+  ['Microbiology',        ['micro']],
+  ['Pharmacology',        ['pharmac','pharm']],
+  ['Biochemistry',        ['biochem']],
+  ['Physiology',          ['physio']],
+  ['Pathology',           ['patho']],
+  ['Psychiatry',          ['psych']],
+  ['Pediatrics',          ['paediatric','pediatric','paeds','peds']],
+  ['Radiology',           ['radio']],
+  ['Anatomy',             ['anatomy']],
+  ['Medicine',            ['medicine']],
+  ['Surgery',             ['surgery','surgical']],
+  ['OBGYN',               ['obgyn','obg','obstetric','gynae','gynec']],
+  ['ENT',                 ['ent','otorhino']]
+];
+function subjectsIn(text){
+  let hay=' '+String(text||'').toLowerCase()+' ';
+  const out=[];
+  SUBJ_ALIAS.forEach(([sub,keys])=>{
+    for(const k of keys){
+      const i=hay.indexOf(k);
+      if(i<0) continue;
+      /* "ENT" must not match inside "endocrine" or "patient" — require a word edge */
+      const before=hay[i-1], after=hay[i+k.length];
+      const edge=c=>c===undefined||!/[a-z]/.test(c);
+      if(k.length<=3 && !(edge(before)&&edge(after))) continue;
+      if(!out.includes(sub)) out.push(sub);
+      hay=hay.slice(0,i)+' '.repeat(k.length)+hay.slice(i+k.length);  /* consume it */
+      break;
+    }
+  });
+  return out;
+}
+/* "Wed 29 Jul", "29 Jul", "Jul 29", "2026-07-29", "29/07/2026" -> ISO, with the year chosen as
+   whichever candidate sits closest to today. Returns null rather than guessing. */
+function parsePlanDate(txt, refISO){
+  const t=String(txt||'').trim().replace(/[.,]/g,' ').replace(/\s+/g,' ');
+  const iso=t.match(/(\d{4})-(\d{2})-(\d{2})/);
+  if(iso) return iso[0];
+  const dmy=t.match(/\b(\d{1,2})[\/](\d{1,2})[\/](\d{4})\b/);
+  if(dmy) return `${dmy[3]}-${String(+dmy[2]).padStart(2,'0')}-${String(+dmy[1]).padStart(2,'0')}`;
+  const low=t.toLowerCase();
+  let day=null, mon=null;
+  const dm=low.match(/\b(\d{1,2})\s+([a-z]{3,9})\b/);
+  const md=low.match(/\b([a-z]{3,9})\s+(\d{1,2})\b/);
+  if(dm && MONTHS[dm[2].slice(0,4)]!=null){ day=+dm[1]; mon=MONTHS[dm[2].slice(0,4)]; }
+  else if(dm && MONTHS[dm[2].slice(0,3)]!=null){ day=+dm[1]; mon=MONTHS[dm[2].slice(0,3)]; }
+  else if(md && (MONTHS[md[1].slice(0,4)]!=null||MONTHS[md[1].slice(0,3)]!=null)){
+    mon=MONTHS[md[1].slice(0,4)]!=null?MONTHS[md[1].slice(0,4)]:MONTHS[md[1].slice(0,3)]; day=+md[2]; }
+  if(day==null||mon==null||day<1||day>31) return null;
+  const ref=new Date((refISO||todayISO())+'T12:00:00');
+  /* A plan looks FORWARD. Pasted in July, "1 Jan" means next January, not the one that has been
+     and gone — so prefer the earliest candidate that is not already well in the past, and only
+     fall back to nearest-in-time if every candidate is behind you. */
+  const floor=new Date(ref); floor.setDate(floor.getDate()-45);
+  const cands=[];
+  for(const y of [ref.getFullYear()-1, ref.getFullYear(), ref.getFullYear()+1, ref.getFullYear()+2]){
+    const cand=new Date(y,mon,day,12,0,0);
+    if(cand.getMonth()!==mon) continue;                    /* 31 Feb and friends */
+    cands.push(cand);
+  }
+  if(!cands.length) return null;
+  const ahead=cands.filter(c=>c>=floor).sort((a,b)=>a-b);
+  const best = ahead.length ? ahead[0]
+    : cands.slice().sort((a,b)=>Math.abs(a-ref)-Math.abs(b-ref))[0];
+  if(!best) return null;
+  return best.getFullYear()+'-'+String(best.getMonth()+1).padStart(2,'0')+'-'+String(best.getDate()).padStart(2,'0');
+}
+/* Parse a pasted schedule into rows. Accepts a markdown table, a pipe-separated list, or
+   "date - anchor - tail" lines. Never throws; reports what it could not read. */
+function planParse(text){
+  const rows=[], skipped=[];
+  const seen=new Set();
+  String(text||'').split(/\r?\n/).forEach(raw=>{
+    const line=raw.trim();
+    if(!line) return;
+    if(/^\|?\s*:?-{2,}/.test(line)) return;                       /* markdown separator */
+    let cells=line.replace(/^\|/,'').replace(/\|$/,'').split('|').map(x=>x.trim());
+    if(cells.length<2) cells=line.split(/\s+[—–-]{1,2}\s+/).map(x=>x.trim());
+    if(cells.length<2){ if(!/^#/.test(line)) skipped.push(line.slice(0,60)); return; }
+    const d=parsePlanDate(cells[0]);
+    if(!d){ if(!/^date\b/i.test(cells[0])) skipped.push(line.slice(0,60)); return; }
+    if(seen.has(d)){ skipped.push(d+' appears twice'); return; }
+    const anchor=(cells[1]||'').replace(/\*\*/g,'').trim();
+    if(!anchor) { skipped.push(line.slice(0,60)); return; }
+    let tail=(cells[2]||'').replace(/\*\*/g,'').trim();
+    if(/^[—–-]+$/.test(tail)) tail='';
+    let why=(cells[3]||'').trim();
+    if(/^[—–-]+$/.test(why)) why='';
+    if(!tail) why='';                    /* nothing was paired, so there is no reason for a pairing */
+    const k = /\bGT\b|\bgrand test\b|\btest\b|\bmock\b/i.test(anchor) ? 'test'
+            : /\bbuffer\b|catch[- ]?up/i.test(anchor) ? 'buffer' : 'read';
+    const subs=k==='read' ? subjectsIn(anchor).concat(subjectsIn(tail)).filter((x,i,a)=>a.indexOf(x)===i) : [];
+    const row={ id:'pl'+d.replace(/-/g,''), d, t:anchor.slice(0,80), k, s:subs, weak:0, x2:0 };
+    if(tail) row.tl=tail.slice(0,60);
+    if(why) row.why=why.slice(0,160);
+    seen.add(d); rows.push(row);
+  });
+  rows.sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:0);
+  return {rows, skipped};
+}
+/* The schedule from the 32-day run-up, exactly as written. Only the days that were actually
+   given — nothing here is invented to fill the table out. */
+const PLAN_PRESET={
+  name:'NEET-PG final run-up',
+  text:`| Wed 29 Jul | Medicine — CVS + Respiratory | — | full day
+| Thu 30 Jul | Medicine — CNS + Renal | — | full day
+| Fri 31 Jul | Medicine — GIT + Endocrine | — | full day
+| Sat 1 Aug | Medicine — Rheum + ID + Heme-onc | Dermatology | leprosy, TB, HIV skin, CTD signs, drug reactions
+| Sun 2 Aug | Surgery I — GIT, HPB, trauma, burns | — | full day
+| Mon 3 Aug | GT-18 + full analysis | — | —
+| Tue 4 Aug | Surgery II — breast, endo-surg, urology, vascular, paeds surg | Orthopaedics | trauma adjacency, same surgical mode
+| Wed 5 Aug | Pathology I — General + Haematology | Biochemistry | metabolic + lab-medicine overlap
+| Thu 6 Aug | Pathology II — Systemic | Radiology | image-heavy, same organ systems
+| Fri 7 Aug | Pharmacology | Anaesthesia | LAs, relaxants, induction agents = pure pharm
+| Sat 8 Aug | OBGYN | — | full day
+| Sun 9 Aug | Paediatrics | Psychiatry | ADHD, autism, enuresis, development
+| Mon 10 Aug | GT-19 + full analysis | — | —
+| Tue 11 Aug | Microbiology | ENT | otitis, sinusitis, tonsillitis, fungal
+| Wed 12 Aug | PSM | Forensic | both list/law/statistics — same cognitive mode
+| Thu 13 Aug | Anatomy | — | full day
+| Fri 14 Aug | Physiology | Ophthalmology | visual physiology, refraction, pupillary pathways
+| Sat 15 Aug | BUFFER 1 — absorb whatever overran. Nothing slipped? Weakest 2 subjects. | — | —`
+};
+/* Bring a plan in. Everything already ticked stays ticked: a row for a date you have already
+   done keeps its tick, because losing a tick is losing work you actually did. */
+function planImportSheet(prefill){
+  const draw=(txt,res)=>{
+    const rows=res?res.rows:[];
+    const clash=rows.filter(r=>plan.rows.some(o=>o.d===r.d)).length;
+    const preview=rows.length?`<div class="pi-list">${rows.slice(0,40).map(r=>
+      `<div class="pi-row ${r.k}"><span class="pi-d">${fmtShort(r.d)}</span><span class="pi-t">${esc(r.t)}</span>${r.tl?`<span class="pi-tl">${esc(r.tl)}</span>`:''}</div>`).join('')}
+      ${rows.length>40?`<div class="pi-more">+ ${rows.length-40} more</div>`:''}</div>`:'';
+    return `<h3>Load a plan</h3>
+      <p>Paste the schedule — a table with a date, the morning subject, an optional evening subject and why they were paired. It reads markdown tables straight from a chat.</p>
+      <button class="pi-preset" id="piPreset">Use the ${esc(PLAN_PRESET.name)}<i>${planParse(PLAN_PRESET.text).rows.length} days already written out</i></button>
+      <div class="sp-lab" style="margin-top:14px">or paste your own</div>
+      <textarea id="piText" class="pi-text" rows="6" placeholder="| Wed 29 Jul | Medicine — CVS + Respiratory | — | full day">${esc(txt||'')}</textarea>
+      ${res?`<div class="pi-sum ${rows.length?'ok':'bad'}">${rows.length
+          ? `<b>${rows.length} day${rows.length===1?'':'s'}</b> read${res.skipped.length?` · ${res.skipped.length} line${res.skipped.length===1?'':'s'} skipped`:''}`
+          : 'Nothing readable yet — each line needs a date and something to read.'}</div>`:''}
+      ${rows.length&&plan.rows.length?`<div class="sp-lab" style="margin-top:14px">what to do with the ${plan.rows.length} day${plan.rows.length===1?'':'s'} already there</div>
+        <div class="seg c2" id="piMode">
+          <button class="opt center ${piReplace?'on':''}" data-pm="replace"><div class="t">Make this the plan</div><div class="d">clears the rest</div></button>
+          <button class="opt center ${piReplace?'':'on'}" data-pm="merge"><div class="t">Merge into it</div><div class="d">keeps other days${clash?`, replaces ${clash}`:''}</div></button>
+        </div>`:''}
+      ${res&&res.skipped.length?`<details class="pi-skip"><summary>${res.skipped.length} line${res.skipped.length===1?'':'s'} skipped</summary>${res.skipped.slice(0,12).map(x=>`<div>${esc(x)}</div>`).join('')}</details>`:''}
+      ${preview}
+      <div class="actions" style="margin-top:16px">
+        <button class="btn primary" id="piGo" ${rows.length?'':'disabled'}>${rows.length?`Load ${rows.length} day${rows.length===1?'':'s'}`:'Load'}</button>
+        <button class="btn ghost" onclick="closeSheet()">Cancel</button></div>`;
+  };
+  let txt=prefill||'', res=txt?planParse(txt):null, piReplace=true;
+  const wire=()=>{
+    const sh=document.getElementById('sheet');
+    const ta=sh.querySelector('#piText');
+    if(ta) ta.oninput=()=>{ txt=ta.value; res=txt.trim()?planParse(txt):null;
+      const pos=ta.selectionStart;
+      sh.innerHTML='<div class="grip"></div>'+draw(txt,res); wire();
+      const t2=sh.querySelector('#piText'); if(t2){ t2.focus(); try{ t2.setSelectionRange(pos,pos); }catch(_){} } };
+    const pre=sh.querySelector('#piPreset');
+    if(pre) pre.onclick=()=>{ buzz(6); txt=PLAN_PRESET.text; res=planParse(txt);
+      sh.innerHTML='<div class="grip"></div>'+draw(txt,res); wire(); };
+    sh.querySelectorAll('#piMode .opt').forEach(bt=>bt.onclick=()=>{ buzz(5);
+      piReplace=bt.dataset.pm==='replace';
+      sh.querySelectorAll('#piMode .opt').forEach(o=>o.classList.toggle('on',o===bt)); });
+    const go=sh.querySelector('#piGo');
+    if(go) go.onclick=()=>{
+      if(!res||!res.rows.length) return;
+      /* "Make this the plan": the days you are not loading go, but their ticks go with them —
+         nothing is left pointing at a row that no longer exists */
+      if(piReplace && plan.rows.length){
+        const keep=new Set(res.rows.map(r=>r.d));
+        plan.rows.filter(r=>!keep.has(r.d)).forEach(r=>{
+          delete plan.done[r.id]; delete plan.skims[r.id]; if(plan.dv) delete plan.dv[r.id]; });
+        plan.rows=plan.rows.filter(r=>keep.has(r.d));
+      }
+      /* merge by DATE: a pasted day replaces the day already sitting on that date, and every
+         tick, skim and version stamp on that date is carried across so no finished work is lost */
+      const byDate={}; plan.rows.forEach(r=>byDate[r.d]=r);
+      res.rows.forEach(nr=>{
+        const old=byDate[nr.d];
+        if(old){
+          /* a day's id comes from its date, so re-loading the SAME plan gives old.id === nr.id.
+             Carrying across and then deleting would delete the tick we had just kept. */
+          if(old.id!==nr.id){
+            if(plan.done[old.id]){ plan.done[nr.id]=plan.done[old.id]; delete plan.done[old.id]; }
+            if(plan.skims[old.id]){ plan.skims[nr.id]=plan.skims[old.id]; delete plan.skims[old.id]; }
+            if(plan.dv&&plan.dv[old.id]){ plan.dv[nr.id]=plan.dv[old.id]; delete plan.dv[old.id]; }
+          }
+          plan.rows=plan.rows.filter(r=>r!==old);
+        }
+        plan.rows.push(nr);
+      });
+      plan.rows.sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:0);
+      plan=sanitizePlan(plan);                       /* it goes in through the same door as anything else */
+      persistPlan(); closeSheet(); renderPlan();
+      toast(`${res.rows.length} day${res.rows.length===1?'':'s'} loaded${piReplace?' — this is your plan now':''}.`);
+    };
+  };
+  openSheet(draw(txt,res)); wire();
+}
+/* the last day a plan can sensibly reach: exam day, or a year out if no exam is set. Replaces
+   three hardcoded August-2026 dates that would have quietly broken the moment the exam moved. */
+function planEndISO(){
+  const e=settings&&settings.examDate;
+  if(/^\d{4}-\d{2}-\d{2}$/.test(e||'')) return e;
+  return addDays(todayISO(),365);
+}
 function planEditSheet(id, prefillSubs){
   const r=id? plan.rows.find(x=>x.id===id) : null;
   const subs=r?(r.s||[]):(prefillSubs||[]);
   openSheet(`<h3>${r?'Edit day':'Add a day'}</h3>
-    <div class="sp-lab">date</div><input type="date" id="peD" value="${r?r.d:todayISO()}" min="2026-07-01" max="2026-08-30">
+    <div class="sp-lab">date</div><input type="date" id="peD" value="${r?r.d:todayISO()}" min="${addDays(todayISO(),-365)}" max="${addDays(planEndISO(),30)}">
     <div class="sp-lab" style="margin-top:12px">title</div><input type="text" id="peT" value="${r?esc(r.t):''}" placeholder="e.g. Biochemistry" maxlength="80">
     <div class="sp-lab" style="margin-top:12px">kind</div>
     <div class="seg c3" id="peK">${['read','test','buffer'].map(k=>`<button class="opt center ${((r&&r.k)||'read')===k?'on':''}" data-k="${k}"><div class="t">${k==='buffer'?'catch-up':k}</div></button>`).join('')}</div>
@@ -3651,7 +3967,7 @@ function writeFixComposer(sessId){
     }
     const it=queue[i]; const em=ERR_MAP[it.error];
     openSheet(`<h3>Write the fix · ${i+1} / ${queue.length}</h3>
-      <p><b style="color:${em.c}">${em.code}</b> ${esc(em.t.toLowerCase())}${it.subj?` · ${esc(it.subj)}`:''}${it.conf==='high'?' · <b class="bl">you were sure</b>':''}</p>
+      <p><b style="color:${em.ct||em.c}">${em.code}</b> ${esc(em.t.toLowerCase())}${it.subj?` · ${esc(it.subj)}`:''}${it.conf==='high'?' · <b class="bl">you were sure</b>':''}</p>
       <div class="sp-lab">the trap — what did you believe?</div>
       <textarea id="fxTrap" placeholder="e.g. I believed sensitivity rules OUT"></textarea>
       <div class="sp-lab" style="margin-top:12px">the correction — what's actually true, with the number or threshold?</div>
@@ -3680,7 +3996,7 @@ function sessionSheet(id){
   const s=sessions.find(x=>x.id===id); if(!s)return;
   const cc=triageCounts(s.items), cp=sessComp(s), tot=cc.total||1;
   const max=Math.max(1,...ERRORS.map(e=>cc.c[e.id]));
-  const bars=ERRORS.map(e=>`<div class="sm-bar"><span class="sm-k"><b style="color:${e.c}">${e.code}</b> ${e.t}</span><div class="sm-track"><div class="sm-fill" style="width:0;background:${e.c}" data-gw="${Math.max(2,cc.c[e.id]/max*100)}"></div></div><span class="sm-v">${cc.c[e.id]}</span></div>`).join('');
+  const bars=ERRORS.map(e=>`<div class="sm-bar"><span class="sm-k"><b style="color:${e.ct||e.c}">${e.code}</b> ${e.t}</span><div class="sm-track"><div class="sm-fill" style="width:0;background:${e.c}" data-gw="${Math.max(2,cc.c[e.id]/max*100)}"></div></div><span class="sm-v">${cc.c[e.id]}</span></div>`).join('');
   openSheet(`<h3>${esc(s.set)}</h3><p style="margin-bottom:14px">${cc.total} sorted · ${relTime(s.ts)}</p>
     <div class="sm-bars">${bars}</div>
     <div class="trio"><div class="trio-c"><b class="bl">${cp.sure}</b><span>sure</span></div>
@@ -3740,13 +4056,13 @@ function renderTriage(){
     </div>
     <div class="tri-tally" id="triTally">
       <span class="tt-total"><b id="triN">${total}</b> sorted</span><span id="triNL">${blind?`· <b class="bl">${blind} blind spot${blind>1?'s':''}</b>`:''}</span>
-      ${ERRORS.map(e=>`<span class="tt-chip" style="--bc:${e.c}"><b>${e.code}</b><span data-count="${e.id}">${c[e.id]}</span></span>`).join('')}
+      ${ERRORS.map(e=>`<span class="tt-chip" style="--bc:${e.c};--bct:${e.ct||e.c}"><b>${e.code}</b><span data-count="${e.id}">${c[e.id]}</span></span>`).join('')}
     </div>
     <div class="tri-track" id="triTrack">${triTrackHTML()}</div>
     <div class="tri-mid"><div id="triChipWrap">${triChipHTML(total)}</div>
       <div class="tri-prompt" id="triPrompt">${triage.conf?'drop it in its bucket ↓':'pick how it felt in the exam ↑'}</div></div>
     <div class="tri-buckets" id="triBuckets">
-      ${ERRORS.map(e=>`<button class="bucket ${triage.conf?'':'locked'}" ${triage.conf?'':'disabled aria-disabled="true"'} data-b="${e.id}" style="--bc:${e.c}">
+      ${ERRORS.map(e=>`<button class="bucket ${triage.conf?'':'locked'}" ${triage.conf?'':'disabled aria-disabled="true"'} data-b="${e.id}" style="--bc:${e.c};--bct:${e.ct||e.c}">
         <span class="b-fill" data-fill="${e.id}" style="height:${total?Math.round(c[e.id]/total*100):0}%"></span>
         <span class="b-wm">${e.code}</span>
         <span class="b-top"><span class="b-code">${e.code}</span><span class="b-count" data-bcount="${e.id}">${c[e.id]}</span></span>
@@ -3979,7 +4295,7 @@ function triFootHTML(){
   /* Undo throws the question away; a wrong tap usually needs the question KEPT and re-filed, so
      both are offered. The tick replays its fade on every rebuild — quiet proof it is on disk. */
   return `<button class="tri-undo" id="triUndo">↶ undo</button>
-    <button class="tri-fix" id="triFix">last: <b style="color:${em.c}">${em.code}</b>${cl}${last.subj?' · '+esc(shortSubj(last.subj)):''} <i>change ›</i></button>
+    <button class="tri-fix" id="triFix">last: <b style="color:${em.ct||em.c}">${em.code}</b>${cl}${last.subj?' · '+esc(shortSubj(last.subj)):''} <i>change ›</i></button>
     <span class="autosv">✓ saved</span>`;
 }
 function bindTriUndo(){ const u=document.getElementById('triUndo'); if(u) u.onclick=triageUndo;
@@ -3994,12 +4310,12 @@ function triRefileSheet(){
     const it=triage.items[i];
     const em=ERR_MAP[it.error];
     return `<h3>Move that one</h3>
-      <p>It went in as <b style="color:${em.c}">${esc(em.t)}</b>${it.subj?` in <b>${esc(shortSubj(it.subj))}</b>`:''}. Change it here and every count follows — nothing is thrown away.</p>
+      <p>It went in as <b style="color:${em.ct||em.c}">${esc(em.t)}</b>${it.subj?` in <b>${esc(shortSubj(it.subj))}</b>`:''}. Change it here and every count follows — nothing is thrown away.</p>
       <div class="sp-lab">how it felt in the exam</div>
       <div class="rf-conf">${[['high','Sure in exam'],['twoish','Down to 2'],['noidea','No read']]
         .map(([k,t])=>`<button class="rf-c ${it.conf===k?'on':''}" data-rfc="${k}">${t}</button>`).join('')}</div>
       <div class="sp-lab" style="margin-top:14px">which bucket</div>
-      <div class="rf-grid">${ERRORS.map(e=>`<button class="rf-b ${e.id===it.error?'on':''}" data-rf="${e.id}" style="--bc:${e.c}">
+      <div class="rf-grid">${ERRORS.map(e=>`<button class="rf-b ${e.id===it.error?'on':''}" data-rf="${e.id}" style="--bc:${e.c};--bct:${e.ct||e.c}">
         <b>${e.code}</b><span>${esc(e.t)}</span></button>`).join('')}</div>
       ${it.subj?`<div class="sp-lab" style="margin-top:14px">subject</div>
         <button class="rf-subj" id="rfSubj">${esc(it.subj)} <i>change ›</i></button>`:
@@ -4724,7 +5040,7 @@ function saveSession(score){
     if(triage.subjPlan && Object.keys(triage.subjPlan).length) sess.subjPlan=Object.assign({},triage.subjPlan);
     triage.sessionId=sess.id;
     sessions.unshift(sess);
-    sessions=sessions.slice(0,300); /* months of reads; the 900 KB payload warning guards the real Firestore limit */
+    sessions=capLocalReads(sessions);   /* the device keeps your history; only the cloud push is trimmed */
   }
   persistSessions(); triage.saved=true; persistLiveTriage();
   flushCloudPush(); /* a finished read is the highest-value write — don't sit on it */
@@ -4733,9 +5049,9 @@ function triageSummaryHTML(){
   const {c,blind,total,sure,twoish,noidea}=triageCounts(triage.items);
   const max=Math.max(1,...ERRORS.map(e=>c[e.id]));
   const bars=ERRORS.map(e=>{const n=c[e.id];
-    return `<div class="sm-bar"><span class="sm-k"><b style="color:${e.c}">${e.code}</b> ${e.t}</span><div class="sm-track"><div class="sm-fill" style="width:0;background:${e.c}" data-gw="${Math.max(2,n/max*100)}"></div></div><span class="sm-v">${n}</span></div>`;}).join('');
+    return `<div class="sm-bar"><span class="sm-k"><b style="color:${e.ct||e.c}">${e.code}</b> ${e.t}</span><div class="sm-track"><div class="sm-fill" style="width:0;background:${e.c}" data-gw="${Math.max(2,n/max*100)}"></div></div><span class="sm-v">${n}</span></div>`;}).join('');
   const dom=ERRORS.slice().sort((a,b)=>c[b.id]-c[a.id])[0];
-  const synth=`Mostly <b style="color:${dom.c}">${dom.t.toLowerCase()}</b> (${c[dom.id]}). ${FIXTEXT[dom.id]}`;
+  const synth=`Mostly <b style="color:${dom.ct||dom.c}">${dom.t.toLowerCase()}</b> (${c[dom.id]}). ${FIXTEXT[dom.id]}`;
   /* the fastest-marks read on THIS test — RF+TE are points you already own */
   const quick=c.retrieval+c.execution;
   const quickLine=quick>=2?`<div class="line"><b class="rec-q">${quick} you already own — RF + TE.</b> You knew these; they were lost to a weak cue or a misread, not ignorance. Cheapest points back: reshape the card front, run a read-the-last-line-first check. No new studying.</div>`:'';
@@ -4887,7 +5203,7 @@ function howToFixSheet(errId){
   const g = errId==='near' ? FIXGUIDE_NEAR : FIXGUIDE[errId];
   if(!g) return;
   const e = errId==='near' ? {code:'≈',t:'Near-miss — down to two',c:'var(--amber)'} : ERR_MAP[errId];
-  openSheet(`<h3><span style="color:${e.c}">${e.code}</span> · How to fix: ${esc(e.t)}</h3>
+  openSheet(`<h3><span style="color:${e.ct||e.c}">${e.code}</span> · How to fix: ${esc(e.t)}</h3>
     <div class="fg-meta"><span class="fg-tech">${esc(g.tech)}</span><span class="fg-time">${esc(g.time)}</span></div>
     <ol class="fg-steps">${g.steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol>
     <div class="fg-why"><b>Why this works</b> ${esc(g.why)}</div>
@@ -5022,8 +5338,8 @@ function leakCard(){
   /* one line, because both bar stacks above already said the rest — the fix guidance is a tap
      away on any bar segment, so nothing is lost by not printing it here */
   const synth = worst && worst[1]>=2
-    ? `<b style="color:${domErr.c}">${domErr.t}</b> is your biggest leak, and it clusters in <b>${esc(worst[0])}</b> (${worst[1]}).`
-    : `<b style="color:${domErr.c}">${domErr.t}</b> is your biggest leak.`;
+    ? `<b style="color:${domErr.ct||domErr.c}">${domErr.t}</b> is your biggest leak, and it clusters in <b>${esc(worst[0])}</b> (${worst[1]}).`
+    : `<b style="color:${domErr.ct||domErr.c}">${domErr.t}</b> is your biggest leak.`;
   return `<div class="card"><h3><span class="accent"></span>Where your marks leak <span class="h3-hint">tap a bar for the fix</span></h3>
     <div class="leak-sub">By mistake type</div><div class="hbars">${errBars}</div>
     <div class="leak-sub">By subject</div><div class="hbars">${subBars}</div>
@@ -5079,7 +5395,7 @@ function testDetailSheet(key){
     ${mixBar(t.errs,tot)}
     ${trio}
     ${subs.length?`<div class="sp-lab">where they landed</div><div class="sp-chips">${subs.map(([s,n])=>`<span class="chip" style="pointer-events:none">${esc(s)}<span class="n">${n}</span></span>`).join('')}</div>`:''}
-    <p class="tlab" style="margin-top:16px">Biggest leak here: <b style="color:${dom.c}">${dom.t.toLowerCase()}</b>. ${esc(FIXACT[dom.id])}</p>
+    <p class="tlab" style="margin-top:16px">Biggest leak here: <b style="color:${dom.ct||dom.c}">${dom.t.toLowerCase()}</b>. ${esc(FIXACT[dom.id])}</p>
     <div class="actions" style="margin-top:16px"><button class="btn primary" onclick="closeSheet()">Done</button></div>`);
 }
 function statStrip(){
@@ -5134,7 +5450,7 @@ function mixBar(agg,total){
 function bucketFixSheet(errId, sub, n){
   const e=ERR_MAP[errId]; if(!e)return;
   const g=FIXGUIDE[errId];
-  openSheet(`<h3><span style="color:${e.c}">${e.code}</span> · ${e.t}${sub?` in ${esc(sub)}`:''}</h3>
+  openSheet(`<h3><span style="color:${e.ct||e.c}">${e.code}</span> · ${e.t}${sub?` in ${esc(sub)}`:''}</h3>
     <p style="margin-bottom:10px">${n!=null?`<b>${n}</b> mistake${n===1?'':'s'}${sub?` here`:''} · `:''}${esc(e.d)}.</p>
     ${g?`<div class="fg-meta"><span class="fg-tech">${esc(g.tech)}</span><span class="fg-time">${esc(g.time)}</span></div>
     <ol class="fg-steps">${g.steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol>
@@ -5485,7 +5801,7 @@ function weakAreasCard(){
     return `<button class="wk-row" data-sub="${esc(x.s)}"><span class="wk-rank${i===0?' worst':''}">${i+1}</span>
       <div class="wk-mid"><div class="wk-t">${esc(shortSubj(x.s))}<span class="wk-q">${x.q}Q</span>${nxChip}${tr}</div>
       <div class="wk-mag"><i style="width:0" data-gw="${magW}">${mini}</i></div>
-      <div class="wk-d">${canMarks?`<b>≈${Math.round(x.swing)}</b> marks a paper`:`<b>${x.all}</b> lost`}${x.miss?` · <b>${x.miss}</b> not sorted yet`:''}${x.blind?` · <b class="bl">${x.blind}</b> felt right`:''} ${lk}<span class="wk-dom" style="--c:${dom.c}">${dom.short}</span></div></div>
+      <div class="wk-d">${canMarks?`<b>≈${Math.round(x.swing)}</b> marks a paper`:`<b>${x.all}</b> lost`}${x.miss?` · <b>${x.miss}</b> not sorted yet`:''}${x.blind?` · <b class="bl">${x.blind}</b> felt right`:''} ${lk}<span class="wk-dom" style="--c:${dom.c};--ct:${dom.ct||dom.c}">${dom.short}</span></div></div>
       <span class="th-go">›</span></button>`;}).join('');
   const sortRow=canMarks?`<div class="wk-sort" role="tablist">
     <button class="wk-sb ${wkSort==='marks'?'on':''}" data-wks="marks">Marks at risk</button>
@@ -5518,7 +5834,7 @@ function subjectSheet(sub){
     ${trend}
     ${planLine}
     <div class="sp-lab" style="margin-top:16px">what to do</div>
-    ${top.map(e=>`<div class="fp-row" style="--bc:${e.c}"><span class="fp-code">${e.code}</span>
+    ${top.map(e=>`<div class="fp-row" style="--bc:${e.c};--bct:${e.ct||e.c}"><span class="fp-code">${e.code}</span>
       <div><div class="fp-t">${e.t} <b>· ${x.errs[e.id]}</b></div><div class="fp-d">${esc(FIXACT[e.id])}</div></div></div>`).join('')}
     ${fixList}
     ${tests.length?`<div class="sp-lab">seen in</div><div class="sp-chips">${tests.map(t=>`<span class="chip" style="pointer-events:none">${esc(t)}</span>`).join('')}</div>`:''}
@@ -5977,7 +6293,7 @@ function recoverableCard(){
   const bar=`<div class="rec-bar">
     <span class="rec-seg q" style="flex:${quick||0.001}">${qpc>=14?`<span class="rec-pc">${qpc}%</span>`:''}</span>
     <span class="rec-seg s" style="flex:${study||0.001}">${100-qpc>=14?`<span class="rec-pc">${100-qpc}%</span>`:''}</span></div>`;
-  const chip=(id)=>`<button class="rec-chip" data-e="${id}" style="--bc:${ERR_MAP[id].c}">${ERR_MAP[id].code} ${c[id]}</button>`;
+  const chip=(id)=>`<button class="rec-chip" data-e="${id}" style="--bc:${ERR_MAP[id].c};--bct:${ERR_MAP[id].ct||ERR_MAP[id].c}">${ERR_MAP[id].code} ${c[id]}</button>`;
   return `<div class="card"><h3><span class="accent"></span>Where the fastest marks are<button class="cardq" data-help="recover">?</button></h3>
     ${bar}
     <div class="rec-row"><div class="rec-lab"><b class="rec-q">${quick} you already own</b><span>${chip('retrieval')}${chip('execution')}</span></div>
@@ -7105,7 +7421,7 @@ function mergeIncoming(data){
   if(data && Array.isArray(data.sessions)){
     const have=new Set(sessions.map(s=>s.id));
     sanitizeSessions(data.sessions).forEach(s=>{ if(!have.has(s.id) && !(tombstones[s.id]&&tombstones[s.id]>=(s.ts||0))){ sessions.push(s); have.add(s.id); sesAdded++; } });
-    if(sesAdded){ sessions.sort((a,b)=>(b.ts||0)-(a.ts||0)); sessions=sessions.slice(0,300); persistSessions(); }
+    if(sesAdded){ sessions.sort((a,b)=>(b.ts||0)-(a.ts||0)); sessions=capLocalReads(sessions); persistSessions(); }
   }
   /* v6 backups carry the plan — merged the same way the cloud does, so restoring onto a
      freshly-seeded device brings your ticks back instead of losing them to the empty grid */
@@ -7457,8 +7773,26 @@ function maybeBackupReminder(){
 function deviceId(){ let d=null; try{d=localStorage.getItem(K_DEV)}catch(_){}; if(!d){ d='d'+Math.random().toString(36).slice(2)+Date.now().toString(36); try{localStorage.setItem(K_DEV,d)}catch(_){}} return d; }
 function persistTombstones(){ try{localStorage.setItem(K_TOMB,JSON.stringify(tombstones))}catch(_){} }
 function loadTombstones(){ try{const t=JSON.parse(localStorage.getItem(K_TOMB)||'{}'); if(t&&typeof t==='object'&&!Array.isArray(t)) tombstones=t;}catch(_){} }
-function persistSessions(cloud){ bumpData(); try{localStorage.setItem(K_SESS,JSON.stringify(sessions))}catch(_){}; if(cloud!==false) scheduleCloudPush(); }
-function persistPlan(cloud){ bumpData(); plan._upd=Date.now(); try{localStorage.setItem(K_PLAN,JSON.stringify(plan))}catch(_){}; if(cloud!==false) scheduleCloudPush(); }
+/* A save that fails must never be silent. Sorted reads and the plan used to swallow a full-disk
+   error and carry on looking saved, which is the one failure that loses real work without
+   telling you. Everything now reports through one door: warn once, keep warning in the header,
+   and never pretend the write happened. */
+function saveFailed(what){
+  _saveWarned=true; _saveBroken=what;
+  try{ toast('⚠ Could not save your '+what+' — storage is full. Export a backup now.',
+        {label:'Back up', fn:()=>{ try{ copyBackup(); }catch(_){ try{ exportData(); }catch(__){} } }}); }catch(_){}
+  try{ paintSaveBanner(); }catch(_){}
+}
+function saveOK(){ if(_saveBroken){ _saveBroken=null; _saveWarned=false; try{ paintSaveBanner(); }catch(_){} } }
+let _saveBroken=null;
+function persistSessions(cloud){ bumpData();
+  let ok=true; try{ localStorage.setItem(K_SESS,JSON.stringify(sessions)); }catch(_){ ok=false; }
+  if(ok) saveOK(); else saveFailed('sorted reads');
+  if(cloud!==false) scheduleCloudPush(); return ok; }
+function persistPlan(cloud){ bumpData(); plan._upd=Date.now();
+  let ok=true; try{ localStorage.setItem(K_PLAN,JSON.stringify(plan)); }catch(_){ ok=false; }
+  if(ok) saveOK(); else saveFailed('plan');
+  if(cloud!==false) scheduleCloudPush(); return ok; }
 function sanitizePlan(obj){
   const p={rows:[], done:{}, skims:{}, dv:{}, _upd:0};
   if(!obj||typeof obj!=='object') return p;
@@ -7469,6 +7803,10 @@ function sanitizePlan(obj){
     const row={ id:r.id, d:r.d, t:typeof r.t==='string'?r.t.slice(0,80):'', k:kinds.includes(r.k)?r.k:'read',
       s:(Array.isArray(r.s)?r.s:[]).filter(x=>SUBJECTS.includes(x)), weak:r.weak?1:0, x2:r.x2?1:0 };
     if(typeof r.note==='string'&&r.note) row.note=r.note.slice(0,300); /* never an explicit undefined — Firestore set() rejects it */
+    /* a day can carry a second, lighter subject for the evening, and the reason the two are
+       paired. Optional and additive: rows written by an older build simply have neither. */
+    if(typeof r.tl==='string'&&r.tl.trim()) row.tl=r.tl.trim().slice(0,60);
+    if(typeof r.why==='string'&&r.why.trim()) row.why=r.why.trim().slice(0,160);
     p.rows.push(row);
   });
   p.rows.sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:0);
@@ -7661,6 +7999,34 @@ function sanitizeRival(uid, o){
 }
 
 /* pure, commutative, idempotent merge — never loses a created entry, honours deletes */
+/* Two limits that were being confused for one. THIS DEVICE can hold everything: localStorage
+   is around 5MB and a year of heavy sorting measures near 1.3MB, so the local ceiling exists
+   only to stop something pathological, and if it ever bites you are told. THE CLOUD document is
+   hard-capped near 1MB by Firestore, so the push carries the most recent reads that fit and
+   leaves the rest safely on the device. Trimming local history to satisfy a cloud limit is how
+   you lose work you did months ago. */
+const LOCAL_MAX_READS=5000, CLOUD_DOC_BUDGET=850000;
+let _trimWarned=false;
+function capLocalReads(list){
+  if(!Array.isArray(list)) return [];
+  if(list.length<=LOCAL_MAX_READS) return list;
+  if(!_trimWarned){ _trimWarned=true;
+    try{ toast('You have more than '+LOCAL_MAX_READS+' sorted reads. Export a backup — the oldest are being set aside.'); }catch(_){} }
+  return list.slice(0,LOCAL_MAX_READS);
+}
+/* the newest reads that fit inside the cloud document, without touching what is on the device */
+function readsForCloud(list, otherBytes){
+  const arr=Array.isArray(list)?list:[];
+  let budget=CLOUD_DOC_BUDGET-(otherBytes||0);
+  if(budget<=0) return [];
+  const out=[];
+  for(let i=0;i<arr.length;i++){                       /* arr is newest-first */
+    const cost=JSON.stringify(arr[i]).length+1;
+    if(cost>budget) break;
+    budget-=cost; out.push(arr[i]);
+  }
+  return out;
+}
 function mergeLedger(a,b){
   const tomb=Object.assign({},a.tombstones||{});
   const bt=b.tombstones||{}; for(const id in bt) tomb[id]=Math.max(tomb[id]||0, bt[id]);
@@ -7676,7 +8042,7 @@ function mergeLedger(a,b){
      the old first-wins behaviour). Tombstones still veto, capped for doc-size safety */
   const sById={}; const su=x=>x.upd||x.ts||0;
   (a.sessions||[]).concat(b.sessions||[]).forEach(s=>{ if(!s||!s.id)return; const cur=sById[s.id]; if(!cur||su(s)>su(cur)) sById[s.id]=s; });
-  const sessions=Object.values(sById).filter(s=>!(tomb[s.id] && tomb[s.id]>=(s.ts||0))).sort((x,y)=>(y.ts||0)-(x.ts||0)).slice(0,300);
+  const sessions=capLocalReads(Object.values(sById).filter(s=>!(tomb[s.id] && tomb[s.id]>=(s.ts||0))).sort((x,y)=>(y.ts||0)-(x.ts||0)));
   return {entries, settings, tombstones:tomb, sessions, plan:mergePlans(a.plan,b.plan)};
 }
 /* ---- plan merge ----
@@ -7964,9 +8330,17 @@ async function pushNow(){
   fbPushPending=false;
   try{
     /* JSON round-trip drops every explicit undefined (Firestore set() hard-rejects them) */
-    const raw=JSON.stringify({ entries, settings, tombstones, sessions, plan, by:deviceId(), updatedAt:Date.now() });
-    /* Firestore caps a document at ~1 MB — warn early instead of failing silently later */
-    if(raw.length>900000 && !pushNow._warned){ pushNow._warned=true; toast('Your ledger is growing close to the cloud limit — export a backup from Data, then clear very old triage reads.'); }
+    const rest={ entries, settings, tombstones, plan, by:deviceId(), updatedAt:Date.now() };
+    const restBytes=JSON.stringify(rest).length;
+    /* Firestore hard-caps a document near 1 MB. Carry the newest reads that fit and leave the
+       rest on the device, rather than letting the write fail or deleting your own history. */
+    const cloudReads=readsForCloud(sessions, restBytes);
+    const dropped=sessions.length-cloudReads.length;
+    if(dropped>0 && !pushNow._warned){ pushNow._warned=true;
+      toast(`Your ledger is bigger than one cloud document. The newest ${cloudReads.length} reads sync; the older ${dropped} stay on this device — export a backup to keep them safe.`); }
+    if(dropped<=0) pushNow._warned=false;
+    /* JSON round-trip drops every explicit undefined (Firestore set() hard-rejects them) */
+    const raw=JSON.stringify(Object.assign({}, rest, {sessions:cloudReads}));
     const payload=JSON.parse(raw);
     await docRef().set(payload); fbLastSync=Date.now(); fbLastPush=Date.now(); fbRemoteCount=entries.length; fbError=''; pushNow._retry=0; renderCloudSync(); }
   catch(e){
