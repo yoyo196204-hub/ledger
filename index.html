@@ -291,28 +291,9 @@
   .next .n{width:23px;height:23px;border-radius:8px;background:var(--accent-soft);color:var(--accent-ink);font-weight:800;font-size:12px;display:grid;place-items:center;flex:none;margin-top:1px}
   .next .row b{color:var(--ink);font-weight:680}
   /* ---- "Do this next": a count, a size bar, four words ---- */
-  .na-row{display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:12px;width:100%;text-align:left;
     padding:12px 0;border:none;border-bottom:1px solid var(--border);background:none;cursor:pointer;
     transition:transform .18s var(--spring),background .18s;border-radius:11px}
-  .na-row:first-of-type{padding-top:3px}
-  .na-row:last-child{border-bottom:none;padding-bottom:2px}
-  .na-row:hover{background:var(--surface2);transform:translateX(2px)}
-  .na-row:active{transform:scale(.985)}
-  .na-n{flex:none;display:flex;flex-direction:column;align-items:center;min-width:42px}
-  .na-n b{font-size:21px;font-weight:850;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums}
-  .na-n i{font-size:9.5px;font-style:normal;font-weight:750;letter-spacing:.05em;text-transform:uppercase;color:var(--faint);margin-top:3px}
-  .na-row.hot .na-n b{color:var(--rose)} .na-row.warn .na-n b{color:var(--accent-ink)}
-  .na-mid{min-width:0}
-  .na-t{display:block;font-size:13.5px;font-weight:700;color:var(--ink);line-height:1.3;overflow-wrap:anywhere}
-  .na-bar{display:block;height:5px;border-radius:4px;background:var(--surface2);margin-top:7px;overflow:hidden}
-  .na-bar i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .55s cubic-bezier(.4,0,.2,1)}
-  .na-row.hot .na-bar i{background:linear-gradient(90deg,var(--rose),color-mix(in srgb,var(--rose) 55%,#fff))}
-  .na-d{flex:none;font-size:11px;font-weight:650;color:var(--faint);text-align:right;max-width:96px;line-height:1.3}
-  .na-clear{display:flex;align-items:center;gap:12px;padding:4px 0 2px}
-  .na-tick{width:30px;height:30px;flex:none;border-radius:11px;display:grid;place-items:center;font-size:15px;font-weight:800;
     color:var(--sage-ink);background:color-mix(in srgb,var(--sage) 18%,transparent)}
-  .na-clear b{display:block;font-size:14px;font-weight:800;color:var(--ink)}
-  .na-clear span{display:block;font-size:12px;color:var(--muted);font-weight:600;margin-top:2px}
   /* ---- "three moves": each move is a picture ---- */
   .tm-row{display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px;width:100%;text-align:left;
     padding:13px 0;border:none;border-bottom:1px solid var(--border);background:none;cursor:pointer;
@@ -2169,7 +2150,7 @@
      cursor, sinks under a press, and never moves without a transition to carry it. These were the
      controls that had none of that and felt dead to the touch. */
   .sc-chip,.vt,.ins-sec.tgl,.hm-mode,.wg-step,.linkish,.rp-row,.wg-hit,.cardq,.ph,
-  .flr-card,.cal-card,.lv-card,.fc-card,.tm-row.tap,.na-row,.hbar.lk-bar{
+  .flr-card,.cal-card,.lv-card,.fc-card,.tm-row.tap,.hbar.lk-bar{
     transition:transform .17s var(--spring), background-color .17s var(--ease),
                border-color .17s var(--ease), box-shadow .17s var(--ease), filter .17s var(--ease);
   }
@@ -2180,7 +2161,7 @@
     .ins-sec.tgl:hover .chev{transform:translateY(1px)}
     .hm-mode:hover,.wg-step:hover,.wk-sb:hover:not(.on){background:var(--surface2)}
     .rp-row:hover{background:var(--surface2)}
-    .tm-row.tap:hover,.na-row:hover{background:var(--surface2)}
+.tm-row.tap:hover{background:var(--surface2)}
     .hbar.lk-bar:hover{filter:brightness(1.04)}
     .cardq:hover{background:var(--surface3);color:var(--ink2);transform:scale(1.12)}
     .ph:hover{background:var(--surface2)}
@@ -2192,7 +2173,7 @@
   }
   /* press: everything sinks, nothing is exempt */
   .sc-chip:active,.vt:active,.ins-sec.tgl:active,.hm-mode:active,.wg-step:active,
-  .rp-row:active,.tm-row.tap:active,.na-row:active,.wk-sb:active,.ph:active{transform:scale(.97)}
+.rp-row:active, .tm-row.tap:active, .wk-sb:active, .ph:active{transform:scale(.97)}
   .flr-card:active,.cal-card:active,.lv-card:active,.fc-card:active{transform:scale(.995)}
   .wg-hit:active + .wg-dot{r:11}
   .gtgo,.wk-go{transition:transform .17s var(--spring)}
@@ -2523,7 +2504,7 @@ const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.st
 async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } try{return localStorage.getItem(k)}catch(_){return null} }
 async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v);return true}catch(e){return false} } try{localStorage.setItem(k,v);return true}catch(_){return false} }
 const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
-const APP_VERSION='v74'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
+const APP_VERSION='v75'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
 
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 /* Roughly how a 200-question NEET-PG paper is split by subject — an average of recent years,
@@ -3261,7 +3242,13 @@ function mergeTarget(set,type){
      named (GT-19 is only ever one paper), so a 72h window is safe — review it over three days
      and it stays one read. Module names recur week to week, so they keep a tight window. */
   const cut=Date.now()-(type==='gt'?72:20)*3600e3;
-  return sessions.find(s=>s && s.set===set && s.testType===type && (s.ts||0)>=cut)||null;
+  const live=sessions.find(s=>s && s.set===set && s.testType===type && (s.ts||0)>=cut);
+  if(live) return live;
+  /* A test whose score you entered but never sorted is a placeholder for exactly this read,
+     however long ago you entered it. Without this, sorting it later made a second row for one
+     paper — the score on one, the mistakes on the other — and every per-test number split
+     between them. The name identifies the paper, so this can never fold two real sittings. */
+  return sessions.find(s=>s && s.set===set && s.testType===type && !((s.items||[]).length)) || null;
 }
 /* ---- keeping count, per subject ----
    Sorting a paper subject by subject is where it is easiest to lose the thread: you finish
@@ -3495,7 +3482,8 @@ function renderTriHome(box){
         <button data-type="module" class="${t==='module'?'on':''}"><span class="lab">Daily module</span></button>
       </div>
       <button class="th-switch" id="thChange"><span class="dotc" style="background:${typeColor(t)}"></span>${esc(curSet())}<span class="chg">change ›</span></button>
-      <button class="th-start" id="triageLaunch"><span>${(()=>{const p=mergeTarget(curSet(),curType());return p?`Continue today’s read <b class="th-cont">· ${p.items.length} in</b>`:'Start sorting';})()}</span><span class="th-play">▶</span></button>
+      <button class="th-start" id="triageLaunch"><span>${(()=>{const p=mergeTarget(curSet(),curType());const n=p&&p.items?p.items.length:0;
+        return n?`Continue today’s read <b class="th-cont">· ${n} in</b>`:(p?`Sort ${esc(curSet())} — score already in`:'Start sorting');})()}</span><span class="th-play">▶</span></button>
     </div>
     ${dash}
     ${queueCard}
@@ -4911,7 +4899,10 @@ function scoreSheet(){
   const isGT=triage.testType==='gt';
   const n=triage.items.length;
   const stp=(id,ph)=>`<div class="stp"><button data-dn="${id}">−</button><input type="number" id="${id}" inputmode="numeric" min="0" placeholder="${ph}"><button data-up="${id}">+</button></div>`;
-  openSheet(`<h3>How did ${esc(triage.set)} finish?</h3>
+  const known=(mergeTarget(triage.set,triage.testType)||{}).score;
+  const haveScore = !!(known && known.c!=null);
+  openSheet(`<h3>${haveScore?`${esc(triage.set)} — check the score`:`How did ${esc(triage.set)} finish?`}</h3>
+    ${haveScore?`<p class="tlab" style="margin-top:-6px;margin-bottom:12px">Already recorded for this test — change it only if it was wrong.</p>`:''}
     <div class="sc-grid">
       <div class="sc-cell"><label>Correct</label>${stp('scC','—')}</div>
       <div class="sc-cell"><label>Wrong</label>${stp('scW','—')}</div>
@@ -5381,7 +5372,7 @@ function pulseCard(){
       : `<button class="ph dim" id="pulseDr"><span class="ph-k">Drills</span><span class="ph-sub">${D.n} logged — score them for the trend</span></button>`)
     : '';
   const right = B
-    ? `<button class="ph" id="pulseBl"><span class="ph-k">Blind spots</span><span class="ph-bar">${B.cleared?`<i class="g" style="flex:${B.cleared}"></i>`:''}${(B.handled-B.cleared)?`<i class="a" style="flex:${B.handled-B.cleared}"></i>`:''}${B.live?`<i class="r" style="flex:${B.live}"></i>`:''}</span><b class="${B.live?'bl':'ok'}">${B.live?B.live+' live':'✓ clear'}</b></button>`
+    ? `<button class="ph" id="pulseBl"><span class="ph-k">Blind spots</span><span class="ph-bar">${B.cleared?`<i class="g" style="flex:${B.cleared}"></i>`:''}${(B.handled-B.cleared)?`<i class="a" style="flex:${B.handled-B.cleared}"></i>`:''}${B.live?`<i class="r" style="flex:${B.live}"></i>`:''}</span><b class="${B.live?'bl':'ok'}">${B.live?B.live+' unfixed':'✓ all fixed'}</b></button>`
     : '';
   if(!left && !right) return '';
   return `<div class="card pulse">${left}${left&&right?'<i class="pulse-div"></i>':''}${right}</div>`;
@@ -5621,40 +5612,6 @@ function howToFixSheet(errId){
     <div class="actions" style="margin-top:16px"><button class="btn primary" onclick="closeSheet()">Got it</button></div>`);
 }
 
-/* Do this next — a queue you read at a glance: a count, a bar for how big it is against the
-   others, and four words. The sentence that used to sit here is one tap away in the sheet, so
-   nothing was dropped, only moved to where you go looking for it. */
-let _naDetail={};
-function nextCard(map){
-  const open=entries.filter(e=>e.status==='open');
-  const acts=[];
-  if(open.length){ const mins=Math.max(1,Math.round(open.length*20/60));
-    acts.push({k:'open', n:open.length, u:'open', t:'Clear your Review queue', d:`≈${mins} min`, tone:'hot',
-      det:`<h3>Clear your Review queue</h3><p><b>${open.length}</b> mistake${open.length>1?'s are':' is'} still open — about <b>${mins} minute${mins>1?'s':''}</b> of recall at 20 seconds each. Do it the night before your next GT at the latest, so the fixes are fresh when the paper asks for them.</p>`});
-  }
-  const reps=buildGroups().filter(a=>a.length>=2).sort((a,b)=>b.length-a.length).slice(0,3);
-  if(reps.length){ const tot=reps.reduce((a,g)=>a+g.length,0);
-    acts.push({k:'rep', n:tot, u:'repeats', t:esc(reps[0][0].concept), d:reps.length>1?`+${reps.length-1} more concept${reps.length>2?'s':''}`:'keeps coming back', tone:'hot', sub:reps[0][0].subject,
-      det:`<h3>The same ideas, again</h3><p>You keep re-missing ${reps.map(a=>`<b>${esc(a[0].concept)}</b> ×${a.length}`).join(', ')}. These are the cheapest marks on the table — the concept is already identified, it just has not stuck. Nail them this week.</p>`});
-  }
-  const openBySub={}; open.forEach(e=>openBySub[e.subject]=(openBySub[e.subject]||0)+1);
-  const worst=Object.entries(openBySub).sort((a,b)=>b[1]-a[1])[0];
-  if(worst && worst[1]>=3) acts.push({k:'sub', n:worst[1], u:'open', t:esc(worst[0]), d:'leaking most right now', tone:'warn', sub:worst[0],
-    det:`<h3>${esc(worst[0])}</h3><p><b>${worst[1]}</b> open mistakes sit in ${esc(worst[0])} — more than any other subject right now. Give it the first slot in this week's modules.</p>`});
-  const blindOpen=open.filter(isBlind).length;
-  if(blindOpen) acts.push({k:'blind', n:blindOpen, u:'blind', t:'Blind spots with no fix', d:'sure, and still wrong', tone:'hot',
-    det:`<h3>Blind spots with no fix</h3><p><b>${blindOpen}</b> of your open mistakes are ones you felt sure about. They will not feel wrong in the exam either — a re-read does not touch them. Re-learn the concept and write what you believed against what is true.</p>`});
-  const mx=Math.max(1,...acts.map(a=>a.n));
-  _naDetail={}; acts.forEach(a=>_naDetail[a.k]=a.det);
-  const rows=acts.length ? acts.map(a=>`<button class="na-row ${a.tone}" data-na="${a.k}"${a.sub?` data-nasub="${esc(a.sub)}"`:''}>
-      <span class="na-n"><b data-cu="${a.n}">${a.n}</b><i>${a.u}</i></span>
-      <span class="na-mid"><span class="na-t">${a.t}</span><span class="na-bar"><i style="width:0" data-gw="${Math.round(a.n/mx*100)}"></i></span></span>
-      <span class="na-d">${a.d}</span><span class="th-go">›</span></button>`).join('')
-    : `<div class="na-clear"><span class="na-tick">✓</span><div><b>Nothing open</b><span>Log your next GT or module and keep it that way.</span></div></div>`;
-  const d=daysToExam();
-  const head=d!==null&&d>0?`Do this next <span class="h3-hint">${d} day${d>1?'s':''} to exam</span>`:'Do this next';
-  return `<div class="card next"><h3><span class="accent"></span>${head}</h3>${rows}</div>`;
-}
 function typeSplitCard(){
   const gt=entries.filter(e=>e.testType==='gt'), mod=entries.filter(e=>e.testType==='module');
   if(!gt.length || !mod.length) return '';
@@ -5743,10 +5700,6 @@ function leakCard(){
   const domErr=ERRORS.slice().sort((a,b)=>byErr[b.id]-byErr[a.id])[0];
   const maxErr=Math.max(1,...Object.values(byErr));
   const errBars=ERRORS.map(e=>`<button class="hbar lk-bar" data-e="${e.id}"><span class="k">${e.t}</span><div class="track"><div class="fill" style="width:${Math.max(3,byErr[e.id]/maxErr*100)}%;background:linear-gradient(90deg,${e.c},color-mix(in srgb,${e.c} 72%,#fff))"></div></div><span class="v">${byErr[e.id]}</span></button>`).join('');
-  const subCount={}; entries.forEach(e=>subCount[e.subject]=(subCount[e.subject]||0)+1);
-  const subSorted=Object.entries(subCount).sort((a,b)=>b[1]-a[1]).slice(0,6);
-  const maxSub=Math.max(1,...subSorted.map(s=>s[1]));
-  const subBars=subSorted.map(([s,n])=>`<button class="hbar lk-bar" data-sub="${esc(s)}"><span class="k">${esc(s)}</span><div class="track"><div class="fill" style="width:${Math.max(3,n/maxSub*100)}%;background:linear-gradient(90deg,var(--accent),var(--accent2))"></div></div><span class="v">${n}</span></button>`).join('');
   /* the integrative line: where the commonest mistake-type actually clusters */
   const domErrSubs={}; entries.filter(e=>e.error===domErr.id).forEach(e=>domErrSubs[e.subject]=(domErrSubs[e.subject]||0)+1);
   const worst=Object.entries(domErrSubs).sort((a,b)=>b[1]-a[1])[0];
@@ -5755,9 +5708,11 @@ function leakCard(){
   const synth = worst && worst[1]>=2
     ? `<b style="color:${domErr.ct||domErr.c}">${domErr.t}</b> is your biggest leak, and it clusters in <b>${esc(worst[0])}</b> (${worst[1]}).`
     : `<b style="color:${domErr.ct||domErr.c}">${domErr.t}</b> is your biggest leak.`;
-  return `<div class="card"><h3><span class="accent"></span>Where your marks leak <span class="h3-hint">tap a bar for the fix</span></h3>
-    <div class="leak-sub">By mistake type</div><div class="hbars">${errBars}</div>
-    <div class="leak-sub">By subject</div><div class="hbars">${subBars}</div>
+  /* By-subject bars used to sit under these. Two other cards on this page already rank subjects,
+     and both do it against what the subject is worth on the paper rather than by raw count — so
+     this one keeps the half only it has: the kind of mistake, and the way into how to fix it. */
+  return `<div class="card"><h3><span class="accent"></span>Which kind of mistake costs you <span class="h3-hint">tap a bar for how to fix it</span></h3>
+    <div class="hbars">${errBars}</div>
     <p class="tlab" style="margin-top:15px">${synth}</p></div>`;
 }
 /* one integrated map of every test — detailed logs AND triage reads folded together */
@@ -5847,7 +5802,7 @@ function statStrip(){
   const rec=entries.filter(e=>isRecurring(e,map)).length;
   const blind=entries.filter(isBlind).length;
   const cell=(n,lab,col)=>`<div class="ss-cell"><div class="ss-n" style="color:${col}">${n}</div><div class="ss-l">${lab}</div></div>`;
-  return `<div class="statstrip">${cell(due,'due today','var(--sage-ink)')}${cell(rec,'keep happening','var(--amber)')}${cell(blind,'blind spots','var(--rose)')}</div>`;
+  return `<div class="statstrip">${cell(due,'due today','var(--sage-ink)')}${cell(rec,'keep happening','var(--amber)')}${cell(blind,'blind spots logged','var(--rose)')}</div>`;
 }
 /* long-term read across triage sessions: bucket mix + composition per test + blind-spot count */
 /* smooth stacked band: top curve L→R, bottom curve R→L, closed */
@@ -6476,16 +6431,14 @@ function threeMovesCard(){
       </div>`);
   } else {
     const anyTagged=ss.some(sn=>sn.items.some(it=>it.subj)) || ee.some(e=>e.subject);
+    /* nothing clusters, so there is no move here — an empty row dressed as one is worse than a
+       shorter card */
     _tmDetail.hot=`<h3>No hotspot right now</h3><p>${anyTagged?'Nothing clusters above your own baseline by enough to call it. Your mistakes are spread evenly across subjects, which means the plan — not one subject — is the lever this week.':'Tag subjects while you triage and a hotspot can be found. Without subject tags there is nothing to compare.'}</p>`;
-    wrap('hot',true,`<div class="tm-h"><span class="tm-k">Hotspot</span><b>${anyTagged?'Spread evenly':'Not enough tags'}</b></div>
-      <div class="tm-flat"><span></span></div>`);
   }
   /* 2 — discipline */
   const last3=ss.slice(0,3).slice().reverse().map(x=>triageCounts(x.items).blindAttempt);
   if(ss.length<3){
-    _tmDetail.disc=`<h3>Blind attempts</h3><p>A blind attempt is a question you answered with no read at all. On +4/−1 those cost you marks on average. Triage three reads and the trend across them appears here.</p>`;
-    wrap('disc',true,`<div class="tm-h"><span class="tm-k">Discipline</span><b>${ss.length} of 3 tests</b></div>
-      <div class="tm-flat"><span></span></div>`);
+    /* three reads is the floor for a trend; until then this row would be a placeholder */
   } else {
     const [a,b2,c2]=last3, lost=a+b2+c2, dir=c2>a?'up':c2<a?'down':'flat';
     _tmDetail.disc=`<h3>Blind attempts</h3><p>Across your last three tests you attempted <b>${a} → ${b2} → ${c2}</b> questions with no read at all — <b>${lost}</b> in total.</p>
@@ -6495,7 +6448,9 @@ function threeMovesCard(){
     wrap('disc',true,`<div class="tm-h"><span class="tm-k">Discipline</span><b>${c2} blind attempt${c2===1?'':'s'}</b><span class="tm-delta ${dir}">${dir==='up'?'▲':dir==='down'?'▼':'—'} ${Math.abs(c2-a)||'flat'}</span></div>
       <div class="tm-spark">${miniLine(last3, dir==='down'?'var(--sage-ink)':dir==='up'?'var(--rose)':'var(--muted)', 3)}<span class="tm-seq">${a} → ${b2} → ${c2}</span></div>`);
   }
-  /* 3 — unfinished */
+  /* 3 — unfinished. The Triage home leads with "write the fix" and "still open in your book", so
+     this only earns a row when there is something the home does not already say: work parked
+     unsorted, or blind spots left from a read that is already two days cold. */
   let unWritten=0, offender=null, parked=0, blindTot=0, written=0;
   ss.forEach(sn=>{ const q=triageCounts(sn.items); parked+=q.uncertain; blindTot+=q.blind; written+=Math.min(q.blind,writtenCount(sn.id));
     if(q.blind>0 && (Date.now()-sn.ts)>48*3600e3){ const miss=Math.max(0,q.blind-writtenCount(sn.id)); if(miss>0){ unWritten+=miss; if(!offender) offender=sn; } } });
@@ -6505,12 +6460,11 @@ function threeMovesCard(){
       ${unWritten&&parked?'</p><p style="margin-top:10px">':''}${parked?`<b>${parked}</b> mistake${parked>1?'s are':' is'} parked unsorted — they are in the ledger but not in any bucket, so nothing counts them yet.`:''}</p>`;
     wrap('unfin',true,`<div class="tm-h"><span class="tm-k">Unfinished</span><b>${unWritten?`${unWritten} without a fix`:`${parked} parked`}</b>${unWritten&&parked?`<span class="tm-tag" style="--c:var(--amber)">+${parked} parked</span>`:''}</div>
       <div class="tm-prog"><div class="tm-track"><i style="width:0" data-gw="${donePc}"></i></div><span>${written}/${blindTot} written</span></div>`);
-  } else {
-    _tmDetail.unfin=`<h3>Nothing unfinished</h3><p>Every blind spot in this window has a written fix, and nothing is parked unsorted. That is the state to hold — it is what makes the rest of these numbers trustworthy.</p>`;
-    wrap('unfin',true,`<div class="tm-h"><span class="tm-k">Unfinished</span><b>All clear</b></div>
-      <div class="tm-prog"><div class="tm-track done"><i style="width:0" data-gw="100"></i></div><span>${written}/${blindTot||0} written</span></div>`);
   }
-  return `<div class="card next tm-card"><h3><span class="accent"></span>This week's three moves<button class="cardq" data-help="signal">?</button></h3>${rows.join('')}</div>`;
+  if(!rows.length) return '';
+  /* say how many there are rather than promising three and padding to reach it */
+  const ttl = rows.length===1 ? 'What to change this week' : `What to change this week`;
+  return `<div class="card next tm-card"><h3><span class="accent"></span>${ttl}<span class="h3-hint">${rows.length} thing${rows.length>1?'s':''} worth acting on</span><button class="cardq" data-help="signal">?</button></h3>${rows.join('')}</div>`;
 }
 /* the sentence behind each move, plus the door into the work it names */
 function movesSheet(k){
@@ -6931,7 +6885,7 @@ function numbersCard(){
   const pct=(a,b)=>b?Math.round(a/b*100)+'%':'—';
   const tile=(n,lab)=>`<div class="num"><b data-cu="${typeof n==='number'?n:''}">${n}</b><span>${lab}</span></div>`;
   return `<div class="card thin"><h3><span class="accent"></span>The raw numbers</h3><div class="num-grid">
-    ${tile(total,'wrongs triaged')}${tile(tests,'tests read')}${tile(blind,'blind spots')}
+    ${tile(total,'wrongs triaged')}${tile(tests,'tests read')}${tile(blind,'blind spots logged')}
     ${tile(tests?(total/tests).toFixed(1):'—','avg wrongs / test')}${tile(pct(blind,total),'blind rate')}${tile(pct(noidea,total),'no-read share')}
     ${tile(pct(img,total),'image share')}${parked?tile(parked,'parked'):''}${ee.length?tile(ee.length,'in the Book'):''}
     ${written?tile(written,'fixes written'):''}${bestPc!=null?tile(bestPc+'%','best % score'):''}
@@ -7021,20 +6975,6 @@ function metricHelp(key){
     <div class="mh-row"><div class="mh-k">What to do</div><div class="mh-v">${esc(h.do)}</div></div>
     <div class="actions" style="margin-top:16px"><button class="btn primary" onclick="closeSheet()">Got it</button></div>`);
 }
-/* the detail half of a "Do this next" row: the full sentence, plus the door to where it lives */
-function nextSheet(k,sub){
-  const det=_naDetail[k]; if(!det) return;
-  const go={open:['Open the Book','book'], rep:['See the repeats','book'], sub:['Open the Book','book']}[k];
-  openSheet(det+`<div class="actions" style="margin-top:16px">
-    ${k==='blind'?'<button class="btn primary" id="naBlind">See every blind spot</button>':''}
-    ${sub?`<button class="btn ghost" id="naSub">Open ${esc(sub)}</button>`:''}
-    ${go?`<button class="btn ${sub?'ghost':'primary'}" id="naGo">${go[0]}</button>`:''}
-    <button class="btn ghost" onclick="closeSheet()">Close</button></div>`);
-  const g=id=>document.getElementById(id);
-  if(g('naBlind')) g('naBlind').onclick=()=>{ closeSheet(); blindSpotSheet(); };
-  if(g('naSub')) g('naSub').onclick=()=>{ closeSheet(); subjectSheet(sub); };
-  if(g('naGo')) g('naGo').onclick=()=>{ closeSheet(); if(sub){ bookFilter.sub=sub; renderBook(); } switchView('book'); };
-}
 function bindWeight(box){
   const read=box.querySelector('#wgRead'); if(!read) return;
   const hits=[].slice.call(box.querySelectorAll('.wg-hit'));
@@ -7092,7 +7032,10 @@ function renderInsights(){
     return `<button class="ins-sec tgl ${open?'open':''}" data-tgl="${id}"><span>${title}</span><span class="sec-meta">${live.length} card${live.length>1?'s':''} <i class="chev">▾</i></span></button>
       <div class="sec-body ${open?'open':''}"><div class="sec-inner">${live.join('')}</div></div>`;
   };
-  const detailed = entries.length ? secWrap('logs','From your detailed logs',[nextCard(map),masteryCard(),statStrip(),leakCard(),typeSplitCard()]) : '';
+  /* "Do this next" was the same three queues the Triage home already leads with — unwritten
+     fixes, repeats, recall due — and at six hundred notes it asked for three hours in one row.
+     The queue belongs on the page you act from; this page is for reading what happened. */
+  const detailed = entries.length ? secWrap('logs','From your detailed logs',[masteryCard(),statStrip(),leakCard(),typeSplitCard()]) : '';
   const deep = secWrap('deep','The whole picture — every subject, every test',[heatmapCard(),weakAreasCard(),numbersCard(),testListCard()]);
   box.innerHTML = scopeRow + typeRow + vitalsStrip() + forecastCard() + pulseCard() + leverCard() + weightCard() + threeMovesCard() + recoverableCard() + floorCard() + calibrationCard() + repeatCard() + scoreTrendCard() + triageInsightsCard()
     + deep + detailed;
@@ -7133,7 +7076,6 @@ function renderInsights(){
   /* physical spring count-ups on the display numbers (raw-numbers grid + projected score) */
   box.querySelectorAll('.num b[data-cu], .neg-num b[data-cu], .vt b[data-cu]').forEach(el=>{ const to=+el.dataset.cu; if(to&&to<=9999) countUp(el,to); });
   const fcb=box.querySelector('.fc-big b[data-cu]'); if(fcb){ const to=+fcb.dataset.cu; if(isFinite(to)) countUp(fcb,to,v=>Math.round(v)); }
-  box.querySelectorAll('[data-na]').forEach(b=>b.onclick=()=>{ buzz(6); nextSheet(b.dataset.na, b.dataset.nasub||''); });
   box.querySelectorAll('[data-tm]').forEach(b=>b.onclick=()=>{ buzz(6); movesSheet(b.dataset.tm); });
   const ul=document.getElementById('uncLine'); if(ul) ul.onclick=uncertainSheet;
   box.querySelectorAll('[data-test]').forEach(b=>b.onclick=()=>{buzz(6);testDetailSheet(b.dataset.test)});
@@ -8705,7 +8647,12 @@ function mergePlans(a,b){
   const EMPTY={rows:[],done:{},skims:{},parts:{},dv:{},_upd:0};
   a=a||EMPTY; b=b||EMPTY;
   const au=+a._upd||0, bu=+b._upd||0;
-  const base = bu>au ? b : a;
+  /* Rows come from whichever side actually has a plan, not whichever was merely touched last.
+     A device that has just been reset — or freshly seeded — stamps its empty plan with "now", and
+     on timestamp alone that empty plan would beat the thirty-three days sitting in the backup you
+     are restoring. Ticks still merge per row by their own version, so nothing is overwritten. */
+  const ar=(a.rows||[]).length, br=(b.rows||[]).length;
+  const base = (!ar && br) ? b : (!br && ar) ? a : (bu>au ? b : a);
   const out={ rows:(base.rows||[]).slice(), done:{}, skims:{}, parts:{}, dv:{}, _upd:Math.max(au,bu) };
   const ids=new Set([].concat(Object.keys(a.done||{}),Object.keys(b.done||{}),
     Object.keys(a.dv||{}),Object.keys(b.dv||{}),Object.keys(a.skims||{}),Object.keys(b.skims||{}),
