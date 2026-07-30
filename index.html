@@ -278,7 +278,7 @@
   .empty .big{font-size:16px;color:var(--ink);font-weight:680;margin-bottom:6px}
 
   .card{background:var(--surface);border:var(--cardborder);border-radius:var(--r);padding:18px 18px 19px;margin-bottom:13px;box-shadow:var(--shadow)}
-  .card h3{font-size:12px;font-weight:750;color:var(--muted);margin-bottom:15px;display:flex;align-items:center;gap:9px;text-transform:uppercase;letter-spacing:.06em}
+  .card h3{font-size:12px;font-weight:750;color:var(--muted);margin-bottom:15px;display:flex;align-items:center;flex-wrap:wrap;gap:4px 9px;text-transform:uppercase;letter-spacing:.06em}
   .card h3 .accent{width:16px;height:16px;border-radius:6px;background:var(--grad);flex:none;box-shadow:0 2px 6px -1px rgba(193,80,45,.45)}
   .verdict{border-left:3px solid var(--accent)}
   .verdict .line{font-size:14px;line-height:1.55;margin-bottom:10px;color:var(--ink2)}
@@ -1985,11 +1985,12 @@
     border:1px dashed var(--border2);background:var(--surface2);transition:all .12s}
   .dq-esc:active{color:var(--ink);border-style:solid}
   /* weak areas */
-  .wk-row{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:11px 0;border-bottom:1px solid var(--border);transition:background .12s}
+  .wk-row{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:left;padding:11px 0;border-bottom:1px solid var(--border);transition:background .12s}
   .wk-row:first-of-type{padding-top:0}
+  .wk-row > .th-go{align-self:center}
   .wk-row:last-child{border-bottom:0;padding-bottom:0}
   .wk-row:active{background:var(--surface2)}
-  .wk-rank{flex:none;width:26px;height:26px;border-radius:9px;display:grid;place-items:center;font-weight:850;font-size:12.5px;background:var(--surface2);color:var(--muted)}
+  .wk-rank{flex:none;width:26px;height:26px;margin-top:1px;border-radius:9px;display:grid;place-items:center;font-weight:850;font-size:12.5px;background:var(--surface2);color:var(--muted)}
   .wk-rank.worst{background:color-mix(in srgb,var(--rose) 13%,transparent);color:var(--rose)}
   .wk-mid{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
   .wk-t{font-weight:750;font-size:14.5px;display:flex;align-items:center;flex-wrap:wrap;gap:7px}
@@ -2049,6 +2050,9 @@
   .mx-seg,.mx-key{cursor:pointer}
   .mixbar .mx-seg:active{filter:brightness(1.12)}
   .h3-hint{margin-left:auto;font-size:10.5px;font-weight:700;letter-spacing:.04em;color:var(--muted);text-transform:none}
+  /* when the two together are wider than the card, the hint drops to its own line and keeps the
+     title in one piece rather than both of them breaking mid-phrase */
+  @media (max-width:520px){ .h3-hint{flex:1 1 100%;margin-left:0;order:3} .card h3 .cardq{order:2} }
   .faintlab{opacity:.55}
 
   /* spaced-repetition "due" + sync card accent */
@@ -2519,7 +2523,7 @@ const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.st
 async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } try{return localStorage.getItem(k)}catch(_){return null} }
 async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v);return true}catch(e){return false} } try{localStorage.setItem(k,v);return true}catch(_){return false} }
 const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
-const APP_VERSION='v73'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
+const APP_VERSION='v74'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
 
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 /* Roughly how a 200-question NEET-PG paper is split by subject — an average of recent years,
@@ -6232,7 +6236,9 @@ function weakAreasCard(){
     const nx=subjectNextTouch(x.s);
     const nxChip=nx?`<span class="wk-next${nx.d<=today?' now':''}">${nx.kind==='revisit'?'revisit':'read'} ${nx.d<=today?'today':fmtShort(nx.d)}</span>`:'';
     const tr=trArrow[subjectTrend(x.s)]||'';
-    const lk = x.leak==null?'' : `<span class="wk-lk ${x.leak>=1.25?'hot':x.leak<=0.8?'ok':''}">${x.leak.toFixed(1)}×</span>`;
+    /* "2.6×" on its own is a number nobody can read. It is how much more this subject costs
+       you than a subject of its size on the paper normally would. */
+    const lk = x.leak==null?'' : `<span class="wk-lk ${x.leak>=1.25?'hot':x.leak<=0.8?'ok':''}">${x.leak.toFixed(1)}× its size</span>`;
     const magW=Math.round(Math.min(1,(byMarks?x.swing:x.all)/top)*100);
     /* One bar, two readings: its length is how much this subject costs against the worst one,
        and the colours inside it are which kinds of mistake made up that cost. Two separate bars
@@ -6246,8 +6252,8 @@ function weakAreasCard(){
     <button class="wk-sb ${wkSort==='marks'?'on':''}" data-wks="marks">Marks at risk</button>
     <button class="wk-sb ${wkSort==='recent'?'on':''}" data-wks="recent">Most recent</button></div>`:'';
   const more=subs.length>5?`<button class="linkish" id="wkMore" style="margin-top:10px">${wkAll?'Show top 5 only ‹':'Show all '+subs.length+' subjects ›'}</button>`:'';
-  const hint=canMarks?`≈ marks per ${examQ()}-question paper`:`recent tests count more`;
-  return `<div class="card"><h3><span class="accent"></span>Weak areas — study these first <span class="h3-hint">${hint}</span><button class="cardq" data-help="weak">?</button></h3>${sortRow}${rows}${more}</div>`;
+  const hint=canMarks?`≈ marks per ${examQ()}Q paper`:`recent tests count more`;
+  return `<div class="card"><h3><span class="accent"></span>Study these first <span class="h3-hint">${hint}</span><button class="cardq" data-help="weak">?</button></h3>${sortRow}${rows}${more}</div>`;
 }
 function subjectSheet(sub){
   const x=buildSubjects()[sub]; if(!x)return;
