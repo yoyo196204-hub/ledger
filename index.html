@@ -278,7 +278,7 @@
   .empty .big{font-size:16px;color:var(--ink);font-weight:680;margin-bottom:6px}
 
   .card{background:var(--surface);border:var(--cardborder);border-radius:var(--r);padding:18px 18px 19px;margin-bottom:13px;box-shadow:var(--shadow)}
-  .card h3{font-size:12px;font-weight:750;color:var(--muted);margin-bottom:15px;display:flex;align-items:center;gap:9px;text-transform:uppercase;letter-spacing:.06em}
+  .card h3{font-size:12px;font-weight:750;color:var(--muted);margin-bottom:15px;display:flex;align-items:center;flex-wrap:wrap;gap:4px 9px;text-transform:uppercase;letter-spacing:.06em}
   .card h3 .accent{width:16px;height:16px;border-radius:6px;background:var(--grad);flex:none;box-shadow:0 2px 6px -1px rgba(193,80,45,.45)}
   .verdict{border-left:3px solid var(--accent)}
   .verdict .line{font-size:14px;line-height:1.55;margin-bottom:10px;color:var(--ink2)}
@@ -726,6 +726,20 @@
   .tri-fix .tf-lab{min-width:0;overflow:hidden;text-overflow:ellipsis}
   .tri-fix:hover{transform:translateY(-1px);border-color:var(--border2)} .tri-fix:active{transform:scale(.97)}
   .tri-fix i{flex:none;font-style:normal;color:var(--accent-ink);font-weight:800}
+  /* every question in this read, newest first — one tap to open any of them */
+  .rf-list{display:flex;gap:6px;overflow-x:auto;padding:2px 2px 8px;margin:0 -2px;
+    scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
+  .rf-i{flex:none;display:flex;flex-direction:column;align-items:center;gap:1px;min-width:58px;min-height:52px;
+    padding:6px 8px;border-radius:11px;background:var(--surface2);border:1px solid var(--edge);cursor:pointer;
+    scroll-snap-align:center;transition:transform .16s var(--spring),border-color .16s,background .16s}
+  .rf-i b{font-size:11px;font-weight:800;color:var(--muted);font-variant-numeric:tabular-nums}
+  .rf-i i{font-style:normal;font-size:12px;font-weight:850;color:var(--bct,var(--ink))}
+  .rf-i span{font-size:9px;font-weight:700;color:var(--faint);max-width:58px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rf-i.on{background:color-mix(in srgb,var(--bc) 14%,var(--surface));border-color:color-mix(in srgb,var(--bc) 55%,transparent);
+    box-shadow:var(--shadow)}
+  .rf-i.on b{color:var(--ink)}
+  .rf-i:active{transform:scale(.94)}
+  @media (hover:hover) and (pointer:fine){ .rf-i:hover{border-color:var(--border2)} }
   .rf-conf{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
   .rf-c{padding:11px 8px;border-radius:11px;border:1px solid var(--edge);background:var(--surface);
     font-size:12.5px;font-weight:750;color:var(--ink2);cursor:pointer;transition:transform .16s var(--spring),border-color .16s,background .16s}
@@ -816,15 +830,15 @@
   .sm-big{font-family:var(--serif);font-size:60px;font-weight:500;line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
   .sm-lab{font-size:13.5px;color:var(--muted);margin-top:5px}
   .sm-bars{display:flex;flex-direction:column;gap:13px}
-  .sm-bar{display:grid;grid-template-columns:1fr auto;gap:8px 12px;align-items:center;animation:rise .3s cubic-bezier(.22,1,.36,1) both}
+  .sm-bar{display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:baseline;animation:rise .3s cubic-bezier(.22,1,.36,1) both}
   .sm-bar:nth-child(2){animation-delay:.06s}.sm-bar:nth-child(3){animation-delay:.12s}.sm-bar:nth-child(4){animation-delay:.18s}
   .sm-fill{transform-origin:left;animation:barin .55s .15s cubic-bezier(.3,1,.4,1) both}
   @keyframes barin{from{transform:scaleX(0)}}
-  .sm-k{font-size:13px;color:var(--ink2);grid-column:1}
+  .sm-k{font-size:13px;color:var(--ink2);grid-column:1;grid-row:1}
   .sm-k b{font-weight:850;margin-right:6px}
-  .sm-track{grid-column:1;height:12px;background:var(--surface2);border-radius:7px;overflow:hidden}
+  .sm-track{grid-column:1/-1;grid-row:2;height:11px;background:var(--surface2);border-radius:7px;overflow:hidden}
   .sm-fill{height:100%;border-radius:7px;transition:width .6s cubic-bezier(.4,0,.2,1);min-width:5px}
-  .sm-v{grid-column:2;grid-row:1/3;font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;align-self:center}
+  .sm-v{grid-column:2;grid-row:1;font-size:16px;font-weight:850;font-variant-numeric:tabular-nums;color:var(--ink)}
   /* per-test composition stacks */
   .ses-chart{display:flex;align-items:flex-end;gap:8px;height:110px;padding-top:6px}
   .ses-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;min-width:0}
@@ -910,9 +924,24 @@
   .ses-row .sr-d{font-size:11.5px;color:var(--muted);margin-top:2px}
   .ses-row .sr-del{margin-left:auto;font-size:12.5px;font-weight:650;color:var(--rose);padding:7px 12px;border-radius:9px;background:color-mix(in srgb,var(--rose) 9%,transparent)}
   /* session summary: plain-english confidence read */
-  .sm-conf{margin-top:16px;padding-top:14px;border-top:1px dashed var(--border2);display:flex;flex-direction:column;gap:10px}
-  .sm-conf .line{font-size:12.5px;color:var(--ink2);line-height:1.55;animation:rise .32s cubic-bezier(.22,1,.36,1) both}
-  .sm-conf .line:nth-child(2){animation-delay:.07s} .sm-conf .line:nth-child(3){animation-delay:.14s}
+  /* the one reading that changes what you do next, then the action, then the rest on request */
+  .sm-lead{margin-top:16px;padding-top:14px;border-top:1px dashed var(--border2);
+    font-size:13px;color:var(--ink2);line-height:1.55;animation:rise .32s cubic-bezier(.22,1,.36,1) both}
+  .sm-bridge{margin-top:12px;padding:11px 13px;border-radius:12px;font-size:12.5px;line-height:1.5;color:var(--ink2);
+    background:color-mix(in srgb,var(--accent) 8%,var(--surface));
+    border:1px solid color-mix(in srgb,var(--accent) 24%,var(--border2))}
+  .sm-bridge.warn{background:color-mix(in srgb,var(--amber) 11%,var(--surface));
+    border-color:color-mix(in srgb,var(--amber) 34%,var(--border2))}
+  .sm-more{margin-top:12px}
+  .sm-more summary{display:flex;align-items:center;gap:7px;min-height:40px;cursor:pointer;list-style:none;
+    font-size:12px;font-weight:800;letter-spacing:.01em;color:var(--accent-ink)}
+  .sm-more summary::-webkit-details-marker{display:none}
+  .sm-more summary::after{content:'▾';margin-left:auto;font-size:11px;transition:transform .2s var(--ease)}
+  .sm-more[open] summary::after{transform:rotate(180deg)}
+  .sm-more summary i{font-style:normal;font-size:10px;font-weight:850;color:var(--surface);background:var(--accent-ink);
+    min-width:16px;height:16px;border-radius:8px;display:grid;place-items:center;padding:0 4px}
+  @media (hover:hover) and (pointer:fine){ .sm-more summary:hover{color:var(--ink)} }
+  .sm-more .line{font-size:12.5px;color:var(--ink2);line-height:1.55;margin-top:10px}
   /* per-test trend sparklines — the line draws itself in */
   .sparks{display:flex;flex-direction:column;gap:10px;margin-top:2px}
   .spark-row{display:flex;align-items:center;gap:11px;width:100%;background:none;border:none;padding:4px 0;text-align:left;border-radius:10px;transition:background .12s}
@@ -1471,15 +1500,26 @@
   .eff-row.aft .eff-track i{background:var(--sage-ink)}
   /* one strike-off per subject on a day that names more than one */
   .pl-parts{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
-  .pl-parts.row{flex:0 0 100%;padding-left:61px;margin-top:7px}
-  .pl-pt{display:inline-flex;align-items:center;min-height:30px;padding:0 10px;border-radius:9px;
-    font-size:11px;font-weight:750;letter-spacing:-.01em;color:var(--ink2);background:var(--surface2);
+  /* the strike-offs take the row's own full width; on a phone the hanging indent under the title
+     cost enough room to wrap three ordinary subject names onto two lines */
+  .pl-parts.row{flex:0 0 100%;margin-top:7px;gap:4px}
+  @media (min-width:480px){ .pl-parts.row{padding-left:61px} }
+  /* a day whose chips are the whole list needs no heading above them, so the chips move up */
+  .pl-row.headless{padding-top:9px;padding-bottom:9px}
+  .pl-row.headless .pl-parts.row{margin-top:0}
+  /* the empty heading still absorbs the middle, so the date, the tag and the chevron sit exactly
+     where they do on every other row in the list */
+  .pl-pt{display:inline-flex;align-items:center;min-height:31px;padding:0 9px;border-radius:9px;
+    font-size:10.5px;font-weight:750;letter-spacing:-.01em;color:var(--ink2);background:var(--surface2);
     border:1px solid var(--edge);cursor:pointer;white-space:nowrap;
     transition:transform .16s var(--spring),background .15s var(--ease),color .15s var(--ease),border-color .15s var(--ease)}
   .pl-pt.on{color:var(--sage-ink);background:color-mix(in srgb,var(--sage) 15%,var(--surface));
     border-color:color-mix(in srgb,var(--sage) 45%,transparent);text-decoration:line-through;
     text-decoration-thickness:1.5px;text-decoration-color:color-mix(in srgb,var(--sage-ink) 60%,transparent)}
   .pl-pt:active{transform:scale(.94)}
+  /* the evening one, marked as such — same control, one hint that it is the lighter half */
+  .pl-pt.pm i{font-style:normal;font-size:8px;font-weight:850;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--faint);margin-left:5px}
   @media (hover:hover) and (pointer:fine){
     .pl-pt:hover{border-color:var(--border2);background:var(--surface3)}
     .pl-pt.on:hover{background:color-mix(in srgb,var(--sage) 22%,var(--surface))}
@@ -1945,11 +1985,12 @@
     border:1px dashed var(--border2);background:var(--surface2);transition:all .12s}
   .dq-esc:active{color:var(--ink);border-style:solid}
   /* weak areas */
-  .wk-row{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:11px 0;border-bottom:1px solid var(--border);transition:background .12s}
+  .wk-row{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:left;padding:11px 0;border-bottom:1px solid var(--border);transition:background .12s}
   .wk-row:first-of-type{padding-top:0}
+  .wk-row > .th-go{align-self:center}
   .wk-row:last-child{border-bottom:0;padding-bottom:0}
   .wk-row:active{background:var(--surface2)}
-  .wk-rank{flex:none;width:26px;height:26px;border-radius:9px;display:grid;place-items:center;font-weight:850;font-size:12.5px;background:var(--surface2);color:var(--muted)}
+  .wk-rank{flex:none;width:26px;height:26px;margin-top:1px;border-radius:9px;display:grid;place-items:center;font-weight:850;font-size:12.5px;background:var(--surface2);color:var(--muted)}
   .wk-rank.worst{background:color-mix(in srgb,var(--rose) 13%,transparent);color:var(--rose)}
   .wk-mid{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
   .wk-t{font-weight:750;font-size:14.5px;display:flex;align-items:center;flex-wrap:wrap;gap:7px}
@@ -2009,6 +2050,9 @@
   .mx-seg,.mx-key{cursor:pointer}
   .mixbar .mx-seg:active{filter:brightness(1.12)}
   .h3-hint{margin-left:auto;font-size:10.5px;font-weight:700;letter-spacing:.04em;color:var(--muted);text-transform:none}
+  /* when the two together are wider than the card, the hint drops to its own line and keeps the
+     title in one piece rather than both of them breaking mid-phrase */
+  @media (max-width:520px){ .h3-hint{flex:1 1 100%;margin-left:0;order:3} .card h3 .cardq{order:2} }
   .faintlab{opacity:.55}
 
   /* spaced-repetition "due" + sync card accent */
@@ -2479,7 +2523,7 @@ const HAS_WS = typeof window!=='undefined' && window.storage && typeof window.st
 async function sget(k){ if(HAS_WS){ try{const r=await window.storage.get(k); return r?r.value:null}catch(e){return null} } try{return localStorage.getItem(k)}catch(_){return null} }
 async function sset(k,v){ if(HAS_WS){ try{await window.storage.set(k,v);return true}catch(e){return false} } try{localStorage.setItem(k,v);return true}catch(_){return false} }
 const K_ENTRIES='ml_entries_v2', K_SET='ml_settings_v2';
-const APP_VERSION='v73'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
+const APP_VERSION='v74'; /* visible in Data — bump alongside sw.js CACHE so you can confirm an update landed */
 
 const SUBJECTS=["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Forensic Medicine","PSM / Community Med","Medicine","Surgery","OBGYN","Pediatrics","Orthopaedics","ENT","Ophthalmology","Anaesthesia","Radiology","Dermatology","Psychiatry"];
 /* Roughly how a 200-question NEET-PG paper is split by subject — an average of recent years,
@@ -3615,8 +3659,7 @@ function renderPlan(){
   const missing=planMissingSubjects();
   /* a subject counts as read when its own strike-off is in, even if the other subject that
      shared its day was skipped */
-  const doneSubs=new Set(); plan.rows.forEach(r=>{ if(r.k!=='read') return;
-    const pt=planParts(r.id); (r.s||[]).forEach(x=>{ if(pt[x]) doneSubs.add(x); }); });
+  const doneSubs=new Set(); plan.rows.forEach(r=>planDoneSubs(r.id).forEach(x=>doneSubs.add(x)));
   const schedSubs=new Set(); plan.rows.forEach(r=>(r.s||[]).forEach(x=>schedSubs.add(x)));
   if(!total){
     box.innerHTML=`<div class="sec-title"><h2>Plan</h2><div class="hint">your reading grid</div></div>
@@ -3646,12 +3689,18 @@ function renderPlan(){
   const rate=t7/7, need=(left&&d2e&&d2e>0)?left/d2e:0;
   const paceMax=Math.max(rate,need,0.15);
   const behind = need>0 ? Math.max(0, Math.round(left/Math.max(rate,0.01) - d2e)) : 0;
+  /* Dividing what is left by one week's ticking is a projection, and a projection off one or two
+     days is not one. Two days into a cycle it was announcing you would finish six months after
+     the exam, which is arithmetic rather than information. Under three days ticked, say what a day
+     costs and leave the fortune-telling out. */
+  const thin=t7<3;
   const paceLine = !left ? 'Every day is ticked.'
     : need<=0 ? 'No days left before the exam.'
     : rate<=0.01 ? `Nothing ticked in the last week. You need <b>${need<0.95?need.toFixed(1):Math.ceil(need)} a day</b> to finish.`
+    : thin ? `${t7} day${t7===1?'':'s'} ticked this week — too few to read a pace from. Finishing needs <b>${need.toFixed(1)} a day</b> from here.`
     : rate>=need ? `Keeping up — you're doing <b>${rate.toFixed(1)} a day</b> and you need <b>${need.toFixed(1)}</b>.`
     : `At <b>${rate.toFixed(1)} a day</b> you finish about <b>${behind} day${behind===1?'':'s'}</b> after the exam. You need <b>${need.toFixed(1)} a day</b>.`;
-  const paceCls = !left||rate>=need ? 'good' : behind>7 ? 'bad' : 'warn';
+  const paceCls = !left||rate>=need ? 'good' : thin ? 'warn' : behind>7 ? 'bad' : 'warn';
   let html=`<div class="sec-title"><h2>Plan</h2><div class="hint">tap a day when it's done</div></div>
     <div class="pl-head card thin">
       <div class="pl-cov2">
@@ -3682,7 +3731,11 @@ function renderPlan(){
     || undone.filter(r=>r.d>today).sort((a,b)=>a.d<b.d?-1:1)[0]
     || planSlipped().sort((a,b)=>a.d<b.d?-1:1)[0];
   /* live hotspots from the Bayesian signal engine — these outrank the static seed flags */
-  const hot={}; planSignals().forEach(s=>{ if(!hot[s.sub]) hot[s.sub]=s; });
+  /* The point of this tag is to mark out the handful of days worth reordering your week for. The
+     signal engine will happily flag a dozen subjects at once, and a tag on half the rows marks
+     nothing out at all — so only the strongest few carry it. */
+  const hot={}; const HOT_MAX=4;
+  planSignals().slice(0,HOT_MAX).forEach(s=>{ if(!hot[s.sub]) hot[s.sub]=s; });
   if(nextRow){
     const isTest=nextRow.k==='test';
     const when = nextRow.d===today?'Today' : nextRow.d<today?('Overdue · was '+fmtShort(nextRow.d)) : fmtShort(nextRow.d);
@@ -3700,7 +3753,7 @@ function renderPlan(){
       <div class="pl-next-t">${esc(nextRow.t)}</div>
       ${stat?`<div class="pl-next-stat">${stat}</div>`:''}
       ${(()=>{ const ps=planPartStat(nextRow.id); if(!ps) return '';
-        return `<div class="pl-parts next">${ps.subs.map(x=>`<button class="pl-pt${ps.part[x]?' on':''}" data-part="${esc(nextRow.id)}" data-sub="${esc(x)}" aria-pressed="${ps.part[x]?'true':'false'}">${ps.part[x]?'✓ ':''}${esc(shortSubj(x))}</button>`).join('')}</div>`; })()}
+        return `<div class="pl-parts next">${ps.subs.map(x=>`<button class="pl-pt${ps.part[x]?' on':''}" data-part="${esc(nextRow.id)}" data-sub="${esc(x)}" aria-pressed="${ps.part[x]?'true':'false'}">${ps.part[x]?'✓ ':''}${esc(x)}</button>`).join('')}</div>`; })()}
       <div class="actions" style="margin-top:13px">${isTest
         ? `<button class="btn primary" data-plango="${esc(nextRow.id)}">Start ${esc(gtFromTitle(nextRow.t)||'triage')} ▶</button>`
         : `<button class="btn primary" data-plandone="${esc(nextRow.id)}">${(()=>{const ps=planPartStat(nextRow.id);return ps&&ps.n>0?'Mark the rest done ✓':'Mark done ✓';})()}</button>`}
@@ -3742,13 +3795,23 @@ function renderPlan(){
       else if((r.s||[]).some(x=>hot[x])) tag='<span class="pl-tag hot">weak spot</span>';
       else if(r.weak) tag='<span class="pl-tag weak">weak</span>';
       else if(r.x2) tag='<span class="pl-tag x2">×2</span>';
-      return `<div class="pl-row ${r.k} ${dn?'done':''} ${slip?'slip':''} ${isToday?'today':''}" data-row="${esc(r.id)}">
+      /* Once the strike-offs name every piece of the day in full, repeating the list in the title
+         above them only buys an ellipsis. Keep whatever the title still adds — the subject the
+         pieces belong to, or a note like "Revision 1 ends" — and drop the duplication. */
+      let head=r.t;
+      if(ps){
+        const owners=[...new Set(ps.pieces.map(x=>x.s).filter(Boolean))];
+        const note=(r.t.split('\u00b7')[1]||'').trim();
+        head = owners.length===1 ? shortSubj(owners[0]) : '';
+        if(note) head = head ? head+' \u00b7 '+note : note;
+      }
+      return `<div class="pl-row ${r.k} ${dn?'done':''} ${slip?'slip':''} ${isToday?'today':''}${head?'':' headless'}" data-row="${esc(r.id)}">
         <span class="pl-date">${fmtDay(r.d)}</span>
-        <span class="pl-tw"><span class="pl-t">${esc(r.t)}${dn&&dn.mode==='partial'?' <i class="pl-part">partial</i>':''}</span>${r.tl?`<span class="pl-tail" title="${esc(r.why||('evening: '+r.tl))}"><i>pm</i>${esc(r.tl)}</span>`:''}</span>
+        <span class="pl-tw">${head?`<span class="pl-t">${esc(head)}${dn&&dn.mode==='partial'?' <i class="pl-part">partial</i>':''}</span>`:''}${(r.tl&&!ps)?`<span class="pl-tail" title="${esc(r.why||('evening: '+r.tl))}"><i>pm</i>${esc(r.tl)}</span>`:''}</span>
         ${tag}
         ${dn&&!(ts&&ts.marks!=null)?'<span class="pl-check">✓</span>':''}
         <button class="pl-more" data-more="${esc(r.id)}">›</button>
-        ${ps?`<span class="pl-parts row">${ps.subs.map(x=>`<button class="pl-pt${ps.part[x]?' on':''}" data-part="${esc(r.id)}" data-sub="${esc(x)}" aria-pressed="${ps.part[x]?'true':'false'}">${ps.part[x]?'✓ ':''}${esc(shortSubj(x))}</button>`).join('')}</span>`:''}
+        ${ps?`<span class="pl-parts row">${ps.pieces.map(pc=>`<button class="pl-pt${ps.part[pc.l]?' on':''}${pc.pm?' pm':''}" data-part="${esc(r.id)}" data-sub="${esc(pc.l)}"${pc.why?` title="${esc(pc.why)}"`:''} aria-pressed="${ps.part[pc.l]?'true':'false'}">${ps.part[pc.l]?'✓ ':''}${esc(pc.l)}${pc.pm?'<i>pm</i>':''}</button>`).join('')}</span>`:''}
       </div>`;}).join('');
   });
   /* unplanned tail */
@@ -3813,12 +3876,12 @@ function updatePlanBadge(){
 function togglePlanDone(id){
   const r=plan.rows.find(x=>x.id===id); if(!r)return;
   if(!plan.parts||typeof plan.parts!=='object') plan.parts={};
-  const subs=planRowSubs(id);
+  const pcs=planPieces(r).map(x=>x.l);
   if(plan.done[id]){ delete plan.done[id]; delete plan.parts[id];
     stampPlanRow(id); persistPlan(); renderPlan(); toast('Marked not done'); return; }
   plan.done[id]={ts:Date.now(), mode:'full'};
-  /* finishing the day finishes every subject on it, so the two never disagree */
-  if(subs.length) plan.parts[id]=subs.reduce((o,x)=>(o[x]=Date.now(),o),{});
+  /* finishing the day finishes everything on it, so the two never disagree */
+  if(pcs.length) plan.parts[id]=pcs.reduce((o,x)=>(o[x]=Date.now(),o),{});
   stampPlanRow(id); persistPlan();
   const el=document.querySelector(`.pl-row[data-row="${CSS.escape(id)}"]`);
   if(el && !reducedMotion()){ el.classList.add('donepop'); setTimeout(()=>el.classList.remove('donepop'),300); }
@@ -4427,10 +4490,14 @@ function triTrackHTML(){
     const state = !want ? '' : over>0 ? 'over' : have>=want ? 'done' : '';
     const say = !want ? `${have} sorted here`
       : over>0 ? `<b class="tt-over">${over} past the ${want} you said</b>`
-      : have>=want ? 'all of them sorted'
-      : `<b>${want-have}</b> still to go`;
+      : have>=want ? `all ${want} sorted`
+      : `${have} of ${want} · <b>${want-have}</b> to go`;
+    /* three characters is all that fits legibly inside a 28px ring, so "28/30" would spill —
+       past that the ring is the fill alone and the numbers live in the line, which has room */
+    /* over the count, the useful number is by how much — "+3" says it and fits */
+    const ink = over>0 ? ('+'+over) : want ? (have+'/'+want) : String(have);
     left = `<button class="tt-sub ${state}" id="ttSub">
-      <span class="tt-ring ${state}" style="--p:${pc}"><i>${want?have+'/'+want:have}</i></span>
+      <span class="tt-ring ${state}" style="--p:${pc}"><i>${ink.length<=3?ink:(have>=want?'✓':'')}</i></span>
       <span class="tt-nm"><b>${esc(shortSubj(sub))}</b><i>${say}</i></span>
       ${want?'':'<span class="tt-set">count it</span>'}</button>`;
   } else {
@@ -4549,7 +4616,7 @@ function triSubjSheet(forItem){
     if(forItem && _rfIdx!=null && triage.items[_rfIdx]){
       triage.items[_rfIdx].subj=picked;
       updateTriageUI();
-      triRefileSheet();                 /* straight back to what you were fixing */
+      triRefileSheet(_rfIdx);           /* straight back to the one you were fixing */
       return;
     }
     triage.subj=picked; redrawChip(); updateTriTracker();
@@ -4615,16 +4682,31 @@ function bindTriUndo(){ const u=document.getElementById('triUndo'); if(u) u.oncl
   const f=document.getElementById('triFix'); if(f) f.onclick=()=>{ buzz(5); triRefileSheet(); }; }
 /* Put the last one where it actually belongs, without losing it. Re-files in place, so every
    count, the tracker and the declared totals move with it. */
-function triRefileSheet(){
-  const i=triage.items.length-1, last=triage.items[i];
-  if(!last){ closeSheet(); return; }
+/* Any one of them, not just the last.
+   Noticing at question twenty that question fourteen went in wrong used to mean undoing six good
+   taps to reach it. Every question you have sorted in this read is listed here; tap one to open it,
+   change what you got wrong, and every count follows. */
+function triRefileSheet(pick){
+  if(!triage.items.length){ closeSheet(); return; }
+  let i = (pick!=null && triage.items[pick]) ? pick : triage.items.length-1;
   _rfIdx=i;
+  const RF_CAP=24;
   const draw=()=>{
     const it=triage.items[i];
     const em=ERR_MAP[it.error];
-    return `<h3>Move that one</h3>
-      <p>It went in as <b style="color:${em.ct||em.c}">${esc(em.t)}</b>${it.subj?` in <b>${esc(shortSubj(it.subj))}</b>`:''}. Change it here and every count follows — nothing is thrown away.</p>
-      <div class="sp-lab">how it felt in the exam</div>
+    const n=triage.items.length;
+    /* newest first, because the one you want is nearly always near the end */
+    const from=Math.max(0, n-RF_CAP);
+    const strip=n>1 ? `<div class="sp-lab">this read <span class="sp-hint">${n} sorted${from?` · showing the last ${n-from}`:''}</span></div>
+      <div class="rf-list" id="rfList">${triage.items.slice(from).map((x,k)=>{
+        const idx=from+k, e=ERR_MAP[x.error];
+        return `<button class="rf-i${idx===i?' on':''}" data-rfi="${idx}" style="--bc:${e.c};--bct:${e.ct||e.c}">
+          <b>#${idx+1}</b><i>${e.code}</i><span>${x.subj?esc(shortSubj(x.subj)):'—'}</span></button>`;
+      }).reverse().join('')}</div>` : '';
+    return `<h3>Move one of them</h3>
+      <p>Question <b>#${i+1}</b> went in as <b style="color:${em.ct||em.c}">${esc(em.t)}</b>${it.subj?` in <b>${esc(shortSubj(it.subj))}</b>`:''}. Change it here and every count follows — nothing is thrown away.</p>
+      ${strip}
+      <div class="sp-lab" style="margin-top:14px">how it felt in the exam</div>
       <div class="rf-conf">${[['high','Sure in exam'],['twoish','Down to 2'],['noidea','No read']]
         .map(([k,t])=>`<button class="rf-c ${it.conf===k?'on':''}" data-rfc="${k}">${t}</button>`).join('')}</div>
       <div class="sp-lab" style="margin-top:14px">which bucket</div>
@@ -4639,6 +4721,7 @@ function triRefileSheet(){
   };
   const wire=()=>{
     const sh=document.getElementById('sheet');
+    sh.querySelectorAll('[data-rfi]').forEach(b=>b.onclick=()=>{ buzz(5); i=+b.dataset.rfi; _rfIdx=i; after(); });
     sh.querySelectorAll('[data-rfc]').forEach(b=>b.onclick=()=>{ buzz(5);
       const it=triage.items[i];
       it.conf=b.dataset.rfc;
@@ -4651,11 +4734,14 @@ function triRefileSheet(){
       after(); });
     const sb=sh.querySelector('#rfSubj'); if(sb) sb.onclick=()=>{ buzz(5); _rfIdx=i; triSubjSheet(true); };
     const dl=sh.querySelector('#rfDel'); if(dl) dl.onclick=()=>{ buzz(9);
-      triage.items.splice(i,1); closeSheet(); updateTriageUI();
-      toast('Removed.', {label:'Undo', fn:()=>{ triage.items.splice(i,0,last); updateTriageUI(); }}); };
+      const gone=triage.items[i], at=i;
+      triage.items.splice(at,1); closeSheet(); updateTriageUI();
+      toast('Removed.', {label:'Undo', fn:()=>{ triage.items.splice(at,0,gone); updateTriageUI(); }}); };
   };
-  const after=()=>{ updateTriageUI(); document.getElementById('sheet').innerHTML='<div class="grip"></div>'+draw(); wire(); };
+  const after=()=>{ updateTriageUI(); document.getElementById('sheet').innerHTML='<div class="grip"></div>'+draw(); wire();
+    const on=document.querySelector('.rf-i.on'); if(on&&on.scrollIntoView) on.scrollIntoView({block:'nearest',inline:'center'}); };
   openSheet(draw()); wire();
+  const on=document.querySelector('.rf-i.on'); if(on&&on.scrollIntoView) on.scrollIntoView({block:'nearest',inline:'center'});
 }
 let _rfIdx=null;
 function paintTriConf(){
@@ -5373,42 +5459,45 @@ function triageSummaryHTML(){
   const bars=ERRORS.map(e=>{const n=c[e.id];
     return `<div class="sm-bar"><span class="sm-k"><b style="color:${e.ct||e.c}">${e.code}</b> ${e.t}</span><div class="sm-track"><div class="sm-fill" style="width:0;background:${e.c}" data-gw="${Math.max(2,n/max*100)}"></div></div><span class="sm-v">${n}</span></div>`;}).join('');
   const dom=ERRORS.slice().sort((a,b)=>c[b.id]-c[a.id])[0];
-  const synth=`Mostly <b style="color:${dom.ct||dom.c}">${dom.t.toLowerCase()}</b> (${c[dom.id]}). ${FIXTEXT[dom.id]}`;
-  /* the fastest-marks read on THIS test — RF+TE are points you already own */
-  const quick=c.retrieval+c.execution;
-  const quickLine=quick>=2?`<div class="line"><b class="rec-q">${quick} you already own — RF + TE.</b> You knew these; they were lost to a weak cue or a misread, not ignorance. Cheapest points back: reshape the card front, run a read-the-last-line-first check. No new studying.</div>`:'';
-  /* plain-english read of this session's confidence mix — zero lines hidden */
-  const confLines=[
-    blind?`<div class="line"><b class="bl">Blind spots — ${blind}.</b> You were sure and wrong about the fact itself. These come back — they won't feel wrong in the exam either. Fix the concept, don't just move on.</div>`:'',
-    noidea?`<div class="line"><b style="color:var(--ink)">Blind attempts — ${noidea}.</b> Every one cost −1. On a +4/−1 paper you need better than 1-in-5 on blind attempts to break even. If this number rises test to test while your correct count holds, your leak is attempt discipline, not knowledge.</div>`:'',
-    twoish?`<div class="line"><b style="color:var(--amber)">Down to 2 — ${twoish}.</b> +EV bets (~+1.5 each). Right to attempt — don't let these scare you into over-skipping. One elimination always beats leaving it blank.</div>`:''
-  ].join('');
   const sess=sessions.find(x=>x.id===triage.sessionId);
   const st=sess?scoreStats(sess):null;
   const scoreLine=st?`<div class="sm-score">${st.marks}/${st.maxMarks} · <b>${st.pct100}%</b> · ${Math.round(st.accuracy*100)}% when attempted${st.wc!=null?` · W:C ${st.wc.toFixed(2)}`:''}</div>`:'';
-  let evLine='';
+  /* You have just tapped through forty questions. Five paragraphs of advice is not a debrief, it
+     is a wall — so the one reading that changes what you do next is on the page, and the rest sits
+     one tap down for when you want it. Nothing is removed, only ranked. */
+  const quick=c.retrieval+c.execution;
+  const notes=[];
+  if(blind) notes.push(`<b class="bl">${blind} blind spot${blind>1?'s':''}.</b> You were sure, and wrong about the fact itself — these will not feel wrong in the exam either. Fix the concept rather than moving on.`);
+  if(quick>=2) notes.push(`<b class="rec-q">${quick} you already own — RF + TE.</b> Lost to a weak cue or a misread, not to ignorance. The cheapest marks on this paper, and no new studying.`);
+  if(twoish) notes.push(`<b style="color:var(--amber-ink)">${twoish} down to 2.</b> Worth about +1.5 marks each on a +4/−1 paper — right to attempt. One elimination beats leaving it blank.`);
+  if(noidea) notes.push(`<b>${noidea} pure guesses.</b> Each miss costs 1 mark; you need better than 1 in 5 to come out ahead. If this climbs test to test while your correct count holds, the leak is attempt discipline.`);
   if(sess && sess.score && sess.score.blindTried!=null){
     const B=sess.score.blindTried, N=Math.min(noidea,B), hits=Math.max(0,B-N), net=4*hits-N;
-    evLine=`<div class="line">You attempted <b>${B}</b> blind, hit <b>${hits}</b>. Net: <b>${net>=0?'+':''}${net}</b> marks.</div>`;
+    notes.push(`You attempted <b>${B}</b> blind and hit <b>${hits}</b> — net <b>${net>=0?'+':''}${net}</b> marks.`);
   }
+  notes.push(`Mostly <b style="color:${dom.ct||dom.c}">${dom.t.toLowerCase()}</b> (${c[dom.id]}). ${FIXTEXT[dom.id]}`);
+  const lead=notes[0]?`<div class="sm-lead">${notes[0]}</div>`:'';
+  const rest=notes.length>1
+    ? `<details class="sm-more"><summary>The rest of the read <i>${notes.length-1}</i></summary>
+        ${notes.slice(1).map(x=>`<div class="line">${x}</div>`).join('')}</details>` : '';
   const {blind:bl2, nearMiss:nm2}=triageCounts(triage.items);
   const cta=(bl2>0||nm2>0)?`<button class="btn primary fixcta" id="fixCta">Write the fix for your ${bl2||nm2} ${bl2?'blind spot'+(bl2>1?'s':''):'near-miss'+(nm2>1?'es':'')} — 2 min now, or they come back next test</button>`:'';
-  /* the handoff: today's hardest-hit subject, and exactly when the plan touches it next */
+  /* the handoff: today's hardest-hit subject, and exactly when the plan touches it next. This is an
+     action rather than a comment, so it stays on the page. */
   let bridge='';
   const bySub={}; triage.items.forEach(it=>{ if(it.subj) bySub[it.subj]=(bySub[it.subj]||0)+1; });
   const topSub=Object.entries(bySub).sort((a,b)=>b[1]-a[1])[0];
   if(topSub && topSub[1]>=3){
     const nx=subjectNextTouch(topSub[0]);
     bridge = nx
-      ? `<div class="line">📌 <b>${esc(topSub[0])}</b> took today's biggest hit — ${topSub[1]} wrongs. Your plan touches it <b>${nx.d<=todayISO()?'today':fmtShort(nx.d)}</b> (${nx.kind==='revisit'?'revisit':'read'}) — take these questions into it.</div>`
-      : `<div class="line">📌 <b>${esc(topSub[0])}</b> took today's biggest hit — ${topSub[1]} wrongs — and has <b>no planned touch ahead</b>. Worth stealing a day. <button class="linkish" id="sumPlan">Open plan ›</button></div>`;
+      ? `<div class="sm-bridge"><b>${esc(shortSubj(topSub[0]))}</b> took the biggest hit — ${topSub[1]} wrongs. Your plan reads it <b>${nx.d<=todayISO()?'today':fmtShort(nx.d)}</b> — take these into it.</div>`
+      : `<div class="sm-bridge warn"><b>${esc(shortSubj(topSub[0]))}</b> took the biggest hit — ${topSub[1]} wrongs — with no reading day ahead. <button class="linkish" id="sumPlan">Open plan ›</button></div>`;
   }
   return `
     <div class="tri-top"><span style="width:34px"></span><div class="tri-set">${esc(triage.set)} · read</div><span style="width:34px"></span></div>
     <div class="sm-hero"><div class="sm-big">${total}</div><div class="sm-lab">mistake${total>1?'s':''} triaged${blind?` · <b class="bl">${blind} blind</b>`:''}</div>${scoreLine}</div>
     <div class="card"><h3><span class="accent"></span>What went wrong</h3><div class="sm-bars">${bars}</div>
-      ${confLines||evLine||quickLine||bridge?`<div class="sm-conf">${quickLine}${confLines}${evLine}${bridge}</div>`:''}
-      <p class="tlab" style="margin-top:16px">${synth}</p></div>
+      ${lead}${bridge}${rest}</div>
     ${cta}
     <div class="actions" style="margin-top:10px"><button class="btn primary" id="triFinish">Done</button><button class="btn ghost" id="triAgain">Triage another</button></div>
     <p class="faint" style="font-size:12px;text-align:center;margin-top:12px">Saved. <button class="linkish" id="sumIns">See it in Insights ›</button> <button class="linkish" id="sumLog">Log in detail ›</button></p>`;
@@ -6147,7 +6236,9 @@ function weakAreasCard(){
     const nx=subjectNextTouch(x.s);
     const nxChip=nx?`<span class="wk-next${nx.d<=today?' now':''}">${nx.kind==='revisit'?'revisit':'read'} ${nx.d<=today?'today':fmtShort(nx.d)}</span>`:'';
     const tr=trArrow[subjectTrend(x.s)]||'';
-    const lk = x.leak==null?'' : `<span class="wk-lk ${x.leak>=1.25?'hot':x.leak<=0.8?'ok':''}">${x.leak.toFixed(1)}×</span>`;
+    /* "2.6×" on its own is a number nobody can read. It is how much more this subject costs
+       you than a subject of its size on the paper normally would. */
+    const lk = x.leak==null?'' : `<span class="wk-lk ${x.leak>=1.25?'hot':x.leak<=0.8?'ok':''}">${x.leak.toFixed(1)}× its size</span>`;
     const magW=Math.round(Math.min(1,(byMarks?x.swing:x.all)/top)*100);
     /* One bar, two readings: its length is how much this subject costs against the worst one,
        and the colours inside it are which kinds of mistake made up that cost. Two separate bars
@@ -6161,8 +6252,8 @@ function weakAreasCard(){
     <button class="wk-sb ${wkSort==='marks'?'on':''}" data-wks="marks">Marks at risk</button>
     <button class="wk-sb ${wkSort==='recent'?'on':''}" data-wks="recent">Most recent</button></div>`:'';
   const more=subs.length>5?`<button class="linkish" id="wkMore" style="margin-top:10px">${wkAll?'Show top 5 only ‹':'Show all '+subs.length+' subjects ›'}</button>`:'';
-  const hint=canMarks?`≈ marks per ${examQ()}-question paper`:`recent tests count more`;
-  return `<div class="card"><h3><span class="accent"></span>Weak areas — study these first <span class="h3-hint">${hint}</span><button class="cardq" data-help="weak">?</button></h3>${sortRow}${rows}${more}</div>`;
+  const hint=canMarks?`≈ marks per ${examQ()}Q paper`:`recent tests count more`;
+  return `<div class="card"><h3><span class="accent"></span>Study these first <span class="h3-hint">${hint}</span><button class="cardq" data-help="weak">?</button></h3>${sortRow}${rows}${more}</div>`;
 }
 function subjectSheet(sub){
   const x=buildSubjects()[sub]; if(!x)return;
@@ -8262,11 +8353,15 @@ function sanitizePlan(obj){
   /* a day that names two subjects owes two strike-offs — which one you actually did is kept
      here. Additive: a plan written by an older build simply has none, and the day tick it does
      have still means every subject on that day was read. */
-  const rowSubs={}; p.rows.forEach(r=>rowSubs[r.id]=new Set(r.s||[]));
+  const byId={}; p.rows.forEach(r=>byId[r.id]=r);
   Object.entries(obj.parts||{}).forEach(([k,v])=>{
     if(!ids.has(k)||!v||typeof v!=='object') return;
+    /* accept a strike-off against either the day's written piece or — from the build that keyed
+       them by subject — a subject that day covers, so an existing tick is never thrown away */
+    const row=byId[k]; if(!row) return;
+    const ok=new Set(planPieces(row).map(x=>x.l).concat(row.s||[]));
     const keep={};
-    Object.entries(v).forEach(([sb,ts])=>{ if(rowSubs[k]&&rowSubs[k].has(sb)&&+ts>0) keep[sb]=+ts; });
+    Object.entries(v).forEach(([sb,ts])=>{ if(ok.has(sb)&&+ts>0) keep[sb]=+ts; });
     if(Object.keys(keep).length) p.parts[k]=keep;
   });
   /* per-row tick versions — what lets an un-tick beat an older tick across devices */
@@ -8277,37 +8372,97 @@ function sanitizePlan(obj){
    A reading day that names one subject behaves exactly as it always has: one tap, one tick.
    A day that names two or more owes one strike-off each, so doing Forensic and skipping
    Anaesthesia is recorded as what it was rather than as a whole day either way. */
+/* ---- what a day is actually made of ----
+   A day is written as the things you are going to sit down and read: "Forensic + Anaesthesia",
+   "Medicine — CVS + Respiratory", "Anatomy + Physiology + Biochemistry". Each of those is one
+   thing to strike off, whether or not the app happens to file two of them under one subject —
+   reading CVS and skipping Respiratory has to be recordable as exactly that.
+   Derived from the day's own text rather than stored, so it can never drift from what it says. */
+function planPieces(row){
+  if(!row || row.k!=='read') return [];
+  /* a trailing "· Revision 1 ends" is a note about the day, not something to read */
+  const clean=t=>String(t||'').split('·')[0].trim();
+  const cut=t=>clean(t).split(/\s*\+\s*|\s*,\s*|\s+and\s+/).map(x=>x.trim()).filter(Boolean);
+  const dash=/\s+[—–-]{1,2}\s+/;
+  const out=[], seen=new Set();
+  let evening=false;
+  const push=(label, head)=>{
+    const l=label.replace(/\s+/g,' ').trim().slice(0,26); if(!l) return;
+    const key=l.toLowerCase(); if(seen.has(key)) return; seen.add(key);
+    /* the piece names its own subject if it can; otherwise it belongs to whatever the day leads
+       with — "CVS" on a Medicine day is Medicine */
+    const own=subjectsIn(l)[0] || (head?subjectsIn(head)[0]:null) || (row.s||[])[0] || null;
+    const pc={l, s:own};
+    if(evening){ pc.pm=1; if(row.why) pc.why=row.why; }
+    out.push(pc);
+  };
+  const chunk=(text)=>{
+    const frags=cut(text); if(!frags.length) return;
+    /* "Medicine — CVS" leads the list: the head is the subject, the tail is the piece */
+    let head=null;
+    frags.forEach((f,i)=>{
+      if(i===0 && dash.test(f)){
+        const bits=f.split(dash); head=bits[0].trim();
+        push(bits.slice(1).join(' — ').trim() || head, head);
+      } else push(f, head);
+    });
+  };
+  chunk(row.t);
+  if(row.tl){ evening=true; chunk(row.tl); }
+  return out.slice(0,8);
+}
 function planRowSubs(id){ const r=plan.rows.find(x=>x.id===id); return (r&&r.k==='read')?(r.s||[]):[]; }
 function planParts(id){
-  const subs=planRowSubs(id);
+  const r=plan.rows.find(x=>x.id===id);
+  const pcs=planPieces(r).map(x=>x.l);
   const have=(plan.parts&&plan.parts[id])||{};
-  /* a tick made before strike-offs existed means the whole day was read — read it that way
-     rather than showing every subject as outstanding */
-  if(plan.done[id] && subs.length && !subs.some(x=>have[x]))
-    return subs.reduce((o,x)=>(o[x]=plan.done[id].ts,o),{});
-  return have;
+  if(!pcs.length) return {};
+  if(pcs.some(x=>have[x])) return have;
+  /* A tick made before strike-offs existed means the whole day was read. So does a strike-off
+     written against a subject name by the build that keyed them that way — carry it onto the
+     pieces of this day that belong to that subject rather than dropping work that was done. */
+  const out={};
+  if(plan.done[id]) { pcs.forEach(x=>out[x]=plan.done[id].ts); return out; }
+  const bySub=planPieces(r);
+  Object.keys(have).forEach(k=>{
+    bySub.forEach(pc=>{ if(pc.s===k) out[pc.l]=have[k]; });
+  });
+  return out;
 }
 function planPartStat(id){
-  const subs=planRowSubs(id); if(subs.length<2) return null;
-  const p=planParts(id); const n=subs.filter(x=>p[x]).length;
-  return {n, total:subs.length, subs, part:p};
+  const r=plan.rows.find(x=>x.id===id); if(!r) return null;
+  const pcs=planPieces(r); if(pcs.length<2) return null;
+  const p=planParts(id);
+  return {n:pcs.filter(x=>p[x.l]).length, total:pcs.length, pieces:pcs, subs:pcs.map(x=>x.l), part:p};
 }
-function togglePlanPart(id, subj){
-  const subs=planRowSubs(id); if(subs.indexOf(subj)<0) return;
+/* which subjects of a day count as read: every piece belonging to that subject has to be struck,
+   so half of Medicine is not reported as Medicine done */
+function planDoneSubs(id){
+  const r=plan.rows.find(x=>x.id===id); if(!r||r.k!=='read') return [];
+  const pcs=planPieces(r), p=planParts(id);
+  if(!pcs.length) return plan.done[id] ? (r.s||[]) : [];
+  const bySub={};
+  pcs.forEach(pc=>{ if(!pc.s) return; (bySub[pc.s]=bySub[pc.s]||[]).push(!!p[pc.l]); });
+  return Object.keys(bySub).filter(k=>bySub[k].every(Boolean));
+}
+function togglePlanPart(id, piece){
+  const r=plan.rows.find(x=>x.id===id); if(!r) return;
+  const pcs=planPieces(r).map(x=>x.l); if(pcs.indexOf(piece)<0) return;
   if(!plan.parts||typeof plan.parts!=='object') plan.parts={};
-  const cur=Object.assign({}, planParts(id));      /* settle the old whole-day tick first */
-  const wasOn=!!cur[subj];
-  if(wasOn) delete cur[subj]; else cur[subj]=Date.now();
+  const cur=Object.assign({}, planParts(id));      /* settle any older shape first */
+  const wasOn=!!cur[piece];
+  if(wasOn) delete cur[piece]; else cur[piece]=Date.now();
+  Object.keys(cur).forEach(k=>{ if(pcs.indexOf(k)<0) delete cur[k]; });
   if(Object.keys(cur).length) plan.parts[id]=cur; else delete plan.parts[id];
-  const all=subs.every(x=>cur[x]);
+  const all=pcs.every(x=>cur[x]);
   if(all && !plan.done[id]) plan.done[id]={ts:Date.now(), mode:'full'};
   else if(!all && plan.done[id]) delete plan.done[id];
   stampPlanRow(id); persistPlan(); buzz(all?9:6); renderPlan();
-  const left=subs.length-subs.filter(x=>cur[x]).length;
-  toast(wasOn ? shortSubj(subj)+' — back on the list'
-              : all ? shortSubj(subj)+' — that day is done'
-                    : shortSubj(subj)+' done · '+left+' still on that day',
-    {label:'Undo', fn:()=>togglePlanPart(id, subj)});
+  const left=pcs.length-pcs.filter(x=>cur[x]).length;
+  toast(wasOn ? piece+' — back on the list'
+              : all ? piece+' — that day is done'
+                    : piece+' done · '+left+' still on that day',
+    {label:'Undo', fn:()=>togglePlanPart(id, piece)});
 }
 /* every change to a row's done/skim state bumps that row's version */
 function stampPlanRow(id){ if(!plan.dv||typeof plan.dv!=='object') plan.dv={}; plan.dv[id]=Date.now(); }
